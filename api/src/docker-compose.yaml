@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+
+  auth-db:
+    image: mysql
+    container_name: JwtAuthDb
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=JwtAuthDb
+    volumes:
+      - D:\Volumes\mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+
+networks:
+  mssql_network:
+    driver: bridge
