@@ -2,11 +2,11 @@
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class EquipmentRepository : IEquipmentRepository
     {
         private readonly AppDbContext _dbContext;
 
-        public UserRepository(AppDbContext dbContext)
+        public EquipmentRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }

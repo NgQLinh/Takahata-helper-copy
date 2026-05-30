@@ -8,7 +8,7 @@ dotnet tool install --global dotnet-ef
 
 ```bash
 dotnet ef migrations add InitialCreate --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
-dotnet ef migrations add add-refresh-token --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
+dotnet ef migrations add add-EQUIPMENT_LOG --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
 
 
 
