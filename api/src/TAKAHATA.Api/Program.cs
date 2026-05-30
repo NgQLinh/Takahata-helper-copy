@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Infrastructure;
@@ -17,8 +18,35 @@ builder.Services.AddMappings();
 builder.Services.AddApplication();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "My API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token only"
+    });
+
+    options.AddSecurityRequirement(document =>
+    {
+        OpenApiSecuritySchemeReference? schemeRef = new("Bearer");
+        OpenApiSecurityRequirement? requirement = new()
+        {
+            [schemeRef] = []
+        };
+        return requirement;
+    });
+});
 
 var app = builder.Build();
 
