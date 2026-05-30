@@ -1,6 +1,6 @@
-﻿namespace TAKAHATA.Domain.Equipments
+﻿namespace TAKAHATA.Domain.Equipment
 {
-    public enum EquipmentStatus
+    public enum OperatingStatus
     {
         None = 0,
         On = 1, 

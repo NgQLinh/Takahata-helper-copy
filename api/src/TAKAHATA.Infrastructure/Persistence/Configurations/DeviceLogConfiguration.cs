@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TAKAHATA.Domain.Equipments;
+using TAKAHATA.Domain.Equipment;
 
 namespace TAKAHATA.Infrastructure.Persistence.Configurations
 {
-    public class EquipmentConfiguration : IEntityTypeConfiguration<Equipment>
+    public class DeviceLogConfiguration : IEntityTypeConfiguration<DeviceLog>
     {
-        public void Configure(EntityTypeBuilder<Equipment> builder)
+        public void Configure(EntityTypeBuilder<DeviceLog> builder)
         {
-            builder.ToTable("EQUIPMENT");
+            builder.ToTable("DEVICE_LOG");
 
             builder.HasKey(e => e.Id);
         }

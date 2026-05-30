@@ -154,7 +154,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.Equipments.Equipment", b =>
+            modelBuilder.Entity("TAKAHATA.Domain.Equipment.Device", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,6 +181,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -192,10 +195,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EQUIPMENT", (string)null);
+                    b.ToTable("DEVICES", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.Equipments.EquipmentLog", b =>
+            modelBuilder.Entity("TAKAHATA.Domain.Equipment.DeviceLog", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -219,7 +222,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EQUIPMENT_LOG", (string)null);
+                    b.ToTable("DEVICE_LOG", (string)null);
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.User.ApplicationUser", b =>

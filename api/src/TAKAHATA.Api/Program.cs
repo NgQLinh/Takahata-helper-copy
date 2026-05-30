@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Infrastructure;
+using TAKAHATA.Infrastructure.Persistence;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +22,23 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Automatically apply pending migrations on application startup
+using (var scope = app.Services.CreateScope())  
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("Database migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -32,8 +51,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

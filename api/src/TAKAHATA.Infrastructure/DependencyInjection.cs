@@ -21,7 +21,7 @@ namespace TAKAHATA.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Repositories
-            services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+            services.AddScoped<IDeviceRepository, DeviceRepository>();
 
             // MySQL
             var connectionString = configuration.GetConnectionString("DefaultConnection");
