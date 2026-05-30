@@ -28,5 +28,15 @@ namespace TAKAHATA.Api.Controllers
 
             return result.Match(r => Ok(r), e => Problem(e));
         }
+
+        [HttpPost("account-login/")]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            var command = _mapper.Map<LoginCommand>(request);
+
+            var result = await _sender.Send(command);
+
+            return result.Match(r => Ok(r), e => Problem(e));
+        }
     }
 }

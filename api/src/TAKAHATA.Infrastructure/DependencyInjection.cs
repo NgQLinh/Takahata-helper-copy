@@ -3,12 +3,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using TAKAHATA.Application.Common.Interface.JwtToken;
 using TAKAHATA.Application.Common.Interface.User;
 using TAKAHATA.Domain.User;
+using TAKAHATA.Infrastructure.Authentication;
 using TAKAHATA.Infrastructure.Persistence;
 using TAKAHATA.Infrastructure.Persistence.Repositories;
+using TAKAHATA.Infrastructure.Settings;
 
 namespace TAKAHATA.Infrastructure
 {
@@ -16,8 +20,10 @@ namespace TAKAHATA.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // Repositories
             services.AddScoped<IUserRepository, UserRepository>();
 
+            // MySQL
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -31,7 +37,10 @@ namespace TAKAHATA.Infrastructure
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            var jwtSettings = configuration.GetSection("Jwt");
+            // JWT
+            var jwtSettings = new JwtSettings();
+            configuration.Bind(JwtSettings.SectionName, jwtSettings);
+            services.AddSingleton(Options.Create(jwtSettings));
 
             services
                 .AddAuthentication(options =>
@@ -52,14 +61,16 @@ namespace TAKAHATA.Infrastructure
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
 
-                            ValidIssuer = jwtSettings["Issuer"],
-                            ValidAudience = jwtSettings["Audience"],
+                            ValidIssuer = jwtSettings.Issuer,
+                            ValidAudience = jwtSettings.Audience,
 
                             IssuerSigningKey =
                                 new SymmetricSecurityKey(
-                                    Encoding.UTF8.GetBytes(jwtSettings["Key"]!))
+                                    Encoding.UTF8.GetBytes(jwtSettings.Secret))
                         };
                 });
+
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
             return services;
         }

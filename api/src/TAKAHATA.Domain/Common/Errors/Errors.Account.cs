@@ -15,6 +15,9 @@ namespace TAKAHATA.Domain.Common.Errors
             public static Error DuplicateUserName =>
                 Error.Validation(code: "Auth.DuplicateUserName", description: "Duplicate User Name.");
 
+            public static Error InvalidCredentials =>
+                Error.Validation(code: "Auth.InvalidCredentials", description: "Invalid Credentials.");
+
             public static Error CreateAccountFalse =>
                 Error.Validation(code: "Auth.CreateAccountFalse", description: "Create Account False.");
 

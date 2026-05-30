@@ -4,14 +4,14 @@ services:
 
   auth-db:
     image: mysql
-    container_name: JwtAuthDb
+    container_name: TAKAHATA_MySQL_Contanier
     environment:
       - MYSQL_ROOT_PASSWORD=123456
-      - MYSQL_DATABASE=JwtAuthDb
+      - MYSQL_DATABASE=TAKAHATA_DB
     volumes:
-      - D:\Volumes\mysql:/var/lib/mysql
+      - D:\Volumes\TAKAHATA_MySQL:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     restart: always
 
 networks:

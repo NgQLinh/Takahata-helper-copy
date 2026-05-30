@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yaml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="src/TAKAHATA.Api/TAKAHATA.Api.csproj" />
+  <Project Path="src/TAKAHATA.Application/TAKAHATA.Application.csproj" />
+  <Project Path="src/TAKAHATA.Contracts/TAKAHATA.Contracts.csproj" />
+  <Project Path="src/TAKAHATA.Domain/TAKAHATA.Domain.csproj" />
+  <Project Path="src/TAKAHATA.Infrastructure/TAKAHATA.Infrastructure.csproj" />
+</Solution>
