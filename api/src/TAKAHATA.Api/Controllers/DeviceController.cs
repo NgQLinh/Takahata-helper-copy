@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Contracts.Equipment;
 
 namespace TAKAHATA.Api.Controllers
@@ -20,9 +21,19 @@ namespace TAKAHATA.Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create(CreateDeviceRequest request)
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return Ok();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            var command = _mapper.Map<CreateDeviceCommand>(request);
+            command.CreateBy = userId;
+
+            var result = await _sender.Send(command);
+
+            return result.Match(
+                r => Ok(_mapper.Map<CreateDeviceResponse>(r)),
+                e => Problem(e));
         }
     }
 }

@@ -12,7 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMappings();
 builder.Services.AddApplication();
@@ -23,28 +22,21 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "My API",
+        Title = "CMS API",
         Version = "v1"
     });
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization",
         Type = SecuritySchemeType.Http,
         Scheme = "bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter JWT token only"
+        Description = "JWT Authorization header using Bearer scheme."
     });
 
-    options.AddSecurityRequirement(document =>
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        OpenApiSecuritySchemeReference? schemeRef = new("Bearer");
-        OpenApiSecurityRequirement? requirement = new()
-        {
-            [schemeRef] = []
-        };
-        return requirement;
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
     });
 });
 
