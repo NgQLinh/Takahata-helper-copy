@@ -1,14 +1,43 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using Serilog;
+using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithThreadId()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        fileSizeLimitBytes: 10 * 1024,
+        retainedFileCountLimit: 30,
+        outputTemplate:
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+        "[CorrelationId:{CorrelationId}] " +
+        "{Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 // Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -70,6 +99,10 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowReactApp");
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

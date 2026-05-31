@@ -1,11 +1,11 @@
 export interface LoginReq {
-  username: string;
+  email: string;
   password: string;
 }
 
-export function createLoginReq(username: string, password: string): LoginReq {
+export function createLoginReq(email: string, password: string): LoginReq {
   return {
-    username,
+    email,
     password,
   };
 }

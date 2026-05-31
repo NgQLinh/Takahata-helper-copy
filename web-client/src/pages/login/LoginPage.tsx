@@ -10,19 +10,17 @@ const LoginPage: React.FC = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "nhan.1095.git@gmail.com",
-      password: "123456",
-      recaptcha: "123456",
+      email: "annh001@gmail.com",
+      password: "123@123Aa",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Email không hợp lệ").required("Bắt buộc"),
       password: Yup.string().min(6, "Tối thiểu 6 ký tự").required("Bắt buộc"),
-      recaptcha: Yup.string().required("Vui lòng xác thực captcha"),
     }),
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
         var req: LoginReq = {
-          username: values.email,
+          email: values.email,
           password: values.password,
         };
         const res = await loginApi(req);
@@ -30,8 +28,8 @@ const LoginPage: React.FC = () => {
         console.log("Login success:", res);
 
         // 👉 Lưu token (tuỳ bạn chọn nơi lưu)
-        localStorage.setItem("access_token", res.access_token);
-        localStorage.setItem("refresh_token", res.refresh_token);
+        localStorage.setItem("access_token", res.accessToken);
+        localStorage.setItem("refresh_token", res.refreshToken);
 
         // 👉 redirect sau login
         navigate("/");
