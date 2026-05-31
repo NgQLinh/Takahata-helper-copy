@@ -31,7 +31,7 @@ namespace TAKAHATA.Api.Middleware
             }
 
             _logger.LogInformation(
-                    """
+                """
                 HTTP Request
                 Method: {Method}
                 Path: {Path}
