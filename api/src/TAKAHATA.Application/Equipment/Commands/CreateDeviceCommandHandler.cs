@@ -1,8 +1,7 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
-using TAKAHATA.Application.Common.Interface.User;
-using TAKAHATA.Contracts.Equipment;
+using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.Equipment;
 

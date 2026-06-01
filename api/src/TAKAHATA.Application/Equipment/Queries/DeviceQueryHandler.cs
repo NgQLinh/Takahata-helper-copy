@@ -1,6 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Application.Common.Interface.User;
+using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Domain.Equipment;
 
 namespace TAKAHATA.Application.Equipment.Queries
@@ -16,7 +16,8 @@ namespace TAKAHATA.Application.Equipment.Queries
 
         public async Task<ErrorOr<IEnumerable<Device>>> Handle(DeviceQuery request, CancellationToken cancellationToken)
         {
-           return await _deviceRepository.GetAsync();
+            var result = await _deviceRepository.GetAsync();
+            return result.ToList();
         }
     }
 }

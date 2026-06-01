@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
 import { CreateDeviceRequest, Device } from "../../types";
-import { createDeviceAsync, getDevicesAsync } from "../../services";
+import {
+  createDeviceAsync,
+  getDevicesAsync,
+  deleteDeviceAsync,
+} from "../../services";
+import { updateDeviceAsync } from "../../services/device/DeviceService";
 
 function EquipmentPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const [createForm, setCreateForm] = useState<CreateDeviceRequest>({
+    name: "",
+    type: 1,
+    serialNumber: "",
+    brand: "",
+  });
+
+  const [updateForm, setUpdateForm] = useState({
+    id: 0,
     name: "",
     type: 1,
     serialNumber: "",
@@ -24,8 +38,8 @@ function EquipmentPage() {
   const numbers = [...Array(npage).keys()].map((n) => n + 1);
 
   const fetchDevices = async () => {
-    const devices = await getDevicesAsync();
-    setDevices(devices);
+    const result = await getDevicesAsync();
+    setDevices(result);
   };
 
   useEffect(() => {
@@ -46,8 +60,6 @@ function EquipmentPage() {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("Create data:", createForm);
-
     await createDeviceAsync(createForm);
 
     setShowCreateModal(false);
@@ -62,11 +74,55 @@ function EquipmentPage() {
   };
 
   const handleEdit = (device: Device) => {
-    console.log("Edit device:", device);
+    setUpdateForm({
+      id: device.id,
+      name: device.name,
+      type: Number(device.type),
+      serialNumber: device.serialNumber,
+      brand: device.brand,
+    });
+
+    console.log(device);
+
+    setShowUpdateModal(true);
   };
 
-  const handleDelete = (id: number) => {
-    console.log("Delete device id:", id);
+  const handleDelete = async (id: number) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this device?",
+    );
+    if (!confirmed) return;
+
+    await deleteDeviceAsync({ id });
+    await fetchDevices();
+  };
+
+  const handleUpdateChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    setUpdateForm({
+      ...updateForm,
+      [name]: name === "type" || name === "id" ? Number(value) : value,
+    });
+  };
+
+  const handleUpdateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    await updateDeviceAsync(updateForm);
+
+    setShowUpdateModal(false);
+    setUpdateForm({
+      id: 0,
+      name: "",
+      type: 1,
+      serialNumber: "",
+      brand: "",
+    });
+
+    await fetchDevices();
   };
 
   const prevPage = () => {
@@ -84,7 +140,7 @@ function EquipmentPage() {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Equipment Page</h1>
+        <h1>Equipment Management</h1>
 
         <button
           className="btn btn-success"
@@ -186,6 +242,92 @@ function EquipmentPage() {
         </nav>
       )}
 
+      {showUpdateModal && (
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <form onSubmit={handleUpdateSubmit}>
+                <div className="modal-header">
+                  <h5 className="modal-title">Update Device</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowUpdateModal(false)}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <input type="hidden" name="id" value={updateForm.id} />
+
+                  <div className="mb-3">
+                    <label className="form-label">Name</label>
+                    <input
+                      name="name"
+                      className="form-control"
+                      value={updateForm.name}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Type</label>
+                    <select
+                      name="type"
+                      className="form-select"
+                      value={updateForm.type}
+                      onChange={handleUpdateChange}
+                    >
+                      <option value={1}>CNC</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Serial Number</label>
+                    <input
+                      name="serialNumber"
+                      className="form-control"
+                      value={updateForm.serialNumber}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Brand</label>
+                    <input
+                      name="brand"
+                      className="form-control"
+                      value={updateForm.brand}
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowUpdateModal(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button type="submit" className="btn btn-success">
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCreateModal && (
         <div
           className="modal show d-block"
@@ -201,7 +343,7 @@ function EquipmentPage() {
                     type="button"
                     className="btn-close"
                     onClick={() => setShowCreateModal(false)}
-                  ></button>
+                  />
                 </div>
 
                 <div className="modal-body">
@@ -226,8 +368,6 @@ function EquipmentPage() {
                       onChange={handleCreateChange}
                     >
                       <option value={1}>CNC</option>
-                      <option value={2}>Robot</option>
-                      <option value={3}>Sensor</option>
                     </select>
                   </div>
 
