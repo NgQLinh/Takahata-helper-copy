@@ -1,2 +1,2 @@
-export { getDevicesAsync } from "./device/DeviceService";
+export { getDevicesAsync, createDeviceAsync } from "./device/DeviceService";
 export { loginAsync } from "./auth/LoginService";

@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
-import { Device } from "../../types";
-import { getDevicesAsync } from "../../services";
+import { CreateDeviceRequest, Device } from "../../types";
+import { createDeviceAsync, getDevicesAsync } from "../../services";
 
 function EquipmentPage() {
   const [devices, setDevices] = useState<Device[]>([]);
-
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 10;
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const [createForm, setCreateForm] = useState<CreateDeviceRequest>({
+    name: "",
+    type: 1,
+    serialNumber: "",
+    brand: "",
+  });
+
+  const recordsPerPage = 8;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
   const records = devices.slice(firstIndex, lastIndex);
@@ -24,6 +32,35 @@ function EquipmentPage() {
     fetchDevices();
   }, []);
 
+  const handleCreateChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    setCreateForm({
+      ...createForm,
+      [name]: name === "type" ? Number(value) : value,
+    });
+  };
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    console.log("Create data:", createForm);
+
+    await createDeviceAsync(createForm);
+
+    setShowCreateModal(false);
+    setCreateForm({
+      name: "",
+      type: 1,
+      serialNumber: "",
+      brand: "",
+    });
+
+    await fetchDevices();
+  };
+
   const handleEdit = (device: Device) => {
     console.log("Edit device:", device);
   };
@@ -33,15 +70,11 @@ function EquipmentPage() {
   };
 
   const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   const nextPage = () => {
-    if (currentPage < npage) {
-      setCurrentPage(currentPage + 1);
-    }
+    if (currentPage < npage) setCurrentPage(currentPage + 1);
   };
 
   const changePage = (page: number) => {
@@ -50,7 +83,16 @@ function EquipmentPage() {
 
   return (
     <div className="container mt-4">
-      <h1 className="mb-4">Equipment Page</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1>Equipment Page</h1>
+
+        <button
+          className="btn btn-success"
+          onClick={() => setShowCreateModal(true)}
+        >
+          Create Device
+        </button>
+      </div>
 
       <div className="d-flex justify-content-between mb-3">
         <span>
@@ -142,6 +184,95 @@ function EquipmentPage() {
             </li>
           </ul>
         </nav>
+      )}
+
+      {showCreateModal && (
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <form onSubmit={handleCreateSubmit}>
+                <div className="modal-header">
+                  <h5 className="modal-title">Create Device</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowCreateModal(false)}
+                  ></button>
+                </div>
+
+                <div className="modal-body">
+                  <div className="mb-3">
+                    <label className="form-label">Name</label>
+                    <input
+                      name="name"
+                      className="form-control"
+                      value={createForm.name}
+                      onChange={handleCreateChange}
+                      placeholder="CNC 001"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Type</label>
+                    <select
+                      name="type"
+                      className="form-select"
+                      value={createForm.type}
+                      onChange={handleCreateChange}
+                    >
+                      <option value={1}>CNC</option>
+                      <option value={2}>Robot</option>
+                      <option value={3}>Sensor</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Serial Number</label>
+                    <input
+                      name="serialNumber"
+                      className="form-control"
+                      value={createForm.serialNumber}
+                      onChange={handleCreateChange}
+                      placeholder="ABC00111"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Brand</label>
+                    <input
+                      name="brand"
+                      className="form-control"
+                      value={createForm.brand}
+                      onChange={handleCreateChange}
+                      placeholder="Makino"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowCreateModal(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button type="submit" className="btn btn-success">
+                    Create
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
