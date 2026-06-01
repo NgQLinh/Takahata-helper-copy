@@ -2,7 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { loginApi } from "../../services/auth/LoginService";
+import { loginAsync } from "../../services";
 import { LoginReq } from "../../types";
 
 const LoginPage: React.FC = () => {
@@ -23,7 +23,7 @@ const LoginPage: React.FC = () => {
           email: values.email,
           password: values.password,
         };
-        const res = await loginApi(req);
+        const res = await loginAsync(req);
 
         console.log("Login success:", res);
 
