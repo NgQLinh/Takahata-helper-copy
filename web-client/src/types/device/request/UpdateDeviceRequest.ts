@@ -4,4 +4,5 @@ export interface UpdateDeviceRequest {
   type: number;
   serialNumber: string;
   brand: string;
+  bitAddress: number;
 }

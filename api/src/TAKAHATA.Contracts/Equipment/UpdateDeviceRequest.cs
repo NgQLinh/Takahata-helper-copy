@@ -7,6 +7,7 @@ namespace TAKAHATA.Contracts.Equipment
         string Name,
         DeviceType Type,
         string SerialNumber,
-        string Brand
+        string Brand,
+        int BitAddress
     );
 }

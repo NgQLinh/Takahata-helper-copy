@@ -12,4 +12,5 @@ export interface Device {
   updateAt?: string;
   updateBy?: string;
   status: DeviceStatus;
+  bitAddress: number;
 }

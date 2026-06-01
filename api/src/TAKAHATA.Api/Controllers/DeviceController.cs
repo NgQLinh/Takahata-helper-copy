@@ -32,7 +32,8 @@ namespace TAKAHATA.Api.Controllers
                 request.Type,
                 request.SerialNumber,
                 request.Brand,
-                userId);
+                userId,
+                request.BitAddress);
 
             var result = await _sender.Send(command);
 
@@ -55,7 +56,8 @@ namespace TAKAHATA.Api.Controllers
                 request.Type,
                 request.SerialNumber,
                 request.Brand,
-                userId);
+                userId,
+                request.BitAddress);
 
             var result = await _sender.Send(command);
 

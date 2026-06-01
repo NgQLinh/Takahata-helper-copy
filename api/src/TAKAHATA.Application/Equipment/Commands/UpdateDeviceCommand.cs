@@ -10,5 +10,6 @@ namespace TAKAHATA.Application.Equipment.Commands
         DeviceType Type,
         string SerialNumber,
         string Brand,
-        string UpdateBy) : IRequest<ErrorOr<Device>>;
+        string UpdateBy,
+        int BitAddress) : IRequest<ErrorOr<Device>>;
 }

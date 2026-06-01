@@ -12,5 +12,6 @@
         public DateTime? UpdateAt { get; set; }
         public string? UpdateBy { get; set; }
         public DeviceStatus Status { get; set; } = DeviceStatus.Active;
+        public int BitAddress { get; set; }
     }
 }

@@ -27,6 +27,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity.Brand = command.Brand;
             entity.UpdateBy = command.UpdateBy;
             entity.UpdateAt = DateTime.Now;
+            entity.BitAddress = command.BitAddress;
 
             entity = await _deviceRepository.UpdateAsync(entity);
             if (entity == null)

@@ -19,6 +19,7 @@ function EquipmentPage() {
     type: 1,
     serialNumber: "",
     brand: "",
+    bitAddress: 0,
   });
 
   const [updateForm, setUpdateForm] = useState({
@@ -27,6 +28,7 @@ function EquipmentPage() {
     type: 1,
     serialNumber: "",
     brand: "",
+    bitAddress: 0,
   });
 
   const recordsPerPage = 8;
@@ -53,7 +55,7 @@ function EquipmentPage() {
 
     setCreateForm({
       ...createForm,
-      [name]: name === "type" ? Number(value) : value,
+      [name]: name === "type" || name === "bitAddress" ? Number(value) : value,
     });
   };
 
@@ -68,6 +70,7 @@ function EquipmentPage() {
       type: 1,
       serialNumber: "",
       brand: "",
+      bitAddress: 0,
     });
 
     await fetchDevices();
@@ -80,6 +83,7 @@ function EquipmentPage() {
       type: Number(device.type),
       serialNumber: device.serialNumber,
       brand: device.brand,
+      bitAddress: device.bitAddress,
     });
 
     console.log(device);
@@ -104,7 +108,7 @@ function EquipmentPage() {
 
     setUpdateForm({
       ...updateForm,
-      [name]: name === "type" || name === "id" ? Number(value) : value,
+      [name]: name === "type" || name === "bitAddress" ? Number(value) : value,
     });
   };
 
@@ -120,6 +124,7 @@ function EquipmentPage() {
       type: 1,
       serialNumber: "",
       brand: "",
+      bitAddress: 0,
     });
 
     await fetchDevices();
@@ -165,6 +170,7 @@ function EquipmentPage() {
             <th>Type</th>
             <th>Serial Number</th>
             <th>Brand</th>
+            <th>Bit Address</th>
             <th>Status</th>
             <th>Create At</th>
             <th>Create By</th>
@@ -175,7 +181,7 @@ function EquipmentPage() {
         <tbody>
           {records.length === 0 ? (
             <tr>
-              <td colSpan={9} className="text-center">
+              <td colSpan={10} className="text-center">
                 No devices found
               </td>
             </tr>
@@ -187,6 +193,7 @@ function EquipmentPage() {
                 <td>{device.type}</td>
                 <td>{device.serialNumber}</td>
                 <td>{device.brand}</td>
+                <td>{device.bitAddress}</td>
                 <td>{device.status}</td>
                 <td>{device.createAt}</td>
                 <td>{device.createBy}</td>
@@ -307,6 +314,17 @@ function EquipmentPage() {
                       required
                     />
                   </div>
+                  <div className="mb-3">
+                    <label className="form-label">Bit Address</label>
+                    <input
+                      name="bitAddress"
+                      className="form-control"
+                      value={updateForm.bitAddress}
+                      type="number"
+                      onChange={handleUpdateChange}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="modal-footer">
@@ -391,6 +409,18 @@ function EquipmentPage() {
                       value={createForm.brand}
                       onChange={handleCreateChange}
                       placeholder="Makino"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label">Bit Address</label>
+                    <input
+                      name="bitAddress"
+                      className="form-control"
+                      value={createForm.bitAddress}
+                      type="number"
+                      onChange={handleCreateChange}
                       required
                     />
                   </div>

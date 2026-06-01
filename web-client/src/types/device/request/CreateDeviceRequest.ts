@@ -3,4 +3,5 @@ export interface CreateDeviceRequest {
   type: number;
   serialNumber: string;
   brand: string;
+  bitAddress: number;
 }
