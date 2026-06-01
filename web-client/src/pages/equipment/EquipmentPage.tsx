@@ -59,7 +59,7 @@ function EquipmentPage() {
     });
   };
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
+  const handleCreateSubmit = async (e:  React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     await createDeviceAsync(createForm);
@@ -112,7 +112,7 @@ function EquipmentPage() {
     });
   };
 
-  const handleUpdateSubmit = async (e: React.FormEvent) => {
+  const handleUpdateSubmit = async (e:  React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     await updateDeviceAsync(updateForm);
