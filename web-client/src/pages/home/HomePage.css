@@ -1,0 +1,56 @@
+.device-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: #f8f9fa;
+}
+
+.device-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.device-header {
+  height: 220px;
+  background: #f3f3f3;
+  padding: 15px;
+  position: relative;
+}
+
+.device-divider {
+  height: 2px;
+  background: #999;
+  margin: 0 10px;
+}
+
+.device-footer {
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.status-indicator {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+}
+
+.bg-success.status-indicator {
+  background: #28a745;
+}
+
+.bg-warning.status-indicator {
+  background: #ffc107;
+}
+
+.bg-danger.status-indicator {
+  background: #dc3545;
+}
+
+.bg-secondary.status-indicator {
+  background: #6c757d;
+}

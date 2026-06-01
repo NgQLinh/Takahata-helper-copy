@@ -57,99 +57,75 @@ const LoginPage: React.FC = () => {
   });
 
   return (
-    <section className="vh-100">
-      <div className="container-fluid h-100">
-        <div className="row d-flex justify-content-center align-items-center h-100">
-          {/* Left - Image */}
-          <div className="col-md-9 col-lg-6 col-xl-5">
-            <img
-              src="/images/EMS-Eco-System-1.png"
-              className="img-fluid"
-              alt="EMS Logo"
-            />
+    <section className="vh-100 d-flex justify-content-center align-items-center bg-light">
+      <div className="card shadow-lg border-0" style={{ width: "450px" }}>
+        <div className="card-body p-5">
+          <div className="text-center mb-4">
+            <h2 className="fw-bold text-primary">TAKAHATA Monitor System</h2>
+
+            <p className="text-muted">Sign in to continue</p>
           </div>
 
-          {/* Right - Form */}
-          <div className="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-            <form onSubmit={formik.handleSubmit}>
-              <h2 className="mb-4 fw-bold text-primary">
-                Welcome to TAKAHATA Monitor System
-              </h2>
+          <form onSubmit={formik.handleSubmit}>
+            {/* Email */}
+            <div className="mb-3">
+              <label className="form-label">Email</label>
 
-              {/* Email */}
-              <div className="form-outline mb-4">
-                <input
-                  type="email"
-                  name="email"
-                  className="form-control form-control-lg"
-                  placeholder="Enter a valid email address"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                />
-                {formik.touched.email && formik.errors.email && (
-                  <div className="text-danger small mt-1">
-                    {formik.errors.email}
-                  </div>
-                )}
-              </div>
+              <input
+                type="email"
+                name="email"
+                className="form-control form-control-lg"
+                placeholder="Enter email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+              />
 
-              {/* Password */}
-              <div className="form-outline mb-3">
-                <input
-                  type="password"
-                  name="password"
-                  className="form-control form-control-lg"
-                  placeholder="Enter password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                />
-                {formik.touched.password && formik.errors.password && (
-                  <div className="text-danger small mt-1">
-                    {formik.errors.password}
-                  </div>
-                )}
-              </div>
-
-              {/* Remember + Forgot */}
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div className="form-check">
-                  <input className="form-check-input" type="checkbox" />
-                  <label className="form-check-label">Remember me</label>
+              {formik.touched.email && formik.errors.email && (
+                <div className="text-danger small mt-1">
+                  {formik.errors.email}
                 </div>
-                <a href="#" className="text-decoration-none">
-                  Forgot password?
-                </a>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="mb-3">
+              <label className="form-label">Password</label>
+
+              <input
+                type="password"
+                name="password"
+                className="form-control form-control-lg"
+                placeholder="Enter password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+              />
+
+              {formik.touched.password && formik.errors.password && (
+                <div className="text-danger small mt-1">
+                  {formik.errors.password}
+                </div>
+              )}
+            </div>
+
+            <div className="d-flex justify-content-between mb-4">
+              <div className="form-check">
+                <input className="form-check-input" type="checkbox" />
+                <label className="form-check-label">Remember me</label>
               </div>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={!formik.isValid}
-                className="btn btn-primary btn-lg w-100"
-              >
-                Login
-              </button>
+              <a href="#" className="text-decoration-none">
+                Forgot password?
+              </a>
+            </div>
 
-              {/* Register */}
-              <p className="text-center mt-3">
-                Don't have an account?{" "}
-                <a href="#" className="text-danger">
-                  Register
-                </a>
-              </p>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="bg-primary text-white d-flex justify-content-between p-3">
-        <span>© 2026. All rights reserved.</span>
-        <div>
-          <i className="me-3">FB</i>
-          <i className="me-3">TW</i>
-          <i className="me-3">GG</i>
-          <i>IN</i>
+            <button
+              type="submit"
+              disabled={formik.isSubmitting}
+              className="btn btn-primary btn-lg w-100"
+            >
+              Login
+            </button>
+          </form>
         </div>
       </div>
     </section>

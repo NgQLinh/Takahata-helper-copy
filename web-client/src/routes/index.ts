@@ -9,6 +9,7 @@ import {
   EquipmentPage,
   SettingsPage,
   AlertServicePage,
+  ReportPage,
 } from "../pages";
 
 // Path
@@ -19,6 +20,7 @@ import {
   EquipmentPath,
   SettingsPath,
   AlertServicePath,
+  ReportPath,
 } from "../constants/routes";
 
 const publicRoutes = [
@@ -49,6 +51,11 @@ const publicRoutes = [
   {
     path: AlertServicePath,
     component: AlertServicePage,
+    layout: DefaultNavigationLayout,
+  },
+  {
+    path: ReportPath,
+    component: ReportPage,
     layout: DefaultNavigationLayout,
   },
 ];

@@ -1,11 +1,12 @@
 import { PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   AlertServicePath,
   HomePath,
   SettingsPath,
   SystemControlPath,
   EquipmentPath,
+  ReportPath,
 } from "../../constants/routes";
 
 export default function DefaultNavigationLayout({
@@ -13,6 +14,12 @@ export default function DefaultNavigationLayout({
 }: PropsWithChildren) {
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `nav-link ${isActive ? "text-info fw-bold" : "text-light"}`;
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
 
   return (
     <div className="min-vh-100 d-flex flex-column">
@@ -31,7 +38,7 @@ export default function DefaultNavigationLayout({
           <ul className="navbar-nav align-items-center">
             <li className="nav-item">
               <NavLink to={HomePath} className={navClass}>
-                Home
+                Giám sát
               </NavLink>
             </li>
 
@@ -39,7 +46,7 @@ export default function DefaultNavigationLayout({
 
             <li className="nav-item">
               <NavLink to={SystemControlPath} className={navClass}>
-                System control
+                Nhập liệu
               </NavLink>
             </li>
 
@@ -47,7 +54,7 @@ export default function DefaultNavigationLayout({
 
             <li className="nav-item">
               <NavLink to={EquipmentPath} className={navClass}>
-                Equipment
+                Thiết bị
               </NavLink>
             </li>
 
@@ -55,15 +62,21 @@ export default function DefaultNavigationLayout({
 
             <li className="nav-item">
               <NavLink to={SettingsPath} className={navClass}>
-                Settings
+                Cài đặt
               </NavLink>
             </li>
 
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
+              <NavLink to={ReportPath} className={navClass}>
+                Báo cáo
+              </NavLink>
+            </li>
+
+            <li className="nav-item">
               <NavLink to={AlertServicePath} className={navClass}>
-                Alert Service
+                Cảnh báo
                 <span
                   className="badge bg-danger ms-1"
                   style={{
@@ -80,11 +93,8 @@ export default function DefaultNavigationLayout({
         </div>
 
         {/* Right */}
-        <div
-          className="text-white fw-semibold px-3 py-2"
-          style={{ backgroundColor: "#1e2a3a" }}
-        >
-          TAKAHATA
+        <div className="text-white fw-semibold px-3 py-2">
+          <button onClick={handleLogout}>Đăng xuất</button>
         </div>
       </nav>
 

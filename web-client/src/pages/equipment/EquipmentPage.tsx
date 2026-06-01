@@ -145,13 +145,13 @@ function EquipmentPage() {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Equipment Management</h1>
+        <h1>Quản lý thiết bị</h1>
 
         <button
           className="btn btn-success"
           onClick={() => setShowCreateModal(true)}
         >
-          Create Device
+          Tạo thiết bị
         </button>
       </div>
 
@@ -166,15 +166,15 @@ function EquipmentPage() {
         <thead className="table-dark">
           <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Serial Number</th>
-            <th>Brand</th>
-            <th>Bit Address</th>
-            <th>Status</th>
-            <th>Create At</th>
-            <th>Create By</th>
-            <th style={{ width: "160px" }}>Actions</th>
+            <th>Tên</th>
+            <th>Loại</th>
+            <th>Số seri</th>
+            <th>Hãng</th>
+            <th>Địa chỉ bit</th>
+            <th>Trạng thái</th>
+            <th>Tạo lúc</th>
+            <th>Tạo bởi</th>
+            <th style={{ width: "160px" }}>Hành động</th>
           </tr>
         </thead>
 
@@ -182,7 +182,7 @@ function EquipmentPage() {
           {records.length === 0 ? (
             <tr>
               <td colSpan={10} className="text-center">
-                No devices found
+                Không tìm thấy thiết bị
               </td>
             </tr>
           ) : (
@@ -202,14 +202,14 @@ function EquipmentPage() {
                     className="btn btn-sm btn-primary me-2"
                     onClick={() => handleEdit(device)}
                   >
-                    Edit
+                    Chỉnh sửa
                   </button>
 
                   <button
                     className="btn btn-sm btn-danger"
                     onClick={() => handleDelete(device.id)}
                   >
-                    Delete
+                    Xóa
                   </button>
                 </td>
               </tr>
