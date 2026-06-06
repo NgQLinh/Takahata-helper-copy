@@ -1,8 +1,10 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
 using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
+using TAKAHATA.Application.Authentication.Commands;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
@@ -72,7 +74,7 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Automatically apply pending migrations on application startup
-using (var scope = app.Services.CreateScope())  
+using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
@@ -86,6 +88,18 @@ using (var scope = app.Services.CreateScope())
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
     }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var sender = scope.ServiceProvider.GetRequiredService<ISender>();
+    var registerCommand = new RegisterCommand
+    (
+        "admin@gmail.com",
+        "123@123Aa",
+        "Admin"
+    );
+    await sender.Send(registerCommand);
 }
 
 // Configure the HTTP request pipeline.
