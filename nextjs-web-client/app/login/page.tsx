@@ -33,7 +33,7 @@ export default function LoginPage() {
         localStorage.setItem("access_token", res.accessToken);
         localStorage.setItem("refresh_token", res.refreshToken);
 
-        router.push("/admin-workspace/home");
+        router.push("/admin-workspace/dashboard");
       } catch (error: unknown) {
         console.error("Login error:", error);
 

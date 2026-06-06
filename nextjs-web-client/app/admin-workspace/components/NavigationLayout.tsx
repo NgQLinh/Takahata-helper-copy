@@ -4,12 +4,15 @@ import { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const HomePath = "/home";
-const SystemControlPath = "/system-control";
-const EquipmentPath = "/equipment";
-const SettingsPath = "/settings";
-const ReportPath = "/report";
-const AlertServicePath = "/alert-service";
+const DashboardPath = "/admin-workspace/dashboard";
+const MachinesPath = "/admin-workspace/machines";
+const MoldProjectsPath = "/admin-workspace/mold-projects";
+const WorkOrdersPath = "/admin-workspace/work-orders";
+const MachineSchedulePath = "/admin-workspace/machine-schedule";
+const ExcelImportPath = "/admin-workspace/excel-import";
+const KPIReportsPath = "/admin-workspace/kpi-reports";
+const CostsPath = "/admin-workspace/costs";
+const SettingsPath = "/admin-workspace/settings";
 
 export default function NavigationLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -36,7 +39,7 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
         <div className="navbar-collapse justify-content-center">
           <ul className="navbar-nav align-items-center">
             <li className="nav-item">
-              <Link href={HomePath} className={navClass(HomePath)}>
+              <Link href={DashboardPath} className={navClass(DashboardPath)}>
                 Giám sát
               </Link>
             </li>
@@ -44,19 +47,57 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
-              <Link
-                href={SystemControlPath}
-                className={navClass(SystemControlPath)}
-              >
-                Nhập liệu
+              <Link href={MachinesPath} className={navClass(MachinesPath)}>
+                Máy móc
               </Link>
             </li>
 
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
-              <Link href={EquipmentPath} className={navClass(EquipmentPath)}>
-                Thiết bị
+              <Link
+                href={MoldProjectsPath}
+                className={navClass(MoldProjectsPath)}
+              >
+                Dự án khuôn
+              </Link>
+            </li>
+
+            <span className="mx-2 text-secondary">|</span>
+
+            <li className="nav-item">
+              <Link href={WorkOrdersPath} className={navClass(WorkOrdersPath)}>
+                Đơn hàng
+              </Link>
+            </li>
+
+            <span className="mx-2 text-secondary">|</span>
+
+            <li className="nav-item">
+              <Link
+                href={MachineSchedulePath}
+                className={navClass(MachineSchedulePath)}
+              >
+                Lịch máy
+              </Link>
+            </li>
+
+            <span className="mx-2 text-secondary">|</span>
+
+            <li className="nav-item">
+              <Link
+                href={ExcelImportPath}
+                className={navClass(ExcelImportPath)}
+              >
+                Nhập liệu Excel
+              </Link>
+            </li>
+
+            <span className="mx-2 text-secondary">|</span>
+
+            <li className="nav-item">
+              <Link href={CostsPath} className={navClass(CostsPath)}>
+                Chi phí
               </Link>
             </li>
 
@@ -71,27 +112,8 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
-              <Link href={ReportPath} className={navClass(ReportPath)}>
+              <Link href={KPIReportsPath} className={navClass(KPIReportsPath)}>
                 Báo cáo
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link
-                href={AlertServicePath}
-                className={navClass(AlertServicePath)}
-              >
-                Cảnh báo
-                <span
-                  className="badge bg-danger ms-1"
-                  style={{
-                    fontSize: "0.6rem",
-                    position: "relative",
-                    top: "-6px",
-                  }}
-                >
-                  !
-                </span>
               </Link>
             </li>
           </ul>
