@@ -11,9 +11,7 @@ const SettingsPath = "/settings";
 const ReportPath = "/report";
 const AlertServicePath = "/alert-service";
 
-export default function DefaultNavigationLayout({
-  children,
-}: PropsWithChildren) {
+export default function NavigationLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -35,7 +33,7 @@ export default function DefaultNavigationLayout({
           TAKAHATA Monitor System
         </div>
 
-        <div className="justify-content-center">
+        <div className="navbar-collapse justify-content-center">
           <ul className="navbar-nav align-items-center">
             <li className="nav-item">
               <Link href={HomePath} className={navClass(HomePath)}>
