@@ -3,11 +3,11 @@ using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Domain.Common.Errors;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
-    public class CreateDeviceCommandHandler : IRequestHandler<CreateDeviceCommand, ErrorOr<Device>>
+    public class CreateDeviceCommandHandler : IRequestHandler<CreateDeviceCommand, ErrorOr<Machine>>
     {
         private readonly IMapper _mapper;
 
@@ -19,9 +19,9 @@ namespace TAKAHATA.Application.Equipment.Commands
             _mapper = mapper;
         }
 
-        public async Task<ErrorOr<Device>> Handle(CreateDeviceCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Machine>> Handle(CreateDeviceCommand command, CancellationToken cancellationToken)
         {
-            var device = _mapper.Map<Device>(command);
+            var device = _mapper.Map<Machine>(command);
 
             device = await _deviceRepository.AddDeviceAsync(device);
 

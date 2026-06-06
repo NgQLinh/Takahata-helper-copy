@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.Equipment;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
@@ -13,37 +13,37 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Device?> AddDeviceAsync(Device device)
+        public async Task<Machine?> AddDeviceAsync(Machine device)
         {
-            await _dbContext.Devices.AddAsync(device);
+            await _dbContext.Machines.AddAsync(device);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? device : null;
         }
 
-        public async Task<IEnumerable<Device>> GetAsync()
+        public async Task<IEnumerable<Machine>> GetAsync()
         {
-            return await _dbContext.Devices.ToListAsync();
+            return await _dbContext.Machines.ToListAsync();
         }
 
-        public async Task<Device?> GetByIdAsync(long id)
+        public async Task<Machine?> GetByIdAsync(long id)
         {
-            return await _dbContext.Devices.FindAsync(id);
+            return await _dbContext.Machines.FindAsync(id);
         }
 
-        public async Task<Device?> DeleteDeviceByIdAsync(long id)
+        public async Task<Machine?> DeleteDeviceByIdAsync(long id)
         {
-            var device = await _dbContext.Devices.FindAsync(id);
+            var device = await _dbContext.Machines.FindAsync(id);
             if (device == null)
                 return null;
 
-            _dbContext.Devices.Remove(device);
+            _dbContext.Machines.Remove(device);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? device : null;
         }
 
-        public async Task<Device?> UpdateAsync(Device device)
+        public async Task<Machine?> UpdateAsync(Machine device)
         {
-            _dbContext.Devices.Update(device);
+            _dbContext.Machines.Update(device);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? device : null;
         }

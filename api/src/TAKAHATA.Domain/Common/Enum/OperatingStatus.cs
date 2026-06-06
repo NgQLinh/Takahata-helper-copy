@@ -1,4 +1,4 @@
-﻿namespace TAKAHATA.Domain.Equipment
+﻿namespace TAKAHATA.Domain.Common.Enum
 {
     public enum OperatingStatus
     {

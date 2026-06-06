@@ -1,0 +1,14 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TAKAHATA.Domain.MasterData;
+
+namespace TAKAHATA.Infrastructure.Persistence.Configurations
+{
+    public class MachineConfiguration : IEntityTypeConfiguration<Machine>
+    {
+        public void Configure(EntityTypeBuilder<Machine> builder)
+        {
+            builder.HasKey(x => x.Id);
+        }
+    }
+}

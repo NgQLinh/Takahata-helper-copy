@@ -1,8 +1,8 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Queries
 {
-    public record DeviceQuery() : IRequest<ErrorOr<IEnumerable<Device>>>;
+    public record DeviceQuery() : IRequest<ErrorOr<IEnumerable<Machine>>>;
 }

@@ -2,11 +2,11 @@
 using MediatR;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Domain.Common.Errors;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
-    public class DeleteDeviceCommandHandler : IRequestHandler<DeleteDeviceCommand, ErrorOr<Device>>
+    public class DeleteDeviceCommandHandler : IRequestHandler<DeleteDeviceCommand, ErrorOr<Machine>>
     {
         private readonly IDeviceRepository _deviceRepository;
 
@@ -14,7 +14,7 @@ namespace TAKAHATA.Application.Equipment.Commands
         {
             _deviceRepository = deviceRepository;
         }
-        public async Task<ErrorOr<Device>> Handle(DeleteDeviceCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Machine>> Handle(DeleteDeviceCommand command, CancellationToken cancellationToken)
         {
             var device = await _deviceRepository.DeleteDeviceByIdAsync(command.Id);
 

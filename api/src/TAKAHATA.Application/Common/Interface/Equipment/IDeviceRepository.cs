@@ -1,14 +1,14 @@
 ﻿using ErrorOr;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.Equipment
 {
     public interface IDeviceRepository
     {
-        Task<Device?> AddDeviceAsync(Device device);
-        Task<IEnumerable<Device>> GetAsync();
-        Task<Device?> GetByIdAsync(long id);
-        Task<Device?> DeleteDeviceByIdAsync(long id);
-        Task<Device?> UpdateAsync(Device entity);
+        Task<Machine?> AddDeviceAsync(Machine device);
+        Task<IEnumerable<Machine>> GetAsync();
+        Task<Machine?> GetByIdAsync(long id);
+        Task<Machine?> DeleteDeviceByIdAsync(long id);
+        Task<Machine?> UpdateAsync(Machine entity);
     }
 }

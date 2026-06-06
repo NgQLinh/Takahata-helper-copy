@@ -10,7 +10,7 @@ const LoginPage: React.FC = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "annh001@gmail.com",
+      email: "admin@gmail.com",
       password: "123@123Aa",
     },
     validationSchema: Yup.object({

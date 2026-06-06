@@ -154,7 +154,310 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.Equipment.Device", b =>
+            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.CostCategory", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("CostCategories");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.ProjectCost", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("CostAmount")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<long>("CostCategoryId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("CostDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("PartId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("WorkOrderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CostCategoryId");
+
+                    b.HasIndex("PartId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.ToTable("ProjectCosts");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FileType")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("ImportedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImportedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExcelImportBatches");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportError", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BatchId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ColumnName")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ErrorMessage")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("RowNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SheetName")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("ExcelImportErrors");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineDailySummary", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("AlarmHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("AutoHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("AutoPercent")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("MachineId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("ManualHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("SetupHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("StopHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("SummaryDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("TotalHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("UtilizationPercent")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId", "SummaryDate")
+                        .IsUnique();
+
+                    b.ToTable("MachineDailySummaries");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineOperationLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsAlarm")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsAuto")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsManual")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsRunning")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsSetup")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("LogTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("MachineId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MachineStatus")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("OperatorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("WorkOrderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorId");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.HasIndex("MachineId", "LogTime");
+
+                    b.ToTable("MachineOperationLogs");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,12 +472,19 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("MachineStatus")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -184,8 +494,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<decimal>("StandardHoursPerDay")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -198,10 +508,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DEVICES", (string)null);
+                    b.ToTable("Machines");
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.Equipment.DeviceLog", b =>
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.Operator", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,7 +519,57 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("EquipmentId")
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Department")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("OperatorCode")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperatorCode")
+                        .IsUnique();
+
+                    b.ToTable("Operators");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.ProcessType", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -217,15 +577,116 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("ReadAt")
+                    b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
-                    b.ToTable("DEVICE_LOG", (string)null);
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("ProcessTypes");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldPart", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PartCode")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("PartName")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId", "PartCode");
+
+                    b.ToTable("MoldParts");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldProject", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("CompletedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Customer")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("MoldCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ProjectType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MoldProjects");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.User.ApplicationUser", b =>
@@ -302,6 +763,143 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.MachineSchedule", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<long>("MachineId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("PlannedHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime>("ScheduleDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ShiftCode")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("WorkOrderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WorkOrderId");
+
+                    b.HasIndex("MachineId", "ScheduleDate");
+
+                    b.ToTable("MachineSchedules");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ActualEnd")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("ActualHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime?>("ActualStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("MachineId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("PartId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("PlanEnd")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("PlanHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<DateTime?>("PlanStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ProcessTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("WorkOrderCode")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId");
+
+                    b.HasIndex("PartId");
+
+                    b.HasIndex("ProcessTypeId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("WorkOrderCode");
+
+                    b.ToTable("WorkOrders");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -351,6 +949,197 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.ProjectCost", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.CostManagement.CostCategory", "CostCategory")
+                        .WithMany("ProjectCosts")
+                        .HasForeignKey("CostCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldPart", "Part")
+                        .WithMany("Costs")
+                        .HasForeignKey("PartId");
+
+                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldProject", "Project")
+                        .WithMany("Costs")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", "WorkOrder")
+                        .WithMany("Costs")
+                        .HasForeignKey("WorkOrderId");
+
+                    b.Navigation("CostCategory");
+
+                    b.Navigation("Part");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportError", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", "Batch")
+                        .WithMany("Errors")
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineDailySummary", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
+                        .WithMany("DailySummaries")
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineOperationLog", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
+                        .WithMany("OperationLogs")
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TAKAHATA.Domain.MasterData.Operator", "Operator")
+                        .WithMany("OperationLogs")
+                        .HasForeignKey("OperatorId");
+
+                    b.HasOne("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", "WorkOrder")
+                        .WithMany("OperationLogs")
+                        .HasForeignKey("WorkOrderId");
+
+                    b.Navigation("Machine");
+
+                    b.Navigation("Operator");
+
+                    b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldPart", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldProject", "Project")
+                        .WithMany("Parts")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.MachineSchedule", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
+                        .WithMany("MachineSchedules")
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", "WorkOrder")
+                        .WithMany("MachineSchedules")
+                        .HasForeignKey("WorkOrderId");
+
+                    b.Navigation("Machine");
+
+                    b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("MachineId");
+
+                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldPart", "Part")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("PartId");
+
+                    b.HasOne("TAKAHATA.Domain.MasterData.ProcessType", "ProcessType")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("ProcessTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldProject", "Project")
+                        .WithMany("WorkOrders")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
+
+                    b.Navigation("Part");
+
+                    b.Navigation("ProcessType");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.CostCategory", b =>
+                {
+                    b.Navigation("ProjectCosts");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", b =>
+                {
+                    b.Navigation("Errors");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
+                {
+                    b.Navigation("DailySummaries");
+
+                    b.Navigation("MachineSchedules");
+
+                    b.Navigation("OperationLogs");
+
+                    b.Navigation("WorkOrders");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.Operator", b =>
+                {
+                    b.Navigation("OperationLogs");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.ProcessType", b =>
+                {
+                    b.Navigation("WorkOrders");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldPart", b =>
+                {
+                    b.Navigation("Costs");
+
+                    b.Navigation("WorkOrders");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldProject", b =>
+                {
+                    b.Navigation("Costs");
+
+                    b.Navigation("Parts");
+
+                    b.Navigation("WorkOrders");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", b =>
+                {
+                    b.Navigation("Costs");
+
+                    b.Navigation("MachineSchedules");
+
+                    b.Navigation("OperationLogs");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,11 +2,11 @@
 using MediatR;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Domain.Common.Errors;
-using TAKAHATA.Domain.Equipment;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
-    public class UpdateDeviceCommandHandler : IRequestHandler<UpdateDeviceCommand, ErrorOr<Device>>
+    public class UpdateDeviceCommandHandler : IRequestHandler<UpdateDeviceCommand, ErrorOr<Machine>>
     {
         private readonly IDeviceRepository _deviceRepository;
 
@@ -15,7 +15,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             _deviceRepository = deviceRepository;
         }
 
-        public async Task<ErrorOr<Device>> Handle(UpdateDeviceCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Machine>> Handle(UpdateDeviceCommand command, CancellationToken cancellationToken)
         {
             var entity = await _deviceRepository.GetByIdAsync(command.Id);
             if (entity == null)
