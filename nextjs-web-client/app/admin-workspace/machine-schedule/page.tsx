@@ -1,8 +1,9 @@
+import { MachineScheduleBoard } from "./components/MachineScheduleBoard";
+
 export default function MachineSchedulePage() {
   return (
-    <div>
-      <h1>Machine Schedule Page</h1>
-      <p>Welcome to the machine schedule page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <MachineScheduleBoard />
+    </main>
   );
 }

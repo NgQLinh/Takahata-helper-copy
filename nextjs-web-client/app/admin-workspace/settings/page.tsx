@@ -1,8 +1,9 @@
-export default function SettingsPage() {
+import { SettingsPage } from "./components/SettingsPage";
+
+export default function Page() {
   return (
-    <div>
-      <h1>Settings Page</h1>
-      <p>Welcome to the settings page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <SettingsPage />
+    </main>
   );
 }

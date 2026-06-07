@@ -1,8 +1,9 @@
+import { WorkOrderTable } from "./components/WorkOrderTable";
+
 export default function WorkOrdersPage() {
   return (
-    <div>
-      <h1>Work Orders Page</h1>
-      <p>Welcome to the work orders page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <WorkOrderTable />
+    </main>
   );
 }

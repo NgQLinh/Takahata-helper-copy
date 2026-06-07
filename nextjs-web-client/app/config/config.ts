@@ -1,3 +1,3 @@
 export const config = {
-  apiUrl: process.env.NEXT_PUBLIC_BASE_URL || "",
+  apiUrl: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5080/api/v1",
 };

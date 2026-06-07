@@ -1,8 +1,9 @@
-export default function ExcelImportPage() {
+import { ExcelImportPage } from "./components/ExcelImportPage";
+
+export default function Page() {
   return (
-    <div>
-      <h1>Excel Import Page</h1>
-      <p>Welcome to the excel import page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <ExcelImportPage />
+    </main>
   );
 }

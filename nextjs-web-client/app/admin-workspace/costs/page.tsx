@@ -1,8 +1,9 @@
-export default function CostsPage() {
+import { CostsPage } from "./CostsPage";
+
+export default function Page() {
   return (
-    <div>
-      <h1>Costs Page</h1>
-      <p>Welcome to the costs page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <CostsPage />
+    </main>
   );
 }

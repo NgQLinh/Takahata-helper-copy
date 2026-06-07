@@ -1,8 +1,9 @@
-export default function MoldProjectsPage() {
+import { MoldProjectsPage } from "./components/MoldProjectsPage";
+
+export default function Page() {
   return (
-    <div>
-      <h1>Mold Projects Page</h1>
-      <p>Welcome to the mold projects page!</p>
-    </div>
+    <main className="min-h-screen bg-gray-100 p-6">
+      <MoldProjectsPage />
+    </main>
   );
 }
