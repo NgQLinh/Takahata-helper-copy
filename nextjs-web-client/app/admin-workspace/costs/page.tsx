@@ -1,4 +1,4 @@
-import { CostsPage } from "./CostsPage";
+import { CostsPage } from "./components/CostsPage";
 
 export default function Page() {
   return (
