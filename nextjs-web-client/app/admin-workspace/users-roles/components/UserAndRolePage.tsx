@@ -84,7 +84,7 @@ export function UserAndRolePage() {
         key: "role",
         width: 140,
         filters: [
-          { text: "Admin", value: "Admin" },
+          { text: "ADMIN", value: "ADMIN" },
           { text: "Manager", value: "Manager" },
           { text: "User", value: "User" },
         ],
