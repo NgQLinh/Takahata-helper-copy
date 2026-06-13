@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Authentication.Commands;
+using TAKAHATA.Application.Authentication.Queries;
 using TAKAHATA.Contracts.Authentication;
 
 namespace TAKAHATA.Api.Controllers
@@ -21,22 +22,42 @@ namespace TAKAHATA.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("account-create/")]
+        [HttpPost("create/")]
         public async Task<IActionResult> CreateAccount(RegisterRequest request)
         {
-            var command = _mapper.Map<RegisterCommand>(request);
+            var command = _mapper.Map<CreateAccountCommand>(request);
 
             var result = await _sender.Send(command);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }
 
-        [HttpPost("account-login/")]
+        [HttpPost("login/")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var command = _mapper.Map<LoginCommand>(request);
 
             var result = await _sender.Send(command);
+
+            return result.Match(r => Ok(r), e => Problem(e));
+        }
+
+        [HttpPost("query-accounts")]
+        public async Task<IActionResult> GetAccounts()
+        {
+            var query = new AccountsQuery();
+
+            var result = await _sender.Send(query);
+
+            return result.Match(r => Ok(r), e => Problem(e));
+        }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateAccounts()
+        {
+            var query = new AccountsQuery();
+
+            var result = await _sender.Send(query);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }

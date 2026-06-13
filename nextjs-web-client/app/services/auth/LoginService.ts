@@ -3,7 +3,7 @@ import { apiClient } from "../common/apiClient";
 
 export const loginAsync = async (data: LoginReq): Promise<LoginRes> => {
   const response = await apiClient.post<LoginRes>(
-    "/Authentication/account-login",
+    "/Authentication/login",
     data,
   );
 

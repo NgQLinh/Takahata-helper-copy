@@ -94,7 +94,7 @@ using (var scope = app.Services.CreateScope())
 using (var scope = app.Services.CreateScope())
 {
     var sender = scope.ServiceProvider.GetRequiredService<ISender>();
-    var registerCommand = new RegisterCommand
+    var registerCommand = new CreateAccountCommand
     (
         "admin",
         "123@123Aa",

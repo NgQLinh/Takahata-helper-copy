@@ -2,13 +2,12 @@
 
 namespace TAKAHATA.Application.Authentication.Commands
 {
-    public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+    public class RegisterCommandValidator : AbstractValidator<CreateAccountCommand>
     {
         public RegisterCommandValidator()
         {
             RuleFor(x => x.UserName)
-                 .NotEmpty().WithMessage("UserName is required.")
-                 .EmailAddress().WithMessage("UserName must be a valid email address.");
+                 .NotEmpty().WithMessage("UserName is required.");
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.");
             RuleFor(x => x.FullName)

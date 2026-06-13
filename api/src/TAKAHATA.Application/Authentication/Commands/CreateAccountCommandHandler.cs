@@ -2,18 +2,17 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using TAKAHATA.Contracts.Authentication;
-using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.User;
 
 namespace TAKAHATA.Application.Authentication.Commands
 {
-    public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ErrorOr<RegisterResponse>>
+    public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, ErrorOr<AcountResponse>>
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public RegisterCommandHandler(
+        public CreateAccountCommandHandler(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
@@ -21,7 +20,7 @@ namespace TAKAHATA.Application.Authentication.Commands
             _roleManager = roleManager;
         }
 
-        public async Task<ErrorOr<RegisterResponse>> Handle(RegisterCommand command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<AcountResponse>> Handle(CreateAccountCommand command, CancellationToken cancellationToken)
         {
             var existingUser =
                 await _userManager.FindByNameAsync(command.UserName);
@@ -48,7 +47,14 @@ namespace TAKAHATA.Application.Authentication.Commands
 
             await _userManager.AddToRoleAsync(user, command.Role);
 
-            return new RegisterResponse();
+            var newUser = await _userManager.FindByNameAsync(command.UserName);
+
+            if (newUser is null)
+                return Errors.Account.CreateAccountFalse;
+
+            var roles = await _userManager.GetRolesAsync(newUser);
+
+            return new AcountResponse(newUser, roles);
         }
     }
 }
