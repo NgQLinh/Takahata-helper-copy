@@ -32,39 +32,19 @@ export function MachinesPage() {
     });
   }, [keyword, status]);
 
-  const runningCount = machines.filter(
-    (x) => x.status === "AUTO" || x.status === "MANUAL",
-  ).length;
-
-  const alarmCount = machines.filter((x) => x.status === "ALARM").length;
-  const stopCount = machines.filter((x) => x.status === "STOP").length;
-
-  const avgUtilization = Math.round(
-    machines.reduce((sum, x) => sum + x.utilization, 0) / machines.length,
-  );
-
   return (
     <>
       <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Machines</h1>
-            <p className="text-sm text-gray-500">
-              Quản lý danh sách máy, trạng thái vận hành và hiệu suất sử dụng.
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Quản lý danh sách máy, trạng thái vận hành và hiệu suất sử dụng
+            </h1>
           </div>
 
           <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white">
             Add Machine
           </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-          <SummaryCard label="Total Machines" value={machines.length} />
-          <SummaryCard label="Running" value={runningCount} />
-          <SummaryCard label="Alarm" value={alarmCount} danger />
-          <SummaryCard label="Stop" value={stopCount} />
-          <SummaryCard label="Avg Utilization" value={`${avgUtilization}%`} />
         </div>
 
         <div className="rounded-xl border bg-white">
@@ -78,7 +58,9 @@ export function MachinesPage() {
 
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as "ALL" | MachineStatus)}
+              onChange={(e) =>
+                setStatus(e.target.value as "ALL" | MachineStatus)
+              }
               className="h-10 rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
             >
               {statusOptions.map((item) => (
@@ -217,7 +199,10 @@ function MachineDrawer({
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <InfoBox label="Machine Code" value={machine.code} />
                   <InfoBox label="Machine Type" value={machine.type} />
-                  <InfoBox label="STD Hours" value={`${machine.standardHoursPerDay}h/day`} />
+                  <InfoBox
+                    label="STD Hours"
+                    value={`${machine.standardHoursPerDay}h/day`}
+                  />
                   <div className="rounded-lg border bg-gray-50 p-3">
                     <div className="text-xs text-gray-500">Status</div>
                     <div className="mt-1">

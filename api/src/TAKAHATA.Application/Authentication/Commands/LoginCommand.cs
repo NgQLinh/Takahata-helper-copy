@@ -4,5 +4,5 @@ using TAKAHATA.Contracts.Authentication;
 
 namespace TAKAHATA.Application.Authentication.Commands
 {
-    public record LoginCommand(string Email, string Password) : IRequest<ErrorOr<LoginResponse>>;
+    public record LoginCommand(string UserName, string Password) : IRequest<ErrorOr<LoginResponse>>;
 }

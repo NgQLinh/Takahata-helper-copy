@@ -9,10 +9,8 @@ const MachinesPath = "/admin-workspace/machines";
 const MoldProjectsPath = "/admin-workspace/mold-projects";
 const WorkOrdersPath = "/admin-workspace/work-orders";
 const MachineSchedulePath = "/admin-workspace/machine-schedule";
-const ExcelImportPath = "/admin-workspace/excel-import";
 const KPIReportsPath = "/admin-workspace/kpi-reports";
-const CostsPath = "/admin-workspace/costs";
-const SettingsPath = "/admin-workspace/settings";
+const UsersRolesPath = "/admin-workspace/users-roles";
 
 export default function NavigationLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -86,26 +84,10 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
 
             <li className="nav-item">
               <Link
-                href={ExcelImportPath}
-                className={navClass(ExcelImportPath)}
+                href={UsersRolesPath}
+                className={navClass(UsersRolesPath)}
               >
-                Nhập liệu Excel
-              </Link>
-            </li>
-
-            <span className="mx-2 text-secondary">|</span>
-
-            <li className="nav-item">
-              <Link href={CostsPath} className={navClass(CostsPath)}>
-                Chi phí
-              </Link>
-            </li>
-
-            <span className="mx-2 text-secondary">|</span>
-
-            <li className="nav-item">
-              <Link href={SettingsPath} className={navClass(SettingsPath)}>
-                Cài đặt
+                Người dùng & phân quyền
               </Link>
             </li>
 

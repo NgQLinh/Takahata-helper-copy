@@ -77,10 +77,10 @@ export function KpiReportsPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">KPI Reports</h1>
-          <p className="text-sm text-gray-500">
-            Báo cáo hiệu suất máy, thời gian auto/setup/alarm, plan vs actual và delay.
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Báo cáo hiệu suất máy, thời gian auto/setup/alarm, plan vs actual và
+            delay
+          </h1>
         </div>
 
         <button className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100">

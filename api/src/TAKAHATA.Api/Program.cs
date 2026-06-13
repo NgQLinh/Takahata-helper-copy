@@ -6,6 +6,7 @@ using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Authentication.Commands;
 using TAKAHATA.Application.Common.Mapping;
+using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
 
@@ -95,9 +96,10 @@ using (var scope = app.Services.CreateScope())
     var sender = scope.ServiceProvider.GetRequiredService<ISender>();
     var registerCommand = new RegisterCommand
     (
-        "admin@gmail.com",
+        "admin",
         "123@123Aa",
-        "Admin"
+        "Admin",
+        Role.Admin
     );
     await sender.Send(registerCommand);
 }

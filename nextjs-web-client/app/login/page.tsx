@@ -11,20 +11,19 @@ export default function LoginPage() {
 
   const formik = useFormik({
     initialValues: {
-      email: "admin@gmail.com",
+      userName: "admin",
       password: "123@123Aa",
     },
 
     validationSchema: Yup.object({
-      email: Yup.string().email("Email không hợp lệ").required("Bắt buộc"),
-
-      password: Yup.string().min(6, "Tối thiểu 6 ký tự").required("Bắt buộc"),
+      userName: Yup.string().required("Bắt buộc"),
+      password: Yup.string().min(8, "Tối thiểu 8 ký tự").required("Bắt buộc"),
     }),
 
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
         const req: LoginReq = {
-          email: values.email,
+          userName: values.userName,
           password: values.password,
         };
 
@@ -85,21 +84,21 @@ export default function LoginPage() {
 
           <form onSubmit={formik.handleSubmit}>
             <div className="mb-3">
-              <label className="form-label">Email</label>
+              <label className="form-label">Username</label>
 
               <input
-                type="email"
-                name="email"
+                type="text"
+                name="username"
                 className="form-control form-control-lg"
-                placeholder="Enter email"
-                value={formik.values.email}
+                placeholder="Enter username"
+                value={formik.values.userName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
 
-              {formik.touched.email && formik.errors.email && (
+              {formik.touched.userName && formik.errors.userName && (
                 <div className="text-danger small mt-1">
-                  {formik.errors.email}
+                  {formik.errors.userName}
                 </div>
               )}
             </div>
@@ -127,7 +126,6 @@ export default function LoginPage() {
             <div className="d-flex justify-content-between mb-4">
               <div className="form-check">
                 <input className="form-check-input" type="checkbox" />
-
                 <label className="form-check-label">Remember me</label>
               </div>
 

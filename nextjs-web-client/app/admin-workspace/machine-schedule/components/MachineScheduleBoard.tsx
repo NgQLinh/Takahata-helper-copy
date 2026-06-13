@@ -32,10 +32,9 @@ export function MachineScheduleBoard() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Machine Schedule</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900">
             Lịch gia công theo máy, ngày và work order
-          </p>
+          </h1>
         </div>
 
         <div className="flex gap-2">

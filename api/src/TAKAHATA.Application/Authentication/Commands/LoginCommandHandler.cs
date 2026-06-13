@@ -26,17 +26,17 @@ namespace TAKAHATA.Application.Authentication.Commands
         }
 
         public async Task<ErrorOr<LoginResponse>> Handle(
-            LoginCommand request,
+            LoginCommand command,
             CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByNameAsync(command.UserName);
 
             if (user is null)
                 return Errors.Account.InvalidCredentials;
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(
                 user,
-                request.Password);
+                command.Password);
 
             if (!isPasswordValid)
                 return Errors.Account.InvalidCredentials;

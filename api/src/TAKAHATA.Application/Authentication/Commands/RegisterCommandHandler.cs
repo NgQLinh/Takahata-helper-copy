@@ -21,32 +21,32 @@ namespace TAKAHATA.Application.Authentication.Commands
             _roleManager = roleManager;
         }
 
-        public async Task<ErrorOr<RegisterResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<RegisterResponse>> Handle(RegisterCommand command, CancellationToken cancellationToken)
         {
             var existingUser =
-                await _userManager.FindByEmailAsync(request.Email);
+                await _userManager.FindByNameAsync(command.UserName);
 
             if (existingUser != null)
-                return Errors.Account.DuplicateEmployeeId;
+                return Errors.Account.DuplicateUserName;
 
             var user = new ApplicationUser
             {
-                UserName = request.Email,
-                Email = request.Email,
-                FullName = request.FullName,
+                UserName = command.UserName,
+                Email = command.UserName,
+                FullName = command.FullName,
             };
 
             var result = await _userManager.CreateAsync(
                 user,
-                request.Password);
+                command.Password);
 
             if (!result.Succeeded)
                 return Errors.Account.CreateAccountFalse;
 
-            if (!await _roleManager.RoleExistsAsync(Role.Admin))
-                await _roleManager.CreateAsync(new IdentityRole(Role.Admin));
+            if (!await _roleManager.RoleExistsAsync(command.Role))
+                await _roleManager.CreateAsync(new IdentityRole(command.Role));
 
-            await _userManager.AddToRoleAsync(user, Role.Admin);
+            await _userManager.AddToRoleAsync(user, command.Role);
 
             return new RegisterResponse();
         }

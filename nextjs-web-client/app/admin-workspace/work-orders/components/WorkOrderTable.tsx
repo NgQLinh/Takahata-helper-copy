@@ -49,10 +49,9 @@ export function WorkOrderTable() {
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Work Orders</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-gray-900">
               Quản lý công việc gia công theo khuôn, part, công đoạn và máy
-            </p>
+            </h1>
           </div>
 
           <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white">
@@ -261,8 +260,14 @@ function WorkOrderDrawer({
                 <h3 className="mb-3 font-semibold text-gray-900">Schedule</h3>
 
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <Info label="Plan Start" value={formatDate(workOrder.planStart)} />
-                  <Info label="Plan End" value={formatDate(workOrder.planEnd)} />
+                  <Info
+                    label="Plan Start"
+                    value={formatDate(workOrder.planStart)}
+                  />
+                  <Info
+                    label="Plan End"
+                    value={formatDate(workOrder.planEnd)}
+                  />
                   <Info label="Plan Hours" value={`${workOrder.planHours}h`} />
                   <Info
                     label="Actual Hours"

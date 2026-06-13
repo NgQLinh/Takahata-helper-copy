@@ -66,8 +66,12 @@ export function MoldProjectsPage() {
     });
   }, [keyword, status, type]);
 
-  const runningCount = moldProjects.filter((x) => x.status === "RUNNING").length;
-  const delayedCount = moldProjects.filter((x) => x.status === "DELAYED").length;
+  const runningCount = moldProjects.filter(
+    (x) => x.status === "RUNNING",
+  ).length;
+  const delayedCount = moldProjects.filter(
+    (x) => x.status === "DELAYED",
+  ).length;
   const doneCount = moldProjects.filter((x) => x.status === "DONE").length;
 
   const totalActualCost = moldProjects.reduce(
@@ -80,10 +84,9 @@ export function MoldProjectsPage() {
       <div className="space-y-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Mold Projects</h1>
-            <p className="text-sm text-gray-500">
-              Quản lý khuôn mới, sửa khuôn, ECO, jig và tiến độ tổng thể.
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Quản lý khuôn mới, sửa khuôn, ECO, jig và tiến độ tổng thể
+            </h1>
           </div>
 
           <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white">
@@ -294,8 +297,14 @@ function MoldProjectDrawer({
                       <MoldProjectStatusBadge status={project.status} />
                     </div>
                   </div>
-                  <InfoBox label="Start Date" value={formatDate(project.startDate)} />
-                  <InfoBox label="Due Date" value={formatDate(project.dueDate)} />
+                  <InfoBox
+                    label="Start Date"
+                    value={formatDate(project.startDate)}
+                  />
+                  <InfoBox
+                    label="Due Date"
+                    value={formatDate(project.dueDate)}
+                  />
                 </div>
               </section>
 
@@ -397,13 +406,7 @@ function SummaryCard({
   );
 }
 
-function Progress({
-  value,
-  large,
-}: {
-  value: number;
-  large?: boolean;
-}) {
+function Progress({ value, large }: { value: number; large?: boolean }) {
   return (
     <div>
       <div className="mb-1 flex justify-between text-xs">
