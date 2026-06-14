@@ -2,9 +2,9 @@
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
-    public class DeleteDeviceCommandValidator : AbstractValidator<DeleteDeviceCommand>
+    public class UpdateMachineCommandValidator : AbstractValidator<UpdateMachineCommand>
     {
-        public DeleteDeviceCommandValidator()
+        public UpdateMachineCommandValidator()
         {
             RuleFor(x => x.Id).GreaterThan(0).WithMessage("Device ID is required.");
         }

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
+using TAKAHATA.Api;
 using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Account.Commands;
@@ -46,6 +47,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMappings();
+builder.Services.AddApi();
 builder.Services.AddApplication();
 
 builder.Services.AddEndpointsApiExplorer();

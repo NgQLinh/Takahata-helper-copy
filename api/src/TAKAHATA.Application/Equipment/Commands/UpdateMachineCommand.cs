@@ -5,11 +5,11 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
-    public record CreateDeviceCommand(
+    public record UpdateMachineCommand(
+        long Id,
         string Name,
         MachineType Type,
-        string SerialNumber,
+        string Code,
         string Brand,
-        string CreateBy,
         int BitAddress) : IRequest<ErrorOr<Machine>>;
 }

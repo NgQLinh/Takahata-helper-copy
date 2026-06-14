@@ -154,187 +154,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.CostCategory", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.ToTable("CostCategories");
-                });
-
-            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.ProjectCost", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<decimal>("CostAmount")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<long>("CostCategoryId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("CostDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("longtext");
-
-                    b.Property<long?>("PartId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ProjectId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<long?>("WorkOrderId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CostCategoryId");
-
-                    b.HasIndex("PartId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("WorkOrderId");
-
-                    b.ToTable("ProjectCosts");
-                });
-
-            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FileType")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("ImportedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ImportedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ExcelImportBatches");
-                });
-
-            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportError", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("BatchId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ColumnName")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ErrorMessage")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("RowNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SheetName")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchId");
-
-                    b.ToTable("ExcelImportErrors");
-                });
-
             modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineDailySummary", b =>
                 {
                     b.Property<long>("Id")
@@ -493,9 +312,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("SerialNumber")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<decimal>("StandardHoursPerDay")
-                        .HasColumnType("decimal(65,30)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -951,48 +767,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.ProjectCost", b =>
-                {
-                    b.HasOne("TAKAHATA.Domain.CostManagement.CostCategory", "CostCategory")
-                        .WithMany("ProjectCosts")
-                        .HasForeignKey("CostCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldPart", "Part")
-                        .WithMany("Costs")
-                        .HasForeignKey("PartId");
-
-                    b.HasOne("TAKAHATA.Domain.MoldManagement.MoldProject", "Project")
-                        .WithMany("Costs")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", "WorkOrder")
-                        .WithMany("Costs")
-                        .HasForeignKey("WorkOrderId");
-
-                    b.Navigation("CostCategory");
-
-                    b.Navigation("Part");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("WorkOrder");
-                });
-
-            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportError", b =>
-                {
-                    b.HasOne("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", "Batch")
-                        .WithMany("Errors")
-                        .HasForeignKey("BatchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Batch");
-                });
-
             modelBuilder.Entity("TAKAHATA.Domain.MachineOperation.MachineDailySummary", b =>
                 {
                     b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
@@ -1086,16 +860,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.CostManagement.CostCategory", b =>
-                {
-                    b.Navigation("ProjectCosts");
-                });
-
-            modelBuilder.Entity("TAKAHATA.Domain.ExcelImport.ExcelImportBatch", b =>
-                {
-                    b.Navigation("Errors");
-                });
-
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
                 {
                     b.Navigation("DailySummaries");
@@ -1119,15 +883,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldPart", b =>
                 {
-                    b.Navigation("Costs");
-
                     b.Navigation("WorkOrders");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MoldManagement.MoldProject", b =>
                 {
-                    b.Navigation("Costs");
-
                     b.Navigation("Parts");
 
                     b.Navigation("WorkOrders");
@@ -1135,8 +895,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.WorkOrderAndSchedule.WorkOrder", b =>
                 {
-                    b.Navigation("Costs");
-
                     b.Navigation("MachineSchedules");
 
                     b.Navigation("OperationLogs");

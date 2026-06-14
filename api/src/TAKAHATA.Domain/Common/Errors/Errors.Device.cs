@@ -4,16 +4,19 @@ namespace TAKAHATA.Domain.Common.Errors
 {
     public partial class Errors
     {
-        public static class Device
+        public static class Machine
         {
-            public static Error CreateDeviceFalse =>
-                Error.Validation(code: "Device.CreateDeviceFalse", description: "Create Device False.");
+            public static Error CreateMachineFalse =>
+                Error.Validation(code: "Machine.CreateMachineFalse", description: "Create Machine False.");
 
-            public static Error UpdateDeviceFalse =>
-                Error.Validation(code: "Device.UpdateDeviceFalse", description: "Update Device False.");
+            public static Error UpdateMachineFalse =>
+                Error.Validation(code: "Machine.UpdateMachineFalse", description: "Update Machine False.");
 
             public static Error NotFound =>
-                Error.NotFound(code: "Device.NotFoundDevice", description: "Not Found Device.");
+                Error.NotFound(code: "Machine.NotFoundMachine", description: "Not Found Machine.");
+
+            public static Error Unauthorized =>
+                Error.Unauthorized(code: "Machine.Unauthorized", description: "Unauthorized.");
         }
     }
 

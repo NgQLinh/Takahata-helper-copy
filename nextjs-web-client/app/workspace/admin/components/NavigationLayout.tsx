@@ -4,13 +4,13 @@ import { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const DashboardPath = "/admin-workspace/dashboard";
-const MachinesPath = "/admin-workspace/machines";
-const MoldProjectsPath = "/admin-workspace/mold-projects";
-const WorkOrdersPath = "/admin-workspace/work-orders";
-const MachineSchedulePath = "/admin-workspace/machine-schedule";
-const KPIReportsPath = "/admin-workspace/kpi-reports";
-const UsersRolesPath = "/admin-workspace/users-roles";
+const DashboardPath = "/workspace/admin/dashboard";
+const MachinesPath = "/workspace/admin/machines";
+const MoldProjectsPath = "/workspace/admin/mold-projects";
+const WorkOrdersPath = "/workspace/admin/work-orders";
+const MachineSchedulePath = "/workspace/admin/machine-schedule";
+const KPIReportsPath = "/workspace/admin/kpi-reports";
+const UsersRolesPath = "/workspace/admin/users-roles";
 
 export default function NavigationLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -83,10 +83,7 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
-              <Link
-                href={UsersRolesPath}
-                className={navClass(UsersRolesPath)}
-              >
+              <Link href={UsersRolesPath} className={navClass(UsersRolesPath)}>
                 Người dùng & phân quyền
               </Link>
             </li>

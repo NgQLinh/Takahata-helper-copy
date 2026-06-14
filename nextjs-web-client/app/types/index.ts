@@ -1,9 +1,11 @@
 export type { LoginRequest } from "./auth/LoginRequest";
 export type { LoginResponse } from "./auth/LoginResponse";
 export { createLoginRequest } from "./auth/LoginRequest";
+
 export type { Machine } from "./machine/Machine";
-export type { MachineType } from "./machine/MachineType";
-export type { MachineStatus } from "./machine/MachineStatus";
+export { MachineType } from "./machine/MachineType";
+export { MachineStatus } from "./machine/MachineStatus";
+
 export type { CreateMachineRequest } from "./machine/CreateMachineRequest";
 export type { DeleteMachineRequest } from "./machine/DeleteMachineRequest";
 export type { UpdateMachineRequest } from "./machine/UpdateMachineRequest";

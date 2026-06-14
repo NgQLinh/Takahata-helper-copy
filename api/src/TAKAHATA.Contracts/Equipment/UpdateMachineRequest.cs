@@ -2,10 +2,11 @@
 
 namespace TAKAHATA.Contracts.Equipment
 {
-    public record CreateDeviceRequest(
+    public record UpdateMachineRequest(
+        long Id,
         string Name,
         MachineType Type,
-        string SerialNumber,
+        string Code,
         string Brand,
         int BitAddress
     );

@@ -5,7 +5,7 @@ export interface Machine {
   id: number;
   name: string;
   type: MachineType;
-  serialNumber: string;
+  code: string;
   brand: string;
   createAt: string;
   createBy: string;

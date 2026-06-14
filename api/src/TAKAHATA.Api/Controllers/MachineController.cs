@@ -8,32 +8,21 @@ using TAKAHATA.Contracts.Equipment;
 
 namespace TAKAHATA.Api.Controllers
 {
-    public class DeviceController : ApiController
+    public class MachineController : ApiController
     {
         private readonly ISender _sender;
         private readonly IMapper _mapper;
 
-        public DeviceController(ISender sender, IMapper mapper)
+        public MachineController(ISender sender, IMapper mapper)
         {
             _sender = sender;
             _mapper = mapper;
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(CreateDeviceRequest request)
+        public async Task<IActionResult> Create(CreateMachineRequest request)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
-
-            var command = new CreateDeviceCommand(
-                request.Name,
-                request.Type,
-                request.SerialNumber,
-                request.Brand,
-                userId,
-                request.BitAddress);
+            var command = _mapper.Map<CreateMachineCommand>(request);
 
             var result = await _sender.Send(command);
 
@@ -43,21 +32,9 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateDevice(UpdateDeviceRequest request)
+        public async Task<IActionResult> UpdateDevice(UpdateMachineRequest request)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
-
-            var command = new UpdateDeviceCommand(
-                request.Id,
-                request.Name,
-                request.Type,
-                request.SerialNumber,
-                request.Brand,
-                userId,
-                request.BitAddress);
+            var command = _mapper.Map<UpdateMachineCommand>(request);
 
             var result = await _sender.Send(command);
 
@@ -67,9 +44,9 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteDevice(DeleteDeviceRequest request)
+        public async Task<IActionResult> DeleteDevice(DeleteMachineRequest request)
         {
-            var command = _mapper.Map<DeleteDeviceCommand>(request);
+            var command = _mapper.Map<DeleteMachineCommand>(request);
 
             var result = await _sender.Send(command);
 
@@ -78,7 +55,7 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
-        [HttpPost("devices")]
+        [HttpPost("query-machines")]
         public async Task<IActionResult> GetDevices()
         {
             var query = new DeviceQuery();
