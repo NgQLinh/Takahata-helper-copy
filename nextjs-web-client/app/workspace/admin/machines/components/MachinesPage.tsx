@@ -7,7 +7,6 @@ import {
   CreateMachineRequest,
   DeleteMachineRequest,
   Machine,
-  MachineType,
 } from "@/app/types";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -25,6 +24,7 @@ import {
   deleteMachineAsync,
 } from "@/app/services/machine/MachineService";
 import CreateMachine from "./CreateMachine";
+import { ColumnFilterItem } from "antd/es/table/interface";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -35,14 +35,31 @@ export function MachinesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  const typeFilter = useMemo<ColumnFilterItem[]>(
+    () =>
+      Array.from(new Set(machines.map((m) => m.type))).map((type) => ({
+        text: type,
+        value: type,
+      })),
+    [machines],
+  );
+
+  const brandFilter = useMemo<ColumnFilterItem[]>(
+    () =>
+      Array.from(new Set(machines.map((m) => m.brand))).map((brand) => ({
+        text: brand,
+        value: brand,
+      })),
+    [machines],
+  );
+
   const filteredMachines = useMemo(() => {
     return machines.filter((machine) => {
       const keyword = searchText.toLowerCase();
 
       return (
         machine.name.toLowerCase().includes(keyword) ||
-        machine.code.toLowerCase().includes(keyword) ||
-        machine.brand.toLowerCase().includes(keyword)
+        machine.code.toLowerCase().includes(keyword)
       );
     });
   }, [machines, searchText]);
@@ -51,7 +68,6 @@ export function MachinesPage() {
     setLoading(true);
     getMachinesAsync()
       .then((data) => {
-        console.log(data);
         setMachines(data);
       })
       .catch((error) => {
@@ -65,7 +81,6 @@ export function MachinesPage() {
   useEffect(() => {
     getMachinesAsync()
       .then((data) => {
-        console.log(data);
         setMachines(data);
       })
       .catch((error) => {
@@ -135,15 +150,16 @@ export function MachinesPage() {
         dataIndex: "type",
         key: "type",
         width: 100,
-        filters: [{ text: "CNC", value: MachineType.CNC }],
+        filters: typeFilter,
         onFilter: (value, record) => record.type === value,
-        render: (value: MachineType) => <strong>{getType(value)}</strong>,
       },
       {
         title: "Thương hiệu",
         dataIndex: "brand",
         key: "brand",
         width: 100,
+        filters: brandFilter,
+        onFilter: (value, record) => record.brand === value,
       },
       {
         title: "Thao tác",
@@ -172,21 +188,8 @@ export function MachinesPage() {
         ),
       },
     ],
-    [],
+    [typeFilter],
   );
-
-  const getType = (type: MachineType): string => {
-    switch (type) {
-      case MachineType.CNC:
-        return "CNC";
-
-      case MachineType.EMD:
-        return "EMD";
-
-      default:
-        return "Unknown";
-    }
-  };
 
   return (
     <>

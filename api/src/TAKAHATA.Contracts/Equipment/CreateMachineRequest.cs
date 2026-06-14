@@ -4,7 +4,7 @@ namespace TAKAHATA.Contracts.Equipment
 {
     public record CreateMachineRequest(
         string Name,
-        MachineType Type,
+        string Type,
         string Code,
         string Brand,
         int BitAddress

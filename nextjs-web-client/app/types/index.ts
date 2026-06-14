@@ -3,7 +3,6 @@ export type { LoginResponse } from "./auth/LoginResponse";
 export { createLoginRequest } from "./auth/LoginRequest";
 
 export type { Machine } from "./machine/Machine";
-export { MachineType } from "./machine/MachineType";
 export { MachineStatus } from "./machine/MachineStatus";
 
 export type { CreateMachineRequest } from "./machine/CreateMachineRequest";

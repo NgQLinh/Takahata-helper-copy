@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateMachineRequest, MachineType } from "@/app/types";
+import { CreateMachineRequest } from "@/app/types";
 import { Modal, Form, Input, Select, Button } from "antd";
 
 type Props = {
@@ -13,7 +13,7 @@ const initialValues: CreateMachineRequest = {
   name: "",
   code: "",
   brand: "",
-  type: MachineType.CNC,
+  type: "",
   bitAddress: 0,
 };
 
@@ -73,8 +73,8 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
         >
           <Select
             options={[
-              { label: "CNC", value: MachineType.CNC },
-              { label: "EMD", value: MachineType.EMD },
+              { label: "CNC", value: "CNC" },
+              { label: "EMD", value: "EMD" },
             ]}
           />
         </Form.Item>

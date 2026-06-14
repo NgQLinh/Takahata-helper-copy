@@ -1,6 +1,6 @@
 export interface CreateMachineRequest {
   name: string;
-  type: number;
+  type: string;
   code: string;
   brand: string;
   bitAddress: number;
