@@ -3,7 +3,7 @@
 import { Modal, Form, Input, Select, Button } from "antd";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { Account } from "@/app/types/user/User";
+import { Account } from "@/app/types/account/Account";
 
 type Props = {
   open: boolean;
@@ -13,15 +13,22 @@ type Props = {
 };
 
 const validationSchema = Yup.object({
-  username: Yup.string().trim().required("Vui lòng nhập tên đăng nhập"),
+  userName: Yup.string().trim().required("Vui lòng nhập tên đăng nhập"),
 
   fullName: Yup.string().trim().required("Vui lòng nhập họ và tên"),
+
+  password: Yup.string().matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'"\\|,.<>/?]).{8,}$/,
+    {
+      message:
+        "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
+      excludeEmptyString: true,
+    },
+  ),
 
   role: Yup.string()
     .oneOf(["Admin", "Manager", "User"])
     .required("Vui lòng chọn vai trò"),
-
-  isActive: Yup.boolean().required(),
 });
 
 export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
@@ -40,8 +47,11 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
   };
 
   return (
-    <Formik
-      initialValues={user}
+    <Formik<Account>
+      initialValues={{
+        ...user,
+        password: user.password ?? "",
+      }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
       enableReinitialize
@@ -67,70 +77,86 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
           footer={null}
           destroyOnHidden
         >
-          <form onSubmit={handleSubmit}>
-            <Form layout="vertical">
-              <Form.Item
-                label="Tên đăng nhập"
-                validateStatus={
-                  touched.userName && errors.userName ? "error" : ""
-                }
-                help={touched.userName && errors.userName}
+          <Form layout="vertical" onFinish={handleSubmit}>
+            <Form.Item
+              label="Tên đăng nhập"
+              validateStatus={
+                touched.userName && errors.userName ? "error" : ""
+              }
+              help={touched.userName && errors.userName}
+            >
+              <Input
+                name="userName"
+                value={values.userName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Họ và tên"
+              validateStatus={
+                touched.fullName && errors.fullName ? "error" : ""
+              }
+              help={touched.fullName && errors.fullName}
+            >
+              <Input
+                name="fullName"
+                value={values.fullName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Mật khẩu"
+              validateStatus={
+                touched.password && errors.password ? "error" : ""
+              }
+              help={touched.password && errors.password}
+            >
+              <Input.Password
+                name="password"
+                placeholder="Nhập mật khẩu"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Vai trò"
+              validateStatus={touched.role && errors.role ? "error" : ""}
+              help={touched.role && errors.role}
+            >
+              <Select
+                value={values.role}
+                onChange={(value) => setFieldValue("role", value)}
+                onBlur={() => setFieldValue("role", values.role)}
+                options={[
+                  { label: "Admin", value: "Admin" },
+                  { label: "Manager", value: "Manager" },
+                  { label: "User", value: "User" },
+                ]}
+              />
+            </Form.Item>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                htmlType="button"
+                onClick={() => {
+                  resetForm();
+                  onClose();
+                }}
               >
-                <Input
-                  name="username"
-                  value={values.userName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-              </Form.Item>
+                Hủy
+              </Button>
 
-              <Form.Item
-                label="Họ và tên"
-                validateStatus={
-                  touched.fullName && errors.fullName ? "error" : ""
-                }
-                help={touched.fullName && errors.fullName}
-              >
-                <Input
-                  name="fullName"
-                  value={values.fullName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Vai trò"
-                validateStatus={touched.role && errors.role ? "error" : ""}
-                help={touched.role && errors.role}
-              >
-                <Select
-                  value={values.role}
-                  onChange={(value) => setFieldValue("role", value)}
-                  options={[
-                    { label: "Admin", value: "Admin" },
-                    { label: "Manager", value: "Manager" },
-                    { label: "User", value: "User" },
-                  ]}
-                />
-              </Form.Item>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  onClick={() => {
-                    resetForm();
-                    onClose();
-                  }}
-                >
-                  Hủy
-                </Button>
-
-                <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                  Cập nhật
-                </Button>
-              </div>
-            </Form>
-          </form>
+              <Button type="primary" htmlType="submit" loading={isSubmitting}>
+                Cập nhật
+              </Button>
+            </div>
+          </Form>
         </Modal>
       )}
     </Formik>

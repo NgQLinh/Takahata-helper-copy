@@ -1,16 +1,29 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
-import { Button, Card, Popconfirm, Space, Table, Tag, Typography } from "antd";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import {
+  Button,
+  Card,
+  message,
+  Popconfirm,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 
 import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
-import { Account } from "@/app/types/user/User";
+import { Account } from "@/app/types/account/Account";
 import {
-  createUserAsync,
+  createAccountAsync,
   getAccountsAsync,
+  updateAccountAsync,
+  deleteAccountAsync,
 } from "@/app/services/account/AccountService";
+import { DeleteAccountRequest } from "@/app/types/account/DeleteAccountRequest";
+import { UpdateAccountRequest } from "@/app/types/account/UpdateAccountRequest";
 
 const { Title } = Typography;
 
@@ -20,45 +33,79 @@ export function UserAndRolePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Account | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const data = await getAccountsAsync();
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    await getAccountsAsync()
+      .then((data) => {
         setUsers(data);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Lỗi khi call API:", error);
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    };
-
-    fetchUsers();
+      });
   }, []);
-  // [] nghĩa là chỉ chạy 1 lần khi component load
+
+  useEffect(() => {
+    getAccountsAsync()
+      .then((data) => {
+        setUsers(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi call API:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const handleCreate = async (request: Omit<Account, "id" | "isActive">) => {
     try {
-      const newUser = await createUserAsync(request);
-
+      const newUser = await createAccountAsync(request);
       console.log(newUser.userName);
-
-      setUsers((prev) => [newUser, ...prev]);
+      fetchUsers();
     } catch (error) {
-      console.error("Tạo người dùng thất bại:", error);
+      message.error("Tạo tài khoản không thành công");
+      console.error("Tạo tài khoản không thành công:", error);
     }
   };
 
   const handleUpdate = async (updatedUser: Account) => {
-    setUsers((prev) =>
-      prev.map((user) => (user.id === updatedUser.id ? updatedUser : user)),
-    );
+    const request: UpdateAccountRequest = {
+      id: updatedUser.id,
+      userName: updatedUser.userName,
+      fullName: updatedUser.fullName,
+      password: updatedUser.password,
+      role: updatedUser.role,
+    };
 
     setEditingUser(null);
+
+    await updateAccountAsync(request)
+      .then((data) => {
+        console.log(data.userName);
+        fetchUsers();
+      })
+      .catch((error) => {
+        message.error("Xóa tài khoản không thành công");
+        console.error("Xóa tài khoản không thành công:", error);
+      });
   };
 
-  const handleDelete = (userId: Account["id"]) => {
-    setUsers((prev) => prev.filter((user) => user.id !== userId));
+  const handleDelete = async (userId: Account["id"]) => {
+    const request: DeleteAccountRequest = {
+      id: userId,
+    };
+    await deleteAccountAsync(request)
+      .then((data) => {
+        console.log(data.userName);
+        fetchUsers();
+      })
+      .catch((error) => {
+        message.error("Xóa tài khoản không thành công");
+        console.error("Xóa tài khoản không thành công:", error);
+      });
   };
 
   const columns: ColumnsType<Account> = useMemo(
