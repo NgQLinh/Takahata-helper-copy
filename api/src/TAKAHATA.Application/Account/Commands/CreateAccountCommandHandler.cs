@@ -1,11 +1,11 @@
 ﻿using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TAKAHATA.Contracts.Authentication;
+using TAKAHATA.Contracts.Account;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.User;
 
-namespace TAKAHATA.Application.Authentication.Commands
+namespace TAKAHATA.Application.Account.Commands
 {
     public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, ErrorOr<AcountResponse>>
     {

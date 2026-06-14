@@ -1,6 +1,6 @@
 ﻿using TAKAHATA.Domain.User;
 
-namespace TAKAHATA.Contracts.Authentication
+namespace TAKAHATA.Contracts.Account
 {
     public class AcountResponse
     {

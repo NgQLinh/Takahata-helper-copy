@@ -4,7 +4,7 @@ using Microsoft.OpenApi;
 using Serilog;
 using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
-using TAKAHATA.Application.Authentication.Commands;
+using TAKAHATA.Application.Account.Commands;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Infrastructure;

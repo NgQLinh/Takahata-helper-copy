@@ -60,7 +60,7 @@ namespace TAKAHATA.Infrastructure
                             ValidateAudience = true,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-
+                            ClockSkew = TimeSpan.Zero,
                             ValidIssuer = jwtSettings.Issuer,
                             ValidAudience = jwtSettings.Audience,
 

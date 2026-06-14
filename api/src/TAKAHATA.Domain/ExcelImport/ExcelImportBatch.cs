@@ -8,7 +8,7 @@ namespace TAKAHATA.Domain.ExcelImport
         public string FileName { get; set; } = string.Empty;
         public string? FileType { get; set; }
         public string? ImportedBy { get; set; }
-        public DateTime ImportedAt { get; set; } = DateTime.UtcNow;
+        public DateTime ImportedAt { get; set; } = DateTime.Now;
         public WorkStatus Status { get; set; } = WorkStatus.Planning;
         public string? Note { get; set; }
         public IEnumerable<ExcelImportError> Errors { get; set; } = [];

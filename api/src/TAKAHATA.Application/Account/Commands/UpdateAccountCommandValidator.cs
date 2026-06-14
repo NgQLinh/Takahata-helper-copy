@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace TAKAHATA.Application.Authentication.Commands
+namespace TAKAHATA.Application.Account.Commands
 {
     public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountCommand>
     {

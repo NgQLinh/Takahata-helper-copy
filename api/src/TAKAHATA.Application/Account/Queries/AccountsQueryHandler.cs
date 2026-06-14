@@ -1,10 +1,10 @@
 ﻿using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TAKAHATA.Contracts.Authentication;
+using TAKAHATA.Contracts.Account;
 using TAKAHATA.Domain.User;
 
-namespace TAKAHATA.Application.Authentication.Queries
+namespace TAKAHATA.Application.Account.Queries
 {
     public class AccountsQueryHandler : IRequestHandler<AccountsQuery, ErrorOr<IEnumerable<AcountResponse>>>
     {

@@ -1,8 +1,8 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Contracts.Authentication;
+using TAKAHATA.Contracts.Account;
 
-namespace TAKAHATA.Application.Authentication.Commands
+namespace TAKAHATA.Application.Account.Commands
 {
     public record CreateAccountCommand(string UserName, string Password, string FullName, string Role) : IRequest<ErrorOr<AcountResponse>>;
 }

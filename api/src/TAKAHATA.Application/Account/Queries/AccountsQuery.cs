@@ -1,8 +1,8 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Contracts.Authentication;
+using TAKAHATA.Contracts.Account;
 
-namespace TAKAHATA.Application.Authentication.Queries
+namespace TAKAHATA.Application.Account.Queries
 {
     public record AccountsQuery : IRequest<ErrorOr<IEnumerable<AcountResponse>>>;
 }

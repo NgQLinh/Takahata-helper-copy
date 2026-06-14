@@ -7,25 +7,25 @@ namespace TAKAHATA.Domain.Common.Errors
         public static class Account
         {
             public static Error DuplicateEmployeeId =>
-                Error.Validation(
-                    code: "Auth.DuplicateEmployeeId",
-                    description: "Duplicate Employee Id."
-                );
+                Error.Validation(code: "Account.DuplicateEmployeeId", description: "Duplicate Employee Id.");
 
             public static Error DuplicateUserName =>
-                Error.Validation(code: "Auth.DuplicateUserName", description: "Duplicate User Name.");
+                Error.Validation(code: "Account.DuplicateUserName", description: "Duplicate User Name.");
 
             public static Error InvalidCredentials =>
-                Error.Validation(code: "Auth.InvalidCredentials", description: "Invalid Credentials.");
+                Error.Validation(code: "Account.InvalidCredentials", description: "Invalid Credentials.");
 
             public static Error CreateAccountFalse =>
-                Error.Validation(code: "Auth.CreateAccountFalse", description: "Create Account False.");
+                Error.Validation(code: "Account.CreateAccountFalse", description: "Create Account False.");
 
             public static Error UpdateAccountFalse =>
-                Error.Validation(code: "Auth.UpdateAccountFalse", description: "Update Account False.");
+                Error.Validation(code: "Account.UpdateAccountFalse", description: "Update Account False.");
 
             public static Error NotFound =>
-                Error.NotFound(code: "Auth.NotFoundAccount", description: "Not Found Account.");
+                Error.NotFound(code: "Account.NotFoundAccount", description: "Not Found Account.");
+
+            public static Error DeleteAccountFalse =>
+                Error.Validation(code: "Account.DeleteAccountFalse", description: "Delete Account False.");
         }
     }
 

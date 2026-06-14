@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace TAKAHATA.Application.Authentication.Commands
+namespace TAKAHATA.Application.Account.Commands
 {
-    public class RegisterCommandValidator : AbstractValidator<CreateAccountCommand>
+    public class CreateAccountCommandValidator : AbstractValidator<CreateAccountCommand>
     {
-        public RegisterCommandValidator()
+        public CreateAccountCommandValidator()
         {
             RuleFor(x => x.UserName)
                  .NotEmpty().WithMessage("UserName is required.");

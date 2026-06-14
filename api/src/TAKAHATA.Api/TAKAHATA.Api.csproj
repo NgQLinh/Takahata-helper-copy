@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\Mapping\**" />
+    <Content Remove="Common\Mapping\**" />
+    <EmbeddedResource Remove="Common\Mapping\**" />
+    <None Remove="Common\Mapping\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -18,10 +25,6 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.2.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Common\Mapping\" />
   </ItemGroup>
 
   <ItemGroup>
