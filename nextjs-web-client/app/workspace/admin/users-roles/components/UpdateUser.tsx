@@ -135,7 +135,7 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
                 onBlur={() => setFieldValue("role", values.role)}
                 options={[
                   { label: "ADMIN", value: "ADMIN" },
-                  { label: "Manager", value: "Manager" },
+                  { label: "MANAGER", value: "MANAGER" },
                   { label: "USER", value: "USER" },
                 ]}
               />
