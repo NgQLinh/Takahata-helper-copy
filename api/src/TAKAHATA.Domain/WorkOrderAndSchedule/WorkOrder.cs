@@ -1,6 +1,5 @@
 ﻿using TAKAHATA.Domain.Common;
 using TAKAHATA.Domain.Common.Enum;
-using TAKAHATA.Domain.CostManagement;
 using TAKAHATA.Domain.MachineOperation;
 using TAKAHATA.Domain.MasterData;
 using TAKAHATA.Domain.MoldManagement;
@@ -29,6 +28,5 @@ namespace TAKAHATA.Domain.WorkOrderAndSchedule
         public string? Note { get; set; }
         public IEnumerable<MachineSchedule> MachineSchedules { get; set; } = [];
         public IEnumerable<MachineOperationLog> OperationLogs { get; set; } = [];
-        public IEnumerable<ProjectCost> Costs { get; set; } = [];
     }
 }

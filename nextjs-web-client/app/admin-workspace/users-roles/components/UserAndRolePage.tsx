@@ -11,9 +11,7 @@ import {
   Tag,
   Typography,
 } from "antd";
-
 import type { ColumnsType } from "antd/es/table";
-
 import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
 import { Account } from "@/app/types/account/Account";
@@ -23,8 +21,7 @@ import {
   updateAccountAsync,
   deleteAccountAsync,
 } from "@/app/services/account/AccountService";
-import { DeleteAccountRequest } from "@/app/types/account/DeleteAccountRequest";
-import { UpdateAccountRequest } from "@/app/types/account/UpdateAccountRequest";
+import { DeleteAccountRequest, UpdateAccountRequest } from "@/app/types";
 import { toast } from "react-toastify";
 
 const { Title } = Typography;

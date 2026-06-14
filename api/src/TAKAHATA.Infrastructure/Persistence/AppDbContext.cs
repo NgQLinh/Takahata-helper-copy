@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
-using TAKAHATA.Domain.Common.Enum;
-using TAKAHATA.Domain.CostManagement;
-using TAKAHATA.Domain.ExcelImport;
 using TAKAHATA.Domain.MachineOperation;
 using TAKAHATA.Domain.MasterData;
 using TAKAHATA.Domain.MoldManagement;
@@ -28,12 +24,10 @@ namespace TAKAHATA.Infrastructure.Persistence
         public DbSet<MachineOperationLog> MachineOperationLogs => Set<MachineOperationLog>();
         public DbSet<MachineDailySummary> MachineDailySummaries => Set<MachineDailySummary>();
 
-        public DbSet<CostCategory> CostCategories => Set<CostCategory>();
-        public DbSet<ProjectCost> ProjectCosts => Set<ProjectCost>();
-
-        public DbSet<ExcelImportBatch> ExcelImportBatches => Set<ExcelImportBatch>();
-        public DbSet<ExcelImportError> ExcelImportErrors => Set<ExcelImportError>();
-
+        //public DbSet<CostCategory> CostCategories => Set<CostCategory>();
+        //public DbSet<ProjectCost> ProjectCosts => Set<ProjectCost>();
+        //public DbSet<ExcelImportBatch> ExcelImportBatches => Set<ExcelImportBatch>();
+        //public DbSet<ExcelImportError> ExcelImportErrors => Set<ExcelImportError>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
            : base(options)

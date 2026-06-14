@@ -1,6 +1,6 @@
 "use client";
 
-import { CreateAccountRequest } from "@/app/types/account/CreateAccountRequest";
+import { CreateAccountRequest } from "@/app/types";
 import { Modal, Form, Input, Select, Button } from "antd";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";

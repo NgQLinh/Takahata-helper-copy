@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { loginAsync } from "../services/auth/LoginService";
-import { LoginReq } from "../types";
+import { LoginRequest } from "../types";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     onSubmit: async (values, { setSubmitting, setErrors }) => {
       try {
-        const req: LoginReq = {
+        const req: LoginRequest = {
           userName: values.userName,
           password: values.password,
         };

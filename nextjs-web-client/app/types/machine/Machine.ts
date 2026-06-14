@@ -1,16 +1,16 @@
-import { DeviceType } from "./DeviceType";
-import { DeviceStatus } from "./DeviceStatus";
+import { MachineType } from "./MachineType";
+import { MachineStatus } from "./MachineStatus";
 
-export interface Device {
+export interface Machine {
   id: number;
   name: string;
-  type: DeviceType;
+  type: MachineType;
   serialNumber: string;
   brand: string;
   createAt: string;
   createBy: string;
   updateAt?: string;
   updateBy?: string;
-  status: DeviceStatus;
+  status: MachineStatus;
   bitAddress: number;
 }

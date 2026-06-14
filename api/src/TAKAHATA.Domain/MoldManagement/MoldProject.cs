@@ -1,6 +1,5 @@
 ﻿using TAKAHATA.Domain.Common;
 using TAKAHATA.Domain.Common.Enum;
-using TAKAHATA.Domain.CostManagement;
 using TAKAHATA.Domain.WorkOrderAndSchedule;
 
 namespace TAKAHATA.Domain.MoldManagement
@@ -17,6 +16,5 @@ namespace TAKAHATA.Domain.MoldManagement
         public WorkStatus Status { get; set; } = WorkStatus.Planning;
         public IEnumerable<MoldPart> Parts { get; set; } = [];
         public IEnumerable<WorkOrder> WorkOrders { get; set; } = [];
-        public IEnumerable<ProjectCost> Costs { get; set; } = [];
     }
 }

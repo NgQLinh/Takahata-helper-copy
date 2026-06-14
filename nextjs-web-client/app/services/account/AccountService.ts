@@ -1,8 +1,10 @@
 import { Account } from "@/app/types/account/Account";
 import { apiClient } from "@/app/services/common/apiClient";
-import { CreateAccountRequest } from "@/app/types/account/CreateAccountRequest";
-import { DeleteAccountRequest } from "@/app/types/account/DeleteAccountRequest";
-import { UpdateAccountRequest } from "@/app/types/account/UpdateAccountRequest";
+import {
+  CreateAccountRequest,
+  DeleteAccountRequest,
+  UpdateAccountRequest,
+} from "@/app/types";
 
 export const getAccountsAsync = async (): Promise<Account[]> => {
   const response = await apiClient.post("/Account/query-accounts");

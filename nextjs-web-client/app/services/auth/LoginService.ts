@@ -1,8 +1,10 @@
-import { LoginReq, LoginRes } from "@/app/types";
+import { LoginRequest, LoginResponse } from "@/app/types";
 import { apiClient } from "../common/apiClient";
 
-export const loginAsync = async (data: LoginReq): Promise<LoginRes> => {
-  const response = await apiClient.post<LoginRes>(
+export const loginAsync = async (
+  data: LoginRequest,
+): Promise<LoginResponse> => {
+  const response = await apiClient.post<LoginResponse>(
     "/Authentication/login",
     data,
   );

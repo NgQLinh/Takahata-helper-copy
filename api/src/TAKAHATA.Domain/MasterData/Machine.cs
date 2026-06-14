@@ -12,9 +12,8 @@ namespace TAKAHATA.Domain.MasterData
         public MachineType Type { get; set; }
         public string SerialNumber { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
-        public MachineStatus MachineStatus { get; set; } = MachineStatus.Auto;
+        public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
         public int BitAddress { get; set; }
-        public decimal StandardHoursPerDay { get; set; }
         public IEnumerable<WorkOrder> WorkOrders { get; set; } = [];
         public IEnumerable<MachineSchedule> MachineSchedules { get; set; } = [];
         public IEnumerable<MachineOperationLog> OperationLogs { get; set; } = [];

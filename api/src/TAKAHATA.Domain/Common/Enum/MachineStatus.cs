@@ -2,11 +2,8 @@
 {
     public enum MachineStatus
     {
-        Auto,
-        Manual,
-        Setup,
-        Stop,
-        Alarm,
-        Offline
+        Active = 1,
+        Inactive = 2,
+        Removed = 3,
     }
 }

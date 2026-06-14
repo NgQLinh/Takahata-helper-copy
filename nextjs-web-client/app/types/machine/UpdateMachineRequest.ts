@@ -1,4 +1,4 @@
-export interface UpdateDeviceRequest {
+export interface UpdateMachineRequest {
   id: number;
   name: string;
   type: number;

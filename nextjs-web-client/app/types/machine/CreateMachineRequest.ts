@@ -1,4 +1,4 @@
-export interface CreateDeviceRequest {
+export interface CreateMachineRequest {
   name: string;
   type: number;
   serialNumber: string;
