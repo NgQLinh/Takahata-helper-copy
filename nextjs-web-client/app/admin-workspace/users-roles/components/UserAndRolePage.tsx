@@ -4,13 +4,14 @@ import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   Button,
   Card,
-  message,
+  Input,
   Popconfirm,
   Space,
   Table,
   Tag,
   Typography,
 } from "antd";
+
 import type { ColumnsType } from "antd/es/table";
 
 import CreateUser from "./CreateUser";
@@ -27,12 +28,25 @@ import { UpdateAccountRequest } from "@/app/types/account/UpdateAccountRequest";
 import { toast } from "react-toastify";
 
 const { Title } = Typography;
+const { Search } = Input;
 
 export function UserAndRolePage() {
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Account | null>(null);
+  const [searchText, setSearchText] = useState("");
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const keyword = searchText.toLowerCase();
+
+      return (
+        user.userName.toLowerCase().includes(keyword) ||
+        user.fullName.toLowerCase().includes(keyword)
+      );
+    });
+  }, [users, searchText]);
 
   useEffect(() => {
     getAccountsAsync()
@@ -136,8 +150,8 @@ export function UserAndRolePage() {
         width: 140,
         filters: [
           { text: "ADMIN", value: "ADMIN" },
-          { text: "Manager", value: "Manager" },
-          { text: "User", value: "User" },
+          { text: "MANAGER", value: "MANAGER" },
+          { text: "USER", value: "USER" },
         ],
         onFilter: (value, record) => record.role === value,
         render: (role: string) => {
@@ -192,11 +206,20 @@ export function UserAndRolePage() {
       </Card>
 
       <Card>
+        <div className="mb-4">
+          <Search
+            placeholder="Tìm theo tên đăng nhập hoặc họ tên"
+            allowClear
+            enterButton
+            style={{ width: 350 }}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </div>
         <Table<Account>
           rowKey="id"
           loading={loading}
           columns={columns}
-          dataSource={users}
+          dataSource={filteredUsers}
           scroll={{ x: 900 }}
           pagination={{
             pageSize: 10,
