@@ -1,7 +1,7 @@
 export interface CreateMachineRequest {
   name: string;
   type: number;
-  serialNumber: string;
+  code: string;
   brand: string;
   bitAddress: number;
 }

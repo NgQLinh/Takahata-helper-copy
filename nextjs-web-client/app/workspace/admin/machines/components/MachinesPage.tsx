@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, MachineType } from "@/app/types";
+import {
+  CreateMachineRequest,
+  DeleteMachineRequest,
+  Machine,
+  MachineType,
+} from "@/app/types";
 import type { ColumnsType } from "antd/es/table";
 import {
   Button,
@@ -15,6 +20,11 @@ import {
   Tag,
   Typography,
 } from "antd";
+import {
+  createMachineAsync,
+  deleteMachineAsync,
+} from "@/app/services/machine/MachineService";
+import CreateMachine from "./CreateMachine";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -37,7 +47,8 @@ export function MachinesPage() {
     });
   }, [machines, searchText]);
 
-  useEffect(() => {
+  const fetchMachines = useCallback(async () => {
+    setLoading(true);
     getMachinesAsync()
       .then((data) => {
         console.log(data);
@@ -51,7 +62,49 @@ export function MachinesPage() {
       });
   }, []);
 
-  const handleDelete = async (id: number) => {};
+  useEffect(() => {
+    getMachinesAsync()
+      .then((data) => {
+        console.log(data);
+        setMachines(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi call API:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const handleCreate = async (request: CreateMachineRequest) => {
+    await createMachineAsync(request)
+      .then((data) => {
+        console.log(data);
+        fetchMachines();
+        toast.success("Tạo máy thành công");
+      })
+      .catch((error) => {
+        toast.error("Tạo máy không thành công");
+        console.error("Tạo máy không thành công:", error);
+      });
+  };
+
+  const handleDelete = async (id: number) => {
+    const request: DeleteMachineRequest = {
+      id: id,
+    };
+
+    await deleteMachineAsync(request)
+      .then((data) => {
+        console.log(data);
+        fetchMachines();
+        toast.success("Xóa máy thành công");
+      })
+      .catch((error) => {
+        toast.error("Xóa máy không thành công");
+        console.error("Xóa máy không thành công:", error);
+      });
+  };
 
   const columns: ColumnsType<Machine> = useMemo(
     () => [
@@ -127,6 +180,9 @@ export function MachinesPage() {
       case MachineType.CNC:
         return "CNC";
 
+      case MachineType.EMD:
+        return "EMD";
+
       default:
         return "Unknown";
     }
@@ -171,6 +227,12 @@ export function MachinesPage() {
             }}
           />
         </Card>
+
+        <CreateMachine
+          open={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
+          onCreate={handleCreate}
+        />
       </div>
     </>
   );

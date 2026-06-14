@@ -73,15 +73,16 @@ export function UserAndRolePage() {
   }, []);
 
   const handleCreate = async (request: Omit<Account, "id" | "isActive">) => {
-    try {
-      const newUser = await createAccountAsync(request);
-      console.log(newUser.userName);
-      fetchUsers();
-      toast.success("Tạo tài khoản thành công");
-    } catch (error) {
-      toast.error("Tạo tài khoản không thành công");
-      console.error("Tạo tài khoản không thành công:", error);
-    }
+    await createAccountAsync(request)
+      .then((data) => {
+        console.log(data);
+        fetchUsers();
+        toast.success("Tạo tài khoản thành công");
+      })
+      .catch((error) => {
+        toast.error("Tạo tài khoản không thành công");
+        console.error("Tạo tài khoản không thành công:", error);
+      });
   };
 
   const handleUpdate = async (updatedUser: Account) => {
