@@ -7,6 +7,7 @@ import {
   CreateMachineRequest,
   DeleteMachineRequest,
   Machine,
+  UpdateMachineRequest,
 } from "@/app/types";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -22,9 +23,12 @@ import {
 import {
   createMachineAsync,
   deleteMachineAsync,
+  updateMachineAsync,
 } from "@/app/services/machine/MachineService";
 import CreateMachine from "./CreateMachine";
 import { ColumnFilterItem } from "antd/es/table/interface";
+import UpdateMachine from "./UpdateMachine";
+import MachineDetail from "./MachineDetail";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -34,6 +38,8 @@ export function MachinesPage() {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
 
   const typeFilter = useMemo<ColumnFilterItem[]>(
     () =>
@@ -104,6 +110,33 @@ export function MachinesPage() {
       });
   };
 
+  const handleUpdate = async (machine: Machine) => {
+    const request: UpdateMachineRequest = {
+      id: machine.id,
+      name: machine.name,
+      code: machine.code,
+      brand: machine.brand,
+      type: machine.type,
+      bitAddress: 0,
+    };
+
+    console.log(machine);
+    console.log(request);
+
+    setEditingMachine(null);
+
+    await updateMachineAsync(request)
+      .then((data) => {
+        console.log(data);
+        fetchMachines();
+        toast.success("Cập nhật máy thành công");
+      })
+      .catch((error) => {
+        toast.error("Cập nhật máy không thành công");
+        console.error("Cập nhật máy không thành công:", error);
+      });
+  };
+
   const handleDelete = async (id: number) => {
     const request: DeleteMachineRequest = {
       id: id,
@@ -169,7 +202,9 @@ export function MachinesPage() {
         align: "right",
         render: (_, record) => (
           <Space>
-            <Button size="small">Sửa</Button>
+            <Button size="small" onClick={() => setEditingMachine(record)}>
+              Sửa
+            </Button>
 
             <Popconfirm
               title="Xóa người dùng"
@@ -183,7 +218,9 @@ export function MachinesPage() {
               </Button>
             </Popconfirm>
 
-            <Button size="small">Xem chi tiết</Button>
+            <Button size="small" onClick={() => setSelectedMachine(record)}>
+              Xem chi tiết
+            </Button>
           </Space>
         ),
       },
@@ -235,6 +272,19 @@ export function MachinesPage() {
           open={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           onCreate={handleCreate}
+        />
+
+        <UpdateMachine
+          open={!!editingMachine}
+          machine={editingMachine}
+          onClose={() => setEditingMachine(null)}
+          onUpdate={handleUpdate}
+        />
+
+        <MachineDetail
+          open={!!selectedMachine}
+          machine={selectedMachine}
+          onClose={() => setSelectedMachine(null)}
         />
       </div>
     </>

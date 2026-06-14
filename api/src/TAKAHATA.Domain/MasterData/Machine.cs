@@ -10,7 +10,6 @@ namespace TAKAHATA.Domain.MasterData
         public string Name { get; set; } = string.Empty;
         public string Code { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
-        public string SerialNumber { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
         public int BitAddress { get; set; }

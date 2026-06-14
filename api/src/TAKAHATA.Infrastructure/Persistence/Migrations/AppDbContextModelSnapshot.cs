@@ -309,10 +309,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("SerialNumber")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("longtext");

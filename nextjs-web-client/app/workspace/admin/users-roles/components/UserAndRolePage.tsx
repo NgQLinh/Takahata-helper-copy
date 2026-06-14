@@ -98,7 +98,7 @@ export function UserAndRolePage() {
 
     await updateAccountAsync(request)
       .then((data) => {
-        console.log(data.userName);
+        console.log(data);
         fetchUsers();
         toast.success("Cập nhật tài khoản thành công");
       })
@@ -114,7 +114,7 @@ export function UserAndRolePage() {
     };
     await deleteAccountAsync(request)
       .then((data) => {
-        console.log(data.userName);
+        console.log(data);
         fetchUsers();
         toast.success("Xóa tài khoản thành công");
       })

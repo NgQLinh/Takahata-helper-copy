@@ -33,7 +33,7 @@ namespace TAKAHATA.Application.Equipment.Commands
 
             entity.Name = command.Name;
             entity.Type = command.Type;
-            entity.SerialNumber = command.Code;
+            entity.Code = command.Code;
             entity.Brand = command.Brand;
             entity.UpdateBy = userId;
             entity.UpdateAt = DateTime.Now;
