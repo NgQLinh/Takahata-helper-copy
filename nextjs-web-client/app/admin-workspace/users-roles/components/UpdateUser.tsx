@@ -27,7 +27,7 @@ const validationSchema = Yup.object({
   ),
 
   role: Yup.string()
-    .oneOf(["Admin", "Manager", "User"])
+    .oneOf(["ADMIN", "MANAGER", "USER"])
     .required("Vui lòng chọn vai trò"),
 });
 
@@ -134,9 +134,9 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
                 onChange={(value) => setFieldValue("role", value)}
                 onBlur={() => setFieldValue("role", values.role)}
                 options={[
-                  { label: "Admin", value: "Admin" },
+                  { label: "ADMIN", value: "ADMIN" },
                   { label: "Manager", value: "Manager" },
-                  { label: "User", value: "User" },
+                  { label: "USER", value: "USER" },
                 ]}
               />
             </Form.Item>

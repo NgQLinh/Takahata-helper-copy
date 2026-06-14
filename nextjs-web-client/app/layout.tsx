@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./globals.css";
+import ToastProvider from "./components/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,7 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body>{children}</body>
+      <body>{children} </body>
+      <ToastProvider />
     </html>
   );
 }

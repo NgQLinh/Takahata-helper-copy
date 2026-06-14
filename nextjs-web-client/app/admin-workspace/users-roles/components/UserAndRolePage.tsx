@@ -24,6 +24,7 @@ import {
 } from "@/app/services/account/AccountService";
 import { DeleteAccountRequest } from "@/app/types/account/DeleteAccountRequest";
 import { UpdateAccountRequest } from "@/app/types/account/UpdateAccountRequest";
+import { toast } from "react-toastify";
 
 const { Title } = Typography;
 
@@ -65,8 +66,9 @@ export function UserAndRolePage() {
       const newUser = await createAccountAsync(request);
       console.log(newUser.userName);
       fetchUsers();
+      toast.success("Tạo tài khoản thành công");
     } catch (error) {
-      message.error("Tạo tài khoản không thành công");
+      toast.error("Tạo tài khoản không thành công");
       console.error("Tạo tài khoản không thành công:", error);
     }
   };
@@ -86,9 +88,10 @@ export function UserAndRolePage() {
       .then((data) => {
         console.log(data.userName);
         fetchUsers();
+        toast.success("Cập nhật tài khoản thành công");
       })
       .catch((error) => {
-        message.error("Cập nhật tài khoản không thành công");
+        toast.error("Cập nhật tài khoản không thành công");
         console.error("Cập nhật tài khoản không thành công:", error);
       });
   };
@@ -101,9 +104,10 @@ export function UserAndRolePage() {
       .then((data) => {
         console.log(data.userName);
         fetchUsers();
+        toast.success("Xóa tài khoản thành công");
       })
       .catch((error) => {
-        message.error("Xóa tài khoản không thành công");
+        toast.error("Xóa tài khoản không thành công");
         console.error("Xóa tài khoản không thành công:", error);
       });
   };

@@ -15,7 +15,7 @@ const initialValues: CreateAccountRequest = {
   userName: "",
   fullName: "",
   password: "",
-  role: "User",
+  role: "USER",
 };
 
 const validationSchema = Yup.object({
@@ -31,7 +31,7 @@ const validationSchema = Yup.object({
     ),
 
   role: Yup.string()
-    .oneOf(["Admin", "Manager", "User"])
+    .oneOf(["ADMIN", "MANAGER", "USER"])
     .required("Vui lòng chọn vai trò"),
 });
 
@@ -136,9 +136,9 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
                 onChange={(value) => setFieldValue("role", value)}
                 onBlur={() => setFieldValue("role", values.role)}
                 options={[
-                  { label: "Admin", value: "Admin" },
-                  { label: "Manager", value: "Manager" },
-                  { label: "User", value: "User" },
+                  { label: "ADMIN", value: "ADMIN" },
+                  { label: "MANAGER", value: "MANAGER" },
+                  { label: "USER", value: "USER" },
                 ]}
               />
             </Form.Item>
