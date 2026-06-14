@@ -88,7 +88,7 @@ export default function LoginPage() {
 
               <input
                 type="text"
-                name="username"
+                name="userName"
                 className="form-control form-control-lg"
                 placeholder="Enter username"
                 value={formik.values.userName}

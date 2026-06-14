@@ -33,9 +33,8 @@ export function UserAndRolePage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Account | null>(null);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    await getAccountsAsync()
+  useEffect(() => {
+    getAccountsAsync()
       .then((data) => {
         setUsers(data);
       })
@@ -47,8 +46,9 @@ export function UserAndRolePage() {
       });
   }, []);
 
-  useEffect(() => {
-    getAccountsAsync()
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    await getAccountsAsync()
       .then((data) => {
         setUsers(data);
       })
@@ -88,8 +88,8 @@ export function UserAndRolePage() {
         fetchUsers();
       })
       .catch((error) => {
-        message.error("Xóa tài khoản không thành công");
-        console.error("Xóa tài khoản không thành công:", error);
+        message.error("Cập nhật tài khoản không thành công");
+        console.error("Cập nhật tài khoản không thành công:", error);
       });
   };
 
