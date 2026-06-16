@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
+import dayjs from "dayjs";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import {
@@ -17,7 +18,6 @@ import {
   Popconfirm,
   Space,
   Table,
-  Tag,
   Typography,
 } from "antd";
 import {
@@ -157,32 +157,32 @@ export function MachinesPage() {
   const columns: ColumnsType<Machine> = useMemo(
     () => [
       {
-        title: "Id",
-        dataIndex: "id",
-        key: "id",
-        width: 50,
-        sorter: (a, b) => a.id - b.id,
+        title: "STT",
+        dataIndex: "sequenceNumber",
+        key: "sequenceNumber",
+        width: 40,
+        sorter: (a, b) => a.sequenceNumber - b.sequenceNumber,
         render: (value: string) => <strong>{value}</strong>,
       },
       {
         title: "Tên",
         dataIndex: "name",
         key: "name",
-        width: 120,
+        width: 80,
         sorter: (a, b) => a.name.localeCompare(b.name),
       },
       {
         title: "Mã",
         dataIndex: "code",
         key: "code",
-        width: 120,
+        width: 80,
         sorter: (a, b) => a.code.localeCompare(b.code),
       },
       {
         title: "Loại",
         dataIndex: "type",
         key: "type",
-        width: 100,
+        width: 80,
         filters: typeFilter,
         onFilter: (value, record) => record.type === value,
       },
@@ -190,9 +190,45 @@ export function MachinesPage() {
         title: "Thương hiệu",
         dataIndex: "brand",
         key: "brand",
-        width: 100,
+        width: 80,
         filters: brandFilter,
         onFilter: (value, record) => record.brand === value,
+      },
+      {
+        title: "Người tạo",
+        dataIndex: "createBy",
+        key: "createBy",
+        width: 80,
+        filters: brandFilter,
+        onFilter: (value, record) => record.createBy === value,
+      },
+      {
+        title: "Ngày tạo",
+        dataIndex: "createAt",
+        key: "createAt",
+        width: 120,
+        render: (value: Date) => new Date(value).toLocaleString("vi-VN"),
+        sorter: (a, b) =>
+          new Date(a.createAt).getTime() - new Date(b.createAt).getTime(),
+      },
+      {
+        title: "Người sửa",
+        dataIndex: "updateBy",
+        key: "updateBy",
+        width: 80,
+        filters: brandFilter,
+        onFilter: (value, record) => record.updateBy === value,
+      },
+      {
+        title: "Ngày sửa",
+        dataIndex: "updateAt",
+        key: "updateAt",
+        width: 120,
+        render: (value?: string | Date) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+        sorter: (a, b) =>
+          dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
+        defaultSortOrder: "descend",
       },
       {
         title: "Thao tác",

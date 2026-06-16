@@ -15,6 +15,7 @@
     "axios": "^1.17.0",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "dayjs": "^1.11.21",
     "formik": "^2.4.9",
     "next": "16.2.7",
     "postcss": "^8.5.15",

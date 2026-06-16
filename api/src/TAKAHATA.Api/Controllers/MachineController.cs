@@ -58,7 +58,7 @@ namespace TAKAHATA.Api.Controllers
         [HttpPost("query-machines")]
         public async Task<IActionResult> GetDevices()
         {
-            var query = new DeviceQuery();
+            var query = new MachineQuery();
 
             var result = await _sender.Send(query);
 
