@@ -59,6 +59,30 @@ export function MachinesPage() {
     [machines],
   );
 
+  const createByFilter = useMemo<ColumnFilterItem[]>(
+    () =>
+      Array.from(new Set(machines.map((m) => m.createBy))).map((createBy) => ({
+        text: createBy,
+        value: createBy,
+      })),
+    [machines],
+  );
+
+  const updateByFilter = useMemo<ColumnFilterItem[]>(
+    () =>
+      Array.from(
+        new Set(
+          machines
+            .map((m) => m.updateBy)
+            .filter((updateBy): updateBy is string => !!updateBy),
+        ),
+      ).map((updateBy) => ({
+        text: updateBy,
+        value: updateBy,
+      })),
+    [machines],
+  );
+
   const filteredMachines = useMemo(() => {
     return machines.filter((machine) => {
       const keyword = searchText.toLowerCase();
@@ -199,7 +223,7 @@ export function MachinesPage() {
         dataIndex: "createBy",
         key: "createBy",
         width: 80,
-        filters: brandFilter,
+        filters: createByFilter,
         onFilter: (value, record) => record.createBy === value,
       },
       {
@@ -216,7 +240,7 @@ export function MachinesPage() {
         dataIndex: "updateBy",
         key: "updateBy",
         width: 80,
-        filters: brandFilter,
+        filters: updateByFilter,
         onFilter: (value, record) => record.updateBy === value,
       },
       {
