@@ -11,6 +11,7 @@ const WorkOrdersPath = "/workspace/admin/work-orders";
 const MachineSchedulePath = "/workspace/admin/machine-schedule";
 const KPIReportsPath = "/workspace/admin/kpi-reports";
 const UsersRolesPath = "/workspace/admin/users-roles";
+const IndexPath = "/workspace/admin/index";
 
 export default function NavigationLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -53,11 +54,8 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <span className="mx-2 text-secondary">|</span>
 
             <li className="nav-item">
-              <Link
-                href={MoldProjectsPath}
-                className={navClass(MoldProjectsPath)}
-              >
-                Dự án khuôn
+              <Link href={IndexPath} className={navClass(IndexPath)}>
+                Quản lý Index & part
               </Link>
             </li>
 
