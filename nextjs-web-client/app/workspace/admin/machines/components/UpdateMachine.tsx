@@ -77,8 +77,20 @@ export default function UpdateMachine({
         >
           <Select
             options={[
-              { label: "CNC", value: "CNC" },
-              { label: "EMD", value: "EMD" },
+              { label: "NC Milling", value: "NC Milling" },
+              { label: "Machining Centre", value: "Machining Centre" },
+              { label: "CNC Lathe", value: "CNC Lathe" },
+              { label: "Lathe (Manual)", value: "Lathe (Manual)" },
+              { label: "Bench Lathe", value: "Bench Lathe" },
+              { label: "EDM", value: "EDM" },
+              { label: "Wire cut", value: "Wire cut" },
+              { label: "Small Hole EDM", value: "Small Hole EDM" },
+              { label: "Grinding", value: "Grinding" },
+              { label: "Gear Hobbing MC", value: "Gear Hobbing MC" },
+              { label: "Welding", value: "Welding" },
+              { label: "Laser Welding", value: "Laser Welding" },
+              { label: "Cleaning MC", value: "Cleaning MC" },
+              { label: "Other (Manual Eqp.)", value: "Other (Manual Eqp.)" },
             ]}
           />
         </Form.Item>
