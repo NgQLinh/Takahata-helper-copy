@@ -1,0 +1,121 @@
+/* Search */
+.schedule-page {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+}
+
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  background: #fff;
+}
+
+/* Table */
+.schedule-page {
+  padding: 16px;
+  background: #f5f5f5;
+  height: 100vh;
+}
+
+.table-wrapper {
+  width: 100%;
+  height: calc(100vh - 32px);
+  overflow: auto;
+  background: white;
+  border: 1px solid #333;
+}
+
+.schedule-table {
+  border-collapse: collapse;
+  min-width: 1800px;
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  color: #000;
+}
+
+.schedule-table th,
+.schedule-table td {
+  border: 1px solid #000;
+  height: 26px;
+  min-width: 90px;
+  padding: 2px 6px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.schedule-table thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 5;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  height: 56px;
+}
+
+.title span,
+.process-title span {
+  font-weight: normal;
+}
+
+.process-title {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.green-row th,
+.green-cell {
+  background: #92d050 !important;
+}
+
+.sticky-col {
+  position: sticky;
+  background: white;
+  z-index: 8;
+}
+
+.col-index {
+  left: 0;
+  min-width: 80px !important;
+}
+
+.col-part {
+  left: 80px;
+  min-width: 240px !important;
+}
+
+.col-type {
+  min-width: 80px !important;
+  font-weight: bold;
+}
+
+.part-index {
+  color: red;
+}
+
+.part-name {
+  color: red;
+  font-weight: 500;
+}
+
+tbody tr:nth-child(3n + 1) td {
+  border-top: 2px solid #000;
+}
