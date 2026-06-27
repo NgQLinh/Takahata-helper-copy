@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, Button } from "antd";
+import { Modal, Form, Input, Select, Button } from "antd";
 
 type Props = {
   open: boolean;
@@ -20,8 +20,38 @@ export default function CreatePart({ open, onClose }: Props) {
       onCancel={handleCancel}
       destroyOnHidden
     >
-      <div>
-        <Button onClick={handleCancel}>Đóng</Button>
+      <div className="container">
+        <div className="row">
+          <div className="col-6">
+            <Form>
+              <Form.Item
+                label="Index"
+                name="IndexCode"
+                rules={[
+                  { required: true, message: "Vui lòng nhập index" },
+                  { whitespace: true, message: "Vui lòng nhập index" },
+                ]}
+              >
+                <Input placeholder="Nhập index" />
+              </Form.Item>
+
+              <Form.Item
+                label="Part"
+                name="PartCode"
+                rules={[
+                  { required: true, message: "Vui lòng nhập part" },
+                  { whitespace: true, message: "Vui lòng nhập part" },
+                ]}
+              >
+                <Input placeholder="Nhập part" />
+              </Form.Item>
+            </Form>
+          </div>
+          <div className="col-6" />
+        </div>
+        <div className="row">
+          <Button onClick={handleCancel}>Đóng</Button>
+        </div>
       </div>
     </Modal>
   );
