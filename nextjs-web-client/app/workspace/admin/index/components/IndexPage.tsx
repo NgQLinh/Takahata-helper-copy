@@ -4,6 +4,7 @@ import "./IndexPage.css";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Input, Button, Space } from "antd";
 import { useState } from "react";
+import CreatePart from "./CreatePart";
 
 type RowType = "MC" | "P" | "A";
 
@@ -80,7 +81,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -122,7 +123,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -164,7 +165,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -206,7 +207,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -248,7 +249,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -290,7 +291,7 @@ const data: PartSchedule[] = [
       ],
     },
   },
-   {
+  {
     index: "CN219",
     partName: "FIXING PIN H1",
     rows: {
@@ -335,7 +336,11 @@ const data: PartSchedule[] = [
 ];
 
 export function IndexPage() {
+  // Search
   const [keyword, setKeyword] = useState("");
+
+  // Create
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const filteredData = data.filter(
     (x) =>
@@ -361,7 +366,9 @@ export function IndexPage() {
           </Button>
         </Space>
 
-        <Button type="primary">Thêm part</Button>
+        <Button type="primary" onClick={() => setIsCreateOpen(true)}>
+          Thêm part
+        </Button>
       </div>
 
       <div className="table-wrapper">
@@ -459,6 +466,8 @@ export function IndexPage() {
           </tbody>
         </table>
       </div>
+
+      <CreatePart open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
     </div>
   );
 }
