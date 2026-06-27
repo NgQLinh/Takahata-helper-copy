@@ -168,7 +168,7 @@ const data: PartSchedule[] = [
   },
 ];
 
-export function MoldSchedulePage() {
+export function IndexPage() {
   const [keyword, setKeyword] = useState("");
 
   return (
