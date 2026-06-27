@@ -6,8 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 
 const DashboardPath = "/workspace/admin/dashboard";
 const MachinesPath = "/workspace/admin/machines";
-const MoldProjectsPath = "/workspace/admin/mold-projects";
-const WorkOrdersPath = "/workspace/admin/work-orders";
 const MachineSchedulePath = "/workspace/admin/machine-schedule";
 const KPIReportsPath = "/workspace/admin/kpi-reports";
 const UsersRolesPath = "/workspace/admin/users-roles";
@@ -56,14 +54,6 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <li className="nav-item">
               <Link href={IndexPath} className={navClass(IndexPath)}>
                 Quản lý Index & part
-              </Link>
-            </li>
-
-            <span className="mx-2 text-secondary">|</span>
-
-            <li className="nav-item">
-              <Link href={WorkOrdersPath} className={navClass(WorkOrdersPath)}>
-                Đơn hàng
               </Link>
             </li>
 
