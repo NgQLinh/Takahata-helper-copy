@@ -1,6 +1,6 @@
 "use client";
 
-import "./MoldSchedule.css";
+import "./IndexPage.css";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { Input, Button, Space } from "antd";
 import { useState } from "react";
