@@ -1,6 +1,7 @@
 "use client";
 
-import { Modal, Form, Input, Select, Button } from "antd";
+import { useState } from "react";
+import { Modal, Form, Input, Select, Button, Checkbox } from "antd";
 
 type Props = {
   open: boolean;
@@ -8,7 +9,12 @@ type Props = {
 };
 
 export default function CreatePart({ open, onClose }: Props) {
+  const [form] = Form.useForm();
+  const [isCreateNewIndex, setIsCreateNewIndex] = useState(false);
+
   const handleCancel = () => {
+    form.resetFields();
+    setIsCreateNewIndex(false);
     onClose();
   };
 
@@ -20,39 +26,63 @@ export default function CreatePart({ open, onClose }: Props) {
       onCancel={handleCancel}
       destroyOnHidden
     >
-      <div className="container">
-        <div className="row">
-          <div className="col-6">
-            <Form>
-              <Form.Item
-                label="Index"
-                name="IndexCode"
-                rules={[
-                  { required: true, message: "Vui lòng nhập index" },
-                  { whitespace: true, message: "Vui lòng nhập index" },
-                ]}
-              >
-                <Input placeholder="Nhập index" />
-              </Form.Item>
+      <Form form={form} layout="vertical">
+        <Form.Item label="Chọn index đã có" name="IndexCode">
+          <Select
+            placeholder="Chọn index"
+            disabled={isCreateNewIndex}
+            options={[
+              { label: "INDEX_001", value: "INDEX_001" },
+              { label: "INDEX_002", value: "INDEX_002" },
+            ]}
+          />
+        </Form.Item>
 
-              <Form.Item
-                label="Part"
-                name="PartCode"
-                rules={[
-                  { required: true, message: "Vui lòng nhập part" },
-                  { whitespace: true, message: "Vui lòng nhập part" },
-                ]}
-              >
-                <Input placeholder="Nhập part" />
-              </Form.Item>
-            </Form>
-          </div>
-          <div className="col-6" />
-        </div>
-        <div className="row">
+        <Form.Item>
+          <Checkbox
+            checked={isCreateNewIndex}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setIsCreateNewIndex(checked);
+
+              if (checked) {
+                form.setFieldValue("IndexCode", undefined);
+              } else {
+                form.setFieldValue("NewIndexCode", undefined);
+              }
+            }}
+          >
+            Tạo index mới
+          </Checkbox>
+        </Form.Item>
+
+        <Form.Item
+          label="Index mới"
+          name="NewIndexCode"
+          rules={
+            isCreateNewIndex
+              ? [{ required: true, message: "Vui lòng nhập index mới" }]
+              : []
+          }
+        >
+          <Input placeholder="Nhập index mới" disabled={!isCreateNewIndex} />
+        </Form.Item>
+
+        <Form.Item
+          label="Part name"
+          name="PartName"
+          rules={[{ required: true, message: "Vui lòng nhập part name" }]}
+        >
+          <Input placeholder="Nhập part name" />
+        </Form.Item>
+
+        <div className="d-flex justify-content-end gap-2">
           <Button onClick={handleCancel}>Đóng</Button>
+          <Button type="primary" htmlType="submit">
+            Lưu
+          </Button>
         </div>
-      </div>
+      </Form>
     </Modal>
   );
 }
