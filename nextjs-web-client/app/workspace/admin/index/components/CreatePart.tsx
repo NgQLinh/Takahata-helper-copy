@@ -27,54 +27,63 @@ export default function CreatePart({ open, onClose }: Props) {
       destroyOnHidden
     >
       <Form form={form} layout="vertical">
-        <Form.Item label="Chọn index đã có" name="IndexCode">
-          <Select
-            placeholder="Chọn index"
-            disabled={isCreateNewIndex}
-            options={[
-              { label: "INDEX_001", value: "INDEX_001" },
-              { label: "INDEX_002", value: "INDEX_002" },
-            ]}
-          />
-        </Form.Item>
+        <div className="container">
+          <div className="col-6">
+            <Form.Item label="Chọn index đã có" name="IndexCode">
+              <Select
+                placeholder="Chọn index"
+                disabled={isCreateNewIndex}
+                options={[
+                  { label: "INDEX_001", value: "INDEX_001" },
+                  { label: "INDEX_002", value: "INDEX_002" },
+                ]}
+              />
+            </Form.Item>
 
-        <Form.Item>
-          <Checkbox
-            checked={isCreateNewIndex}
-            onChange={(e) => {
-              const checked = e.target.checked;
-              setIsCreateNewIndex(checked);
+            <Form.Item>
+              <Checkbox
+                checked={isCreateNewIndex}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setIsCreateNewIndex(checked);
 
-              if (checked) {
-                form.setFieldValue("IndexCode", undefined);
-              } else {
-                form.setFieldValue("NewIndexCode", undefined);
+                  if (checked) {
+                    form.setFieldValue("IndexCode", undefined);
+                  } else {
+                    form.setFieldValue("NewIndexCode", undefined);
+                  }
+                }}
+              >
+                Tạo index mới
+              </Checkbox>
+            </Form.Item>
+
+            <Form.Item
+              label="Index mới"
+              name="NewIndexCode"
+              rules={
+                isCreateNewIndex
+                  ? [{ required: true, message: "Vui lòng nhập index mới" }]
+                  : []
               }
-            }}
-          >
-            Tạo index mới
-          </Checkbox>
-        </Form.Item>
+            >
+              <Input
+                placeholder="Nhập index mới"
+                disabled={!isCreateNewIndex}
+              />
+            </Form.Item>
 
-        <Form.Item
-          label="Index mới"
-          name="NewIndexCode"
-          rules={
-            isCreateNewIndex
-              ? [{ required: true, message: "Vui lòng nhập index mới" }]
-              : []
-          }
-        >
-          <Input placeholder="Nhập index mới" disabled={!isCreateNewIndex} />
-        </Form.Item>
+            <Form.Item
+              label="Part name"
+              name="PartName"
+              rules={[{ required: true, message: "Vui lòng nhập part name" }]}
+            >
+              <Input placeholder="Nhập part name" />
+            </Form.Item>
+          </div>
 
-        <Form.Item
-          label="Part name"
-          name="PartName"
-          rules={[{ required: true, message: "Vui lòng nhập part name" }]}
-        >
-          <Input placeholder="Nhập part name" />
-        </Form.Item>
+          <div className="col-6"></div>
+        </div>
 
         <div className="d-flex justify-content-end gap-2">
           <Button onClick={handleCancel}>Đóng</Button>
