@@ -1,7 +1,5 @@
 ﻿using TAKAHATA.Domain.Common;
 using TAKAHATA.Domain.Common.Enum;
-using TAKAHATA.Domain.MachineOperation;
-using TAKAHATA.Domain.WorkOrderAndSchedule;
 
 namespace TAKAHATA.Domain.MasterData
 {
@@ -13,9 +11,5 @@ namespace TAKAHATA.Domain.MasterData
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
         public int BitAddress { get; set; }
-        public IEnumerable<WorkOrder> WorkOrders { get; set; } = [];
-        public IEnumerable<MachineSchedule> MachineSchedules { get; set; } = [];
-        public IEnumerable<MachineOperationLog> OperationLogs { get; set; } = [];
-        public IEnumerable<MachineDailySummary> DailySummaries { get; set; } = [];
     }
 }
