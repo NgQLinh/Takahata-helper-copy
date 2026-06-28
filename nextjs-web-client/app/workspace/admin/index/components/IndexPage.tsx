@@ -1,12 +1,13 @@
 "use client";
 
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, Tag } from "antd";
+import { Button, Card, Input, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreatePart from "./CreatePart";
 import { searchPartAsync } from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
+import Title from "antd/es/typography/Title";
 
 type RowType = "MC" | "P" | "A";
 
@@ -283,21 +284,19 @@ export function IndexPage() {
 
   return (
     <div className="container-fluid py-4">
-      <div className="card border-0 shadow-sm">
-        <div className="card-header bg-white border-0 pt-4 px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-              <h5 className="mb-1 fw-bold">
-                Lịch trình gia công chi tiết khuôn
-              </h5>
-            </div>
+      <Card>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Title level={3} style={{ margin: 0 }}>
+            Lịch trình gia công chi tiết khuôn
+          </Title>
 
-            <Button type="primary" onClick={() => setIsCreateOpen(true)}>
-              Thêm part
-            </Button>
-          </div>
+          <Button type="primary" onClick={() => setIsCreateOpen(true)}>
+            Thêm part
+          </Button>
         </div>
+      </Card>
 
+      <div className="card border-0 shadow-sm mt-1">
         <div className="card-body px-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
             <Input
@@ -327,7 +326,7 @@ export function IndexPage() {
             columns={columns}
             dataSource={dataSource}
             rowKey="key"
-            scroll={{ x: 1850, y: 650 }}
+            scroll={{ x: 1850, y: 500 }}
             pagination={{
               current: page,
               pageSize,
