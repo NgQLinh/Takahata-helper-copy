@@ -205,7 +205,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
@@ -219,7 +219,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -232,6 +232,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Machines");
                 });

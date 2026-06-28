@@ -11,6 +11,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder
+                .HasIndex(x => x.Name)
+                .IsUnique();
+
+            builder
+                .HasIndex(x => x.Code)
+                .IsUnique();
+
+            builder
                 .Property(p => p.CreateAt)
                 .IsRequired();
         }
