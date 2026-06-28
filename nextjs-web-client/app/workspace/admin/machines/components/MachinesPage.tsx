@@ -161,6 +161,7 @@ export function MachinesPage() {
       });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleDelete = async (id: number) => {
     const request: DeleteMachineRequest = {
       id: id,
@@ -252,7 +253,6 @@ export function MachinesPage() {
           value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
         sorter: (a, b) =>
           dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
-        defaultSortOrder: "descend",
       },
       {
         title: "Thao tác",
@@ -285,7 +285,7 @@ export function MachinesPage() {
         ),
       },
     ],
-    [typeFilter],
+    [typeFilter, brandFilter, createByFilter, updateByFilter, handleDelete],
   );
 
   return (

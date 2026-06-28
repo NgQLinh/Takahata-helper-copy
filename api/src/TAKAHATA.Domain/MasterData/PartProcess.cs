@@ -11,5 +11,6 @@ namespace TAKAHATA.Domain.MasterData
         public DateOnly? ActualDate { get; set; }
         public decimal? WorkingHours { get; set; }
         public bool IsCompleted { get; set; }
+        public string Note { get; set; } = string.Empty;
     }
 }

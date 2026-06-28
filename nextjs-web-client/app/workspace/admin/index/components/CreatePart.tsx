@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   Form,
@@ -15,6 +15,10 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
+import { Machine } from "@/app/types";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { createPartAsync } from "@/app/services/index/IndexService";
+import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;
@@ -23,37 +27,64 @@ type Props = {
 
 type PlanRow = {
   key: string;
-  machine?: string;
+  machineId?: string;
   planDate?: Dayjs | null;
   note?: string;
 };
 
-const machineOptions = [
-  { label: "Máy 1", value: "M01" },
-  { label: "Máy 2", value: "M02" },
-  { label: "Máy 3", value: "M03" },
-];
+type FormValues = {
+  IndexCode?: string;
+  NewIndexCode?: string;
+  PartCode: string;
+};
 
 const createEmptyRow = (): PlanRow => ({
   key: crypto.randomUUID(),
-  machine: undefined,
+  machineId: undefined,
   planDate: null,
   note: "",
 });
 
 export default function CreatePart({ open, onClose }: Props) {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<FormValues>();
 
+  const [loading, setLoading] = useState(false);
+  const [machines, setMachines] = useState<Machine[]>([]);
   const [isCreateNewIndex, setIsCreateNewIndex] = useState(false);
-
   const [dataSource, setDataSource] = useState<PlanRow[]>([
     {
       key: crypto.randomUUID(),
-      machine: "M01",
+      machineId: undefined,
       planDate: dayjs(),
       note: "",
     },
   ]);
+
+  useEffect(() => {
+    const fetchMachines = async () => {
+      setLoading(true);
+
+      try {
+        const data = await getMachinesAsync();
+        setMachines(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách máy:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMachines();
+  }, []);
+
+  const machineOptions = useMemo(
+    () =>
+      machines.map((machine) => ({
+        label: `${machine.name} - ${machine.code}`,
+        value: machine.id,
+      })),
+    [machines],
+  );
 
   const handleCancel = () => {
     form.resetFields();
@@ -82,19 +113,29 @@ export default function CreatePart({ open, onClose }: Props) {
     setDataSource((prev) => prev.filter((item) => item.key !== key));
   };
 
-  const handleSubmit = async () => {
-    const values = await form.validateFields();
+  const handleSubmit = async (values: FormValues) => {
+    // validate
 
-    const payload = {
-      ...values,
-      schedules: dataSource.map((item) => ({
-        machine: item.machine,
+    const request = {
+      indexCode: values.IndexCode ?? values.NewIndexCode,
+      partCode: values.PartCode,
+      partProcesses: dataSource.map((item) => ({
+        machineId: item.machineId,
         planDate: item.planDate?.format("YYYY-MM-DD"),
         note: item.note,
       })),
     };
 
-    console.log("Payload submit:", payload);
+    console.log("Payload submit:", request);
+
+    await createPartAsync(request)
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        toast.error("Tạo part không thành công");
+        console.error("Tạo part không thành công:", error);
+      });
   };
 
   const columns: ColumnsType<PlanRow> = [
@@ -107,9 +148,10 @@ export default function CreatePart({ open, onClose }: Props) {
         <Select
           placeholder="Chọn máy"
           style={{ width: "100%" }}
+          loading={loading}
           value={value}
           options={machineOptions}
-          onChange={(v) => handleChange(record.key, "machine", v)}
+          onChange={(v: string) => handleChange(record.key, "machineId", v)}
         />
       ),
     },
@@ -143,7 +185,7 @@ export default function CreatePart({ open, onClose }: Props) {
     {
       title: "Thao tác",
       key: "action",
-      width: 100,
+      width: 90,
       align: "center",
       render: (_, record) => (
         <Button
@@ -163,14 +205,20 @@ export default function CreatePart({ open, onClose }: Props) {
       open={open}
       footer={null}
       width={1100}
-      height={800}
       onCancel={handleCancel}
       destroyOnHidden
+      styles={{
+        body: {
+          maxHeight: "75vh",
+          overflowY: "auto",
+        },
+      }}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
         <div className="row">
-          <div className="col-4 justify-content-between align-items-center mt-2">
+          <div className="col-4 mt-2">
             <h6 className="mb-2">Thông tin</h6>
+
             <Form.Item label="Chọn index đã có" name="IndexCode">
               <Select
                 placeholder="Chọn index"
@@ -187,14 +235,16 @@ export default function CreatePart({ open, onClose }: Props) {
                 checked={isCreateNewIndex}
                 onChange={(e) => {
                   const checked = e.target.checked;
-
                   setIsCreateNewIndex(checked);
 
-                  if (checked) {
-                    form.setFieldValue("IndexCode", undefined);
-                  } else {
-                    form.setFieldValue("NewIndexCode", undefined);
-                  }
+                  form.setFieldsValue({
+                    IndexCode: checked
+                      ? undefined
+                      : form.getFieldValue("IndexCode"),
+                    NewIndexCode: checked
+                      ? form.getFieldValue("NewIndexCode")
+                      : undefined,
+                  });
                 }}
               >
                 Tạo index mới
@@ -217,15 +267,15 @@ export default function CreatePart({ open, onClose }: Props) {
             </Form.Item>
 
             <Form.Item
-              label="Part name"
-              name="PartName"
+              label="Part code"
+              name="PartCode"
               rules={[{ required: true, message: "Vui lòng nhập part name" }]}
             >
               <Input placeholder="Nhập part name" />
             </Form.Item>
           </div>
 
-          <div className="col-8">
+          <div className="col-8 mt-2">
             <div className="d-flex justify-content-between align-items-center mb-2">
               <h6 className="mb-0">Kế hoạch máy</h6>
 

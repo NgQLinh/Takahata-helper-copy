@@ -22,21 +22,17 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("login/")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login(LoginCommand request)
         {
-            var command = _mapper.Map<LoginCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(RefreshRequest request)
+        public async Task<IActionResult> Refresh(RefreshCommand request)
         {
-            var command = _mapper.Map<RefreshCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }

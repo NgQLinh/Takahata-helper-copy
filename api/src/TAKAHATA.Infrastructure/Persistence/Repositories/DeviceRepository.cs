@@ -13,7 +13,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Machine?> AddDeviceAsync(Machine device)
+        public async Task<Machine?> AddAsync(Machine device)
         {
             await _dbContext.Machines.AddAsync(device);
             var effectedRow = await _dbContext.SaveChangesAsync();

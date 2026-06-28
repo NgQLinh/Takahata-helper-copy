@@ -24,31 +24,25 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("create/")]
-        public async Task<IActionResult> CreateAccount(CreateAccountRequest request)
+        public async Task<IActionResult> CreateAccount(CreateAccountCommand request)
         {
-            var command = _mapper.Map<CreateAccountCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateAccounts(UpdateAccountRequest request)
+        public async Task<IActionResult> UpdateAccounts(UpdateAccountCommand request)
         {
-            var command = _mapper.Map<UpdateAccountCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteAccounts(DeleteAccountRequest request)
+        public async Task<IActionResult> DeleteAccounts(DeleteAccountCommand request)
         {
-            var command = _mapper.Map<DeleteAccountCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(r => Ok(r), e => Problem(e));
         }

@@ -1,10 +1,8 @@
 ﻿using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Application.Equipment.Queries;
-using TAKAHATA.Contracts.Equipment;
 
 namespace TAKAHATA.Api.Controllers
 {
@@ -20,11 +18,9 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(CreateMachineRequest request)
+        public async Task<IActionResult> CreateMachine(CreateMachineCommand request)
         {
-            var command = _mapper.Map<CreateMachineCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(
                 r => Ok(r),
@@ -32,11 +28,9 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateDevice(UpdateMachineRequest request)
+        public async Task<IActionResult> UpdateMachine(UpdateMachineCommand request)
         {
-            var command = _mapper.Map<UpdateMachineCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(
                 r => Ok(r),
@@ -44,11 +38,9 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> DeleteDevice(DeleteMachineRequest request)
+        public async Task<IActionResult> DeleteMachine(DeleteMachineCommand request)
         {
-            var command = _mapper.Map<DeleteMachineCommand>(request);
-
-            var result = await _sender.Send(command);
+            var result = await _sender.Send(request);
 
             return result.Match(
                 r => Ok(r),
@@ -56,7 +48,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("query-machines")]
-        public async Task<IActionResult> GetDevices()
+        public async Task<IActionResult> GetMachines()
         {
             var query = new MachineQuery();
 

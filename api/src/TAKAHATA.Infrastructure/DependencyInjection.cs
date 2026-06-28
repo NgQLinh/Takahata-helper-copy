@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Application.Common.Interface.JwtToken;
 using TAKAHATA.Domain.User;
 using TAKAHATA.Infrastructure.Authentication;
@@ -22,6 +23,8 @@ namespace TAKAHATA.Infrastructure
         {
             // Repositories
             services.AddScoped<IDeviceRepository, DeviceRepository>();
+            services.AddScoped<IIndexRepository, IndexRepository>();
+            services.AddScoped<IPartRepository, PartRepository>();
 
             // MySQL
             var connectionString = configuration.GetConnectionString("DefaultConnection");

@@ -2,6 +2,7 @@
 
 import { Modal, Form, Input, Select, Button } from "antd";
 import { Machine } from "@/app/types";
+import { useEffect } from "react";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,12 @@ export default function UpdateMachine({
   onUpdate,
 }: Props) {
   const [form] = Form.useForm<Machine>();
+
+  useEffect(() => {
+    if (open && machine) {
+      form.setFieldsValue(machine);
+    }
+  }, [open, machine, form]);
 
   if (!machine) return null;
 

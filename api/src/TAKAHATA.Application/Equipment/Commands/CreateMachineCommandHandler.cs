@@ -34,7 +34,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             var device = _mapper.Map<Machine>(command);
             device.CreateBy = userId;
 
-            device = await _deviceRepository.AddDeviceAsync(device);
+            device = await _deviceRepository.AddAsync(device);
             if (device is null)
                 return Errors.Machine.CreateMachineFalse;
 

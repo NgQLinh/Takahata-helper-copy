@@ -12,3 +12,5 @@ export type { UpdateMachineRequest } from "./machine/UpdateMachineRequest";
 export type { CreateAccountRequest } from "./account/CreateAccountRequest";
 export type { DeleteAccountRequest } from "./account/DeleteAccountRequest";
 export type { UpdateAccountRequest } from "./account/UpdateAccountRequest";
+
+export type { Part } from "./part/Part";
