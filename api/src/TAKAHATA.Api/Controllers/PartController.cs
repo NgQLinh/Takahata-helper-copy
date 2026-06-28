@@ -50,7 +50,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("detail")]
-        public async Task<IActionResult> Detail(PartsQuery query)
+        public async Task<IActionResult> Detail(PartQuery query)
         {
             var result = await _sender.Send(query);
 
