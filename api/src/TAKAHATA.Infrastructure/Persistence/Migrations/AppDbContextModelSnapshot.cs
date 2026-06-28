@@ -278,7 +278,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("IndexId");
 
-                    b.ToTable("Partes");
+                    b.ToTable("Parts");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.PartProcess", b =>

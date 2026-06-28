@@ -1,7 +1,9 @@
 ﻿using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Application.Equipment.Queries;
 using TAKAHATA.Application.IndexAndPart.Commands;
+using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Api.Controllers
@@ -24,6 +26,16 @@ namespace TAKAHATA.Api.Controllers
 
             return result.Match(
                 r => Ok(_mapper.Map<PartResponse>(r)),
+                e => Problem(e));
+        }
+
+        [HttpPost("query-parts")]
+        public async Task<IActionResult> GetParts(PartsQuery query)
+        {
+            var result = await _sender.Send(query);
+
+            return result.Match(
+                r => Ok(r),
                 e => Problem(e));
         }
     }

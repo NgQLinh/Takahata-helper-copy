@@ -1,4 +1,5 @@
-﻿using TAKAHATA.Domain.MasterData;
+﻿using ErrorOr;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.IndexAndPart
 {
@@ -6,9 +7,9 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
     {
         Task<bool> IsExistedAsync(string partCode);
         Task<Part?> AddAsync(Part part);
-        Task<IEnumerable<Part>> GetAsync();
         Task<Part?> GetByIdAsync(long id);
         Task<Part?> DeleteMachineByIdAsync(long id);
         Task<Part?> UpdateAsync(Part part);
+        Task<IEnumerable<Part>> SearchAsync(int page, int pageSize);
     }
 }

@@ -10,7 +10,7 @@ namespace TAKAHATA.Infrastructure.Persistence
     {
         public DbSet<Machine> Machines { get; set; }
         public DbSet<Index> Indexes { get; set; }
-        public DbSet<Part> Partes { get; set; }
+        public DbSet<Part> Parts { get; set; }
         public DbSet<PartProcess> PartProcesses { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)

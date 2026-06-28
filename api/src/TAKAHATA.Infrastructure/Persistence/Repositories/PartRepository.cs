@@ -15,43 +15,51 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<bool> IsExistedAsync(string partCode)
         {
-            var part = await _dbContext.Partes.FirstOrDefaultAsync(p => p.Code == partCode);
+            var part = await _dbContext.Parts.FirstOrDefaultAsync(p => p.Code == partCode);
             return part != null;
         }
 
         public async Task<Part?> AddAsync(Part part)
         {
-            await _dbContext.Partes.AddAsync(part);
+            await _dbContext.Parts.AddAsync(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? part : null;
         }
 
-        public async Task<IEnumerable<Part>> GetAsync()
-        {
-            return await _dbContext.Partes.ToListAsync();
-        }
-
         public async Task<Part?> GetByIdAsync(long id)
         {
-            return await _dbContext.Partes.FindAsync(id);
+            return await _dbContext.Parts.FindAsync(id);
         }
 
         public async Task<Part?> DeleteMachineByIdAsync(long id)
         {
-            var part = await _dbContext.Partes.FindAsync(id);
+            var part = await _dbContext.Parts.FindAsync(id);
             if (part == null)
                 return null;
 
-            _dbContext.Partes.Remove(part);
+            _dbContext.Parts.Remove(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? part : null;
         }
 
         public async Task<Part?> UpdateAsync(Part part)
         {
-            _dbContext.Partes.Update(part);
+            _dbContext.Parts.Update(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? part : null;
+        }
+
+        public async Task<IEnumerable<Part>> SearchAsync(int page, int pageSize)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0) pageSize = 10;
+
+            return await _dbContext.Parts
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
     }
 }
