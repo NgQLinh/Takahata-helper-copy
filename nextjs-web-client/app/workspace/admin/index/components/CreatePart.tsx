@@ -114,8 +114,6 @@ export default function CreatePart({ open, onClose }: Props) {
   };
 
   const handleSubmit = async (values: FormValues) => {
-    // validate
-
     const request = {
       indexCode: values.IndexCode ?? values.NewIndexCode,
       partCode: values.PartCode,
@@ -131,6 +129,10 @@ export default function CreatePart({ open, onClose }: Props) {
     await createPartAsync(request)
       .then((data) => {
         console.log(data);
+        // fetchMachines();
+        toast.success("Tạo part thành công");
+        form.resetFields();
+        onClose();
       })
       .catch((error) => {
         toast.error("Tạo part không thành công");
@@ -204,7 +206,7 @@ export default function CreatePart({ open, onClose }: Props) {
       title="Thêm mới part và progress"
       open={open}
       footer={null}
-      width={1100}
+      width={1200}
       onCancel={handleCancel}
       destroyOnHidden
       styles={{
@@ -215,7 +217,7 @@ export default function CreatePart({ open, onClose }: Props) {
       }}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <div className="row">
+        <div className="row g-3 m-0">
           <div className="col-4 mt-2">
             <h6 className="mb-2">Thông tin</h6>
 

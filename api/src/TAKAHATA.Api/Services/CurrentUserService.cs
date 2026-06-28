@@ -12,9 +12,9 @@ namespace TAKAHATA.Api.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string? UserId =>
+        public string UserId =>
             _httpContextAccessor.HttpContext?
                 .User?
-                .FindFirstValue(ClaimTypes.NameIdentifier);
+                .FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
     }
 }

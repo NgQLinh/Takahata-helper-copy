@@ -15,6 +15,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
                 .HasDatabaseName("PS_Index_PartId");
 
             builder
+                .Property(p => p.CreateAt)
+                .IsRequired();
+
+            builder
                 .HasIndex(x => x.MachineId)
                 .HasDatabaseName("PS_Index_MachineId");
         }

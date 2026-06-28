@@ -27,6 +27,9 @@ namespace TAKAHATA.Domain.Common.Errors
 
         public static Error DeviceTypeInvalid =>
             Error.Unexpected(code: "Auth.DeviceTypeInvalid", description: "Loại thiết bị không hợp lệ");
+
+        public static Error Unauthorized =>
+            Error.Unauthorized(code: "Auth.Unauthorized", description: "Unauthorized");
     }
 
 }

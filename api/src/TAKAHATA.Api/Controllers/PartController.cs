@@ -1,12 +1,11 @@
 ﻿using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.IndexAndPart.Commands;
+using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Api.Controllers
 {
-    [AllowAnonymous]
     public class PartController : ApiController
     {
         private readonly ISender _sender;
@@ -24,7 +23,7 @@ namespace TAKAHATA.Api.Controllers
             var result = await _sender.Send(request);
 
             return result.Match(
-                r => Ok(r),
+                r => Ok(_mapper.Map<PartResponse>(r)),
                 e => Problem(e));
         }
     }

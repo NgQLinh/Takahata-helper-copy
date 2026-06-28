@@ -6,6 +6,7 @@ namespace TAKAHATA.Domain.MasterData
     {
         public long IndexId { get; set; }
         public string Code { get; set; } = string.Empty;
+        public Index? Index { get; set; }
         public ICollection<PartProcess> Processes { get; set; } = [];
     }
 }

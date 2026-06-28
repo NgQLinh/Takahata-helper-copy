@@ -13,6 +13,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<bool> IsExistedAsync(string partCode)
+        {
+            var part = await _dbContext.Partes.FirstOrDefaultAsync(p => p.Code == partCode);
+            return part != null;
+        }
+
         public async Task<Part?> AddAsync(Part device)
         {
             await _dbContext.Partes.AddAsync(device);

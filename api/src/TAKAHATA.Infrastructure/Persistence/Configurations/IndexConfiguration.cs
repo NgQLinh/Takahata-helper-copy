@@ -14,6 +14,16 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
                 .HasIndex(x => x.Code)
                 .HasDatabaseName("IX_Index_Code")
                 .IsUnique();
+
+            builder
+                .Property(p => p.CreateAt)
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.Parts)
+                .WithOne(y => y.Index)
+                .HasForeignKey(x => x.IndexId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

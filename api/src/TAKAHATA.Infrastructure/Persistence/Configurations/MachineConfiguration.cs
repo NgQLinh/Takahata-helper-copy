@@ -9,6 +9,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Machine> builder)
         {
             builder.HasKey(x => x.Id);
+
+            builder
+                .Property(p => p.CreateAt)
+                .IsRequired();
         }
     }
 }

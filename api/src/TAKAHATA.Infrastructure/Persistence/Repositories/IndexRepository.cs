@@ -25,6 +25,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.Indexes.ToListAsync();
         }
 
+        public async Task<Index?> GetAsync(string indexCode)
+        {
+            return _dbContext.Indexes.FirstOrDefault(e => e.Code == indexCode);
+        }
+
         public async Task<Index?> GetByIdAsync(long id)
         {
             return await _dbContext.Indexes.FindAsync(id);
@@ -46,6 +51,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _dbContext.Indexes.Update(Index);
             var effectedRow = await _dbContext.SaveChangesAsync();
             return effectedRow != 0 ? Index : null;
+        }
+
+        public async Task<bool> IsExistedAsync(string indexCode)
+        {
+            var index = await _dbContext.Indexes.FirstOrDefaultAsync(x => x.Code == indexCode);
+            return index != null;
         }
     }
 }

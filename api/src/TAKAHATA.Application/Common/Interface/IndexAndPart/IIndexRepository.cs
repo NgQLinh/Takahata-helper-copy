@@ -4,14 +4,12 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
 {
     public interface IIndexRepository
     {
-        public Task<Index?> AddAsync(Index Index);
-
-        public Task<IEnumerable<Index>> GetAsync();
-
-        public Task<Index?> GetByIdAsync(long id);
-
-        public Task<Index?> DeleteIndexByIdAsync(long id);
-
-        public Task<Index?> UpdateAsync(Index Index);
+        Task<Index?> AddAsync(Index Index);
+        Task<IEnumerable<Index>> GetAsync();
+        Task<Index?> GetAsync(string indexCode);
+        Task<Index?> GetByIdAsync(long id);
+        Task<Index?> DeleteIndexByIdAsync(long id);
+        Task<Index?> UpdateAsync(Index Index);
+        Task<bool> IsExistedAsync(string indexCode);
     }
 }

@@ -299,6 +299,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<long>("MachineId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<long>("PartId")
                         .HasColumnType("bigint");
 
@@ -455,20 +459,24 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Part", b =>
                 {
-                    b.HasOne("TAKAHATA.Domain.MasterData.Index", null)
+                    b.HasOne("TAKAHATA.Domain.MasterData.Index", "Index")
                         .WithMany("Parts")
                         .HasForeignKey("IndexId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Index");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.PartProcess", b =>
                 {
-                    b.HasOne("TAKAHATA.Domain.MasterData.Part", null)
+                    b.HasOne("TAKAHATA.Domain.MasterData.Part", "Part")
                         .WithMany("Processes")
                         .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Part");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Index", b =>
