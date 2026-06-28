@@ -6,7 +6,7 @@ namespace TAKAHATA.Application.Equipment.Commands
     {
         public DeleteMachineCommandValidator()
         {
-            RuleFor(x => x.Id).GreaterThan(0).WithMessage("Device ID is required.");
+            RuleFor(x => x.Id).GreaterThan(0).WithMessage("Id máy không được để trống.");
         }
     }
 }

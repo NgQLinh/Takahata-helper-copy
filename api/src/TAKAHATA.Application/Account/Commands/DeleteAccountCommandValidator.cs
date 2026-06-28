@@ -7,7 +7,7 @@ namespace TAKAHATA.Application.Account.Commands
         public DeleteAccountCommandValidator()
         {
             RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("UserName is required.");
+                .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
         }
     }
 }

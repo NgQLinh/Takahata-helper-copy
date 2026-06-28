@@ -1,14 +1,17 @@
 "use client";
 
 import { Modal, Form, Input, Select, Button } from "antd";
-import { Machine } from "@/app/types";
+import { Machine, UpdateMachineRequest } from "@/app/types";
 import { useEffect } from "react";
+import { updateMachineAsync } from "@/app/services/machine/MachineService";
+import { toast } from "react-toastify";
+import { ApiError } from "@/app/types/common/ApiError";
 
 type Props = {
   open: boolean;
   machine: Machine | null;
   onClose: () => void;
-  onUpdate: (request: Machine) => void | Promise<void>;
+  onUpdate: () => void;
 };
 
 export default function UpdateMachine({
@@ -28,12 +31,32 @@ export default function UpdateMachine({
   if (!machine) return null;
 
   const handleSubmit = async (values: Machine) => {
-    await onUpdate({
-      ...machine,
-      ...values,
-    });
-    form.resetFields();
-    onClose();
+    const request: UpdateMachineRequest = {
+      id: machine.id,
+      name: values.name,
+      code: values.code,
+      brand: values.brand,
+      type: values.type,
+      bitAddress: 0,
+    };
+
+    await updateMachineAsync(request)
+      .then((data) => {
+        console.log(data);
+        toast.success("Cập nhật máy thành công");
+        onUpdate();
+      })
+      .catch((error) => {
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
+        toast.error("Có lỗi xảy ra.");
+      })
+      .finally(() => {
+        form.resetFields();
+        onClose();
+      });
   };
 
   const handleCancel = () => {

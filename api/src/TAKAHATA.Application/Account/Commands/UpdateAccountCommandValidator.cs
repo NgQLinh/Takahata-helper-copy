@@ -8,23 +8,23 @@ namespace TAKAHATA.Application.Account.Commands
         {
             RuleFor(x => x.Id)
                 .NotEmpty()
-                .WithMessage("Id is required.");
+                .WithMessage("Id không được để trống.");
 
             RuleFor(x => x.UserName)
                 .NotEmpty()
-                .WithMessage("UserName is required.");
+                .WithMessage("Tên đăng nhập không được để trống.");
 
             RuleFor(x => x.FullName)
                 .NotEmpty()
-                .WithMessage("FullName is required.");
+                .WithMessage("Họ và tên không được để trống.");
 
             RuleFor(x => x.Role)
                 .NotEmpty()
-                .WithMessage("Role is required.");
+                .WithMessage("Quyền không được để trống.");
 
             RuleFor(x => x.Password)
                 .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=[\]{};:'""\\|,.<>/?]).{8,}$")
-                .WithMessage("Password must contain at least 8 characters, including uppercase, lowercase, number and special character.")
+                .WithMessage("Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.")
                 .When(x => !string.IsNullOrWhiteSpace(x.Password));
         }
     }

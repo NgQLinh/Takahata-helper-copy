@@ -7,13 +7,13 @@ namespace TAKAHATA.Application.Account.Commands
         public CreateAccountCommandValidator()
         {
             RuleFor(x => x.UserName)
-                 .NotEmpty().WithMessage("UserName is required.");
+                 .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Password is required.");
+                .NotEmpty().WithMessage("Mật khẩu không được để trống.");
             RuleFor(x => x.FullName)
-                .NotEmpty().WithMessage("FullName is required.");
+                .NotEmpty().WithMessage("Họ và tên không được để trống.");
             RuleFor(x => x.Role)
-                .NotEmpty().WithMessage("Role is required.");
+                .NotEmpty().WithMessage("Quyền không được để trống.");
         }
     }
 }

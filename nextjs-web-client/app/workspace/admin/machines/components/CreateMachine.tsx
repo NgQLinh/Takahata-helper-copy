@@ -1,12 +1,15 @@
 "use client";
 
+import { createMachineAsync } from "@/app/services/machine/MachineService";
 import { CreateMachineRequest } from "@/app/types";
+import { ApiError } from "@/app/types/common/ApiError";
 import { Modal, Form, Input, Select, Button } from "antd";
+import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onCreate: (request: CreateMachineRequest) => void | Promise<void>;
+  onCreate: () => void;
 };
 
 const initialValues: CreateMachineRequest = {
@@ -21,9 +24,23 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
   const [form] = Form.useForm<CreateMachineRequest>();
 
   const handleSubmit = async (values: CreateMachineRequest) => {
-    await onCreate(values);
-    form.resetFields();
-    onClose();
+    await createMachineAsync(values)
+      .then(async (data) => {
+        console.log(data);
+        toast.success("Tạo máy thành công");
+        onCreate();
+      })
+      .catch((error) => {
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
+        toast.error("Có lỗi xảy ra.");
+      })
+      .finally(() => {
+        form.resetFields();
+        onClose();
+      });
   };
 
   const handleCancel = () => {

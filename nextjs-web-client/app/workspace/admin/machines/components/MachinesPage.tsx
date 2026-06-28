@@ -121,44 +121,13 @@ export function MachinesPage() {
       });
   }, []);
 
-  const handleCreate = async (request: CreateMachineRequest) => {
-    await createMachineAsync(request)
-      .then((data) => {
-        console.log(data);
-        fetchMachines();
-        toast.success("Tạo máy thành công");
-      })
-      .catch((error) => {
-        toast.error("Tạo máy không thành công");
-        console.error("Tạo máy không thành công:", error);
-      });
+  const handleCreate = async () => {
+    fetchMachines();
   };
 
-  const handleUpdate = async (machine: Machine) => {
-    const request: UpdateMachineRequest = {
-      id: machine.id,
-      name: machine.name,
-      code: machine.code,
-      brand: machine.brand,
-      type: machine.type,
-      bitAddress: 0,
-    };
-
-    console.log(machine);
-    console.log(request);
-
+  const handleUpdate = async () => {
     setEditingMachine(null);
-
-    await updateMachineAsync(request)
-      .then((data) => {
-        console.log(data);
-        fetchMachines();
-        toast.success("Cập nhật máy thành công");
-      })
-      .catch((error) => {
-        toast.error("Cập nhật máy không thành công");
-        console.error("Cập nhật máy không thành công:", error);
-      });
+    fetchMachines();
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

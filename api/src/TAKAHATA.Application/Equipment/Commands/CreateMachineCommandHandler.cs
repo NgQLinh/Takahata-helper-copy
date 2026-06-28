@@ -27,12 +27,8 @@ namespace TAKAHATA.Application.Equipment.Commands
 
         public async Task<ErrorOr<Machine>> Handle(CreateMachineCommand command, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
-            if (string.IsNullOrEmpty(userId))
-                return Errors.Machine.Unauthorized;
-
             var device = _mapper.Map<Machine>(command);
-            device.CreateBy = userId;
+            device.CreateBy = _currentUserService.UserId;
 
             device = await _deviceRepository.AddAsync(device);
             if (device is null)

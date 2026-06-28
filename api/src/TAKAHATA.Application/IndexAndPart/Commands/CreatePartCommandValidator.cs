@@ -6,8 +6,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
     {
         public CreatePartCommandValidator()
         {
-            RuleFor(c => c.IndexCode).NotEmpty().WithMessage("IndexCode is required.");
-            RuleFor(c => c.PartCode).NotEmpty().WithMessage("PartCode is required.");
+            RuleFor(c => c.IndexCode).NotEmpty().WithMessage("Mã index máy không được để trống.");
+            RuleFor(c => c.PartCode).NotEmpty().WithMessage("Mã part máy không được để trống.");
         }
     }
 }

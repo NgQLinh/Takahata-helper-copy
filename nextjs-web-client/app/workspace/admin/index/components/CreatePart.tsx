@@ -19,6 +19,7 @@ import { Machine } from "@/app/types";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { createPartAsync } from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
+import { ApiError } from "@/app/types/common/ApiError";
 
 type Props = {
   open: boolean;
@@ -129,14 +130,18 @@ export default function CreatePart({ open, onClose }: Props) {
     await createPartAsync(request)
       .then((data) => {
         console.log(data);
-        // fetchMachines();
         toast.success("Tạo part thành công");
-        form.resetFields();
-        onClose();
       })
       .catch((error) => {
-        toast.error("Tạo part không thành công");
-        console.error("Tạo part không thành công:", error);
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
+        toast.error("Có lỗi xảy ra.");
+      })
+      .finally(() => {
+        form.resetFields();
+        onClose();
       });
   };
 

@@ -22,11 +22,6 @@ namespace TAKAHATA.Application.Equipment.Commands
 
         public async Task<ErrorOr<Machine>> Handle(UpdateMachineCommand command, CancellationToken cancellationToken)
         {
-            var userId = _currentUserService.UserId;
-            if (string.IsNullOrEmpty(userId))
-                return Errors.Machine.Unauthorized;
-
-
             var entity = await _deviceRepository.GetByIdAsync(command.Id);
             if (entity == null)
                 return Errors.Machine.NotFound;
@@ -35,7 +30,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity.Type = command.Type;
             entity.Code = command.Code;
             entity.Brand = command.Brand;
-            entity.UpdateBy = userId;
+            entity.UpdateBy = _currentUserService.UserId;
             entity.UpdateAt = DateTime.Now;
             entity.BitAddress = command.BitAddress;
 

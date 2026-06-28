@@ -1,4 +1,4 @@
-export type ApiProblemDetails = {
+export interface ApiProblemDetails {
   type?: string;
   title?: string;
   status?: number;
@@ -7,4 +7,4 @@ export type ApiProblemDetails = {
   traceId?: string;
   errorCodes?: string[];
   errors?: Record<string, string[]>;
-};
+}

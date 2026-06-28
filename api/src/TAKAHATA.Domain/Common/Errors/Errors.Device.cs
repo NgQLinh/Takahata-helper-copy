@@ -7,16 +7,13 @@ namespace TAKAHATA.Domain.Common.Errors
         public static class Machine
         {
             public static Error CreateMachineFalse =>
-                Error.Validation(code: "Machine.CreateMachineFalse", description: "Create Machine False.");
+                Error.Validation(code: "Machine.CreateFalse", description: "Tạo mới máy không thành công.");
 
             public static Error UpdateMachineFalse =>
-                Error.Validation(code: "Machine.UpdateMachineFalse", description: "Update Machine False.");
+                Error.Validation(code: "Machine.UpdateFalse", description: "Cập nhật máy không thành công.");
 
             public static Error NotFound =>
-                Error.NotFound(code: "Machine.NotFoundMachine", description: "Not Found Machine.");
-
-            public static Error Unauthorized =>
-                Error.Unauthorized(code: "Machine.Unauthorized", description: "Unauthorized.");
+                Error.NotFound(code: "Machine.NotFound", description: "Không tìm thấy máy.");
         }
     }
 

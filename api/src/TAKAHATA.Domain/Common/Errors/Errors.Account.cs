@@ -6,26 +6,23 @@ namespace TAKAHATA.Domain.Common.Errors
     {
         public static class Account
         {
-            public static Error DuplicateEmployeeId =>
-                Error.Validation(code: "Account.DuplicateEmployeeId", description: "Duplicate Employee Id.");
-
             public static Error DuplicateUserName =>
-                Error.Validation(code: "Account.DuplicateUserName", description: "Duplicate User Name.");
+                Error.Validation(code: "Account.DuplicateUserName", description: "Người dùng đã tồn tại.");
 
             public static Error InvalidCredentials =>
-                Error.Validation(code: "Account.InvalidCredentials", description: "Invalid Credentials.");
+                Error.Validation(code: "Account.InvalidCredentials", description: "Thông tin đăng nhập không hợp lệ.");
 
             public static Error CreateAccountFalse =>
-                Error.Validation(code: "Account.CreateAccountFalse", description: "Create Account False.");
+                Error.Validation(code: "Account.CreateFalse", description: "Tạo mới tài khoản không thành công.");
 
             public static Error UpdateAccountFalse =>
-                Error.Validation(code: "Account.UpdateAccountFalse", description: "Update Account False.");
+                Error.Validation(code: "Account.UpdateFalse", description: "Cập nhật tài khoản không thành công.");
 
             public static Error NotFound =>
-                Error.NotFound(code: "Account.NotFoundAccount", description: "Not Found Account.");
+                Error.NotFound(code: "Account.NotFound", description: "Không tìm thấy tài khoản.");
 
             public static Error DeleteAccountFalse =>
-                Error.Validation(code: "Account.DeleteAccountFalse", description: "Delete Account False.");
+                Error.Validation(code: "Account.DeleteFalse", description: "Xóa tài khoản không thành công.");
         }
     }
 
