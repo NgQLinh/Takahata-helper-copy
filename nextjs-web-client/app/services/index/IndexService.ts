@@ -1,4 +1,4 @@
-import { SearchPartResponse } from "@/app/types";
+import { Index, SearchPartResponse } from "@/app/types";
 import { apiClient } from "../common/apiClient";
 import { Part } from "ag-grid-community";
 
@@ -19,5 +19,10 @@ export const searchPartAsync = async (
     },
   );
 
+  return response.data;
+};
+
+export const getIndexesAsync = async (): Promise<Index[]> => {
+  const response = await apiClient.post<Index[]>("/Index/query-indexes");
   return response.data;
 };

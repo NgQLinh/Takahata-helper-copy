@@ -15,9 +15,12 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { Machine } from "@/app/types";
+import { Index, Machine } from "@/app/types";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
-import { createPartAsync } from "@/app/services/index/IndexService";
+import {
+  createPartAsync,
+  getIndexesAsync,
+} from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
 import { ApiError } from "@/app/types/common/ApiError";
 
@@ -49,8 +52,10 @@ const createEmptyRow = (): PlanRow => ({
 export default function CreatePart({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
 
-  const [loading, setLoading] = useState(false);
+  const [loadingMachine, setLoadingMachine] = useState(false);
+  const [loadingIndexes, setLoadingIndexes] = useState(false);
   const [machines, setMachines] = useState<Machine[]>([]);
+  const [indexes, setIndexes] = useState<Index[]>([]);
   const [isCreateNewIndex, setIsCreateNewIndex] = useState(false);
   const [dataSource, setDataSource] = useState<PlanRow[]>([
     {
@@ -62,19 +67,36 @@ export default function CreatePart({ open, onClose }: Props) {
   ]);
 
   useEffect(() => {
-    const fetchMachines = async () => {
-      setLoading(true);
+    const fetchIndexes = async () => {
+      setLoadingIndexes(true);
 
-      try {
-        const data = await getMachinesAsync();
-        setMachines(data);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách máy:", error);
-      } finally {
-        setLoading(false);
-      }
+      await getIndexesAsync()
+        .then((data) => {
+          setIndexes(data);
+        })
+        .catch((error) => {
+          console.error("Lỗi khi lấy danh sách indexes:", error);
+        })
+        .finally(() => {
+          setLoadingIndexes(false);
+        });
     };
 
+    const fetchMachines = async () => {
+      setLoadingMachine(true);
+      await getMachinesAsync()
+        .then((data) => {
+          setMachines(data);
+        })
+        .catch((error) => {
+          console.error("Lỗi khi lấy danh sách máy:", error);
+        })
+        .finally(() => {
+          setLoadingMachine(false);
+        });
+    };
+
+    fetchIndexes();
     fetchMachines();
   }, []);
 
@@ -85,6 +107,15 @@ export default function CreatePart({ open, onClose }: Props) {
         value: machine.id,
       })),
     [machines],
+  );
+
+  const indexOptions = useMemo(
+    () =>
+      indexes.map((index) => ({
+        label: index.code,
+        value: index.code,
+      })),
+    [indexes],
   );
 
   const handleCancel = () => {
@@ -153,7 +184,7 @@ export default function CreatePart({ open, onClose }: Props) {
         <Select
           placeholder="Chọn máy"
           style={{ width: "100%" }}
-          loading={loading}
+          loading={loadingMachine}
           value={value}
           options={machineOptions}
           onChange={(v: string) => handleChange(record.key, "machineId", v)}
@@ -228,10 +259,8 @@ export default function CreatePart({ open, onClose }: Props) {
               <Select
                 placeholder="Chọn index"
                 disabled={isCreateNewIndex}
-                options={[
-                  { label: "INDEX_001", value: "INDEX_001" },
-                  { label: "INDEX_002", value: "INDEX_002" },
-                ]}
+                loading={loadingIndexes}
+                options={indexOptions}
               />
             </Form.Item>
 
