@@ -8,20 +8,20 @@ namespace TAKAHATA.Application.Equipment.Commands
 {
     public class DeleteMachineCommandHandler : IRequestHandler<DeleteMachineCommand, ErrorOr<Machine>>
     {
-        private readonly IDeviceRepository _deviceRepository;
+        private readonly IMachineRepository _machineRepository;
 
-        public DeleteMachineCommandHandler(IDeviceRepository deviceRepository)
+        public DeleteMachineCommandHandler(IMachineRepository machineRepository)
         {
-            _deviceRepository = deviceRepository;
+            _machineRepository = machineRepository;
         }
         public async Task<ErrorOr<Machine>> Handle(DeleteMachineCommand command, CancellationToken cancellationToken)
         {
-            var device = await _deviceRepository.DeleteDeviceByIdAsync(command.Id);
+            var machine = await _machineRepository.DeleteMachineByIdAsync(command.Id);
 
-            if (device == null)
+            if (machine == null)
                 return Errors.Machine.NotFound;
 
-            return device;
+            return machine;
         }
     }
 }

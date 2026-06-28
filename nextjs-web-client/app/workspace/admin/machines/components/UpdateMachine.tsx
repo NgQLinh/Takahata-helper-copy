@@ -44,6 +44,8 @@ export default function UpdateMachine({
       .then((data) => {
         console.log(data);
         toast.success("Cập nhật máy thành công");
+        form.resetFields();
+        onClose();
         onUpdate();
       })
       .catch((error) => {
@@ -52,10 +54,6 @@ export default function UpdateMachine({
           return;
         }
         toast.error("Có lỗi xảy ra.");
-      })
-      .finally(() => {
-        form.resetFields();
-        onClose();
       });
   };
 

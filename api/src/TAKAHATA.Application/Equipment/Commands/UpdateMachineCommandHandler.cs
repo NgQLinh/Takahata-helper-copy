@@ -9,20 +9,24 @@ namespace TAKAHATA.Application.Equipment.Commands
 {
     public class UpdateMachineCommandHandler : IRequestHandler<UpdateMachineCommand, ErrorOr<Machine>>
     {
-        private readonly IDeviceRepository _deviceRepository;
+        private readonly IMachineRepository _machineRepository;
         private readonly ICurrentUserService _currentUserService;
 
         public UpdateMachineCommandHandler(
-            IDeviceRepository deviceRepository,
+            IMachineRepository machineRepository,
             ICurrentUserService currentUserService)
         {
-            _deviceRepository = deviceRepository;
+            _machineRepository = machineRepository;
             _currentUserService = currentUserService;
         }
 
         public async Task<ErrorOr<Machine>> Handle(UpdateMachineCommand command, CancellationToken cancellationToken)
         {
-            var entity = await _deviceRepository.GetByIdAsync(command.Id);
+
+            if (await _machineRepository.IsExistedExceptIdAsync(command.Name, command.Code, command.Id))
+                return Errors.Machine.DuplicateMachine;
+
+            var entity = await _machineRepository.GetByIdAsync(command.Id);
             if (entity == null)
                 return Errors.Machine.NotFound;
 
@@ -34,7 +38,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity.UpdateAt = DateTime.Now;
             entity.BitAddress = command.BitAddress;
 
-            entity = await _deviceRepository.UpdateAsync(entity);
+            entity = await _machineRepository.UpdateAsync(entity);
             if (entity == null)
                 return Errors.Machine.UpdateMachineFalse;
 

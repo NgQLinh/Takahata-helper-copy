@@ -131,6 +131,8 @@ export default function CreatePart({ open, onClose }: Props) {
       .then((data) => {
         console.log(data);
         toast.success("Tạo part thành công");
+        form.resetFields();
+        onClose();
       })
       .catch((error) => {
         if (error instanceof ApiError) {
@@ -138,10 +140,6 @@ export default function CreatePart({ open, onClose }: Props) {
           return;
         }
         toast.error("Có lỗi xảy ra.");
-      })
-      .finally(() => {
-        form.resetFields();
-        onClose();
       });
   };
 

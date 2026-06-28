@@ -28,6 +28,8 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
       .then(async (data) => {
         console.log(data);
         toast.success("Tạo máy thành công");
+        form.resetFields();
+        onClose();
         onCreate();
       })
       .catch((error) => {
@@ -36,10 +38,6 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
           return;
         }
         toast.error("Có lỗi xảy ra.");
-      })
-      .finally(() => {
-        form.resetFields();
-        onClose();
       });
   };
 

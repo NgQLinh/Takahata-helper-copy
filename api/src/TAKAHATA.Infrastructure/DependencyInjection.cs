@@ -22,7 +22,7 @@ namespace TAKAHATA.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Repositories
-            services.AddScoped<IDeviceRepository, DeviceRepository>();
+            services.AddScoped<IMachineRepository, MachineRepository>();
             services.AddScoped<IIndexRepository, IndexRepository>();
             services.AddScoped<IPartRepository, PartRepository>();
 

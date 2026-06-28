@@ -6,6 +6,9 @@ namespace TAKAHATA.Domain.Common.Errors
     {
         public static class Machine
         {
+            public static Error DuplicateMachine =>
+                Error.Validation(code: "Machine.DuplicateMachine", description: "Tên hoặc mã máy đã tồn tại.");
+
             public static Error CreateMachineFalse =>
                 Error.Validation(code: "Machine.CreateFalse", description: "Tạo mới máy không thành công.");
 

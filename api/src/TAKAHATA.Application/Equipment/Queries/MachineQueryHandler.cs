@@ -12,21 +12,21 @@ namespace TAKAHATA.Application.Equipment.Queries
     {
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IDeviceRepository _deviceRepository;
+        private readonly IMachineRepository _machineRepository;
 
         public MachineQueryHandler(
-            IDeviceRepository deviceRepository,
+            IMachineRepository machineRepository,
             IMapper mapper,
             UserManager<ApplicationUser> userManager)
         {
-            _deviceRepository = deviceRepository;
+            _machineRepository = machineRepository;
             _mapper = mapper;
             _userManager = userManager;
         }
 
         public async Task<ErrorOr<IEnumerable<MachineResponse>>> Handle(MachineQuery request, CancellationToken cancellationToken)
         {
-            var result = await _deviceRepository.GetAsync();
+            var result = await _machineRepository.GetAsync();
 
             var users = _userManager.Users.ToList();
 

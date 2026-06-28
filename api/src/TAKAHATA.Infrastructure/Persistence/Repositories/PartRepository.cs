@@ -19,11 +19,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return part != null;
         }
 
-        public async Task<Part?> AddAsync(Part device)
+        public async Task<Part?> AddAsync(Part part)
         {
-            await _dbContext.Partes.AddAsync(device);
+            await _dbContext.Partes.AddAsync(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? device : null;
+            return effectedRow != 0 ? part : null;
         }
 
         public async Task<IEnumerable<Part>> GetAsync()
@@ -36,22 +36,22 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.Partes.FindAsync(id);
         }
 
-        public async Task<Part?> DeleteDeviceByIdAsync(long id)
+        public async Task<Part?> DeleteMachineByIdAsync(long id)
         {
-            var device = await _dbContext.Partes.FindAsync(id);
-            if (device == null)
+            var part = await _dbContext.Partes.FindAsync(id);
+            if (part == null)
                 return null;
 
-            _dbContext.Partes.Remove(device);
+            _dbContext.Partes.Remove(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? device : null;
+            return effectedRow != 0 ? part : null;
         }
 
-        public async Task<Part?> UpdateAsync(Part device)
+        public async Task<Part?> UpdateAsync(Part part)
         {
-            _dbContext.Partes.Update(device);
+            _dbContext.Partes.Update(part);
             var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? device : null;
+            return effectedRow != 0 ? part : null;
         }
     }
 }

@@ -5,10 +5,10 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
     public interface IPartRepository
     {
         Task<bool> IsExistedAsync(string partCode);
-        Task<Part?> AddAsync(Part device);
+        Task<Part?> AddAsync(Part part);
         Task<IEnumerable<Part>> GetAsync();
         Task<Part?> GetByIdAsync(long id);
-        Task<Part?> DeleteDeviceByIdAsync(long id);
-        Task<Part?> UpdateAsync(Part device);
+        Task<Part?> DeleteMachineByIdAsync(long id);
+        Task<Part?> UpdateAsync(Part part);
     }
 }
