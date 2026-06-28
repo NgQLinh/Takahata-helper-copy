@@ -51,15 +51,19 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<IEnumerable<Part>> SearchAsync(int page, int pageSize)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 10;
-
             return await _dbContext.Parts
+                .Include(p => p.Index)
+                .Include(p => p.Processes)
                 .AsNoTracking()
                 .OrderBy(x => x.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<int> CountTotal()
+        {
+            return await _dbContext.Parts.CountAsync();
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Domain.MasterData;
+using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Application.IndexAndPart.Queries
 {
-    public record PartsQuery(int page, int pageSize) : IRequest<ErrorOr<IEnumerable<Part>>>;
+    public record PartsQuery(int page, int pageSize) : IRequest<ErrorOr<PartsQueryResponse>>;
 }

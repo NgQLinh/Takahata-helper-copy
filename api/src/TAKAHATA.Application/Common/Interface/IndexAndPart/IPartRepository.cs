@@ -11,5 +11,6 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
         Task<Part?> DeleteMachineByIdAsync(long id);
         Task<Part?> UpdateAsync(Part part);
         Task<IEnumerable<Part>> SearchAsync(int page, int pageSize);
+        Task<int> CountTotal();
     }
 }
