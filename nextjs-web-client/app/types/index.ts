@@ -14,3 +14,7 @@ export type { DeleteAccountRequest } from "./account/DeleteAccountRequest";
 export type { UpdateAccountRequest } from "./account/UpdateAccountRequest";
 
 export type { Part } from "./part/Part";
+export type { Index } from "./part/Index";
+export type { PartProcess } from "./part/PartProcess";
+export type { SearchPartRequest } from "./part/SearchPartRequest";
+export type { SearchPartResponse } from "./part/SearchPartResponse";
