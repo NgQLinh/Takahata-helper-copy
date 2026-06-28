@@ -1,7 +1,7 @@
 "use client";
 
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Button, Card, Input, Space, Table, Tag } from "antd";
+import { Button, Card, Input, Pagination, Space, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreatePart from "./CreatePart";
@@ -325,20 +325,24 @@ export function IndexPage() {
             loading={loading}
             columns={columns}
             dataSource={dataSource}
+            tableLayout="fixed"
             rowKey="key"
             scroll={{ x: 1850, y: 500 }}
-            pagination={{
-              current: page,
-              pageSize,
-              total,
-              showSizeChanger: true,
-              showTotal: (value) => `Tổng ${value} part`,
-              onChange: (nextPage, nextPageSize) => {
+            pagination={false}
+          />
+          <div className="d-flex justify-content-end mt-3">
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              total={total}
+              showSizeChanger
+              showTotal={(value) => `Tổng ${value} part`}
+              onChange={(nextPage, nextPageSize) => {
                 setPage(nextPage);
                 setPageSize(nextPageSize);
-              },
-            }}
-          />
+              }}
+            />
+          </div>
         </div>
       </div>
 
