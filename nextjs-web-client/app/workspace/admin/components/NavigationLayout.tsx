@@ -26,7 +26,7 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
   return (
     <div className="min-vh-100 d-flex flex-column">
       <nav
-        className="navbar navbar-expand-lg px-3"
+        className="navbar navbar-expand-lg px-3 sticky-top"
         style={{ backgroundColor: "#2f3b52" }}
       >
         <div className="d-flex align-items-center text-white fw-semibold">
