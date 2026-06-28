@@ -163,6 +163,8 @@ export default function CreatePart({ open, onClose }: Props) {
         console.log(data);
         toast.success("Tạo part thành công");
         form.resetFields();
+        setDataSource([]);
+        setDataSource((prev) => [...prev, createEmptyRow()]);
         onClose();
       })
       .catch((error) => {

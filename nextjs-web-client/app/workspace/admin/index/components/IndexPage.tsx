@@ -21,6 +21,7 @@ import {
 import { toast } from "react-toastify";
 import Title from "antd/es/typography/Title";
 import { ApiError } from "@/app/types/common/ApiError";
+import UpdatePart from "./UpdatePart";
 
 type RowType = "MC" | "P" | "A";
 
@@ -110,6 +111,9 @@ export function IndexPage() {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
 
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
   const fetchParts = useCallback(async () => {
     setLoading(true);
     try {
@@ -158,6 +162,11 @@ export function IndexPage() {
   const dataSource = useMemo(() => {
     return mapPartsToRows(filteredParts);
   }, [filteredParts]);
+
+  const handlerUpdate = (id: number) => {
+    setSelectedId(id);
+    setIsUpdateOpen(true);
+  };
 
   const handlerDelete = async (id: number) => {
     await deletePartAsync(id)
@@ -296,7 +305,9 @@ export function IndexPage() {
       render: (_, row) => ({
         children: (
           <Space>
-            <Button size="small">Sửa</Button>
+            <Button size="small" onClick={() => handlerUpdate(row.partId)}>
+              Sửa
+            </Button>
 
             <Popconfirm
               title="Xóa part"
@@ -386,6 +397,15 @@ export function IndexPage() {
         open={isCreateOpen}
         onClose={() => {
           setIsCreateOpen(false);
+          fetchParts();
+        }}
+      />
+
+      <UpdatePart
+        id={selectedId}
+        open={isUpdateOpen}
+        onClose={() => {
+          setIsUpdateOpen(false);
           fetchParts();
         }}
       />

@@ -28,12 +28,15 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<Part?> GetByIdAsync(long id)
         {
-            return await _dbContext.Parts.FindAsync(id);
+            return await _dbContext.Parts
+                .Include(x => x.Index)
+                .Include(x => x.Processes)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Part?> DeleteMachineByIdAsync(long id)
         {
-            var part = await _dbContext.Parts.FindAsync(id);
+            var part = await _dbContext.Parts.FirstOrDefaultAsync(x => x.Id == id);
             if (part == null)
                 return null;
 

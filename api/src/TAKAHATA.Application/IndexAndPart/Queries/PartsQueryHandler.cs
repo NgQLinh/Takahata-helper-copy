@@ -18,7 +18,9 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
             _mapper = mapper;
         }
 
-        public async Task<ErrorOr<PartsQueryResponse>> Handle(PartsQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PartsQueryResponse>> Handle(
+            PartsQuery request,
+            CancellationToken cancellationToken)
         {
             var page = request.page;
             var pageSize = request.pageSize;
