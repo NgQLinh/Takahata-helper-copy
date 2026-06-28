@@ -22,6 +22,11 @@ export const searchPartAsync = async (
   return response.data;
 };
 
+export const deletePartAsync = async (id: number): Promise<Part> => {
+  const response = await apiClient.post<Part>("/Part/delete", { id: id });
+  return response.data;
+};
+
 export const getIndexesAsync = async (): Promise<Index[]> => {
   const response = await apiClient.post<Index[]>("/Index/query-indexes");
   return response.data;

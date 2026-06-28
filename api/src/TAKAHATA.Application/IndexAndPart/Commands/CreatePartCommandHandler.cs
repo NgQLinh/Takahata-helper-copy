@@ -1,20 +1,24 @@
 ﻿using ErrorOr;
+using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
 using Index = TAKAHATA.Domain.MasterData.Index;
 
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {
-    public class CreatePartCommandHandler : IRequestHandler<CreatePartCommand, ErrorOr<Part>>
+    public class CreatePartCommandHandler : IRequestHandler<CreatePartCommand, ErrorOr<PartResponse>>
     {
+        private readonly IMapper _mapper;
         private readonly IPartRepository _partRepository;
         private readonly IIndexRepository _indexRepository;
         private readonly ICurrentUserService _currentUserService;
 
         public CreatePartCommandHandler(
+            IMapper mapper,
             IPartRepository partRepository,
             IIndexRepository indexRepository,
             ICurrentUserService currentUserService)
@@ -22,9 +26,10 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             _partRepository = partRepository;
             _indexRepository = indexRepository;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
-        public async Task<ErrorOr<Part>> Handle(
+        public async Task<ErrorOr<PartResponse>> Handle(
             CreatePartCommand request,
             CancellationToken cancellationToken)
         {
@@ -70,7 +75,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             if (part == null)
                 return Errors.Index.CreateIndexFalse;
 
-            return part;
+            return _mapper.Map<PartResponse>(part);
         }
     }
 }

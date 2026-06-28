@@ -5,5 +5,5 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {
-    public record CreatePartCommand(string IndexCode, string PartCode, List<PartProcessRequest> PartProcesses) : IRequest<ErrorOr<Part>>;
+    public record CreatePartCommand(string IndexCode, string PartCode, List<PartProcessRequest> PartProcesses) : IRequest<ErrorOr<PartResponse>>;
 }

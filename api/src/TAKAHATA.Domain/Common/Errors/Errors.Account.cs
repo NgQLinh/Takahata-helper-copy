@@ -13,16 +13,16 @@ namespace TAKAHATA.Domain.Common.Errors
                 Error.Validation(code: "Account.InvalidCredentials", description: "Thông tin đăng nhập không hợp lệ.");
 
             public static Error CreateAccountFalse =>
-                Error.Validation(code: "Account.CreateFalse", description: "Tạo mới tài khoản không thành công.");
+                Error.Failure(code: "Account.CreateFalse", description: "Tạo mới tài khoản không thành công.");
 
             public static Error UpdateAccountFalse =>
-                Error.Validation(code: "Account.UpdateFalse", description: "Cập nhật tài khoản không thành công.");
+                Error.Failure(code: "Account.UpdateFalse", description: "Cập nhật tài khoản không thành công.");
 
             public static Error NotFound =>
                 Error.NotFound(code: "Account.NotFound", description: "Không tìm thấy tài khoản.");
 
             public static Error DeleteAccountFalse =>
-                Error.Validation(code: "Account.DeleteFalse", description: "Xóa tài khoản không thành công.");
+                Error.Failure(code: "Account.DeleteFalse", description: "Xóa tài khoản không thành công.");
         }
     }
 

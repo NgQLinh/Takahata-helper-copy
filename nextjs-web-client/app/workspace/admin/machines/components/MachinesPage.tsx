@@ -273,7 +273,7 @@ export function MachinesPage() {
         </Card>
 
         <Card>
-          <div className="mb-4">
+          <div className="mt-1 mb-4">
             <Search
               placeholder="Tìm theo tên đăng nhập hoặc họ tên"
               allowClear

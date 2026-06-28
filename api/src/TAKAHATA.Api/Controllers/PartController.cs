@@ -29,6 +29,16 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeletePart(DeletePartCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
         [HttpPost("query-parts")]
         public async Task<IActionResult> GetParts(PartsQuery query)
         {

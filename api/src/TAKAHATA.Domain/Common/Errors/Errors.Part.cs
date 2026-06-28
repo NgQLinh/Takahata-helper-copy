@@ -10,10 +10,13 @@ namespace TAKAHATA.Domain.Common.Errors
                 Error.Validation(code: "Part.DuplicatePartCode", description: "PartCode đã tồn tại.");
 
             public static Error CreateIndexFalse =>
-                Error.Validation(code: "Part.CreateIndexFalse", description: "Cập nhật part không thành công.");
+                Error.Failure(code: "Part.CreateIndexFalse", description: "Cập nhật part không thành công.");
 
             public static Error UpdateIndexFalse =>
-                Error.Validation(code: "Part.UpdateIndexFalse", description: "Cập nhật part không thành công.");
+                Error.Failure(code: "Part.UpdateIndexFalse", description: "Cập nhật part không thành công.");
+
+            public static Error DeleteIndexFalse =>
+                Error.Failure(code: "Part.DeleteIndexFalse", description: "Xóa part không thành công.");
 
             public static Error NotFound =>
                 Error.NotFound(code: "Part.NotFoundIndex", description: "Không tìm thấy part.");

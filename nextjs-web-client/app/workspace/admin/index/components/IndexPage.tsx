@@ -1,13 +1,26 @@
 "use client";
 
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
-import { Button, Card, Input, Pagination, Space, Table, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Input,
+  Pagination,
+  Popconfirm,
+  Space,
+  Table,
+  Tag,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreatePart from "./CreatePart";
-import { searchPartAsync } from "@/app/services/index/IndexService";
+import {
+  deletePartAsync,
+  searchPartAsync,
+} from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
 import Title from "antd/es/typography/Title";
+import { ApiError } from "@/app/types/common/ApiError";
 
 type RowType = "MC" | "P" | "A";
 
@@ -99,7 +112,6 @@ export function IndexPage() {
 
   const fetchParts = useCallback(async () => {
     setLoading(true);
-
     try {
       const data = await searchPartAsync(page, pageSize);
 
@@ -126,7 +138,6 @@ export function IndexPage() {
     };
 
     void run();
-
     return () => {
       ignore = true;
     };
@@ -147,6 +158,22 @@ export function IndexPage() {
   const dataSource = useMemo(() => {
     return mapPartsToRows(filteredParts);
   }, [filteredParts]);
+
+  const handlerDelete = async (id: number) => {
+    await deletePartAsync(id)
+      .then((data) => {
+        console.log(data);
+        fetchParts();
+        toast.success("Xóa part thành công.");
+      })
+      .catch((error) => {
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
+        toast.error("Có lỗi xảy ra.");
+      });
+  };
 
   const columns: ColumnsType<TableRow> = [
     {
@@ -270,9 +297,18 @@ export function IndexPage() {
         children: (
           <Space>
             <Button size="small">Sửa</Button>
-            <Button size="small" danger>
-              Xóa
-            </Button>
+
+            <Popconfirm
+              title="Xóa part"
+              description={`Bạn có chắc muốn xóa ${row.partName}?`}
+              okText="Xóa"
+              cancelText="Hủy"
+              onConfirm={() => handlerDelete(row.partId)}
+            >
+              <Button size="small" danger>
+                Xóa
+              </Button>
+            </Popconfirm>
           </Space>
         ),
         props: {
@@ -283,7 +319,7 @@ export function IndexPage() {
   ];
 
   return (
-    <div className="container-fluid py-4">
+    <div className="space-y-5">
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Title level={3} style={{ margin: 0 }}>
@@ -296,7 +332,7 @@ export function IndexPage() {
         </div>
       </Card>
 
-      <div className="card border-0 shadow-sm mt-1">
+      <div className="card border-0 shadow-sm mt-1 mb-4">
         <div className="card-body px-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
             <Input
