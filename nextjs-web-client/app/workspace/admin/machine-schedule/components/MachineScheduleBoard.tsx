@@ -27,6 +27,8 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+
+
 export function MachineScheduleBoard() {
   return (
     <div className="space-y-4">

@@ -1,7 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
 using TAKAHATA.Contracts.Equipment;
-using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Equipment.Queries
 {

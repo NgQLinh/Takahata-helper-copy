@@ -10,8 +10,4 @@
     <ProjectReference Include="..\TAKAHATA.Domain\TAKAHATA.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Equipment\" />
-  </ItemGroup>
-
 </Project>

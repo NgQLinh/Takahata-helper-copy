@@ -58,5 +58,15 @@ namespace TAKAHATA.Api.Controllers
                 r => Ok(r),
                 e => Problem(e));
         }
+
+        [HttpPost("query-machines-schedule")]
+        public async Task<IActionResult> GetMachinesSchedule(MachineScheduleQuery request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
     }
 }

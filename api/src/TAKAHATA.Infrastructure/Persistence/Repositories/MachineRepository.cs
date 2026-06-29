@@ -36,7 +36,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<IEnumerable<Machine>> GetAsync()
         {
-            return await _dbContext.Machines.ToListAsync();
+            return await _dbContext.Machines
+                .Include(m => m.PartProcesses)
+                .ToListAsync();
         }
 
         public async Task<Machine?> GetByIdAsync(long id)

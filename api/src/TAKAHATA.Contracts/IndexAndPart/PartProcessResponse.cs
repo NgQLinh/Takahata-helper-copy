@@ -1,4 +1,6 @@
-﻿namespace TAKAHATA.Contracts.IndexAndPart
+﻿using TAKAHATA.Contracts.Equipment;
+
+namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class PartProcessResponse
     {
