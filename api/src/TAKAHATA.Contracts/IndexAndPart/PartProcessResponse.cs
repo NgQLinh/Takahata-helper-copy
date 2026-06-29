@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TAKAHATA.Contracts.IndexAndPart
+﻿namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class PartProcessResponse
     {
@@ -14,5 +10,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public decimal? WorkingHours { get; set; }
         public bool IsCompleted { get; set; }
         public string Note { get; set; } = string.Empty;
+        public MachineResponse? Machine { get; set; }
     }
 }

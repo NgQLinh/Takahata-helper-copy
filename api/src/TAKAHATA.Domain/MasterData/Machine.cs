@@ -11,5 +11,6 @@ namespace TAKAHATA.Domain.MasterData
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
         public int BitAddress { get; set; }
+        public List<PartProcess> PartProcesses { get; set; } = [];
     }
 }

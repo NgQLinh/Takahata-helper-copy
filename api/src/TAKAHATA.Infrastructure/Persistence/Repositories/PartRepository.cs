@@ -57,6 +57,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.Parts
                 .Include(p => p.Index)
                 .Include(p => p.Processes)
+                .ThenInclude(pp => pp.Machine)
                 .AsNoTracking()
                 .OrderBy(x => x.Id)
                 .Skip((page - 1) * pageSize)

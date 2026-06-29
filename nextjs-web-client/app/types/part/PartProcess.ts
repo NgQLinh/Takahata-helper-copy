@@ -1,3 +1,5 @@
+import { Machine } from "../machine/Machine";
+
 export interface PartProcess {
   partId: number;
   sequence: number;
@@ -7,4 +9,5 @@ export interface PartProcess {
   workingHours?: number | null;
   isCompleted: boolean;
   note?: string | null;
+  machine: Machine | null;
 }

@@ -21,6 +21,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
             builder
                 .Property(p => p.CreateAt)
                 .IsRequired();
+
+            builder
+                .HasMany(x => x.PartProcesses)
+                .WithOne(x => x.Machine)
+                .HasForeignKey(x => x.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

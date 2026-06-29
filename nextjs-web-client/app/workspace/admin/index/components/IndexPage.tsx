@@ -22,28 +22,9 @@ import { toast } from "react-toastify";
 import Title from "antd/es/typography/Title";
 import { ApiError } from "@/app/types/common/ApiError";
 import UpdatePart from "./UpdatePart";
+import { Part, PartProcess } from "@/app/types";
 
 type RowType = "MC" | "P" | "A";
-
-type PartApi = {
-  id: number;
-  code: string;
-  index?: {
-    id: number;
-    code: string;
-  };
-  processes?: ProcessApi[];
-};
-
-type ProcessApi = {
-  sequence: number;
-  machineId: number;
-  planDate?: string | null;
-  actualDate?: string | null;
-  workingHours?: number | null;
-  isCompleted: boolean;
-  note?: string | null;
-};
 
 type TableRow = {
   key: string;
@@ -52,7 +33,7 @@ type TableRow = {
   partName?: string;
   rowType: RowType;
   rowSpan: number;
-  processes: Record<number, ProcessApi | undefined>;
+  processes: Record<number, PartProcess | undefined>;
 };
 
 const processCount = 15;
@@ -63,16 +44,8 @@ const formatDate = (value?: string | null) => {
   return `${date.getDate()}/${date.getMonth() + 1}`;
 };
 
-const mapPartsToRows = (parts: PartApi[]): TableRow[] => {
+const mapPartsToRows = (parts: Part[]): TableRow[] => {
   return parts.flatMap((part) => {
-    const processMap: Record<number, ProcessApi> = {};
-
-    [...(part.processes ?? [])]
-      .sort((a, b) => a.sequence - b.sequence)
-      .forEach((process) => {
-        processMap[process.sequence] = process;
-      });
-
     return [
       {
         key: `${part.id}-MC`,
@@ -81,21 +54,21 @@ const mapPartsToRows = (parts: PartApi[]): TableRow[] => {
         partName: part.code,
         rowType: "MC",
         rowSpan: 3,
-        processes: processMap,
+        processes: part.processes,
       },
       {
         key: `${part.id}-P`,
         partId: part.id,
         rowType: "P",
         rowSpan: 0,
-        processes: processMap,
+        processes: part.processes,
       },
       {
         key: `${part.id}-A`,
         partId: part.id,
         rowType: "A",
         rowSpan: 0,
-        processes: processMap,
+        processes: part.processes,
       },
     ];
   });
@@ -106,7 +79,7 @@ export function IndexPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [parts, setParts] = useState<PartApi[]>([]);
+  const [parts, setParts] = useState<Part[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -118,6 +91,8 @@ export function IndexPage() {
     setLoading(true);
     try {
       const data = await searchPartAsync(page, pageSize);
+
+      console.log(data);
 
       setParts(data.parts);
       setTotal(data.total);
@@ -160,6 +135,7 @@ export function IndexPage() {
   }, [keyword, parts]);
 
   const dataSource = useMemo(() => {
+    console.log(mapPartsToRows(filteredParts));
     return mapPartsToRows(filteredParts);
   }, [filteredParts]);
 
@@ -265,10 +241,10 @@ export function IndexPage() {
             if (row.rowType === "MC") {
               return process.isCompleted ? (
                 <Tag color="success" className="m-0">
-                  MC-{process.machineId}
+                  {process.machine?.code}
                 </Tag>
               ) : (
-                <span>MC-{process.machineId}</span>
+                <span>{process.machine?.name}</span>
               );
             }
 
