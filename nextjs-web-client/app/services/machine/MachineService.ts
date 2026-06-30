@@ -18,6 +18,7 @@ export const getMachineSchedulesAsync = async (): Promise<
 > => {
   const response = await apiClient.post<MachineSchedule[]>(
     "/Machine/query-machines-schedule",
+    {},
   );
   return response.data;
 };

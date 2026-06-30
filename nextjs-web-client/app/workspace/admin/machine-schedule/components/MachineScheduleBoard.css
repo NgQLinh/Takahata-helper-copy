@@ -1,0 +1,30 @@
+.timeline-empty-box {
+  height: 96px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.timeline-card {
+  min-height: 96px;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: left;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.timeline-card-planned {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #0050b3;
+}
+
+.timeline-card-done {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.ant-table-cell {
+  vertical-align: top;
+}

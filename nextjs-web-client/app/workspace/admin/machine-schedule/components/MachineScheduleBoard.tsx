@@ -1,131 +1,146 @@
 "use client";
 
-import { MachineScheduleCell } from "./MachineScheduleCell";
-import { machines, scheduleItems } from "./schedule-data";
-
-const dates = [
-  "2026-06-06",
-  "2026-06-07",
-  "2026-06-08",
-  "2026-06-09",
-  "2026-06-10",
-  "2026-06-11",
-  "2026-06-12",
-];
-
-const statusClass = {
-  AUTO: "bg-green-100 text-green-700",
-  SETUP: "bg-yellow-100 text-yellow-700",
-  STOP: "bg-gray-100 text-gray-700",
-  ALARM: "bg-red-100 text-red-700",
-};
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-  }).format(new Date(date));
-}
-
-
-
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Card, Table, Tag, Empty } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import Title from "antd/es/typography/Title";
+import { toast } from "react-toastify";
+import { getMachineSchedulesAsync } from "@/app/services/machine/MachineService";
+import { MachineSchedule } from "@/app/types";
+import "./MachineScheduleBoard.css";
 export function MachineScheduleBoard() {
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Lịch gia công theo máy, ngày và work order
-          </h1>
-        </div>
+  const [loading, setLoading] = useState(false);
+  const [machines, setMachines] = useState<MachineSchedule[]>([]);
 
-        <div className="flex gap-2">
-          <button className="rounded-lg border px-4 py-2 text-sm">
-            Import Excel
-          </button>
-          <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm text-white">
-            Add Schedule
-          </button>
-        </div>
-      </div>
+  const fetchMachineSchedule = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getMachineSchedulesAsync();
+      setMachines(data ?? []);
+    } catch {
+      toast.error("Không thể tải danh sách kế hoạch");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-      <div className="grid grid-cols-4 gap-4 md:grid-cols-6">
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Machines</div>
-          <div className="text-2xl font-bold">{machines.length}</div>
-        </div>
+  useEffect(() => {
+    const run = async () => {
+      void fetchMachineSchedule();
+    };
+    void run();
+  }, [fetchMachineSchedule]);
 
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Work Orders</div>
-          <div className="text-2xl font-bold">{scheduleItems.length}</div>
-        </div>
+  const dates = useMemo(() => {
+    const allDates = machines.flatMap((m) =>
+      m.partProcesses.map((p) => p.planDate),
+    );
 
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Running</div>
-          <div className="text-2xl font-bold">
-            {scheduleItems.filter((x) => x.status === "RUNNING").length}
-          </div>
-        </div>
+    return Array.from(new Set(allDates)).sort();
+  }, [machines]);
 
-        <div className="rounded-xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Delayed</div>
-          <div className="text-2xl font-bold text-red-600">
-            {scheduleItems.filter((x) => x.status === "DELAYED").length}
-          </div>
-        </div>
-      </div>
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  };
 
-      <div className="overflow-x-auto rounded-xl border bg-white">
-        <div
-          className="grid min-w-[1100px]"
-          style={{
-            gridTemplateColumns: `260px repeat(${dates.length}, minmax(140px, 1fr))`,
-          }}
-        >
-          <div className="sticky left-0 z-20 border-b bg-gray-50 p-3 font-semibold">
-            Machine
-          </div>
-
-          {dates.map((date) => (
-            <div
-              key={date}
-              className="border-b bg-gray-50 p-3 text-center font-semibold"
-            >
-              {formatDate(date)}
+  const columns: ColumnsType<MachineSchedule> = useMemo(() => {
+    return [
+      {
+        title: "Machine",
+        dataIndex: "name",
+        key: "machine",
+        fixed: "left",
+        width: 260,
+        render: (_, machine) => (
+          <div>
+            <div className="fw-bold">{machine.name}</div>
+            <div className="text-muted small">
+              {machine.code} - {machine.type}
             </div>
-          ))}
+            <Tag color="blue" className="mt-2">
+              {machine.brand}
+            </Tag>
+          </div>
+        ),
+      },
+      ...dates.map((date) => ({
+        title: formatDate(date),
+        key: date,
+        width: 170,
+        align: "center" as const,
+        render: (_: unknown, machine: MachineSchedule) => {
+          const processes = machine.partProcesses.filter(
+            (p) => p.planDate === date,
+          );
 
-          {machines.map((machine) => (
-            <div key={machine.id} className="contents">
-              <div className="sticky left-0 z-10 border-b bg-white p-3">
-                <div className="font-semibold text-gray-900">
-                  {machine.name}
-                </div>
-                <div className="mt-1 text-xs text-gray-500">
-                  {machine.code} · {machine.type}
-                </div>
-                <span
-                  className={`mt-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${statusClass[machine.status]}`}
+          if (processes.length === 0) {
+            return <div className="timeline-empty-box" />;
+          }
+
+          return (
+            <div className="d-flex flex-column gap-2">
+              {processes.map((process) => (
+                <div
+                  key={`${process.partId}-${process.sequence}`}
+                  className={
+                    process.isCompleted
+                      ? "timeline-card timeline-card-done"
+                      : "timeline-card timeline-card-planned"
+                  }
                 >
-                  {machine.status}
-                </span>
-              </div>
+                  <div className="fw-bold">Part #{process.partId}</div>
 
-              {dates.map((date) => {
-                const item = scheduleItems.find(
-                  (x) => x.machineId === machine.id && x.date === date,
-                );
-
-                return (
-                  <div key={`${machine.id}-${date}`} className="border-b p-2">
-                    <MachineScheduleCell item={item} />
+                  <div className="small text-muted">
+                    Sequence {process.sequence}
                   </div>
-                );
-              })}
+
+                  <div className="d-flex justify-content-between mt-2 small">
+                    <span>{process.note || "No note"}</span>
+                    <span>{process.isCompleted ? "DONE" : "PLANNED"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          );
+        },
+      })),
+    ];
+  }, [dates]);
+
+  return (
+    <div className="space-y-5">
+      <Card>
+        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <Title level={3} style={{ margin: 0 }}>
+            Lịch gia công theo máy, ngày và work order
+          </Title>
+
+          <Button type="primary">Thêm part</Button>
         </div>
-      </div>
+      </Card>
+
+      <Card>
+        {machines.length === 0 && !loading ? (
+          <Empty description="Chưa có kế hoạch gia công" />
+        ) : (
+          <Table
+            rowKey="id"
+            loading={loading}
+            columns={columns}
+            dataSource={machines}
+            pagination={false}
+            bordered
+            scroll={{
+              x: 260 + dates.length * 170,
+              y: 600,
+            }}
+          />
+        )}
+      </Card>
     </div>
   );
 }
