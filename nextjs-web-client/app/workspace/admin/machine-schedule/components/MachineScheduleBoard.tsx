@@ -54,7 +54,7 @@ export function MachineScheduleBoard() {
         dataIndex: "name",
         key: "machine",
         fixed: "left",
-        width: 260,
+        width: 100,
         render: (_, machine) => (
           <div>
             <div className="fw-bold">{machine.name}</div>
@@ -112,34 +112,41 @@ export function MachineScheduleBoard() {
   }, [dates]);
 
   return (
-    <div className="space-y-5">
+    <div
+      className="h-100 d-flex flex-column gap-3 overflow-hidden"
+      style={{ minHeight: 0 }}
+    >
       <Card>
-        <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Title level={3} style={{ margin: 0 }}>
             Lịch gia công theo máy, ngày và work order
           </Title>
-
-          <Button type="primary">Thêm part</Button>
         </div>
       </Card>
 
-      <Card>
-        {machines.length === 0 && !loading ? (
-          <Empty description="Chưa có kế hoạch gia công" />
-        ) : (
-          <Table
-            rowKey="id"
-            loading={loading}
-            columns={columns}
-            dataSource={machines}
-            pagination={false}
-            bordered
-            scroll={{
-              x: 260 + dates.length * 170,
-              y: 600,
-            }}
-          />
-        )}
+      <Card
+        className="grow overflow-hidden"
+        style={{ minHeight: 0 }}
+        styles={{
+          body: {
+            height: "100%",
+            overflow: "hidden",
+            padding: 12,
+          },
+        }}
+      >
+        <Table
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={machines}
+          pagination={false}
+          bordered
+          scroll={{
+            x: 260 + dates.length * 170,
+            y: "calc(100vh - 260px)",
+          }}
+        />
       </Card>
     </div>
   );

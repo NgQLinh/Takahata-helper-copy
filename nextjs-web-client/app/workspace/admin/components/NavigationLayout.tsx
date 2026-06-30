@@ -24,9 +24,9 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
   };
 
   return (
-    <div className="min-vh-100 d-flex flex-column">
+    <div className="vh-100 d-flex flex-column overflow-hidden">
       <nav
-        className="navbar navbar-expand-lg px-3 sticky-top"
+        className="navbar navbar-expand-lg px-3 shrink-0"
         style={{ backgroundColor: "#2f3b52" }}
       >
         <div className="d-flex align-items-center text-white fw-semibold">
@@ -91,7 +91,7 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
         </div>
       </nav>
 
-      <main className="flex-grow-1 p-3">{children}</main>
+      <main className="grow p-3 overflow-hidden">{children}</main>
     </div>
   );
 }
