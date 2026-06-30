@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Modal,
   Form,
@@ -15,12 +15,12 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
-import { Index, Machine } from "@/app/types";
+import { Index, Machine, PartProcess } from "@/app/types";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import {
-  createPartAsync,
   getIndexesAsync,
   getPartAsync,
+  updatePartAsync,
 } from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
 import { ApiError } from "@/app/types/common/ApiError";
@@ -33,7 +33,7 @@ type Props = {
 
 type PlanRow = {
   key: string;
-  machineId?: string;
+  machineId?: number;
   planDate?: Dayjs | null;
   note?: string;
 };
@@ -54,74 +54,14 @@ const createEmptyRow = (): PlanRow => ({
 export default function UpdatePart({ id, open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
 
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [loadingIndexes, setLoadingIndexes] = useState(false);
+
   const [machines, setMachines] = useState<Machine[]>([]);
   const [indexes, setIndexes] = useState<Index[]>([]);
   const [isCreateNewIndex, setIsCreateNewIndex] = useState(false);
-  const [dataSource, setDataSource] = useState<PlanRow[]>([
-    {
-      key: crypto.randomUUID(),
-      machineId: undefined,
-      planDate: dayjs(),
-      note: "",
-    },
-  ]);
-
-  const fetchDetail = async (id: number) => {
-    await getPartAsync(id)
-      .then((data) => {
-        // setIndexes(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy chi tiết part:", error);
-      })
-      .finally(() => {
-        setLoadingIndexes(false);
-      });
-  };
-
-  const fetchIndexes = async () => {
-    setLoadingIndexes(true);
-
-    await getIndexesAsync()
-      .then((data) => {
-        setIndexes(data);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy danh sách indexes:", error);
-      })
-      .finally(() => {
-        setLoadingIndexes(false);
-      });
-  };
-
-  const fetchMachines = async () => {
-    setLoadingMachine(true);
-    await getMachinesAsync()
-      .then((data) => {
-        setMachines(data);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy danh sách máy:", error);
-      })
-      .finally(() => {
-        setLoadingMachine(false);
-      });
-  };
-
-  useEffect(() => {
-    const fetch = async (id: number) => {
-      await fetchDetail(id);
-      await fetchIndexes();
-      await fetchMachines();
-    };
-
-    if (id) {
-      fetch(id);
-    }
-  }, [id]);
+  const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
 
   const machineOptions = useMemo(
     () =>
@@ -140,6 +80,82 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       })),
     [indexes],
   );
+
+  const fetchIndexes = useCallback(async () => {
+    setLoadingIndexes(true);
+
+    try {
+      const data = await getIndexesAsync();
+      setIndexes(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách indexes:", error);
+    } finally {
+      setLoadingIndexes(false);
+    }
+  }, []);
+
+  const fetchMachines = useCallback(async () => {
+    setLoadingMachine(true);
+
+    try {
+      const data = await getMachinesAsync();
+      setMachines(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách máy:", error);
+    } finally {
+      setLoadingMachine(false);
+    }
+  }, []);
+
+  const fetchDetail = useCallback(
+    async (partId: number) => {
+      setLoadingDetail(true);
+
+      try {
+        const data = await getPartAsync(partId);
+
+        form.setFieldsValue({
+          IndexCode: data.index.code,
+          PartCode: data.code,
+          NewIndexCode: undefined,
+        });
+
+        const rows: PlanRow[] =
+          data.processes && data.processes.length > 0
+            ? data.processes.map((process: PartProcess) => ({
+                key: crypto.randomUUID(),
+                machineId: process.machineId,
+                planDate: process.planDate ? dayjs(process.planDate) : null,
+                note: process.note ?? "",
+              }))
+            : [createEmptyRow()];
+
+        setDataSource(rows);
+        setIsCreateNewIndex(false);
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết part:", error);
+        toast.error("Không lấy được chi tiết part.");
+      } finally {
+        setLoadingDetail(false);
+      }
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    const run = async () => {
+      if (!open) return;
+
+      await fetchIndexes();
+      await fetchMachines();
+
+      if (id) {
+        await fetchDetail(id);
+      }
+    };
+
+    void run();
+  }, [open, id, fetchIndexes, fetchMachines, fetchDetail]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -169,8 +185,16 @@ export default function UpdatePart({ id, open, onClose }: Props) {
   };
 
   const handleSubmit = async (values: FormValues) => {
+    if (!id) {
+      toast.error("Không tìm thấy id part cần cập nhật.");
+      return;
+    }
+
+    const indexCode = isCreateNewIndex ? values.NewIndexCode : values.IndexCode;
+
     const request = {
-      indexCode: values.IndexCode ?? values.NewIndexCode,
+      id,
+      indexCode,
       partCode: values.PartCode,
       partProcesses: dataSource.map((item) => ({
         machineId: item.machineId,
@@ -179,40 +203,38 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       })),
     };
 
-    console.log("Payload submit:", request);
+    try {
+      await updatePartAsync(id, request);
 
-    await createPartAsync(request)
-      .then((data) => {
-        console.log(data);
-        toast.success("Tạo part thành công");
-        form.resetFields();
-        setDataSource([]);
-        setDataSource((prev) => [...prev, createEmptyRow()]);
-        onClose();
-      })
-      .catch((error) => {
-        if (error instanceof ApiError) {
-          toast.error(error.getDisplayMessage());
-          return;
-        }
-        toast.error("Có lỗi xảy ra.");
-      });
+      toast.success("Cập nhật part thành công");
+      form.resetFields();
+      setIsCreateNewIndex(false);
+      setDataSource([createEmptyRow()]);
+      onClose();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+        return;
+      }
+
+      toast.error("Có lỗi xảy ra.");
+    }
   };
 
   const columns: ColumnsType<PlanRow> = [
     {
       title: "Máy",
-      dataIndex: "machine",
-      key: "machine",
+      dataIndex: "machineId",
+      key: "machineId",
       width: 180,
-      render: (value: string | undefined, record) => (
+      render: (value: number | undefined, record) => (
         <Select
           placeholder="Chọn máy"
           style={{ width: "100%" }}
           loading={loadingMachine}
           value={value}
           options={machineOptions}
-          onChange={(v: string) => handleChange(record.key, "machineId", v)}
+          onChange={(v: number) => handleChange(record.key, "machineId", v)}
         />
       ),
     },
@@ -268,6 +290,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       width={1200}
       onCancel={handleCancel}
       destroyOnHidden
+      confirmLoading={loadingDetail}
       styles={{
         body: {
           maxHeight: "75vh",
@@ -280,7 +303,15 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           <div className="col-4 mt-2">
             <h6 className="mb-2">Thông tin</h6>
 
-            <Form.Item label="Chọn index đã có" name="IndexCode">
+            <Form.Item
+              label="Chọn index đã có"
+              name="IndexCode"
+              rules={
+                !isCreateNewIndex
+                  ? [{ required: true, message: "Vui lòng chọn index" }]
+                  : []
+              }
+            >
               <Select
                 placeholder="Chọn index"
                 disabled={isCreateNewIndex}
@@ -328,9 +359,9 @@ export default function UpdatePart({ id, open, onClose }: Props) {
             <Form.Item
               label="Part code"
               name="PartCode"
-              rules={[{ required: true, message: "Vui lòng nhập part name" }]}
+              rules={[{ required: true, message: "Vui lòng nhập part code" }]}
             >
-              <Input placeholder="Nhập part name" />
+              <Input placeholder="Nhập part code" />
             </Form.Item>
           </div>
 
@@ -354,6 +385,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
               pagination={false}
               size="small"
               bordered
+              loading={loadingDetail}
               scroll={{ y: 350 }}
             />
           </div>
@@ -362,7 +394,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         <div className="d-flex justify-content-end mt-4">
           <Space>
             <Button onClick={handleCancel}>Đóng</Button>
-            <Button type="primary" htmlType="submit">
+            <Button type="primary" htmlType="submit" loading={loadingDetail}>
               Lưu
             </Button>
           </Space>

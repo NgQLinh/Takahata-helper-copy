@@ -1,9 +1,14 @@
 import { Index, SearchPartResponse } from "@/app/types";
 import { apiClient } from "../common/apiClient";
-import { Part } from "ag-grid-community";
+import { Part } from "@/app/types";
 
 export const createPartAsync = async (request: unknown): Promise<Part[]> => {
   const response = await apiClient.post<Part[]>("/Part/create", request);
+  return response.data;
+};
+
+export const updatePartAsync = async (request: unknown): Promise<Part[]> => {
+  const response = await apiClient.post<Part[]>("/Part/update", request);
   return response.data;
 };
 

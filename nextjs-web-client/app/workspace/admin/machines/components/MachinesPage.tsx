@@ -259,7 +259,10 @@ export function MachinesPage() {
 
   return (
     <>
-      <div className="space-y-5">
+      <div
+        className="h-100 d-flex flex-column gap-3 overflow-hidden"
+        style={{ minHeight: 0 }}
+      >
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Title level={3} style={{ margin: 0 }}>
@@ -272,8 +275,18 @@ export function MachinesPage() {
           </div>
         </Card>
 
-        <Card>
-          <div className="mt-1 mb-4">
+        <Card
+          className="grow overflow-hidden"
+          style={{ minHeight: 0 }}
+          styles={{
+            body: {
+              height: "100%",
+              overflow: "hidden",
+              padding: 12,
+            },
+          }}
+        >
+          <div>
             <Search
               placeholder="Tìm theo tên đăng nhập hoặc họ tên"
               allowClear

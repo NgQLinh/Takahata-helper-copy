@@ -306,7 +306,10 @@ export function IndexPage() {
   ];
 
   return (
-    <div className="space-y-5">
+    <div
+      className="h-100 d-flex flex-column gap-3 overflow-hidden"
+      style={{ minHeight: 0 }}
+    >
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Title level={3} style={{ margin: 0 }}>
@@ -319,53 +322,51 @@ export function IndexPage() {
         </div>
       </Card>
 
-      <div className="card border-0 shadow-sm mt-1 mb-4">
-        <div className="card-body px-4">
-          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
-            <Input
-              placeholder="Tìm theo Part Name hoặc Index..."
-              allowClear
-              prefix={<SearchOutlined />}
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              style={{ maxWidth: 360 }}
-            />
-
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={() => {
-                setKeyword("");
-                fetchParts();
-              }}
-            >
-              Làm mới
-            </Button>
-          </div>
-
-          <Table<TableRow>
-            bordered
-            size="middle"
-            loading={loading}
-            columns={columns}
-            dataSource={dataSource}
-            tableLayout="fixed"
-            rowKey="key"
-            scroll={{ x: 1850, y: 500 }}
-            pagination={false}
+      <div className="grow overflow-hidden">
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+          <Input
+            placeholder="Tìm theo Part Name hoặc Index..."
+            allowClear
+            prefix={<SearchOutlined />}
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            style={{ maxWidth: 360 }}
           />
-          <div className="d-flex justify-content-end mt-3">
-            <Pagination
-              current={page}
-              pageSize={pageSize}
-              total={total}
-              showSizeChanger
-              showTotal={(value) => `Tổng ${value} part`}
-              onChange={(nextPage, nextPageSize) => {
-                setPage(nextPage);
-                setPageSize(nextPageSize);
-              }}
-            />
-          </div>
+
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              setKeyword("");
+              fetchParts();
+            }}
+          >
+            Làm mới
+          </Button>
+        </div>
+
+        <Table<TableRow>
+          bordered
+          size="middle"
+          loading={loading}
+          columns={columns}
+          dataSource={dataSource}
+          tableLayout="fixed"
+          rowKey="key"
+          scroll={{ x: 1850, y: 500 }}
+          pagination={false}
+        />
+        <div className="d-flex justify-content-end mt-3">
+          <Pagination
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            showSizeChanger
+            showTotal={(value) => `Tổng ${value} part`}
+            onChange={(nextPage, nextPageSize) => {
+              setPage(nextPage);
+              setPageSize(nextPageSize);
+            }}
+          />
         </div>
       </div>
 
