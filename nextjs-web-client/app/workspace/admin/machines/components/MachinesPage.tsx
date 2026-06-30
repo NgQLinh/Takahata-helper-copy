@@ -286,7 +286,7 @@ export function MachinesPage() {
             },
           }}
         >
-          <div>
+          <div className="mb-2">
             <Search
               placeholder="Tìm theo tên đăng nhập hoặc họ tên"
               allowClear
