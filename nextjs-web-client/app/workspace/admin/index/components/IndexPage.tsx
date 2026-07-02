@@ -91,9 +91,6 @@ export function IndexPage() {
     setLoading(true);
     try {
       const data = await searchPartAsync(page, pageSize);
-
-      console.log(data);
-
       setParts(data.parts);
       setTotal(data.total);
     } catch {
@@ -104,22 +101,15 @@ export function IndexPage() {
   }, [page, pageSize]);
 
   useEffect(() => {
-    let ignore = false;
-
     const run = async () => {
       try {
         await fetchParts();
       } catch {
-        if (!ignore) {
-          toast.error("Không thể tải danh sách part");
-        }
+        toast.error("Không thể tải danh sách part");
       }
     };
 
     void run();
-    return () => {
-      ignore = true;
-    };
   }, [fetchParts]);
 
   const filteredParts = useMemo(() => {
@@ -226,10 +216,11 @@ export function IndexPage() {
       ),
       align: "center",
       children: Array.from({ length: processCount }, (_, index) => {
-        const sequence = index + 1;
+        const sequence = index;
 
         return {
           title: <span className="fw-semibold">{sequence}</span>,
+          key: `process-${sequence}`,
           dataIndex: `process-${sequence}`,
           width: 90,
           align: "center" as const,
