@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useCallback } from "react";
 import {
+  Avatar,
   Button,
   Card,
   Input,
@@ -11,6 +12,16 @@ import {
   Tag,
   Typography,
 } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  FilterOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  TeamOutlined,
+  UserOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import CreateUser from "./CreateUser";
 import UpdateUser from "./UpdateUser";
@@ -24,7 +35,9 @@ import {
 import { DeleteAccountRequest, UpdateAccountRequest } from "@/app/types";
 import { toast } from "react-toastify";
 
-const { Title } = Typography;
+import "./UserAndRolePage.css";
+
+const { Title, Text: AntText } = Typography;
 const { Search } = Input;
 
 export function UserAndRolePage() {
@@ -108,21 +121,24 @@ export function UserAndRolePage() {
       });
   };
 
-  const handleDelete = async (userId: Account["id"]) => {
-    const request: DeleteAccountRequest = {
-      id: userId,
-    };
-    await deleteAccountAsync(request)
-      .then((data) => {
-        console.log(data);
-        fetchUsers();
-        toast.success("Xóa tài khoản thành công");
-      })
-      .catch((error) => {
-        toast.error("Xóa tài khoản không thành công");
-        console.error("Xóa tài khoản không thành công:", error);
-      });
-  };
+  const handleDelete = useCallback(
+    async (userId: string) => {
+      const request: DeleteAccountRequest = {
+        id: userId,
+      };
+      await deleteAccountAsync(request)
+        .then((data) => {
+          console.log(data);
+          fetchUsers();
+          toast.success("Xóa tài khoản thành công");
+        })
+        .catch((error) => {
+          toast.error("Xóa tài khoản không thành công");
+          console.error("Xóa tài khoản không thành công:", error);
+        });
+    },
+    [fetchUsers],
+  );
 
   const columns: ColumnsType<Account> = useMemo(
     () => [
@@ -130,44 +146,69 @@ export function UserAndRolePage() {
         title: "Tên đăng nhập",
         dataIndex: "userName",
         key: "userName",
-        width: 180,
+        width: 220,
         sorter: (a, b) => a.userName.localeCompare(b.userName),
-        render: (value: string) => <strong>{value}</strong>,
+        render: (value: string) => (
+          <Space size={12}>
+            <Avatar className="user-avatar" icon={<UserOutlined />} />
+            <AntText strong className="user-name">
+              {value}
+            </AntText>
+          </Space>
+        ),
       },
       {
         title: "Họ và tên",
         dataIndex: "fullName",
         key: "fullName",
-        width: 240,
+        width: 260,
         sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+        render: (value: string) => <AntText>{value}</AntText>,
       },
       {
         title: "Vai trò",
         dataIndex: "role",
         key: "role",
-        width: 140,
+        width: 180,
         filters: [
           { text: "ADMIN", value: "ADMIN" },
           { text: "MANAGER", value: "MANAGER" },
           { text: "USER", value: "USER" },
         ],
-        onFilter: (value, record) => record.role === value,
+        onFilter: (value, record) => record.role?.toUpperCase() === value,
         render: (role: string) => {
-          const color =
-            role === "Admin" ? "red" : role === "Manager" ? "blue" : "default";
+          const normalizedRole = role?.toUpperCase();
 
-          return <Tag color={color}>{role}</Tag>;
+          const className =
+            normalizedRole === "ADMIN"
+              ? "role-admin"
+              : normalizedRole === "MANAGER"
+                ? "role-manager"
+                : "role-user";
+
+          return (
+            <Tag
+              className={`role-tag ${className}`}
+              icon={<SafetyCertificateOutlined />}
+            >
+              {normalizedRole}
+            </Tag>
+          );
         },
       },
       {
         title: "Thao tác",
         key: "actions",
-        width: 160,
+        width: 190,
         fixed: "right",
-        align: "right",
+        align: "center",
         render: (_, record) => (
-          <Space>
-            <Button size="small" onClick={() => setEditingUser(record)}>
+          <Space size={8}>
+            <Button
+              className="action-btn"
+              icon={<EditOutlined />}
+              onClick={() => setEditingUser(record)}
+            >
               Sửa
             </Button>
 
@@ -178,7 +219,7 @@ export function UserAndRolePage() {
               cancelText="Hủy"
               onConfirm={() => handleDelete(record.id)}
             >
-              <Button danger size="small">
+              <Button danger className="delete-btn" icon={<DeleteOutlined />}>
                 Xóa
               </Button>
             </Popconfirm>
@@ -186,52 +227,60 @@ export function UserAndRolePage() {
         ),
       },
     ],
-    [],
+    [handleDelete],
   );
 
   return (
-    <div
-      className="h-100 d-flex flex-column gap-3 overflow-hidden"
-      style={{ minHeight: 0 }}
-    >
-      <Card>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Title level={3} style={{ margin: 0 }}>
-            Quản lý tài khoản người dùng và phân quyền truy cập
-          </Title>
+    <div className="user-page">
+      <Card className="user-card">
+        <div className="user-header">
+          <div className="user-title-wrap">
+            <div className="user-icon">
+              <TeamOutlined />
+            </div>
 
-          <Button type="primary" onClick={() => setIsCreateOpen(true)}>
+            <div>
+              <Title level={3} className="user-title">
+                Quản lý người dùng & phân quyền
+              </Title>
+              <AntText type="secondary">
+                Quản lý tài khoản người dùng, vai trò và quyền truy cập hệ
+                thống.
+              </AntText>
+            </div>
+          </div>
+
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateOpen(true)}
+          >
             Thêm người dùng
           </Button>
         </div>
-      </Card>
 
-      <Card
-        className="grow overflow-hidden"
-        style={{ minHeight: 0 }}
-        styles={{
-          body: {
-            height: "100%",
-            overflow: "hidden",
-            padding: 12,
-          },
-        }}
-      >
-        <div className="mb-2">
+        <div className="user-divider" />
+
+        <div className="user-toolbar">
           <Search
             placeholder="Tìm theo tên đăng nhập hoặc họ tên"
             allowClear
-            enterButton
-            style={{ width: 350 }}
+            prefix={<SearchOutlined />}
             onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 420 }}
           />
+
+          <Button icon={<FilterOutlined />}>Bộ lọc</Button>
         </div>
+
         <Table<Account>
           rowKey="id"
           loading={loading}
           columns={columns}
           dataSource={filteredUsers}
           scroll={{ x: 900 }}
+          className="user-table"
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

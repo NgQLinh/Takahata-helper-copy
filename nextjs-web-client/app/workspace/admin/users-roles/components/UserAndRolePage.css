@@ -1,0 +1,94 @@
+.user-page {
+  height: 100%;
+  padding: 8px;
+  background: #f4f7fb;
+  overflow: hidden;
+}
+
+.user-card {
+  height: 100%;
+  border-radius: 18px;
+  border: 1px solid #e8edf5;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.user-card .ant-card-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 28px;
+  overflow: hidden;
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-icon {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0b5bd3, #0747a6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.user-title {
+  margin: 0 !important;
+  color: #172033 !important;
+}
+
+.user-divider {
+  height: 1px;
+  background: #e5eaf2;
+  margin: 26px 0 24px;
+}
+
+.user-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.user-table {
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-table .ant-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.user-table .ant-table-thead > tr > th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 700;
+  padding: 18px 16px;
+}
+
+.user-table .ant-table-tbody > tr > td {
+  padding: 18px 16px;
+  color: #1e293b;
+}
+
+.user-table .ant-table-tbody > tr:hover > td {
+  background: #f8fbff !important;
+}
+
+.user-table .ant-pagination {
+  margin-top: 24px !important;
+}
