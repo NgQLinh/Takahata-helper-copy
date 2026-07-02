@@ -4,35 +4,42 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs from "dayjs";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import {
-  CreateMachineRequest,
-  DeleteMachineRequest,
-  Machine,
-  UpdateMachineRequest,
-} from "@/app/types";
+import { DeleteMachineRequest, Machine } from "@/app/types";
 import type { ColumnsType } from "antd/es/table";
 import {
+  Avatar,
   Button,
   Card,
   Input,
   Popconfirm,
   Space,
   Table,
+  Tag,
   Typography,
 } from "antd";
+
 import {
-  createMachineAsync,
-  deleteMachineAsync,
-  updateMachineAsync,
-} from "@/app/services/machine/MachineService";
+  AppstoreOutlined,
+  CalendarOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EyeOutlined,
+  FilterOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  ToolOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+import { deleteMachineAsync } from "@/app/services/machine/MachineService";
 import CreateMachine from "./CreateMachine";
 import { ColumnFilterItem } from "antd/es/table/interface";
 import UpdateMachine from "./UpdateMachine";
 import MachineDetail from "./MachineDetail";
 
-const { Title } = Typography;
-const { Search } = Input;
+import "./MachinesPage.css";
 
+const { Title, Text } = Typography;
+const { Search } = Input;
 export function MachinesPage() {
   const [loading, setLoading] = useState(true);
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -153,101 +160,156 @@ export function MachinesPage() {
       {
         title: "STT",
         dataIndex: "sequenceNumber",
-        key: "sequenceNumber",
-        width: 40,
+        width: 70,
         sorter: (a, b) => a.sequenceNumber - b.sequenceNumber,
-        render: (value: string) => <strong>{value}</strong>,
+        render: (value) => <Text strong>{value}</Text>,
       },
       {
-        title: "Tên",
+        title: "Tên máy",
         dataIndex: "name",
-        key: "name",
-        width: 80,
+        width: 150,
         sorter: (a, b) => a.name.localeCompare(b.name),
+        render: (value) => (
+          <Space>
+            <Avatar
+              size={28}
+              icon={<AppstoreOutlined />}
+              style={{ background: "#e8f1ff", color: "#1677ff" }}
+            />
+            <Text strong>{value}</Text>
+          </Space>
+        ),
       },
       {
-        title: "Mã",
+        title: "Mã máy",
         dataIndex: "code",
-        key: "code",
-        width: 80,
+        width: 120,
         sorter: (a, b) => a.code.localeCompare(b.code),
+        render: (value) => <Tag color="blue">{value}</Tag>,
       },
       {
-        title: "Loại",
+        title: "Loại máy",
         dataIndex: "type",
-        key: "type",
-        width: 80,
+        width: 170,
         filters: typeFilter,
         onFilter: (value, record) => record.type === value,
+        render: (value) => (
+          <Tag
+            icon={<ToolOutlined />}
+            color={value === "NC Milling" ? "gold" : "green"}
+          >
+            {value}
+          </Tag>
+        ),
       },
       {
         title: "Thương hiệu",
         dataIndex: "brand",
-        key: "brand",
-        width: 80,
+        width: 130,
         filters: brandFilter,
         onFilter: (value, record) => record.brand === value,
       },
       {
         title: "Người tạo",
         dataIndex: "createBy",
-        key: "createBy",
-        width: 80,
+        width: 130,
         filters: createByFilter,
         onFilter: (value, record) => record.createBy === value,
+        render: (value) => (
+          <Space>
+            <Avatar
+              size={28}
+              style={{ background: "#dbeafe", color: "#1677ff" }}
+            >
+              {value?.[0]?.toUpperCase() || "A"}
+            </Avatar>
+            {value}
+          </Space>
+        ),
       },
       {
         title: "Ngày tạo",
         dataIndex: "createAt",
-        key: "createAt",
-        width: 120,
-        render: (value: Date) => new Date(value).toLocaleString("vi-VN"),
+        width: 150,
         sorter: (a, b) =>
-          new Date(a.createAt).getTime() - new Date(b.createAt).getTime(),
+          dayjs(a.createAt).valueOf() - dayjs(b.createAt).valueOf(),
+        render: (value) => (
+          <Space>
+            <CalendarOutlined style={{ color: "#64748b" }} />
+            <span>{dayjs(value).format("HH:mm:ss DD/MM/YYYY")}</span>
+          </Space>
+        ),
       },
       {
         title: "Người sửa",
         dataIndex: "updateBy",
-        key: "updateBy",
-        width: 80,
+        width: 130,
         filters: updateByFilter,
         onFilter: (value, record) => record.updateBy === value,
+        render: (value) =>
+          value ? (
+            <Space>
+              <Avatar
+                size={28}
+                style={{ background: "#dbeafe", color: "#1677ff" }}
+              >
+                {value?.[0]?.toUpperCase() || "A"}
+              </Avatar>
+              {value}
+            </Space>
+          ) : (
+            <Text type="secondary">-</Text>
+          ),
       },
       {
         title: "Ngày sửa",
         dataIndex: "updateAt",
-        key: "updateAt",
-        width: 120,
-        render: (value?: string | Date) =>
-          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+        width: 160,
         sorter: (a, b) =>
           dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
+        render: (value) =>
+          value ? (
+            <Space>
+              <CalendarOutlined style={{ color: "#64748b" }} />
+              <span>{dayjs(value).format("DD/MM/YYYY HH:mm:ss")}</span>
+            </Space>
+          ) : (
+            <Text type="secondary">-</Text>
+          ),
       },
       {
         title: "Thao tác",
         key: "actions",
-        width: 160,
+        width: 250,
         fixed: "right",
-        align: "right",
+        align: "center",
         render: (_, record) => (
           <Space>
-            <Button size="small" onClick={() => setEditingMachine(record)}>
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => setEditingMachine(record)}
+            >
               Sửa
             </Button>
 
             <Popconfirm
-              title="Xóa người dùng"
+              title="Xóa máy"
               description={`Bạn có chắc muốn xóa ${record.name}?`}
               okText="Xóa"
               cancelText="Hủy"
               onConfirm={() => handleDelete(record.id)}
             >
-              <Button danger size="small">
+              <Button danger icon={<DeleteOutlined />}>
                 Xóa
               </Button>
             </Popconfirm>
 
-            <Button size="small" onClick={() => setSelectedMachine(record)}>
+            <Button
+              type="primary"
+              ghost
+              icon={<EyeOutlined />}
+              onClick={() => setSelectedMachine(record)}
+            >
               Xem chi tiết
             </Button>
           </Space>
@@ -258,77 +320,81 @@ export function MachinesPage() {
   );
 
   return (
-    <>
-      <div
-        className="h-100 d-flex flex-column gap-3 overflow-hidden"
-        style={{ minHeight: 0 }}
-      >
-        <Card>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <Title level={3} style={{ margin: 0 }}>
-              Quản lý danh sách máy
-            </Title>
+    <div className="machine-page">
+      <Card className="machine-card">
+        <div className="machine-header">
+          <div className="machine-title-wrap">
+            <div className="machine-icon">
+              <AppstoreOutlined />
+            </div>
 
-            <Button type="primary" onClick={() => setIsCreateOpen(true)}>
-              Thêm máy
-            </Button>
-          </div>
-        </Card>
-
-        <Card
-          className="grow overflow-hidden"
-          style={{ minHeight: 0 }}
-          styles={{
-            body: {
-              height: "100%",
-              overflow: "hidden",
-              padding: 12,
-            },
-          }}
-        >
-          <div className="mb-2">
-            <Search
-              placeholder="Tìm theo tên đăng nhập hoặc họ tên"
-              allowClear
-              enterButton
-              style={{ width: 350 }}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
+            <div>
+              <Title level={3} className="machine-title">
+                Quản lý danh sách máy
+              </Title>
+              <Text type="secondary">
+                Quản lý và theo dõi danh sách máy trong hệ thống.
+              </Text>
+            </div>
           </div>
 
-          <Table<Machine>
-            rowKey="id"
-            loading={loading}
-            columns={columns}
-            dataSource={filteredMachines}
-            scroll={{ x: 900 }}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showTotal: (total) => `Tổng ${total} máy`,
-            }}
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            Thêm máy
+          </Button>
+        </div>
+
+        <div className="machine-divider" />
+
+        <div className="machine-toolbar">
+          <Search
+            placeholder="Tìm theo tên máy hoặc mã máy"
+            allowClear
+            prefix={<SearchOutlined />}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 420 }}
           />
-        </Card>
 
-        <CreateMachine
-          open={isCreateOpen}
-          onClose={() => setIsCreateOpen(false)}
-          onCreate={handleCreate}
-        />
+          <Button icon={<FilterOutlined />}>Bộ lọc</Button>
+        </div>
 
-        <UpdateMachine
-          open={!!editingMachine}
-          machine={editingMachine}
-          onClose={() => setEditingMachine(null)}
-          onUpdate={handleUpdate}
+        <Table<Machine>
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={filteredMachines}
+          scroll={{ x: 1350 }}
+          className="machine-table"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `Tổng ${total} máy`,
+          }}
         />
+      </Card>
 
-        <MachineDetail
-          open={!!selectedMachine}
-          machine={selectedMachine}
-          onClose={() => setSelectedMachine(null)}
-        />
-      </div>
-    </>
+      <CreateMachine
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onCreate={handleCreate}
+      />
+
+      <UpdateMachine
+        open={!!editingMachine}
+        machine={editingMachine}
+        onClose={() => setEditingMachine(null)}
+        onUpdate={handleUpdate}
+      />
+
+      <MachineDetail
+        open={!!selectedMachine}
+        machine={selectedMachine}
+        onClose={() => setSelectedMachine(null)}
+      />
+    </div>
   );
 }
