@@ -220,7 +220,6 @@ export function IndexPage() {
 
         return {
           title: <span className="fw-semibold">{sequence}</span>,
-          key: `process-${sequence}`,
           dataIndex: `process-${sequence}`,
           width: 90,
           align: "center" as const,
