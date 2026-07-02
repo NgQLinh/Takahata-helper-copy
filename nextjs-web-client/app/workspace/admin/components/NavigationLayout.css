@@ -1,0 +1,138 @@
+.app-layout {
+  background: #f4f7fb;
+}
+
+.top-navbar {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: linear-gradient(90deg, #082b57 0%, #0c376b 48%, #082547 100%);
+  box-shadow: 0 6px 18px rgba(3, 22, 52, 0.22);
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.brand-main {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.brand-sub {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.nav-menu {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.nav-menu-link {
+  position: relative;
+  height: 64px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.nav-menu-link:hover {
+  color: #39c8ff;
+}
+
+.nav-menu-link.active {
+  color: #27c2ff;
+}
+
+.nav-menu-link.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 4px;
+  border-radius: 8px 8px 0 0;
+  background: #27c2ff;
+  box-shadow: 0 0 12px rgba(39, 194, 255, 0.8);
+}
+
+.nav-icon {
+  font-size: 19px;
+  display: flex;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.icon-btn,
+.logout-btn {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.icon-btn {
+  font-size: 20px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #27c2ff;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.logout-btn {
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #27c2ff;
+}

@@ -163,7 +163,7 @@ export function IndexPage() {
       width: 120,
       fixed: "left",
       align: "center",
-      render: (_, row) => ({
+      onCell: (row) => ({
         children: <span className="fw-semibold">{row.indexCode}</span>,
         props: {
           rowSpan: row.rowSpan,
@@ -181,7 +181,7 @@ export function IndexPage() {
       dataIndex: "partName",
       width: 240,
       fixed: "left",
-      render: (_, row) => ({
+      onCell: (row) => ({
         children: <span className="fw-semibold">{row.partName}</span>,
         props: {
           rowSpan: row.rowSpan,
@@ -200,9 +200,13 @@ export function IndexPage() {
       width: 110,
       fixed: "left",
       align: "center",
-      render: (value: RowType) => (
-        <span className="badge text-bg-light border px-3 py-2">{value}</span>
-      ),
+      onCell: (row) => ({
+        children: (
+          <span className="badge text-bg-light border px-3 py-2">
+            {row.rowType}
+          </span>
+        ),
+      }),
     },
     {
       title: (
@@ -268,7 +272,7 @@ export function IndexPage() {
       width: 140,
       fixed: "right",
       align: "center",
-      render: (_, row) => ({
+      onCell: (row) => ({
         children: (
           <Space>
             <Button size="small" onClick={() => handlerUpdate(row.partId)}>
