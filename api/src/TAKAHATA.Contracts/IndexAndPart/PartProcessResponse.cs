@@ -1,8 +1,9 @@
-﻿using TAKAHATA.Contracts.Equipment;
+﻿using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.Equipment;
 
 namespace TAKAHATA.Contracts.IndexAndPart
 {
-    public class PartProcessResponse
+    public class PartProcessResponse : Response
     {
         public long PartId { get; set; }
         public int Sequence { get; set; }

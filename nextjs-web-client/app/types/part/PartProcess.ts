@@ -1,6 +1,7 @@
 import { Machine } from "../machine/Machine";
 
 export interface PartProcess {
+  id: number;
   partId: number;
   sequence: number;
   machineId: number;

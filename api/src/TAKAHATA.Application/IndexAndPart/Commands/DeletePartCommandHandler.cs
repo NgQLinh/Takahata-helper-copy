@@ -22,7 +22,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
         {
             var part = await _partRepository.DeleteMachineByIdAsync(request.Id);
             if (part == null)
-                return Errors.Part.DeleteIndexFalse;
+                return Errors.Part.DeleteFalse;
 
             return _mapper.Map<PartResponse>(part);
         }

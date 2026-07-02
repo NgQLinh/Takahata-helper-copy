@@ -33,6 +33,7 @@ type Props = {
 
 type PlanRow = {
   key: string;
+  id: number;
   machineId?: number;
   planDate?: Dayjs | null;
   note?: string;
@@ -46,6 +47,7 @@ type FormValues = {
 
 const createEmptyRow = (): PlanRow => ({
   key: crypto.randomUUID(),
+  id: 0,
   machineId: undefined,
   planDate: null,
   note: "",
@@ -114,6 +116,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       try {
         const data = await getPartAsync(partId);
 
+        console.log("Chi tiết part:", data);
+
         form.setFieldsValue({
           IndexCode: data.index.code,
           PartCode: data.code,
@@ -124,6 +128,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           data.processes && data.processes.length > 0
             ? data.processes.map((process: PartProcess) => ({
                 key: crypto.randomUUID(),
+                id: process.id,
                 machineId: process.machineId,
                 planDate: process.planDate ? dayjs(process.planDate) : null,
                 note: process.note ?? "",
@@ -197,14 +202,17 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       indexCode,
       partCode: values.PartCode,
       partProcesses: dataSource.map((item) => ({
+        id: item.id,
         machineId: item.machineId,
         planDate: item.planDate?.format("YYYY-MM-DD"),
         note: item.note,
       })),
     };
 
+    console.log("Request update part:", request);
+
     try {
-      await updatePartAsync(id, request);
+      await updatePartAsync(request);
 
       toast.success("Cập nhật part thành công");
       form.resetFields();

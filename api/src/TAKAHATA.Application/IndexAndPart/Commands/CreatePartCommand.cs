@@ -1,7 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
 using TAKAHATA.Contracts.IndexAndPart;
-using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {

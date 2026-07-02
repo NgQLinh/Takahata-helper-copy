@@ -29,6 +29,16 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdatePart(UpdatePartCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(_mapper.Map<PartResponse>(r)),
+                e => Problem(e));
+        }
+
         [HttpPost("delete")]
         public async Task<IActionResult> DeletePart(DeletePartCommand request)
         {

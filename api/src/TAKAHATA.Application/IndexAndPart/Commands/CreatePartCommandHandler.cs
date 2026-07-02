@@ -59,7 +59,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 Code = request.PartCode,
                 CreateBy = _currentUserService.UserId,
                 IndexId = index.Id,
-                Processes = [.. request.PartProcesses.Select((p, i) => new PartProcess
+                Processes = [.. request.PartProcesses.OrderBy(x => x.PlanDate).Select((p, i) => new PartProcess
                 {
                     CreateAt = DateTime.Now,
                     CreateBy = _currentUserService.UserId,
