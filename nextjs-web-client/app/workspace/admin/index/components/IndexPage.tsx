@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -10,7 +9,18 @@ import {
   Space,
   Table,
   Tag,
+  Typography,
 } from "antd";
+
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  ScheduleOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import CreatePart from "./CreatePart";
@@ -19,10 +29,13 @@ import {
   searchPartAsync,
 } from "@/app/services/index/IndexService";
 import { toast } from "react-toastify";
-import Title from "antd/es/typography/Title";
 import { ApiError } from "@/app/types/common/ApiError";
 import UpdatePart from "./UpdatePart";
 import { Part, PartProcess } from "@/app/types";
+
+const { Title } = Typography;
+
+import "./IndexPage.css";
 
 type RowType = "MC" | "P" | "A";
 
@@ -153,69 +166,66 @@ export function IndexPage() {
   const columns: ColumnsType<TableRow> = [
     {
       title: (
-        <div className="text-center fw-semibold">
+        <div className="schedule-th-center">
           Index
           <br />
-          <span className="small text-muted">(Tên)</span>
+          <span>(Tên)</span>
         </div>
       ),
       dataIndex: "indexCode",
-      width: 120,
+      width: 130,
       fixed: "left",
       align: "center",
       onCell: (row) => ({
-        children: <span className="fw-semibold">{row.indexCode}</span>,
-        props: {
-          rowSpan: row.rowSpan,
-        },
+        children: <strong className="index-code">{row.indexCode}</strong>,
+        props: { rowSpan: row.rowSpan },
       }),
     },
     {
       title: (
-        <div className="fw-semibold">
+        <div className="schedule-th">
           Part Name
           <br />
-          <span className="small text-muted">(Tên chi tiết)</span>
+          <span>(Tên chi tiết)</span>
         </div>
       ),
       dataIndex: "partName",
-      width: 240,
+      width: 260,
       fixed: "left",
       onCell: (row) => ({
-        children: <span className="fw-semibold">{row.partName}</span>,
-        props: {
-          rowSpan: row.rowSpan,
-        },
+        children: <strong className="part-name">{row.partName}</strong>,
+        props: { rowSpan: row.rowSpan },
       }),
     },
     {
       title: (
-        <div className="text-center fw-semibold">
+        <div className="schedule-th-center">
           Plan/Actual
           <br />
-          <span className="small text-muted">KH/TT</span>
+          <span>KH/TT</span>
         </div>
       ),
       dataIndex: "rowType",
-      width: 110,
+      width: 120,
       fixed: "left",
       align: "center",
-      onCell: (row) => ({
-        children: (
-          <span className="badge text-bg-light border px-3 py-2">
-            {row.rowType}
-          </span>
-        ),
-      }),
+      render: (value) => {
+        const className =
+          value === "MC"
+            ? "row-type-mc"
+            : value === "P"
+              ? "row-type-plan"
+              : "row-type-actual";
+
+        return <span className={`row-type-badge ${className}`}>{value}</span>;
+      },
     },
     {
       title: (
-        <div className="text-center fw-bold">
+        <div className="schedule-group-title">
           PROCESSING SCHEDULE
           <br />
-          <span className="small text-muted fw-normal">
-            (Lịch trình gia công)
-          </span>
+          <span>(Lịch trình gia công)</span>
         </div>
       ),
       align: "center",
@@ -223,41 +233,41 @@ export function IndexPage() {
         const sequence = index;
 
         return {
-          title: <span className="fw-semibold">{sequence}</span>,
+          title: <span className="process-number">{sequence}</span>,
           dataIndex: `process-${sequence}`,
-          width: 90,
+          width: 100,
           align: "center" as const,
           render: (_, row: TableRow) => {
             const process = row.processes[sequence];
 
-            if (!process) return <span className="text-muted">-</span>;
+            if (!process) return <span className="empty-cell">-</span>;
 
             if (row.rowType === "MC") {
               return process.isCompleted ? (
-                <Tag color="success" className="m-0">
+                <Tag color="success" className="process-tag">
                   {process.machine?.code}
                 </Tag>
               ) : (
-                <span>{process.machine?.name}</span>
+                <span className="machine-name">{process.machine?.name}</span>
               );
             }
 
             if (row.rowType === "P") {
               return (
-                <span className="text-primary fw-semibold">
-                  {formatDate(process.planDate)}
+                <span className="plan-date">
+                  <CalendarOutlined /> {formatDate(process.planDate)}
                 </span>
               );
             }
 
             if (row.rowType === "A") {
               if (!process.actualDate)
-                return <span className="text-muted">-</span>;
+                return <span className="empty-cell">-</span>;
 
               return (
-                <span className="text-success fw-semibold">
-                  {formatDate(process.actualDate)}
-                  {process.workingHours ? `-${process.workingHours}` : ""}
+                <span className="actual-date">
+                  <CalendarOutlined /> {formatDate(process.actualDate)}
+                  {process.workingHours ? ` - ${process.workingHours}` : ""}
                 </span>
               );
             }
@@ -268,63 +278,78 @@ export function IndexPage() {
       }),
     },
     {
-      title: <span className="fw-semibold">Action</span>,
-      width: 140,
+      title: "Thao tác",
+      key: "actions",
       fixed: "right",
-      align: "center",
-      onCell: (row) => ({
-        children: (
-          <Space>
-            <Button size="small" onClick={() => handlerUpdate(row.partId)}>
-              Sửa
-            </Button>
+      width: 180,
+      render: (_, row) => (
+        <Space size={8}>
+          <Button
+            icon={<EditOutlined />}
+            className="action-btn"
+            onClick={() => handlerUpdate(row.partId)}
+          >
+            Sửa
+          </Button>
 
-            <Popconfirm
-              title="Xóa part"
-              description={`Bạn có chắc muốn xóa ${row.partName}?`}
-              okText="Xóa"
-              cancelText="Hủy"
-              onConfirm={() => handlerDelete(row.partId)}
-            >
-              <Button size="small" danger>
-                Xóa
-              </Button>
-            </Popconfirm>
-          </Space>
-        ),
-        props: {
-          rowSpan: row.rowSpan,
-        },
+          <Popconfirm
+            title="Xóa part"
+            description={`Bạn có chắc muốn xóa ${row.partName}?`}
+            okText="Xóa"
+            cancelText="Hủy"
+            onConfirm={() => handlerDelete(row.partId)}
+          >
+            <Button danger icon={<DeleteOutlined />} className="delete-btn">
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+      onCell: (row) => ({
+        rowSpan: row.rowSpan,
       }),
     },
   ];
 
   return (
-    <div
-      className="h-100 d-flex flex-column gap-3 overflow-hidden"
-      style={{ minHeight: 0 }}
-    >
-      <Card>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Title level={3} style={{ margin: 0 }}>
-            Lịch trình gia công chi tiết khuôn
-          </Title>
+    <div className="schedule-page">
+      <Card className="schedule-card">
+        <div className="schedule-header">
+          <div className="schedule-title-wrap">
+            <div className="schedule-icon">
+              <ScheduleOutlined />
+            </div>
 
-          <Button type="primary" onClick={() => setIsCreateOpen(true)}>
+            <div>
+              <Title level={3} className="schedule-title">
+                Lịch trình gia công chi tiết khuôn
+              </Title>
+              <Typography.Text type="secondary">
+                Theo dõi kế hoạch, thực tế gia công và trạng thái máy theo từng
+                part.
+              </Typography.Text>
+            </div>
+          </div>
+
+          <Button
+            type="primary"
+            size="large"
+            className="create-part-btn"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateOpen(true)}
+          >
             Thêm part
           </Button>
         </div>
-      </Card>
-
-      <div className="grow overflow-hidden">
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div className="schedule-divider" />
+        <div className="schedule-toolbar">
           <Input
             placeholder="Tìm theo Part Name hoặc Index..."
             allowClear
             prefix={<SearchOutlined />}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            style={{ maxWidth: 360 }}
+            className="schedule-search"
           />
 
           <Button
@@ -337,19 +362,21 @@ export function IndexPage() {
             Làm mới
           </Button>
         </div>
-
-        <Table<TableRow>
-          bordered
-          size="middle"
-          loading={loading}
-          columns={columns}
-          dataSource={dataSource}
-          tableLayout="fixed"
-          rowKey="key"
-          scroll={{ x: 1850, y: 500 }}
-          pagination={false}
-        />
-        <div className="d-flex justify-content-end mt-3">
+        ``
+        <div className="schedule-table-wrap">
+          <Table<TableRow>
+            bordered
+            size="middle"
+            loading={loading}
+            columns={columns}
+            dataSource={dataSource}
+            tableLayout="fixed"
+            rowKey="key"
+            scroll={{ x: 1350, y: "calc(100vh - 550px)" }}
+            pagination={false}
+          />
+        </div>
+        <div className="schedule-pagination">
           <Pagination
             current={page}
             pageSize={pageSize}
@@ -362,7 +389,7 @@ export function IndexPage() {
             }}
           />
         </div>
-      </div>
+      </Card>
 
       <CreatePart
         open={isCreateOpen}

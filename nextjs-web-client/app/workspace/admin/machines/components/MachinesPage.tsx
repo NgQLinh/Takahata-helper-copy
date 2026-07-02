@@ -367,8 +367,7 @@ export function MachinesPage() {
           loading={loading}
           columns={columns}
           dataSource={filteredMachines}
-          scroll={{ x: 1350 }}
-          className="machine-table"
+          scroll={{ x: 1350, y: "calc(100vh - 500px)" }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

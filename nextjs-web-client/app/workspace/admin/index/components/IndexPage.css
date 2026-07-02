@@ -1,0 +1,257 @@
+.schedule-page {
+  height: 100%;
+  padding: 8px;
+  background: #f4f7fb;
+  overflow: hidden;
+}
+
+.schedule-card {
+  height: 100%;
+  border-radius: 18px;
+  border: 1px solid #e8edf5;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.schedule-card .ant-card-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 28px;
+  overflow: hidden;
+}
+
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.schedule-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.schedule-icon {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0b5bd3, #0747a6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: 0 10px 22px rgba(22, 119, 255, 0.28);
+}
+
+.schedule-title {
+  margin: 0 !important;
+  color: #172033 !important;
+}
+
+.create-part-btn {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(22, 119, 255, 0.28);
+}
+
+.schedule-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.schedule-stat-card {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border: 1px solid #e7edf7;
+}
+
+.schedule-stat-card span {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.schedule-stat-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.schedule-divider {
+  height: 1px;
+  background: #e5eaf2;
+  margin: 24px 0;
+}
+
+.schedule-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.schedule-search {
+  width: 420px;
+}
+
+.schedule-search .ant-input-affix-wrapper {
+  height: 42px;
+  border-radius: 8px;
+}
+
+.refresh-btn {
+  height: 42px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.schedule-table-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.schedule-table .ant-table {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.schedule-table .ant-table-thead > tr > th {
+  background: #f8fafc !important;
+  color: #334155;
+  font-weight: 700;
+}
+
+.schedule-table .ant-table-tbody > tr > td {
+  color: #1e293b;
+  border-color: #edf1f7;
+}
+
+.schedule-table .ant-table-tbody > tr:hover > td {
+  background: #f8fbff !important;
+}
+
+.schedule-table .ant-table-cell-fix-left,
+.schedule-table .ant-table-cell-fix-right {
+  background: #ffffff;
+}
+
+.schedule-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+.schedule-th,
+.schedule-th-center {
+  font-weight: 700;
+  color: #172033;
+}
+
+.schedule-th-center {
+  text-align: center;
+}
+
+.schedule-th span,
+.schedule-th-center span,
+.schedule-group-title span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.schedule-group-title {
+  text-align: center;
+  font-weight: 800;
+  color: #172033;
+  letter-spacing: 0.3px;
+}
+
+.index-code {
+  color: #0b5bd3;
+}
+
+.part-name {
+  color: #172033;
+}
+
+.row-type-badge {
+  display: inline-flex;
+  min-width: 54px;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.row-type-mc {
+  background: #eff6ff;
+  color: #1677ff;
+}
+
+.row-type-plan {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+.row-type-actual {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.process-number {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.process-tag {
+  margin: 0;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.machine-name {
+  color: #334155;
+  font-weight: 600;
+}
+
+.plan-date {
+  color: #1677ff;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actual-date {
+  color: #16a34a;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.empty-cell {
+  color: #94a3b8;
+}
+
+.action-title {
+  font-weight: 700;
+}
+
+.action-btn,
+.delete-btn {
+  border-radius: 8px;
+  font-weight: 600;
+}
