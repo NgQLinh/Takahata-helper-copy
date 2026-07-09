@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { getMachineSchedulesAsync } from "@/app/services/machine/MachineService";
 import { MachineSchedule } from "@/app/types";
 import "./MachineScheduleBoard.css";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 export function MachineScheduleBoard() {
   const [loading, setLoading] = useState(false);
   const [machines, setMachines] = useState<MachineSchedule[]>([]);
@@ -87,7 +88,7 @@ export function MachineScheduleBoard() {
                 <div
                   key={`${process.partId}-${process.sequence}`}
                   className={
-                    process.isCompleted
+                    process.status === ProcessStatus.Completed
                       ? "timeline-card timeline-card-done"
                       : "timeline-card timeline-card-planned"
                   }
@@ -100,7 +101,11 @@ export function MachineScheduleBoard() {
 
                   <div className="d-flex justify-content-between mt-2 small">
                     <span>{process.note || "No note"}</span>
-                    <span>{process.isCompleted ? "DONE" : "PLANNED"}</span>
+                    <span>
+                      {process.status === ProcessStatus.Completed
+                        ? "DONE"
+                        : "PLANNED"}
+                    </span>
                   </div>
                 </div>
               ))}

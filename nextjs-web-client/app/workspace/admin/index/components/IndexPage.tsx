@@ -38,6 +38,7 @@ const { Title } = Typography;
 
 import "./IndexPage.css";
 import dayjs, { Dayjs } from "dayjs";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 type RowType = "MC" | "P" | "A";
 
@@ -254,7 +255,7 @@ export function IndexPage() {
             if (!process) return <span className="empty-cell">-</span>;
 
             if (row.rowType === "MC") {
-              return process.isCompleted ? (
+              return process.status === ProcessStatus.Completed ? (
                 <Tag color="success" className="process-tag">
                   {process.machine?.code}
                 </Tag>

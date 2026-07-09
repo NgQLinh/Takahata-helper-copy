@@ -12,7 +12,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
 
             builder
                 .HasIndex(x => x.PartId)
-                .HasDatabaseName("PS_Index_PartId");
+                .HasDatabaseName("PS_PartProcess_PartId");
 
             builder
                 .Property(p => p.CreateAt)
@@ -20,7 +20,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
 
             builder
                 .HasIndex(x => x.MachineId)
-                .HasDatabaseName("PS_Index_MachineId");
+                .HasDatabaseName("PS_PartProcess_MachineId");
         }
     }
 }

@@ -242,6 +242,66 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("Machines");
                 });
 
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.MachineMaintenanceProcess", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateOnly?>("ActualDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("MachineId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MaintenanceType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PerformedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateOnly?>("PlanDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("WorkingHours")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MachineId")
+                        .HasDatabaseName("PS_MachineMaintenanceProcess_MachineId");
+
+                    b.ToTable("MachineMaintenanceProcesses");
+                });
+
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Part", b =>
                 {
                     b.Property<long>("Id")
@@ -274,7 +334,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique()
-                        .HasDatabaseName("P_Index_Code");
+                        .HasDatabaseName("P_Part_Code");
 
                     b.HasIndex("IndexId");
 
@@ -299,9 +359,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<long>("MachineId")
                         .HasColumnType("bigint");
 
@@ -318,6 +375,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime(6)");
 
@@ -330,10 +390,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MachineId")
-                        .HasDatabaseName("PS_Index_MachineId");
+                        .HasDatabaseName("PS_PartProcess_MachineId");
 
                     b.HasIndex("PartId")
-                        .HasDatabaseName("PS_Index_PartId");
+                        .HasDatabaseName("PS_PartProcess_PartId");
 
                     b.ToTable("PartProcesses");
                 });
@@ -461,6 +521,17 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.MachineMaintenanceProcess", b =>
+                {
+                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
+                        .WithMany()
+                        .HasForeignKey("MachineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Part", b =>

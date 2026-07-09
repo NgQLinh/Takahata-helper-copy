@@ -12,7 +12,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
 
             builder
                 .HasIndex(x => x.Code)
-                .HasDatabaseName("P_Index_Code")
+                .HasDatabaseName("P_Part_Code")
                 .IsUnique();
 
             builder

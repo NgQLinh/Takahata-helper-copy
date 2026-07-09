@@ -1,3 +1,4 @@
+import { ProcessStatus } from "../common/ProcessStatus";
 import { Machine } from "../machine/Machine";
 
 export interface PartProcess {
@@ -8,7 +9,7 @@ export interface PartProcess {
   planDate: string;
   actualDate?: string | null;
   workingHours?: number | null;
-  isCompleted: boolean;
+  status: ProcessStatus;
   note?: string | null;
   machine: Machine | null;
 }
