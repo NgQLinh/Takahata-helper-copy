@@ -24,6 +24,7 @@ import {
   ScheduleOutlined,
   CalendarOutlined,
   AppstoreOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -363,13 +364,20 @@ export function IndexPage() {
                 onChange={(date) => setEndDate(date)}
               />
               <Button
-                icon={<ReloadOutlined />}
+                type="default"
+                icon={<FilterOutlined />}
                 onClick={() => {
-                  setKeyword("");
                   fetchParts();
                 }}
               >
-                Làm mới
+                Lọc
+              </Button>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsCreateOpen(true)}
+              >
+                Thêm part
               </Button>
             </div>
           </div>
