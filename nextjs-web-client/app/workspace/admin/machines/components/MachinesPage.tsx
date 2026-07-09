@@ -16,6 +16,10 @@ import {
   Table,
   Tag,
   Typography,
+  Tabs,
+  TabsProps,
+  Select,
+  DatePicker,
 } from "antd";
 
 import {
@@ -28,7 +32,6 @@ import {
   PlusOutlined,
   SearchOutlined,
   ToolOutlined,
-  UserOutlined,
 } from "@ant-design/icons";
 import { deleteMachineAsync } from "@/app/services/machine/MachineService";
 import CreateMachine from "./CreateMachine";
@@ -46,7 +49,6 @@ export function MachinesPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
-  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
 
   const typeFilter = useMemo<ColumnFilterItem[]>(
     () =>
@@ -280,7 +282,7 @@ export function MachinesPage() {
       {
         title: "Thao tác",
         key: "actions",
-        width: 250,
+        width: 200,
         fixed: "right",
         align: "center",
         render: (_, record) => (
@@ -303,15 +305,6 @@ export function MachinesPage() {
                 Xóa
               </Button>
             </Popconfirm>
-
-            <Button
-              type="primary"
-              ghost
-              icon={<EyeOutlined />}
-              onClick={() => setSelectedMachine(record)}
-            >
-              Xem chi tiết
-            </Button>
           </Space>
         ),
       },
@@ -319,15 +312,80 @@ export function MachinesPage() {
     [typeFilter, brandFilter, createByFilter, updateByFilter, handleDelete],
   );
 
+  const tabItems: TabsProps["items"] = [
+    {
+      key: "machines",
+      label: (
+        <Space>
+          <AppstoreOutlined />
+          Danh sách máy
+        </Space>
+      ),
+      children: (
+        <Card className="machine-card">
+          <div className="machine-toolbar d-flex justify-content-between align-items-center">
+            <Search
+              placeholder="Tìm theo tên máy hoặc mã máy trong trang"
+              allowClear
+              prefix={<SearchOutlined />}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 420 }}
+            />
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setIsCreateOpen(true)}
+            >
+              Thêm máy
+            </Button>
+          </div>
+
+          <Table<Machine>
+            rowKey="id"
+            loading={loading}
+            columns={columns}
+            dataSource={filteredMachines}
+            scroll={{ x: 1350, y: "calc(100vh - 500px)" }}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng ${total} máy`,
+            }}
+          />
+        </Card>
+      ),
+    },
+    {
+      key: "maintenance-history",
+      label: (
+        <Space>
+          <CalendarOutlined />
+          Lịch sử bảo dưỡng
+        </Space>
+      ),
+      children: (
+        <>
+          <div className="maintenance-filter">
+            <Select placeholder="Chọn máy" style={{ width: 220 }} />
+            <Select placeholder="Loại bảo dưỡng" style={{ width: 220 }} />
+            <DatePicker placeholder="Từ ngày" />
+            <DatePicker placeholder="Đến ngày" />
+            <Button>Lọc</Button>
+          </div>
+        </>
+      ),
+    },
+  ];
+
   return (
-    <div className="machine-page">
-      <Card className="machine-card">
+    <div>
+      <Card>
         <div className="machine-header">
           <div className="machine-title-wrap">
             <div className="machine-icon">
               <AppstoreOutlined />
             </div>
-
             <div>
               <Title level={3} className="machine-title">
                 Quản lý danh sách máy
@@ -337,44 +395,10 @@ export function MachinesPage() {
               </Text>
             </div>
           </div>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
-            onClick={() => setIsCreateOpen(true)}
-          >
-            Thêm máy
-          </Button>
         </div>
-
-        <div className="machine-divider" />
-
-        <div className="machine-toolbar">
-          <Search
-            placeholder="Tìm theo tên máy hoặc mã máy"
-            allowClear
-            prefix={<SearchOutlined />}
-            onChange={(e) => setSearchText(e.target.value)}
-            style={{ width: 420 }}
-          />
-
-          <Button icon={<FilterOutlined />}>Bộ lọc</Button>
-        </div>
-
-        <Table<Machine>
-          rowKey="id"
-          loading={loading}
-          columns={columns}
-          dataSource={filteredMachines}
-          scroll={{ x: 1350, y: "calc(100vh - 500px)" }}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} máy`,
-          }}
-        />
       </Card>
+
+      <Tabs defaultActiveKey="1" items={tabItems} />
 
       <CreateMachine
         open={isCreateOpen}
@@ -387,12 +411,6 @@ export function MachinesPage() {
         machine={editingMachine}
         onClose={() => setEditingMachine(null)}
         onUpdate={handleUpdate}
-      />
-
-      <MachineDetail
-        open={!!selectedMachine}
-        machine={selectedMachine}
-        onClose={() => setSelectedMachine(null)}
       />
     </div>
   );

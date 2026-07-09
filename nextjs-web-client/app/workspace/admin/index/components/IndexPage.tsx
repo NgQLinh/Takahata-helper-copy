@@ -107,7 +107,6 @@ export function IndexPage() {
   const [startDate, setStartDate] = useState<Dayjs | null>(
     dayjs().startOf("month"),
   );
-
   const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().endOf("month"));
 
   const fetchParts = useCallback(async () => {

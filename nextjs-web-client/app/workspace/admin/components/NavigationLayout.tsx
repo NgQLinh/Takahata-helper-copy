@@ -60,8 +60,8 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
   };
 
   return (
-    <div className="vh-100 d-flex flex-column overflow-hidden app-layout">
-      <nav className="top-navbar">
+    <div className="vh-100 d-flex overflow-hidden app-layout">
+      <aside className="sidebar">
         <div className="brand">
           <span className="brand-main">TAKAHATA</span>
           <span className="brand-sub">Monitor System</span>
@@ -85,14 +85,16 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
           })}
         </ul>
 
-        <div className="nav-actions">
-          <button className="icon-btn">
-            <BellOutlined />
-          </button>
+        <div className="sidebar-bottom">
+          <div className="quick-actions">
+            <button className="icon-btn">
+              <BellOutlined />
+            </button>
 
-          <button className="icon-btn">
-            <QuestionCircleOutlined />
-          </button>
+            <button className="icon-btn">
+              <QuestionCircleOutlined />
+            </button>
+          </div>
 
           <div className="user-menu">
             <UserOutlined />
@@ -104,9 +106,9 @@ export default function NavigationLayout({ children }: PropsWithChildren) {
             <span>Đăng xuất</span>
           </button>
         </div>
-      </nav>
+      </aside>
 
-      <main className="grow p-3 overflow-hidden">{children}</main>
+      <main className="main-content">{children}</main>
     </div>
   );
 }
