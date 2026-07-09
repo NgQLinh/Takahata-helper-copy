@@ -332,7 +332,7 @@ export function IndexPage() {
       label: (
         <Space>
           <AppstoreOutlined />
-          Quản lý part
+          Part và kế hoạch gia công
         </Space>
       ),
       children: (
