@@ -18,8 +18,6 @@ import {
   Typography,
   Tabs,
   TabsProps,
-  Select,
-  DatePicker,
 } from "antd";
 
 import {
@@ -27,8 +25,6 @@ import {
   CalendarOutlined,
   DeleteOutlined,
   EditOutlined,
-  EyeOutlined,
-  FilterOutlined,
   PlusOutlined,
   SearchOutlined,
   ToolOutlined,
@@ -37,9 +33,9 @@ import { deleteMachineAsync } from "@/app/services/machine/MachineService";
 import CreateMachine from "./CreateMachine";
 import { ColumnFilterItem } from "antd/es/table/interface";
 import UpdateMachine from "./UpdateMachine";
-import MachineDetail from "./MachineDetail";
 
 import "./MachinesPage.css";
+import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -47,6 +43,10 @@ export function MachinesPage() {
   const [loading, setLoading] = useState(true);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [
+    createMachineMaintenanceProcessOpen,
+    setCreateMachineMaintenanceProcessOpen,
+  ] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
@@ -376,7 +376,11 @@ export function MachinesPage() {
               style={{ width: 420 }}
             />
 
-            <Button type="primary" icon={<PlusOutlined />}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setCreateMachineMaintenanceProcessOpen(true)}
+            >
               Thêm lịch bảo dưỡng
             </Button>
           </div>
@@ -431,6 +435,13 @@ export function MachinesPage() {
         machine={editingMachine}
         onClose={() => setEditingMachine(null)}
         onUpdate={handleUpdate}
+      />
+
+      <CreateMachineMaintenanceProcess
+        open={createMachineMaintenanceProcessOpen}
+        onClose={() => {
+          setCreateMachineMaintenanceProcessOpen(false);
+        }}
       />
     </div>
   );

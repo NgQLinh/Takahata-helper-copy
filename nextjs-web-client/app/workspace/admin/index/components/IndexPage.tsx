@@ -19,7 +19,6 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  ReloadOutlined,
   SearchOutlined,
   ScheduleOutlined,
   CalendarOutlined,
@@ -43,6 +42,7 @@ const { Title, Text } = Typography;
 import "./IndexPage.css";
 import dayjs, { Dayjs } from "dayjs";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import CreateMachineMaintenanceProcess from "../../machines/components/CreateMachineMaintenanceProcess";
 
 type RowType = "MC" | "P" | "A";
 
@@ -109,6 +109,7 @@ export function IndexPage() {
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
   const [startDate, setStartDate] = useState<Dayjs | null>(
     dayjs().startOf("month"),
   );
