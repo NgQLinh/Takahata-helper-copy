@@ -399,6 +399,7 @@ export function MachinesPage() {
     },
     {
       title: "Trạng thái",
+      width: 150,
       dataIndex: "status",
       render: (status: ProcessStatus) => {
         switch (status) {
