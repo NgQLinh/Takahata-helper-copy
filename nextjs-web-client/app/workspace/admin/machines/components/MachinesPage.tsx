@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs, { Dayjs } from "dayjs";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import {
+  getMachinesAsync,
+  searchMachineMaintenanceProcess,
+} from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { DeleteMachineRequest, Machine } from "@/app/types";
 import type { ColumnsType } from "antd/es/table";
@@ -10,7 +13,6 @@ import {
   Avatar,
   Button,
   Card,
-  Input,
   Popconfirm,
   Space,
   Table,
@@ -28,7 +30,6 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  SearchOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
 import { deleteMachineAsync } from "@/app/services/machine/MachineService";
@@ -38,28 +39,67 @@ import UpdateMachine from "./UpdateMachine";
 
 import "./MachinesPage.css";
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
+import { MachineMaintenanceProcess } from "@/app/types/machine/MachineMaintenanceProcess";
 
 const { Title, Text } = Typography;
-const { Search } = Input;
 const { RangePicker } = DatePicker;
 export function MachinesPage() {
+  // Common state
   const [loading, setLoading] = useState(true);
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [
-    createMachineMaintenanceProcessOpen,
-    setCreateMachineMaintenanceProcessOpen,
-  ] = useState(false);
 
-  const [filterMachineId, setFilterMachineId] = useState<number | undefined>();
-  const [filterDateRange, setFilterDateRange] = useState<[Dayjs, Dayjs]>([
-    dayjs().startOf("month"),
-    dayjs().endOf("month"),
-  ]);
-  const [searchText, setSearchText] = useState("");
+  // Machine state
+  const [machinePageSize, setMachinePageSize] = useState(100);
+  const [machinePage, setMachinePage] = useState(1);
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [isCreateMachineOpen, setIsCreateMachineOpen] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
-  const typeFilter = useMemo<ColumnFilterItem[]>(
+  // MachineMaintenanceProcess state
+  const [createMaintenanceProcessOpen, setCreateMaintenanceProcessOpen] =
+    useState(false);
+  const [filterMachineIds, setFilterMachineIds] = useState<number[]>([]);
+  const [filterDateRange, setFilterDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >([dayjs().startOf("month"), dayjs().endOf("month")]);
+  const [pageMaintenanceProcess, setPageMaintenanceProcess] = useState(1);
+  const [pageSizeMaintenanceProcess, setPageSizeMaintenanceProcess] =
+    useState(10);
+  const [totalItemsMaintenanceProcess, setTotalItemsMaintenanceProcess] =
+    useState(0);
+  const [maintenanceProcesses, setMaintenanceProcesses] = useState<
+    MachineMaintenanceProcess[]
+  >([]);
+
+  const handleSearchMachineMaintenanceProcess = async (
+    currentPage = pageMaintenanceProcess,
+    currentPageSize = pageSizeMaintenanceProcess,
+  ) => {
+    setLoading(true);
+
+    try {
+      const result = await searchMachineMaintenanceProcess({
+        machineIds: filterMachineIds,
+        from: filterDateRange?.[0]
+          ? filterDateRange[0].format("YYYY-MM-DD")
+          : null,
+        to: filterDateRange?.[1]
+          ? filterDateRange[1].format("YYYY-MM-DD")
+          : null,
+        page: currentPage,
+        pageSize: currentPageSize,
+      });
+
+      setMaintenanceProcesses(result.values);
+      setPageMaintenanceProcess(result.page);
+      setPageSizeMaintenanceProcess(result.pageSize);
+      setTotalItemsMaintenanceProcess(result.totalItems);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Machine filters
+  const typeMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
       Array.from(new Set(machines.map((m) => m.type))).map((type) => ({
         text: type,
@@ -68,7 +108,7 @@ export function MachinesPage() {
     [machines],
   );
 
-  const brandFilter = useMemo<ColumnFilterItem[]>(
+  const brandMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
       Array.from(new Set(machines.map((m) => m.brand))).map((brand) => ({
         text: brand,
@@ -77,7 +117,7 @@ export function MachinesPage() {
     [machines],
   );
 
-  const createByFilter = useMemo<ColumnFilterItem[]>(
+  const createByMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
       Array.from(new Set(machines.map((m) => m.createBy))).map((createBy) => ({
         text: createBy,
@@ -86,7 +126,7 @@ export function MachinesPage() {
     [machines],
   );
 
-  const updateByFilter = useMemo<ColumnFilterItem[]>(
+  const updateByMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
       Array.from(
         new Set(
@@ -103,14 +143,9 @@ export function MachinesPage() {
 
   const filteredMachines = useMemo(() => {
     return machines.filter((machine) => {
-      const keyword = searchText.toLowerCase();
-
-      return (
-        machine.name.toLowerCase().includes(keyword) ||
-        machine.code.toLowerCase().includes(keyword)
-      );
+      return machine.name.toLowerCase() || machine.code.toLowerCase();
     });
-  }, [machines, searchText]);
+  }, [machines]);
 
   const fetchMachines = useCallback(async () => {
     setLoading(true);
@@ -139,17 +174,17 @@ export function MachinesPage() {
       });
   }, []);
 
-  const handleCreate = async () => {
+  const handleCreateMachine = async () => {
     fetchMachines();
   };
 
-  const handleUpdate = async () => {
+  const handleUpdateMachine = async () => {
     setEditingMachine(null);
     fetchMachines();
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleDelete = async (id: number) => {
+  const handleDeleteMachine = async (id: number) => {
     const request: DeleteMachineRequest = {
       id: id,
     };
@@ -166,7 +201,7 @@ export function MachinesPage() {
       });
   };
 
-  const columns: ColumnsType<Machine> = useMemo(
+  const machineColumns: ColumnsType<Machine> = useMemo(
     () => [
       {
         title: "STT",
@@ -203,7 +238,7 @@ export function MachinesPage() {
         title: "Loại máy",
         dataIndex: "type",
         width: 170,
-        filters: typeFilter,
+        filters: typeMachineFilter,
         onFilter: (value, record) => record.type === value,
         render: (value) => (
           <Tag
@@ -218,14 +253,14 @@ export function MachinesPage() {
         title: "Thương hiệu",
         dataIndex: "brand",
         width: 130,
-        filters: brandFilter,
+        filters: brandMachineFilter,
         onFilter: (value, record) => record.brand === value,
       },
       {
         title: "Người tạo",
         dataIndex: "createBy",
         width: 130,
-        filters: createByFilter,
+        filters: createByMachineFilter,
         onFilter: (value, record) => record.createBy === value,
         render: (value) => (
           <Space>
@@ -256,7 +291,7 @@ export function MachinesPage() {
         title: "Người sửa",
         dataIndex: "updateBy",
         width: 130,
-        filters: updateByFilter,
+        filters: updateByMachineFilter,
         onFilter: (value, record) => record.updateBy === value,
         render: (value) =>
           value ? (
@@ -309,7 +344,7 @@ export function MachinesPage() {
               description={`Bạn có chắc muốn xóa ${record.name}?`}
               okText="Xóa"
               cancelText="Hủy"
-              onConfirm={() => handleDelete(record.id)}
+              onConfirm={() => handleDeleteMachine(record.id)}
             >
               <Button danger icon={<DeleteOutlined />}>
                 Xóa
@@ -319,8 +354,84 @@ export function MachinesPage() {
         ),
       },
     ],
-    [typeFilter, brandFilter, createByFilter, updateByFilter, handleDelete],
+    [
+      typeMachineFilter,
+      brandMachineFilter,
+      createByMachineFilter,
+      updateByMachineFilter,
+      handleDeleteMachine,
+    ],
   );
+
+  const maintenanceProcessColumns: ColumnsType<MachineMaintenanceProcess> = [
+    {
+      title: "ID",
+      fixed: "left",
+      dataIndex: "id",
+      width: 80,
+    },
+    {
+      title: "Máy",
+      dataIndex: "machineId",
+      width: 100,
+    },
+    {
+      title: "Ngày kế hoạch",
+      dataIndex: "planDate",
+      render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
+    },
+    {
+      title: "Ngày thực tế",
+      dataIndex: "actualDate",
+      render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
+    },
+    {
+      title: "Giờ làm",
+      dataIndex: "workingHours",
+      render: (value) => Number(value).toFixed(2),
+    },
+    {
+      title: "Người thực hiện",
+      dataIndex: "performedBy",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      render: (status) =>
+        status === 0 ? (
+          <Tag color="blue">Đã lên kế hoạch</Tag>
+        ) : (
+          <Tag color="green">Hoàn thành</Tag>
+        ),
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "note",
+    },
+    {
+      title: "Thao tác",
+      key: "actions",
+      width: 200,
+      fixed: "right",
+      align: "center",
+      render: (_, record) => (
+        <Space>
+          <Button icon={<EditOutlined />}>Sửa</Button>
+
+          <Popconfirm
+            title="Xóa máy"
+            description={`Bạn có chắc muốn xóa?`}
+            okText="Xóa"
+            cancelText="Hủy"
+          >
+            <Button danger icon={<DeleteOutlined />}>
+              Xóa
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   const tabItems: TabsProps["items"] = [
     {
@@ -338,7 +449,7 @@ export function MachinesPage() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => setIsCreateOpen(true)}
+              onClick={() => setIsCreateMachineOpen(true)}
             >
               Thêm máy
             </Button>
@@ -347,13 +458,18 @@ export function MachinesPage() {
           <Table<Machine>
             rowKey="id"
             loading={loading}
-            columns={columns}
+            columns={machineColumns}
             dataSource={filteredMachines}
             scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
             pagination={{
-              pageSize: 10,
+              current: machinePage,
+              pageSize: machinePageSize,
               showSizeChanger: true,
               showTotal: (total) => `Tổng ${total} máy`,
+              onChange: (page, pageSize) => {
+                setMachinePage(page);
+                setMachinePageSize(pageSize);
+              },
             }}
           />
         </Card>
@@ -372,21 +488,18 @@ export function MachinesPage() {
           <div className="machine-toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
             <div className="d-flex align-items-center gap-2 flex-wrap">
               <Select
+                mode="multiple"
                 allowClear
                 showSearch
                 placeholder="Chọn máy"
-                style={{ width: 260 }}
-                value={filterMachineId}
-                onChange={(value) => setFilterMachineId(value)}
+                style={{ width: 320 }}
+                value={filterMachineIds}
+                onChange={(values) => setFilterMachineIds(values)}
                 options={machines.map((machine) => ({
                   value: machine.id,
                   label: `${machine.name} - ${machine.code}`,
                 }))}
-                filterOption={(input, option) =>
-                  String(option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
+                maxTagCount="responsive"
               />
 
               <RangePicker
@@ -397,21 +510,19 @@ export function MachinesPage() {
               />
 
               <Button
-                onClick={() => {
-                  setSearchText("");
-                  setFilterMachineId(undefined);
-                  setFilterDateRange(null);
+                onClick={async () => {
+                  setFilterMachineIds([]);
+                  setFilterDateRange([null, null]);
+                  handleSearchMachineMaintenanceProcess();
                 }}
               >
-                Xóa lọc
+                Xóa bộ lọc
               </Button>
 
               <Button
                 type="primary"
                 onClick={() => {
-                  setSearchText("");
-                  setFilterMachineId(undefined);
-                  setFilterDateRange(null);
+                  handleSearchMachineMaintenanceProcess();
                 }}
               >
                 Tìm kiếm
@@ -421,28 +532,41 @@ export function MachinesPage() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => setCreateMachineMaintenanceProcessOpen(true)}
+              onClick={() => setCreateMaintenanceProcessOpen(true)}
             >
               Thêm lịch bảo dưỡng
             </Button>
           </div>
 
-          <Table<Machine>
+          <Table<MachineMaintenanceProcess>
             rowKey="id"
+            columns={maintenanceProcessColumns}
+            dataSource={maintenanceProcesses}
             loading={loading}
-            columns={columns}
-            dataSource={filteredMachines}
             scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
             pagination={{
-              pageSize: 10,
+              current: pageMaintenanceProcess,
+              pageSize: pageSizeMaintenanceProcess,
+              total: totalItemsMaintenanceProcess,
               showSizeChanger: true,
-              showTotal: (total) => `Tổng ${total} máy`,
+              showTotal: (total) => `Tổng ${total} bản ghi`,
+              onChange: (newPage, newPageSize) => {
+                handleSearchMachineMaintenanceProcess(newPage, newPageSize);
+              },
             }}
           />
         </Card>
       ),
     },
   ];
+
+  function handleTabChange(activeKey: string): void {
+    if (activeKey === "maintenance-history") {
+      handleSearchMachineMaintenanceProcess();
+    } else if (activeKey === "machines") {
+      fetchMachines();
+    }
+  }
 
   return (
     <div>
@@ -464,25 +588,25 @@ export function MachinesPage() {
         </div>
       </Card>
 
-      <Tabs defaultActiveKey="1" items={tabItems} />
+      <Tabs defaultActiveKey="1" items={tabItems} onChange={handleTabChange} />
 
       <CreateMachine
-        open={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onCreate={handleCreate}
+        open={isCreateMachineOpen}
+        onClose={() => setIsCreateMachineOpen(false)}
+        onCreate={handleCreateMachine}
       />
 
       <UpdateMachine
         open={!!editingMachine}
         machine={editingMachine}
         onClose={() => setEditingMachine(null)}
-        onUpdate={handleUpdate}
+        onUpdate={handleUpdateMachine}
       />
 
       <CreateMachineMaintenanceProcess
-        open={createMachineMaintenanceProcessOpen}
+        open={createMaintenanceProcessOpen}
         onClose={() => {
-          setCreateMachineMaintenanceProcessOpen(false);
+          setCreateMaintenanceProcessOpen(false);
         }}
       />
     </div>

@@ -1,3 +1,5 @@
+export type { SearchResponse } from "./common/SearchResponse";
+
 export type { LoginRequest } from "./auth/LoginRequest";
 export type { LoginResponse } from "./auth/LoginResponse";
 export { createLoginRequest } from "./auth/LoginRequest";

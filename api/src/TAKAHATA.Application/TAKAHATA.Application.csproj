@@ -11,8 +11,4 @@
     <ProjectReference Include="..\TAKAHATA.Domain\TAKAHATA.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="MaintenanceProcess\Queries\" />
-  </ItemGroup>
-
 </Project>

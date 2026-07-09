@@ -3,6 +3,7 @@ import {
   DeleteMachineRequest,
   Machine,
   MachineSchedule,
+  SearchResponse,
   UpdateMachineRequest,
 } from "@/app/types";
 
@@ -53,5 +54,15 @@ export const createMachineMaintenanceProcess = async (
     "/MachineMaintenanceProcess/create",
     request,
   );
+  return response.data;
+};
+
+export const searchMachineMaintenanceProcess = async (
+  request: unknown,
+): Promise<SearchResponse<MachineMaintenanceProcess>> => {
+  const response = await apiClient.post<
+    SearchResponse<MachineMaintenanceProcess>
+  >("/MachineMaintenanceProcess/search", request);
+
   return response.data;
 };

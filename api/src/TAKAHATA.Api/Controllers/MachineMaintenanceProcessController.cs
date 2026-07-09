@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.MaintenanceProcess.Commands;
+using TAKAHATA.Application.MaintenanceProcess.Queries;
 
 namespace TAKAHATA.Api.Controllers
 {
@@ -15,6 +16,15 @@ namespace TAKAHATA.Api.Controllers
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateMachineMaintenanceProcess(CreateMachineMaintenanceProcessCommand request)
+        {
+            var result = await _sender.Send(request);
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(MachineMaintenanceProcessQuery request)
         {
             var result = await _sender.Send(request);
             return result.Match(
