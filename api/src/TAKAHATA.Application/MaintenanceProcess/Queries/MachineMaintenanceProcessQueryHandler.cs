@@ -24,6 +24,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
         {
             return await _machineMaintenanceProcessRepository.SearchAsync(
                  request.MachineIds,
+                 request.Statuses,
                  request.From,
                  request.To,
                  request.Page,

@@ -1,4 +1,5 @@
-﻿using TAKAHATA.Contracts.Common;
+﻿using ErrorOr;
+using TAKAHATA.Contracts.Common;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.MaintenanceProcess
@@ -8,6 +9,7 @@ namespace TAKAHATA.Application.Common.Interface.MaintenanceProcess
         Task<MachineMaintenanceProcess?> AddAsync(MachineMaintenanceProcess machineMaintenanceProcess);
         Task<SearchResponse<MachineMaintenanceProcess>> SearchAsync(
             List<long>? machineIds,
+            List<ProcessStatus>? statuses,
             DateOnly? from,
             DateOnly? to,
             int? page,

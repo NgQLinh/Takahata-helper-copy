@@ -40,6 +40,7 @@ import UpdateMachine from "./UpdateMachine";
 import "./MachinesPage.css";
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 import { MachineMaintenanceProcess } from "@/app/types/machine/MachineMaintenanceProcess";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -57,6 +58,7 @@ export function MachinesPage() {
   // MachineMaintenanceProcess state
   const [createMaintenanceProcessOpen, setCreateMaintenanceProcessOpen] =
     useState(false);
+  const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
   const [filterMachineIds, setFilterMachineIds] = useState<number[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
@@ -79,6 +81,7 @@ export function MachinesPage() {
     try {
       const result = await searchMachineMaintenanceProcess({
         machineIds: filterMachineIds,
+        statuses: filterStatuses,
         from: filterDateRange?.[0]
           ? filterDateRange[0].format("YYYY-MM-DD")
           : null,
@@ -397,12 +400,27 @@ export function MachinesPage() {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      render: (status) =>
-        status === 0 ? (
-          <Tag color="blue">Đã lên kế hoạch</Tag>
-        ) : (
-          <Tag color="green">Hoàn thành</Tag>
-        ),
+      render: (status: ProcessStatus) => {
+        switch (status) {
+          case ProcessStatus.Planned:
+            return <Tag color="blue">Đã lên kế hoạch</Tag>;
+
+          case ProcessStatus.InProgress:
+            return <Tag color="processing">Đang thực hiện</Tag>;
+
+          case ProcessStatus.Completed:
+            return <Tag color="success">Hoàn thành</Tag>;
+
+          case ProcessStatus.Cancelled:
+            return <Tag color="default">Đã hủy</Tag>;
+
+          case ProcessStatus.Overdue:
+            return <Tag color="error">Quá hạn</Tag>;
+
+          default:
+            return <Tag>Không xác định</Tag>;
+        }
+      },
     },
     {
       title: "Ghi chú",
@@ -502,6 +520,22 @@ export function MachinesPage() {
                 maxTagCount="responsive"
               />
 
+              <Select
+                mode="multiple"
+                allowClear
+                placeholder="Trạng thái"
+                style={{ width: 260 }}
+                value={filterStatuses}
+                onChange={(values) => setFilterStatuses(values)}
+                options={[
+                  { value: ProcessStatus.Planned, label: "Đã Lên kế hoạch" },
+                  { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
+                  { value: ProcessStatus.Completed, label: "Hoàn thành" },
+                  { value: ProcessStatus.Cancelled, label: "Đã hủy" },
+                  { value: ProcessStatus.Overdue, label: "Quá hạn" },
+                ]}
+              />
+
               <RangePicker
                 format="DD/MM/YYYY"
                 value={filterDateRange}
@@ -513,6 +547,7 @@ export function MachinesPage() {
                 onClick={async () => {
                   setFilterMachineIds([]);
                   setFilterDateRange([null, null]);
+                  setFilterStatuses([]);
                   handleSearchMachineMaintenanceProcess();
                 }}
               >

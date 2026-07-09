@@ -24,6 +24,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<SearchResponse<MachineMaintenanceProcess>> SearchAsync(
             List<long>? machineIds,
+            List<ProcessStatus>? statuses,
             DateOnly? from,
             DateOnly? to,
             int? page,
@@ -36,6 +37,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             if (machineIds is { Count: > 0 })
             {
                 query = query.Where(x => machineIds.Contains(x.MachineId));
+            }
+
+            if (statuses is { Count: > 0 })
+            {
+                query = query.Where(x => statuses.Contains(x.Status));
             }
 
             if (from.HasValue)
