@@ -177,9 +177,11 @@ export function IndexPage() {
       fixed: "left",
       align: "center",
       onCell: (row) => ({
-        children: <strong className="index-code">{row.indexCode}</strong>,
-        props: { rowSpan: row.rowSpan },
+        rowSpan: row.rowSpan,
       }),
+      render: (_, row) => (
+        <strong className="index-code">{row.indexCode}</strong>
+      ),
     },
     {
       title: (
@@ -190,12 +192,12 @@ export function IndexPage() {
         </div>
       ),
       dataIndex: "partName",
-      width: 260,
+      width: 150,
       fixed: "left",
       onCell: (row) => ({
-        children: <strong className="part-name">{row.partName}</strong>,
-        props: { rowSpan: row.rowSpan },
+        rowSpan: row.rowSpan,
       }),
+      render: (_, row) => <strong className="part-name">{row.partName}</strong>,
     },
     {
       title: (
