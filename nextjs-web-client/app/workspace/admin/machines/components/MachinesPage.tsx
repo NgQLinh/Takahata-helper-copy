@@ -346,7 +346,7 @@ export function MachinesPage() {
             loading={loading}
             columns={columns}
             dataSource={filteredMachines}
-            scroll={{ x: 1350, y: "calc(100vh - 500px)" }}
+            scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
             pagination={{
               pageSize: 10,
               showSizeChanger: true,

@@ -151,6 +151,5 @@
 .main-content {
   flex: 1;
   height: 100vh;
-  padding: 16px;
   overflow: hidden;
 }
