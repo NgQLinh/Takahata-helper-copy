@@ -65,7 +65,7 @@ export function MachinesPage() {
   >([dayjs().startOf("month"), dayjs().endOf("month")]);
   const [pageMaintenanceProcess, setPageMaintenanceProcess] = useState(1);
   const [pageSizeMaintenanceProcess, setPageSizeMaintenanceProcess] =
-    useState(10);
+    useState(100);
   const [totalItemsMaintenanceProcess, setTotalItemsMaintenanceProcess] =
     useState(0);
   const [maintenanceProcesses, setMaintenanceProcesses] = useState<
