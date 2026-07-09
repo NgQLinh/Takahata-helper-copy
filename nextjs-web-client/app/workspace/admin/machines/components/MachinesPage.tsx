@@ -437,7 +437,7 @@ export function MachinesPage() {
           <Button icon={<EditOutlined />}>Sửa</Button>
 
           <Popconfirm
-            title="Xóa máy"
+            title="Xóa lịch bảo dưỡng"
             description={`Bạn có chắc muốn xóa?`}
             okText="Xóa"
             cancelText="Hủy"
