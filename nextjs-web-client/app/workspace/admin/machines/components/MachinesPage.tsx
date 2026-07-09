@@ -365,15 +365,34 @@ export function MachinesPage() {
         </Space>
       ),
       children: (
-        <>
-          <div className="maintenance-filter">
-            <Select placeholder="Chọn máy" style={{ width: 220 }} />
-            <Select placeholder="Loại bảo dưỡng" style={{ width: 220 }} />
-            <DatePicker placeholder="Từ ngày" />
-            <DatePicker placeholder="Đến ngày" />
-            <Button>Lọc</Button>
+        <Card className="machine-card">
+          <div className="machine-toolbar d-flex justify-content-between align-items-center">
+            <Search
+              placeholder="Tìm theo tên máy hoặc mã máy trong trang"
+              allowClear
+              prefix={<SearchOutlined />}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: 420 }}
+            />
+
+            <Button type="primary" icon={<PlusOutlined />}>
+              Thêm lịch bảo dưỡng
+            </Button>
           </div>
-        </>
+
+          <Table<Machine>
+            rowKey="id"
+            loading={loading}
+            columns={columns}
+            dataSource={filteredMachines}
+            scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng ${total} máy`,
+            }}
+          />
+        </Card>
       ),
     },
   ];
