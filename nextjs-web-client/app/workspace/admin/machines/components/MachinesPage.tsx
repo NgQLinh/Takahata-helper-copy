@@ -162,7 +162,8 @@ export function MachinesPage() {
       {
         title: "STT",
         dataIndex: "sequenceNumber",
-        width: 70,
+        width: 100,
+        fixed: "left",
         sorter: (a, b) => a.sequenceNumber - b.sequenceNumber,
         render: (value) => <Text strong>{value}</Text>,
       },

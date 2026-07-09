@@ -9,6 +9,8 @@ import {
   Popconfirm,
   Space,
   Table,
+  Tabs,
+  TabsProps,
   Tag,
   Typography,
 } from "antd";
@@ -21,6 +23,7 @@ import {
   SearchOutlined,
   ScheduleOutlined,
   CalendarOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -34,7 +37,7 @@ import { ApiError } from "@/app/types/common/ApiError";
 import UpdatePart from "./UpdatePart";
 import { Part, PartProcess } from "@/app/types";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 import "./IndexPage.css";
 import dayjs, { Dayjs } from "dayjs";
@@ -323,15 +326,102 @@ export function IndexPage() {
     },
   ];
 
+  const tabItems: TabsProps["items"] = [
+    {
+      key: "machines",
+      label: (
+        <Space>
+          <AppstoreOutlined />
+          Quản lý part
+        </Space>
+      ),
+      children: (
+        <Card>
+          <div className="schedule-toolbar d-flex align-items-center justify-content-between mb-3">
+            <Input
+              placeholder="Tìm theo Part Name hoặc Index (trong trang)..."
+              allowClear
+              prefix={<SearchOutlined />}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              className="schedule-search"
+            />
+
+            <div className="d-flex align-items-center gap-2">
+              Từ
+              <DatePicker
+                style={{ width: "200px" }}
+                format="DD/MM/YYYY"
+                value={startDate}
+                onChange={(date) => setStartDate(date)}
+              />
+              Đến
+              <DatePicker
+                style={{ width: "200px" }}
+                format="DD/MM/YYYY"
+                value={endDate}
+                onChange={(date) => setEndDate(date)}
+              />
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                  setKeyword("");
+                  fetchParts();
+                }}
+              >
+                Làm mới
+              </Button>
+            </div>
+          </div>
+
+          <Table<TableRow>
+            bordered
+            size="middle"
+            loading={loading}
+            columns={columns}
+            dataSource={dataSource}
+            tableLayout="fixed"
+            rowKey="key"
+            scroll={{ x: 1350, y: "calc(100vh - 480px)" }}
+            pagination={false}
+          />
+
+          <div className="schedule-pagination">
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              total={total}
+              showSizeChanger
+              showTotal={(value) => `Tổng ${value} part`}
+              onChange={(nextPage, nextPageSize) => {
+                setPage(nextPage);
+                setPageSize(nextPageSize);
+              }}
+            />
+          </div>
+        </Card>
+      ),
+    },
+    {
+      key: "maintenance-history",
+      label: (
+        <Space>
+          <CalendarOutlined />
+          Danh sách index
+        </Space>
+      ),
+      children: <div>Danh sách index</div>,
+    },
+  ];
   return (
     <div className="schedule-page">
-      <Card className="schedule-card">
+      <Card>
         <div className="schedule-header">
           <div className="schedule-title-wrap">
+            {" "}
             <div className="schedule-icon">
               <ScheduleOutlined />
             </div>
-
             <div>
               <Title level={3} className="schedule-title">
                 Lịch trình gia công chi tiết khuôn
@@ -342,82 +432,10 @@ export function IndexPage() {
               </Typography.Text>
             </div>
           </div>
-
-          <Button
-            type="primary"
-            size="large"
-            className="create-part-btn"
-            icon={<PlusOutlined />}
-            onClick={() => setIsCreateOpen(true)}
-          >
-            Thêm part
-          </Button>
-        </div>
-        <div className="schedule-divider" />
-        <div className="schedule-toolbar">
-          <Input
-            placeholder="Tìm theo Part Name hoặc Index..."
-            allowClear
-            prefix={<SearchOutlined />}
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            className="schedule-search"
-          />
-
-          <DatePicker
-            placeholder="Từ ngày"
-            style={{ width: "200px" }}
-            format="DD/MM/YYYY"
-            value={startDate}
-            onChange={(date) => setStartDate(date)}
-          />
-
-          <DatePicker
-            placeholder="Đến ngày"
-            style={{ width: "200px" }}
-            format="DD/MM/YYYY"
-            value={endDate}
-            onChange={(date) => setEndDate(date)}
-          />
-
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => {
-              setKeyword("");
-              fetchParts();
-            }}
-          >
-            Làm mới
-          </Button>
-        </div>
-        ``
-        <div className="schedule-table-wrap">
-          <Table<TableRow>
-            bordered
-            size="middle"
-            loading={loading}
-            columns={columns}
-            dataSource={dataSource}
-            tableLayout="fixed"
-            rowKey="key"
-            scroll={{ x: 1350, y: "calc(100vh - 550px)" }}
-            pagination={false}
-          />
-        </div>
-        <div className="schedule-pagination">
-          <Pagination
-            current={page}
-            pageSize={pageSize}
-            total={total}
-            showSizeChanger
-            showTotal={(value) => `Tổng ${value} part`}
-            onChange={(nextPage, nextPageSize) => {
-              setPage(nextPage);
-              setPageSize(nextPageSize);
-            }}
-          />
         </div>
       </Card>
+
+      <Tabs defaultActiveKey="1" items={tabItems} />
 
       <CreatePart
         open={isCreateOpen}
