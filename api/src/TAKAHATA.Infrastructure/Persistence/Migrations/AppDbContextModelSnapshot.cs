@@ -260,26 +260,16 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<long>("MachineId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("MaintenanceType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("PerformedBy")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly?>("PlanDate")
+                    b.Property<DateOnly>("PlanDate")
                         .HasColumnType("date");
 
                     b.Property<int>("Status")
@@ -291,7 +281,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal?>("WorkingHours")
+                    b.Property<decimal>("WorkingHours")
                         .HasColumnType("decimal(65,30)");
 
                     b.HasKey("Id");

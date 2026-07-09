@@ -9,6 +9,7 @@ using System.Text;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Application.Common.Interface.JwtToken;
+using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
 using TAKAHATA.Domain.User;
 using TAKAHATA.Infrastructure.Authentication;
 using TAKAHATA.Infrastructure.Persistence;
@@ -25,6 +26,7 @@ namespace TAKAHATA.Infrastructure
             services.AddScoped<IMachineRepository, MachineRepository>();
             services.AddScoped<IIndexRepository, IndexRepository>();
             services.AddScoped<IPartRepository, PartRepository>();
+            services.AddScoped<IMachineMaintenanceProcessRepository, MachineMaintenanceProcessRepository>();
 
             // MySQL
             var connectionString = configuration.GetConnectionString("DefaultConnection");
