@@ -3,6 +3,7 @@
 import {
   Button,
   Card,
+  DatePicker,
   Input,
   Pagination,
   Popconfirm,
@@ -44,6 +45,7 @@ type TableRow = {
   partId: number;
   indexCode?: string;
   partName?: string;
+  createAt?: string;
   rowType: RowType;
   rowSpan: number;
   processes: Record<number, PartProcess | undefined>;
@@ -65,6 +67,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] => {
         partId: part.id,
         indexCode: part.index?.code,
         partName: part.code,
+        createAt: formatDate(part.createAt),
         rowType: "MC",
         rowSpan: 3,
         processes: part.processes,
@@ -72,6 +75,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] => {
       {
         key: `${part.id}-P`,
         partId: part.id,
+        createAt: formatDate(part.createAt),
         rowType: "P",
         rowSpan: 0,
         processes: part.processes,
@@ -198,6 +202,26 @@ export function IndexPage() {
         rowSpan: row.rowSpan,
       }),
       render: (_, row) => <strong className="part-name">{row.partName}</strong>,
+    },
+    {
+      title: (
+        <div className="schedule-th">
+          Created Date
+          <br />
+          <span>(Ngày tạo)</span>
+        </div>
+      ),
+      dataIndex: "createAt",
+      width: 100,
+      fixed: "left",
+      onCell: (row) => ({
+        rowSpan: row.rowSpan,
+      }),
+      render: (_, row) => (
+        <span className="plan-date">
+          <CalendarOutlined /> {formatDate(row.createAt)}
+        </span>
+      ),
     },
     {
       title: (
@@ -352,6 +376,18 @@ export function IndexPage() {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             className="schedule-search"
+          />
+
+          <DatePicker
+            placeholder="Từ ngày"
+            style={{ width: "200px" }}
+            format="DD/MM/YYYY"
+          />
+
+          <DatePicker
+            placeholder="Đến ngày"
+            style={{ width: "200px" }}
+            format="DD/MM/YYYY"
           />
 
           <Button
