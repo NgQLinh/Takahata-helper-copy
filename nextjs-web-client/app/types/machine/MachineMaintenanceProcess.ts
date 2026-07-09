@@ -13,4 +13,8 @@ export interface MachineMaintenanceProcess {
   performedBy?: string | null;
   note?: string | null;
   machine: Machine | null;
+  createAt: Date;
+  createBy: string;
+  updateAt?: string | Date;
+  updateBy?: string;
 }

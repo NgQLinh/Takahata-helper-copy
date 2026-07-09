@@ -427,6 +427,67 @@ export function MachinesPage() {
       dataIndex: "note",
     },
     {
+      title: "Người tạo",
+      dataIndex: "createBy",
+      width: 130,
+      render: (value) => (
+        <Space>
+          <Avatar size={28} style={{ background: "#dbeafe", color: "#1677ff" }}>
+            {value?.[0]?.toUpperCase() || "A"}
+          </Avatar>
+          {value}
+        </Space>
+      ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createAt",
+      width: 150,
+      sorter: (a, b) =>
+        dayjs(a.createAt).valueOf() - dayjs(b.createAt).valueOf(),
+      render: (value) => (
+        <Space>
+          <CalendarOutlined style={{ color: "#64748b" }} />
+          <span>{dayjs(value).format("HH:mm:ss DD/MM/YYYY")}</span>
+        </Space>
+      ),
+    },
+    {
+      title: "Người sửa",
+      dataIndex: "updateBy",
+      width: 130,
+      render: (value) =>
+        value ? (
+          <Space>
+            <Avatar
+              size={28}
+              style={{ background: "#dbeafe", color: "#1677ff" }}
+            >
+              {value?.[0]?.toUpperCase() || "A"}
+            </Avatar>
+            {value}
+          </Space>
+        ) : (
+          <Text type="secondary">-</Text>
+        ),
+    },
+    {
+      title: "Ngày sửa",
+      dataIndex: "updateAt",
+      width: 160,
+      sorter: (a, b) =>
+        dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
+      render: (value) =>
+        value ? (
+          <Space>
+            <CalendarOutlined style={{ color: "#64748b" }} />
+            <span>{dayjs(value).format("DD/MM/YYYY HH:mm:ss")}</span>
+          </Space>
+        ) : (
+          <Text type="secondary">-</Text>
+        ),
+    },
+    {
       title: "Thao tác",
       key: "actions",
       width: 200,
