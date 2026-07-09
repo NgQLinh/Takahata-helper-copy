@@ -1,5 +1,4 @@
-﻿using MapsterMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Application.Equipment.Queries;
@@ -9,12 +8,10 @@ namespace TAKAHATA.Api.Controllers
     public class MachineController : ApiController
     {
         private readonly ISender _sender;
-        private readonly IMapper _mapper;
 
-        public MachineController(ISender sender, IMapper mapper)
+        public MachineController(ISender sender)
         {
             _sender = sender;
-            _mapper = mapper;
         }
 
         [HttpPost("create")]

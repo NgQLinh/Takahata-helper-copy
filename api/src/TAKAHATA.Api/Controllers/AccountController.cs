@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Account.Commands;
 using TAKAHATA.Application.Account.Queries;
-using TAKAHATA.Contracts.Account;
 using TAKAHATA.Domain.Common.Constant;
 
 namespace TAKAHATA.Api.Controllers
