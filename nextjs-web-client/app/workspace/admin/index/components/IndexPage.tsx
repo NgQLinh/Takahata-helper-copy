@@ -37,6 +37,7 @@ import { Part, PartProcess } from "@/app/types";
 const { Title } = Typography;
 
 import "./IndexPage.css";
+import dayjs, { Dayjs } from "dayjs";
 
 type RowType = "MC" | "P" | "A";
 
@@ -103,6 +104,11 @@ export function IndexPage() {
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(
+    dayjs().startOf("month"),
+  );
+
+  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().endOf("month"));
 
   const fetchParts = useCallback(async () => {
     setLoading(true);
@@ -202,26 +208,6 @@ export function IndexPage() {
         rowSpan: row.rowSpan,
       }),
       render: (_, row) => <strong className="part-name">{row.partName}</strong>,
-    },
-    {
-      title: (
-        <div className="schedule-th">
-          Created Date
-          <br />
-          <span>(Ngày tạo)</span>
-        </div>
-      ),
-      dataIndex: "createAt",
-      width: 100,
-      fixed: "left",
-      onCell: (row) => ({
-        rowSpan: row.rowSpan,
-      }),
-      render: (_, row) => (
-        <span className="plan-date">
-          <CalendarOutlined /> {formatDate(row.createAt)}
-        </span>
-      ),
     },
     {
       title: (
@@ -382,12 +368,16 @@ export function IndexPage() {
             placeholder="Từ ngày"
             style={{ width: "200px" }}
             format="DD/MM/YYYY"
+            value={startDate}
+            onChange={(date) => setStartDate(date)}
           />
 
           <DatePicker
             placeholder="Đến ngày"
             style={{ width: "200px" }}
             format="DD/MM/YYYY"
+            value={endDate}
+            onChange={(date) => setEndDate(date)}
           />
 
           <Button
