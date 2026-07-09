@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { DeleteMachineRequest, Machine } from "@/app/types";
@@ -18,6 +18,8 @@ import {
   Typography,
   Tabs,
   TabsProps,
+  DatePicker,
+  Select,
 } from "antd";
 
 import {
@@ -39,6 +41,7 @@ import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
+const { RangePicker } = DatePicker;
 export function MachinesPage() {
   const [loading, setLoading] = useState(true);
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -47,6 +50,12 @@ export function MachinesPage() {
     createMachineMaintenanceProcessOpen,
     setCreateMachineMaintenanceProcessOpen,
   ] = useState(false);
+
+  const [filterMachineId, setFilterMachineId] = useState<number | undefined>();
+  const [filterDateRange, setFilterDateRange] = useState<[Dayjs, Dayjs]>([
+    dayjs().startOf("month"),
+    dayjs().endOf("month"),
+  ]);
   const [searchText, setSearchText] = useState("");
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
@@ -325,14 +334,7 @@ export function MachinesPage() {
       children: (
         <Card className="machine-card">
           <div className="machine-toolbar d-flex justify-content-between align-items-center">
-            <Search
-              placeholder="Tìm theo tên máy hoặc mã máy trong trang"
-              allowClear
-              prefix={<SearchOutlined />}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 420 }}
-            />
-
+            <div className="d-flex align-items-center gap-2 flex-wrap" />
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -367,14 +369,54 @@ export function MachinesPage() {
       ),
       children: (
         <Card className="machine-card">
-          <div className="machine-toolbar d-flex justify-content-between align-items-center">
-            <Search
-              placeholder="Tìm theo tên máy hoặc mã máy trong trang"
-              allowClear
-              prefix={<SearchOutlined />}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: 420 }}
-            />
+          <div className="machine-toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
+            <div className="d-flex align-items-center gap-2 flex-wrap">
+              <Select
+                allowClear
+                showSearch
+                placeholder="Chọn máy"
+                style={{ width: 260 }}
+                value={filterMachineId}
+                onChange={(value) => setFilterMachineId(value)}
+                options={machines.map((machine) => ({
+                  value: machine.id,
+                  label: `${machine.name} - ${machine.code}`,
+                }))}
+                filterOption={(input, option) =>
+                  String(option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+
+              <RangePicker
+                format="DD/MM/YYYY"
+                value={filterDateRange}
+                onChange={(dates) => setFilterDateRange(dates)}
+                placeholder={["Từ ngày", "Đến ngày"]}
+              />
+
+              <Button
+                onClick={() => {
+                  setSearchText("");
+                  setFilterMachineId(undefined);
+                  setFilterDateRange(null);
+                }}
+              >
+                Xóa lọc
+              </Button>
+
+              <Button
+                type="primary"
+                onClick={() => {
+                  setSearchText("");
+                  setFilterMachineId(undefined);
+                  setFilterDateRange(null);
+                }}
+              >
+                Tìm kiếm
+              </Button>
+            </div>
 
             <Button
               type="primary"
