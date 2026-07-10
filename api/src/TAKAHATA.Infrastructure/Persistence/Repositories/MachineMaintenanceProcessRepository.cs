@@ -7,34 +7,13 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
-    public class MachineMaintenanceProcessRepository : IMachineMaintenanceProcessRepository
+    public class MachineMaintenanceProcessRepository : BaseRepository<MachineMaintenanceProcess>, IMachineMaintenanceProcessRepository
     {
-
         private readonly IMapper _mapper;
-        private readonly AppDbContext _dbContext;
 
-        public MachineMaintenanceProcessRepository(AppDbContext dbContext, IMapper mapper)
+        public MachineMaintenanceProcessRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
         {
-            _dbContext = dbContext;
             _mapper = mapper;
-        }
-
-        public async Task<MachineMaintenanceProcess?> AddAsync(MachineMaintenanceProcess machineMaintenanceProcess)
-        {
-            await _dbContext.MachineMaintenanceProcesses.AddAsync(machineMaintenanceProcess);
-            var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? machineMaintenanceProcess : null;
-        }
-
-        public async Task<MachineMaintenanceProcess?> DeleteMachineByIdAsync(long id)
-        {
-            var machineMaintenanceProcesses = await _dbContext.MachineMaintenanceProcesses.FindAsync(id);
-            if (machineMaintenanceProcesses == null)
-                return null;
-
-            _dbContext.MachineMaintenanceProcesses.Remove(machineMaintenanceProcesses);
-            var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? machineMaintenanceProcesses : null;
         }
 
         public async Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(

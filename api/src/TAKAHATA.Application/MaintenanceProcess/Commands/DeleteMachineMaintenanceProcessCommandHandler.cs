@@ -29,7 +29,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             DeleteMachineMaintenanceProcessCommand request,
             CancellationToken cancellationToken)
         {
-            var machineMaintenanceProcess = await _machineMaintenanceProcessRepository.DeleteMachineByIdAsync(request.Id);
+            var machineMaintenanceProcess = await _machineMaintenanceProcessRepository.DeleteByIdAsync(request.Id);
 
             if (machineMaintenanceProcess == null)
                 return Errors.MachineMaintenanceProcess.DeleteMachineMaintenanceProcessResponseFalse;

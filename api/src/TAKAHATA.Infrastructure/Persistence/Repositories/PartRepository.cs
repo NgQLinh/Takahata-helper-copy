@@ -4,52 +4,17 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
-    public class PartRepository : IPartRepository
+    public class PartRepository : BaseRepository<Part>, IPartRepository
     {
-        private readonly AppDbContext _dbContext;
 
-        public PartRepository(AppDbContext dbContext)
+        public PartRepository(AppDbContext dbContext) : base(dbContext) 
         {
-            _dbContext = dbContext;
         }
 
         public async Task<bool> IsExistedAsync(string partCode)
         {
             var part = await _dbContext.Parts.FirstOrDefaultAsync(p => p.Code == partCode);
             return part != null;
-        }
-
-        public async Task<Part?> AddAsync(Part part)
-        {
-            await _dbContext.Parts.AddAsync(part);
-            var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? part : null;
-        }
-
-        public async Task<Part?> GetByIdAsync(long id)
-        {
-            return await _dbContext.Parts
-                .Include(x => x.Index)
-                .Include(x => x.Processes)
-                .FirstOrDefaultAsync(x => x.Id == id);
-        }
-
-        public async Task<Part?> DeleteMachineByIdAsync(long id)
-        {
-            var part = await _dbContext.Parts.FirstOrDefaultAsync(x => x.Id == id);
-            if (part == null)
-                return null;
-
-            _dbContext.Parts.Remove(part);
-            var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? part : null;
-        }
-
-        public async Task<Part?> UpdateAsync(Part part)
-        {
-            _dbContext.Parts.Update(part);
-            var effectedRow = await _dbContext.SaveChangesAsync();
-            return effectedRow != 0 ? part : null;
         }
 
         public async Task<IEnumerable<Part>> SearchAsync(int page, int pageSize)

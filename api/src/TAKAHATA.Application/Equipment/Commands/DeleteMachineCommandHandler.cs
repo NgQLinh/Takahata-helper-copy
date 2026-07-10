@@ -16,7 +16,7 @@ namespace TAKAHATA.Application.Equipment.Commands
         }
         public async Task<ErrorOr<Machine>> Handle(DeleteMachineCommand command, CancellationToken cancellationToken)
         {
-            var machine = await _machineRepository.DeleteMachineByIdAsync(command.Id);
+            var machine = await _machineRepository.DeleteByIdAsync(command.Id);
 
             if (machine == null)
                 return Errors.Machine.NotFound;

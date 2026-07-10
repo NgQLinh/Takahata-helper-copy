@@ -5,10 +5,8 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.MaintenanceProcess
 {
-    public interface IMachineMaintenanceProcessRepository
+    public interface IMachineMaintenanceProcessRepository : IBaseRepository<MachineMaintenanceProcess>
     {
-        Task<MachineMaintenanceProcess?> AddAsync(MachineMaintenanceProcess machineMaintenanceProcess);
-        Task<MachineMaintenanceProcess?> DeleteMachineByIdAsync(long id);
         Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(
             List<long>? machineIds,
             List<ProcessStatus>? statuses,

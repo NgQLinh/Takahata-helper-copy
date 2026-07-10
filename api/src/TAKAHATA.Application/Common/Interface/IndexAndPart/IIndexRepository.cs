@@ -2,14 +2,10 @@
 
 namespace TAKAHATA.Application.Common.Interface.IndexAndPart
 {
-    public interface IIndexRepository
+    public interface IIndexRepository : IBaseRepository<Index>
     {
-        Task<Index?> AddAsync(Index Index);
         Task<IEnumerable<Index>> GetAsync();
         Task<Index?> GetAsync(string indexCode);
-        Task<Index?> GetByIdAsync(long id);
-        Task<Index?> DeleteIndexByIdAsync(long id);
-        Task<Index?> UpdateAsync(Index Index);
         Task<bool> IsExistedAsync(string indexCode);
     }
 }

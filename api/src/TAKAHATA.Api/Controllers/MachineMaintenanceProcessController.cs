@@ -24,7 +24,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("search")]
-        public async Task<IActionResult> Search(MachineMaintenanceProcessQuery request)
+        public async Task<IActionResult> Search(MachineMaintenanceProcessesQuery request)
         {
             var result = await _sender.Send(request);
             return result.Match(

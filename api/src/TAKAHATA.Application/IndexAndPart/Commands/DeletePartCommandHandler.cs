@@ -20,7 +20,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
 
         public async Task<ErrorOr<PartResponse>> Handle(DeletePartCommand request, CancellationToken cancellationToken)
         {
-            var part = await _partRepository.DeleteMachineByIdAsync(request.Id);
+            var part = await _partRepository.DeleteByIdAsync(request.Id);
             if (part == null)
                 return Errors.Part.DeleteFalse;
 
