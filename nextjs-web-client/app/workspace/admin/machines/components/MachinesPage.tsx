@@ -42,6 +42,7 @@ import "./MachinesPage.css";
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 import { MachineMaintenanceProcess } from "@/app/types/machine/MachineMaintenanceProcess";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import UpdateMachineMaintenanceProcess from "./UpdateMachineMaintenanceProcess";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -59,6 +60,8 @@ export function MachinesPage() {
   // MachineMaintenanceProcess state
   const [createMaintenanceProcessOpen, setCreateMaintenanceProcessOpen] =
     useState(false);
+  const [updateMaintenanceProcessOpen, setUpdateMaintenanceProcessOpen] =
+    useState(false);
   const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
   const [filterMachineIds, setFilterMachineIds] = useState<number[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<
@@ -72,6 +75,14 @@ export function MachinesPage() {
   const [maintenanceProcesses, setMaintenanceProcesses] = useState<
     MachineMaintenanceProcess[]
   >([]);
+
+  const [selectedMaintenanceProcessesId, setSelectedMaintenanceProcessesId] =
+    useState<number | null>(null);
+
+  const handlerUpdateMaintenanceProcesses = (id: number) => {
+    setSelectedMaintenanceProcessesId(id);
+    setUpdateMaintenanceProcessOpen(true);
+  };
 
   const handleSearchMachineMaintenanceProcess = async (
     currentPage = pageMaintenanceProcess,
@@ -531,7 +542,12 @@ export function MachinesPage() {
       align: "center",
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />}>Sửa</Button>
+          <Button
+            onClick={() => handlerUpdateMaintenanceProcesses(record.id)}
+            icon={<EditOutlined />}
+          >
+            Sửa
+          </Button>
 
           <Popconfirm
             title="Xóa lịch bảo dưỡng"
@@ -746,6 +762,15 @@ export function MachinesPage() {
         open={createMaintenanceProcessOpen}
         onClose={() => {
           setCreateMaintenanceProcessOpen(false);
+          handleSearchMachineMaintenanceProcess();
+        }}
+      />
+
+      <UpdateMachineMaintenanceProcess
+        id={selectedMaintenanceProcessesId}
+        open={updateMaintenanceProcessOpen}
+        onClose={() => {
+          setUpdateMaintenanceProcessOpen(false);
           handleSearchMachineMaintenanceProcess();
         }}
       />
