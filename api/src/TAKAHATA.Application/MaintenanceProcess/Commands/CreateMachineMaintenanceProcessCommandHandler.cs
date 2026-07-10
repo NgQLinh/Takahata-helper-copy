@@ -44,7 +44,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             machineMaintenanceProcess = await _machineMaintenanceProcessRepository.AddAsync(machineMaintenanceProcess);
 
             if (machineMaintenanceProcess == null)
-                return Errors.MachineMaintenanceProcess.CreateMachineMaintenanceProcessResponseFalse;
+                return Errors.MachineMaintenanceProcess.CreateMachineMaintenanceProcessFalse;
 
             return _mapper.Map<MachineMaintenanceProcessResponse>(machineMaintenanceProcess);
         }

@@ -3,14 +3,13 @@ using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
-using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.MaintenanceProcess;
-using TAKAHATA.Domain.MasterData;
+using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.User;
 
 namespace TAKAHATA.Application.MaintenanceProcess.Queries
 {
-    public class MachineMaintenanceProcessQueryHandler : IRequestHandler<MachineMaintenanceProcessQuery, ErrorOr<SearchResponse<List<MachineMaintenanceProcessResponse>>>>
+    public class MachineMaintenanceProcessQueryHandler : IRequestHandler<MachineMaintenanceProcessQuery, ErrorOr<MachineMaintenanceProcessResponse>>
     {
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -26,30 +25,26 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
             _userManager = userManager;
         }
 
-        public async Task<ErrorOr<SearchResponse<List<MachineMaintenanceProcessResponse>>>> Handle(
+        public async Task<ErrorOr<MachineMaintenanceProcessResponse>> Handle(
             MachineMaintenanceProcessQuery request,
             CancellationToken cancellationToken)
         {
             var users = _userManager.Users.ToList();
 
-            var response = await _machineMaintenanceProcessRepository.SearchAsync(
-                 request.MachineIds,
-                 request.Statuses,
-                 request.From,
-                 request.To,
-                 request.Page,
-                 request.PageSize);
+            var maintenanceProcess = await _machineMaintenanceProcessRepository.GetByIdAsync(request.Id);
 
-            foreach (var item in response.Data)
-            {
-                var createdUser = users.FirstOrDefault(u => u.Id == item.CreateBy);
-                if (createdUser != null)
-                    item.CreateBy = createdUser.FullName;
+            if (maintenanceProcess == null)
+                return Errors.MachineMaintenanceProcess.NotFound;
 
-                var updatedUser = users.FirstOrDefault(u => u.Id == item.UpdateBy);
-                if (updatedUser != null)
-                    item.UpdateBy = updatedUser.FullName;
-            }
+            var response = _mapper.Map<MachineMaintenanceProcessResponse>(maintenanceProcess);
+
+            var createdUser = users.FirstOrDefault(u => u.Id == response.CreateBy);
+            if (createdUser != null)
+                response.CreateBy = createdUser.FullName;
+
+            var updatedUser = users.FirstOrDefault(u => u.Id == response.UpdateBy);
+            if (updatedUser != null)
+                response.UpdateBy = updatedUser.FullName;
 
             return response;
         }

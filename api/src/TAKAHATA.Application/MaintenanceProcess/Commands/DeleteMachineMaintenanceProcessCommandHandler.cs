@@ -1,14 +1,9 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
-using TAKAHATA.Application.Common.Interface;
-using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
 using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.Common.Errors;
-using TAKAHATA.Domain.MasterData;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using static TAKAHATA.Domain.Common.Errors.Errors;
 
 namespace TAKAHATA.Application.MaintenanceProcess.Commands
 {
@@ -32,7 +27,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             var machineMaintenanceProcess = await _machineMaintenanceProcessRepository.DeleteByIdAsync(request.Id);
 
             if (machineMaintenanceProcess == null)
-                return Errors.MachineMaintenanceProcess.DeleteMachineMaintenanceProcessResponseFalse;
+                return Errors.MachineMaintenanceProcess.DeleteMachineMaintenanceProcessFalse;
 
             return _mapper.Map<MachineMaintenanceProcessResponse>(machineMaintenanceProcess);
         }

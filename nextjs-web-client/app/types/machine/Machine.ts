@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { MachineStatus } from "./MachineStatus";
 
 export interface Machine {
@@ -7,9 +8,9 @@ export interface Machine {
   type: string;
   code: string;
   brand: string;
-  createAt: Date;
+  createAt: Dayjs;
   createBy: string;
-  updateAt?: string | Date;
+  updateAt?: Dayjs | null;
   updateBy?: string;
   status: MachineStatus;
   bitAddress: number;

@@ -14,8 +14,8 @@ namespace TAKAHATA.Api.Controllers
             _sender = sender;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateMachineMaintenanceProcess(CreateMachineMaintenanceProcessCommand request)
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(MachineMaintenanceProcessesQuery request)
         {
             var result = await _sender.Send(request);
             return result.Match(
@@ -23,8 +23,17 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
-        [HttpPost("search")]
-        public async Task<IActionResult> Search(MachineMaintenanceProcessesQuery request)
+        [HttpPost("create")]
+        public async Task<IActionResult> Create(CreateMachineMaintenanceProcessCommand request)
+        {
+            var result = await _sender.Send(request);
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> Update(UpdateMachineMaintenanceProcessCommand request)
         {
             var result = await _sender.Send(request);
             return result.Match(
@@ -42,7 +51,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("detail")]
-        public async Task<IActionResult> QueryMaintenanceProcessCommand(DeleteMachineMaintenanceProcessCommand request)
+        public async Task<IActionResult> GetMaintenanceProcessCommand(MachineMaintenanceProcessQuery request)
         {
             var result = await _sender.Send(request);
             return result.Match(

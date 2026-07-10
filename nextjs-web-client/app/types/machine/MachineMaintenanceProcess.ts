@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { ProcessStatus } from "../common/ProcessStatus";
 import { Machine } from "./Machine";
 
@@ -6,15 +7,15 @@ export interface MachineMaintenanceProcess {
   machineId: number;
   maintenanceType: string;
   description?: string | null;
-  planDate: string;
-  actualDate?: string | null;
+  planDate: Dayjs;
+  actualDate?: Dayjs | null;
   workingHours?: number | null;
   status: ProcessStatus;
   performedBy?: string | null;
   note?: string | null;
   machine: Machine | null;
-  createAt: Date;
+  createAt: Dayjs;
   createBy: string;
-  updateAt?: string | Date;
+  updateAt?: Dayjs | null;
   updateBy?: string;
 }

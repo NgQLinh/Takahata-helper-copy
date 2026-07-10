@@ -8,11 +8,15 @@ import {
   Select,
 } from "antd";
 import type { Dayjs } from "dayjs";
-import { useEffect, useState } from "react";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
-import { createMachineMaintenanceProcess } from "@/app/services/machine/MachineService";
-import { toast } from "react-toastify";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getMachineMaintenanceProcessAsync,
+  getMachinesAsync,
+  updateMachineMaintenanceProcess,
+} from "@/app/services/machine/MachineService";
 import { Machine } from "@/app/types";
+import { toast } from "react-toastify";
+import dayjs from "dayjs";
 
 type Props = {
   id?: number | null;
@@ -24,11 +28,11 @@ export type FormValues = {
   id: number;
   machineId: number;
   planDate: Dayjs;
-  actualDate?: Dayjs;
-  workingHours: number;
-  performedBy?: string;
-  note?: string;
-  status: ProcessStatus;
+  actualDate?: Dayjs | null;
+  workingHours: number | null;
+  performedBy?: string | null;
+  note?: string | null;
+  status: ProcessStatus | ProcessStatus.Planned;
 };
 
 enum ProcessStatus {
@@ -39,11 +43,13 @@ enum ProcessStatus {
 }
 
 export default function UpdateMachineMaintenanceProcess({
+  id,
   open,
   onClose,
 }: Props) {
   const [form] = Form.useForm<FormValues>();
 
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [machines, setMachines] = useState<Machine[]>([]);
 
@@ -53,25 +59,59 @@ export default function UpdateMachineMaintenanceProcess({
     selectedStatus === ProcessStatus.InProgress ||
     selectedStatus === ProcessStatus.Completed;
 
-  useEffect(() => {
-    const fetchMachines = async () => {
-      setLoadingMachine(true);
+  const fetchMachines = useCallback(async () => {
+    setLoadingMachine(true);
 
-      await getMachinesAsync()
-        .then((data) => {
-          setMachines(data);
-        })
-        .catch((error) => {
-          console.error("Lỗi khi lấy danh sách máy:", error);
-        })
-        .finally(() => {
-          setLoadingMachine(false);
+    await getMachinesAsync()
+      .then((data) => {
+        setMachines(data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy danh sách máy:", error);
+      })
+      .finally(() => {
+        setLoadingMachine(false);
+      });
+  }, []);
+
+  const fetchDetail = useCallback(
+    async (id: number) => {
+      setLoadingDetail(true);
+
+      try {
+        const data = await getMachineMaintenanceProcessAsync({ id });
+
+        form.setFieldsValue({
+          machineId: data.machineId,
+          planDate: data.planDate ? dayjs(data.planDate) : undefined,
+          actualDate: data.actualDate ? dayjs(data.actualDate) : null,
+          workingHours: data.workingHours,
+          performedBy: data.performedBy,
+          status: data.status | ProcessStatus.Planned,
+          note: data.note,
         });
+      } catch (error) {
+        console.error("Lỗi khi lấy chi kế hoạch bảo trì:", error);
+        toast.error("Không lấy được chi tiết kế hoạch bảo trì.");
+      } finally {
+        setLoadingDetail(false);
+      }
+    },
+    [form],
+  );
+
+  useEffect(() => {
+    const run = async () => {
+      await fetchMachines();
+
+      if (id) {
+        await fetchDetail(id);
+      }
     };
 
     if (!open) return;
-    fetchMachines();
-  }, [open]);
+    run();
+  }, [fetchDetail, fetchMachines, id, open]);
 
   useEffect(() => {
     if (!enableActualDate) {
@@ -88,6 +128,7 @@ export default function UpdateMachineMaintenanceProcess({
     const values = await form.validateFields();
 
     const request = {
+      id: id,
       machineId: values.machineId,
       planDate: values.planDate?.format("YYYY-MM-DD") ?? null,
       actualDate: enableActualDate
@@ -101,7 +142,7 @@ export default function UpdateMachineMaintenanceProcess({
 
     console.log("Create payload:", request);
 
-    await createMachineMaintenanceProcess(request)
+    await updateMachineMaintenanceProcess(request)
       .then((data) => {
         console.log("Create response:", data);
         form.resetFields();
@@ -118,6 +159,7 @@ export default function UpdateMachineMaintenanceProcess({
       title="Cập nhật quá trình bảo dưỡng máy"
       open={open}
       footer={null}
+      confirmLoading={loadingDetail}
       onCancel={handleCancel}
       destroyOnHidden
       styles={{
@@ -254,7 +296,7 @@ export default function UpdateMachineMaintenanceProcess({
           <Button onClick={handleCancel}>Hủy</Button>
 
           <Button type="primary" htmlType="submit">
-            Tạo mới
+            Lưu
           </Button>
         </div>
       </Form>

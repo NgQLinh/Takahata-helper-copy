@@ -235,14 +235,14 @@ export function MachinesPage() {
 
   const machineColumns: ColumnsType<Machine> = useMemo(
     () => [
-      {
-        title: "STT",
-        dataIndex: "sequenceNumber",
-        width: 100,
-        fixed: "left",
-        sorter: (a, b) => a.sequenceNumber - b.sequenceNumber,
-        render: (value) => <Text strong>{value}</Text>,
-      },
+      // {
+      //   title: "STT",
+      //   dataIndex: "sequenceNumber",
+      //   width: 100,
+      //   fixed: "left",
+      //   sorter: (a, b) => a.sequenceNumber - b.sequenceNumber,
+      //   render: (value) => <Text strong>{value}</Text>,
+      // },
       {
         title: "Tên máy",
         dataIndex: "name",
@@ -396,14 +396,14 @@ export function MachinesPage() {
   );
 
   const maintenanceProcessColumns: ColumnsType<MachineMaintenanceProcess> = [
-    {
-      title: "STT",
-      fixed: "left",
-      dataIndex: "id",
-      sorter: (a, b) => a.id - b.id,
-      width: 80,
-      render: (value) => <Text strong>{value}</Text>,
-    },
+    // {
+    //   title: "STT",
+    //   fixed: "left",
+    //   dataIndex: "id",
+    //   sorter: (a, b) => a.id - b.id,
+    //   width: 80,
+    //   render: (value) => <Text strong>{value}</Text>,
+    // },
     {
       title: "Máy",
       dataIndex: "machine",

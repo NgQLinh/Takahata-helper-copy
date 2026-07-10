@@ -57,6 +57,16 @@ export const createMachineMaintenanceProcess = async (
   return response.data;
 };
 
+export const updateMachineMaintenanceProcess = async (
+  request: unknown,
+): Promise<MachineMaintenanceProcess> => {
+  const response = await apiClient.post<MachineMaintenanceProcess>(
+    "/MachineMaintenanceProcess/update",
+    request,
+  );
+  return response.data;
+};
+
 export const searchMachineMaintenanceProcess = async (
   request: unknown,
 ): Promise<SearchResponse<MachineMaintenanceProcess[]>> => {
@@ -68,10 +78,20 @@ export const searchMachineMaintenanceProcess = async (
 };
 
 export const deleteMachineMaintenanceProcessAsync = async (
-  request: DeleteMachineRequest,
-): Promise<Machine> => {
-  const response = await apiClient.post<Machine>(
+  request: unknown,
+): Promise<MachineMaintenanceProcess> => {
+  const response = await apiClient.post<MachineMaintenanceProcess>(
     "/MachineMaintenanceProcess/delete",
+    request,
+  );
+  return response.data;
+};
+
+export const getMachineMaintenanceProcessAsync = async (
+  request: unknown,
+): Promise<MachineMaintenanceProcess> => {
+  const response = await apiClient.post<MachineMaintenanceProcess>(
+    "/MachineMaintenanceProcess/detail",
     request,
   );
   return response.data;
