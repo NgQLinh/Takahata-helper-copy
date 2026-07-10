@@ -372,24 +372,34 @@ export function MachinesPage() {
       fixed: "left",
       dataIndex: "id",
       sorter: (a, b) => a.id - b.id,
-      width: 100,
+      width: 80,
       render: (value) => <Text strong>{value}</Text>,
     },
     {
       title: "Máy",
-      dataIndex: "machineId",
-      width: 100,
+      dataIndex: "machine",
+      width: 150,
+      render: (value) => (
+        <Space>
+          <Avatar
+            size={28}
+            icon={<AppstoreOutlined />}
+            style={{ background: "#e8f1ff", color: "#1677ff" }}
+          />
+          <Text strong>{value?.name || value?.code}</Text>
+        </Space>
+      ),
     },
     {
       title: "Ngày kế hoạch",
       dataIndex: "planDate",
-      width: 200,
+      width: 150,
       render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
     },
     {
       title: "Ngày thực tế",
       dataIndex: "actualDate",
-      width: 200,
+      width: 150,
       render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
     },
     {
@@ -400,7 +410,7 @@ export function MachinesPage() {
     },
     {
       title: "Người thực hiện",
-      width: 100,
+      width: 150,
       dataIndex: "performedBy",
     },
     {
@@ -717,6 +727,7 @@ export function MachinesPage() {
         open={createMaintenanceProcessOpen}
         onClose={() => {
           setCreateMaintenanceProcessOpen(false);
+          handleSearchMachineMaintenanceProcess();
         }}
       />
     </div>

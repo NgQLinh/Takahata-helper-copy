@@ -67,8 +67,9 @@ export default function CreateMachineMaintenanceProcess({
         });
     };
 
+    if (!open) return;
     fetchMachines();
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     if (!enableActualDate) {
