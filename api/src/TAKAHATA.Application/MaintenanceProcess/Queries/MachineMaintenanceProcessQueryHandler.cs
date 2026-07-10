@@ -4,12 +4,13 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
 using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.MasterData;
 using TAKAHATA.Domain.User;
 
 namespace TAKAHATA.Application.MaintenanceProcess.Queries
 {
-    public class MachineMaintenanceProcessQueryHandler : IRequestHandler<MachineMaintenanceProcessQuery, ErrorOr<SearchResponse<MachineMaintenanceProcess>>>
+    public class MachineMaintenanceProcessQueryHandler : IRequestHandler<MachineMaintenanceProcessQuery, ErrorOr<SearchResponse<List<MachineMaintenanceProcessResponse>>>>
     {
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -25,7 +26,9 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
             _userManager = userManager;
         }
 
-        public async Task<ErrorOr<SearchResponse<MachineMaintenanceProcess>>> Handle(MachineMaintenanceProcessQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<SearchResponse<List<MachineMaintenanceProcessResponse>>>> Handle(
+            MachineMaintenanceProcessQuery request,
+            CancellationToken cancellationToken)
         {
             var users = _userManager.Users.ToList();
 
@@ -37,7 +40,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
                  request.Page,
                  request.PageSize);
 
-            foreach (var item in response.Values)
+            foreach (var item in response.Data)
             {
                 var createdUser = users.FirstOrDefault(u => u.Id == item.CreateBy);
                 if (createdUser != null)

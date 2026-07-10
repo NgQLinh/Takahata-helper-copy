@@ -8,18 +8,18 @@
 
         public int TotalItems { get; set; }
 
-        public IEnumerable<T> Values { get; set; } = [];
+        public T Data { get; set; }
 
         public SearchResponse(
             int page,
             int pageSize,
             int totalItems,
-            IEnumerable<T> values)
+            T data)
         {
             Page = page;
             PageSize = pageSize;
             TotalItems = totalItems;
-            Values = values;
+            Data = data;
         }
     }
 }

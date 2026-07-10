@@ -12,5 +12,6 @@ namespace TAKAHATA.Domain.MasterData
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
         public int BitAddress { get; set; }
         public List<PartProcess> PartProcesses { get; set; } = [];
+        public List<MachineMaintenanceProcess> MachineMaintenanceProcesses { get; set; } = [];
     }
 }

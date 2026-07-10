@@ -286,8 +286,17 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MachineId")
-                        .HasDatabaseName("PS_MachineMaintenanceProcess_MachineId");
+                    b.HasIndex("PlanDate", "Id")
+                        .IsDescending(true, false)
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_PlanDate_Id");
+
+                    b.HasIndex("MachineId", "PlanDate", "Id")
+                        .IsDescending(false, true, false)
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_PlanDate_Id");
+
+                    b.HasIndex("MachineId", "Status", "PlanDate", "Id")
+                        .IsDescending(false, false, true, false)
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_Status_PlanDate_Id");
 
                     b.ToTable("MachineMaintenanceProcesses");
                 });
@@ -516,7 +525,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.MachineMaintenanceProcess", b =>
                 {
                     b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
-                        .WithMany()
+                        .WithMany("MachineMaintenanceProcesses")
                         .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -561,6 +570,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
                 {
+                    b.Navigation("MachineMaintenanceProcesses");
+
                     b.Navigation("PartProcesses");
                 });
 

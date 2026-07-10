@@ -92,7 +92,7 @@ export function MachinesPage() {
         pageSize: currentPageSize,
       });
 
-      setMaintenanceProcesses(result.values);
+      setMaintenanceProcesses(result.data);
       setPageMaintenanceProcess(result.page);
       setPageSizeMaintenanceProcess(result.pageSize);
       setTotalItemsMaintenanceProcess(result.totalItems);
@@ -280,7 +280,7 @@ export function MachinesPage() {
       {
         title: "Ngày tạo",
         dataIndex: "createAt",
-        width: 150,
+        width: 200,
         sorter: (a, b) =>
           dayjs(a.createAt).valueOf() - dayjs(b.createAt).valueOf(),
         render: (value) => (
@@ -314,7 +314,7 @@ export function MachinesPage() {
       {
         title: "Ngày sửa",
         dataIndex: "updateAt",
-        width: 160,
+        width: 200,
         sorter: (a, b) =>
           dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
         render: (value) =>
@@ -368,10 +368,12 @@ export function MachinesPage() {
 
   const maintenanceProcessColumns: ColumnsType<MachineMaintenanceProcess> = [
     {
-      title: "ID",
+      title: "STT",
       fixed: "left",
       dataIndex: "id",
-      width: 80,
+      sorter: (a, b) => a.id - b.id,
+      width: 100,
+      render: (value) => <Text strong>{value}</Text>,
     },
     {
       title: "Máy",
@@ -381,20 +383,24 @@ export function MachinesPage() {
     {
       title: "Ngày kế hoạch",
       dataIndex: "planDate",
+      width: 200,
       render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
     },
     {
       title: "Ngày thực tế",
       dataIndex: "actualDate",
+      width: 200,
       render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : ""),
     },
     {
       title: "Giờ làm",
+      width: 100,
       dataIndex: "workingHours",
       render: (value) => Number(value).toFixed(2),
     },
     {
       title: "Người thực hiện",
+      width: 100,
       dataIndex: "performedBy",
     },
     {
@@ -425,12 +431,13 @@ export function MachinesPage() {
     },
     {
       title: "Ghi chú",
+      width: 200,
       dataIndex: "note",
     },
     {
       title: "Người tạo",
       dataIndex: "createBy",
-      width: 130,
+      width: 120,
       render: (value) => (
         <Space>
           <Avatar size={28} style={{ background: "#dbeafe", color: "#1677ff" }}>
@@ -443,7 +450,7 @@ export function MachinesPage() {
     {
       title: "Ngày tạo",
       dataIndex: "createAt",
-      width: 150,
+      width: 200,
       sorter: (a, b) =>
         dayjs(a.createAt).valueOf() - dayjs(b.createAt).valueOf(),
       render: (value) => (
@@ -456,7 +463,7 @@ export function MachinesPage() {
     {
       title: "Người sửa",
       dataIndex: "updateBy",
-      width: 130,
+      width: 120,
       render: (value) =>
         value ? (
           <Space>
@@ -475,7 +482,7 @@ export function MachinesPage() {
     {
       title: "Ngày sửa",
       dataIndex: "updateAt",
-      width: 160,
+      width: 200,
       sorter: (a, b) =>
         dayjs(a.updateAt).valueOf() - dayjs(b.updateAt).valueOf(),
       render: (value) =>
@@ -540,7 +547,10 @@ export function MachinesPage() {
             loading={loading}
             columns={machineColumns}
             dataSource={filteredMachines}
-            scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
+            scroll={{
+              x: "max-content",
+              y: "calc(100vh - 450px)",
+            }}
             pagination={{
               current: machinePage,
               pageSize: machinePageSize,
@@ -640,7 +650,10 @@ export function MachinesPage() {
             columns={maintenanceProcessColumns}
             dataSource={maintenanceProcesses}
             loading={loading}
-            scroll={{ x: 1350, y: "calc(100vh - 450px)" }}
+            scroll={{
+              x: "max-content",
+              y: "calc(100vh - 450px)",
+            }}
             pagination={{
               current: pageMaintenanceProcess,
               pageSize: pageSizeMaintenanceProcess,

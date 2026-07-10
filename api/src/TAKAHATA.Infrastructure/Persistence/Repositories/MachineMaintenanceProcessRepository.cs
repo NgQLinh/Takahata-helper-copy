@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
 using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
@@ -8,11 +10,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
     public class MachineMaintenanceProcessRepository : IMachineMaintenanceProcessRepository
     {
 
+        private readonly IMapper _mapper;
         private readonly AppDbContext _dbContext;
 
-        public MachineMaintenanceProcessRepository(AppDbContext dbContext)
+        public MachineMaintenanceProcessRepository(AppDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
 
         public async Task<MachineMaintenanceProcess?> AddAsync(MachineMaintenanceProcess machineMaintenanceProcess)
@@ -22,7 +26,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return effectedRow != 0 ? machineMaintenanceProcess : null;
         }
 
-        public async Task<SearchResponse<MachineMaintenanceProcess>> SearchAsync(
+        public async Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(
             List<long>? machineIds,
             List<ProcessStatus>? statuses,
             DateOnly? from,
@@ -55,7 +59,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             }
 
             var currentPage = Math.Max(page ?? 1, 1);
-            var currentPageSize = Math.Max(pageSize ?? 10, 10);
+            var currentPageSize = Math.Clamp(pageSize ?? 10, 1, 100);
 
             var totalItems = await query.CountAsync();
 
@@ -64,13 +68,18 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .ThenBy(x => x.Id)
                 .Skip((currentPage - 1) * currentPageSize)
                 .Take(currentPageSize)
+                .Include(x => x.Machine)
                 .ToListAsync();
 
-            return new SearchResponse<MachineMaintenanceProcess>(
+            var data = values
+                .Select(v => _mapper.Map<MachineMaintenanceProcessResponse>(v))
+                .ToList();
+
+            return new SearchResponse<List<MachineMaintenanceProcessResponse>>(
                 currentPage,
                 currentPageSize,
                 totalItems,
-                values);
+                data);
         }
     }
 }

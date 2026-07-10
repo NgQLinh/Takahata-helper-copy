@@ -2,5 +2,5 @@ export type SearchResponse<T> = {
   page: number;
   pageSize: number;
   totalItems: number;
-  values: T[];
+  data: T;
 };

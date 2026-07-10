@@ -27,6 +27,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
                 .WithOne(x => x.Machine)
                 .HasForeignKey(x => x.MachineId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasMany(x => x.MachineMaintenanceProcesses)
+                .WithOne(x => x.Machine)
+                .HasForeignKey(x => x.MachineId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
