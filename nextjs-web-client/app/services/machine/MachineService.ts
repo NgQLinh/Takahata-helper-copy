@@ -66,3 +66,13 @@ export const searchMachineMaintenanceProcess = async (
 
   return response.data;
 };
+
+export const deleteMachineMaintenanceProcessAsync = async (
+  request: DeleteMachineRequest,
+): Promise<Machine> => {
+  const response = await apiClient.post<Machine>(
+    "/MachineMaintenanceProcess/delete",
+    request,
+  );
+  return response.data;
+};

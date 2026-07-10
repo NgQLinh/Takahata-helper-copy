@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import {
+  deleteMachineMaintenanceProcessAsync,
   getMachinesAsync,
   searchMachineMaintenanceProcess,
 } from "@/app/services/machine/MachineService";
@@ -197,6 +198,23 @@ export function MachinesPage() {
         console.log(data);
         fetchMachines();
         toast.success("Xóa máy thành công");
+      })
+      .catch((error) => {
+        toast.error("Xóa máy không thành công");
+        console.error("Xóa máy không thành công:", error);
+      });
+  };
+
+  const handleDeleteMachineMaintenanceProcess = async (id: number) => {
+    const request: DeleteMachineRequest = {
+      id: id,
+    };
+
+    await deleteMachineMaintenanceProcessAsync(request)
+      .then((data) => {
+        console.log(data);
+        toast.success("Xóa máy thành công");
+        handleSearchMachineMaintenanceProcess();
       })
       .catch((error) => {
         toast.error("Xóa máy không thành công");
@@ -519,6 +537,7 @@ export function MachinesPage() {
             title="Xóa lịch bảo dưỡng"
             description={`Bạn có chắc muốn xóa?`}
             okText="Xóa"
+            onConfirm={() => handleDeleteMachineMaintenanceProcess(record.id)}
             cancelText="Hủy"
           >
             <Button danger icon={<DeleteOutlined />}>

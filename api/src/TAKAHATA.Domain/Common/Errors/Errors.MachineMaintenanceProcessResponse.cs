@@ -4,7 +4,7 @@ namespace TAKAHATA.Domain.Common.Errors
 {
     public partial class Errors
     {
-        public static class MachineMaintenanceProcessResponse
+        public static class MachineMaintenanceProcess
         {
             public static Error CreateMachineMaintenanceProcessResponseFalse =>
                 Error.Failure(code: "MachineMaintenanceProcessResponse.CreateFalse", description: "Tạo mới kế hoạch bảo trì không thành công.");
