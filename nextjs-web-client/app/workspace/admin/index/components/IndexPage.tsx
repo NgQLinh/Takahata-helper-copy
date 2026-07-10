@@ -108,10 +108,11 @@ export function IndexPage() {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const [startDate, setStartDate] = useState<Dayjs | null>(
-    dayjs().startOf("month"),
-  );
-  const [endDate, setEndDate] = useState<Dayjs | null>(dayjs().endOf("month"));
+  // Filter state
+  const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
+  const [filterPlantDateRange, setFilterPlantDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >([dayjs().startOf("month"), dayjs().endOf("month")]);
 
   const fetchParts = useCallback(async () => {
     setLoading(true);
