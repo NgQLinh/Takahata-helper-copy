@@ -708,7 +708,7 @@ export function MachinesPage() {
             loading={loading}
             scroll={{
               x: "max-content",
-              y: "calc(100vh - 450px)",
+              y: "calc(100vh - 510px)",
             }}
             pagination={{
               current: pageMaintenanceProcess,
