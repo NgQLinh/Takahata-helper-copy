@@ -22,11 +22,11 @@ type Props = {
 export type FormValues = {
   machineId: number;
   planDate: Dayjs;
-  actualDate?: Dayjs;
+  actualDate?: Dayjs | null;
   workingHours: number;
-  performedBy?: string;
-  note?: string;
-  status: ProcessStatus;
+  performedBy?: string | null;
+  note?: string | null;
+  status: ProcessStatus | ProcessStatus.Planned;
 };
 
 enum ProcessStatus {

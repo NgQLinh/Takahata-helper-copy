@@ -34,7 +34,9 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
                 return Errors.MachineMaintenanceProcess.NotFound;
 
             // Update property
-            machineMaintenanceProcess.CreateBy = _currentUserService.UserId;
+            machineMaintenanceProcess.UpdateBy = _currentUserService.UserId;
+            machineMaintenanceProcess.UpdateAt = DateTime.Now;
+
             machineMaintenanceProcess.ActualDate = request.ActualDate;
             machineMaintenanceProcess.PlanDate = request.PlanDate;
             machineMaintenanceProcess.MachineId = request.MachineId;

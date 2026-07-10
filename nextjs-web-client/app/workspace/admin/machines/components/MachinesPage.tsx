@@ -246,6 +246,7 @@ export function MachinesPage() {
       {
         title: "Tên máy",
         dataIndex: "name",
+        fixed: "left",
         width: 150,
         sorter: (a, b) => a.name.localeCompare(b.name),
         render: (value) => (
@@ -407,6 +408,7 @@ export function MachinesPage() {
     {
       title: "Máy",
       dataIndex: "machine",
+      fixed: "left",
       width: 150,
       render: (value) => (
         <Space>
