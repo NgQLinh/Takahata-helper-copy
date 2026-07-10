@@ -622,7 +622,7 @@ export function MachinesPage() {
       ),
       children: (
         <Card className="machine-card">
-          <div className="machine-toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
+          <div className="d-flex justify-between">
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
               <div style={{ width: 200 }}>
                 <label className="form-label mb-1">Máy</label>
