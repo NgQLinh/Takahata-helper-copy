@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Domain.Common;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
@@ -15,6 +16,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
             var part = await _dbContext.Parts.FirstOrDefaultAsync(p => p.Code == partCode);
             return part != null;
+        }
+
+        public override async Task<Part?> GetByIdAsync(long id)
+        {
+            return await _dbContext.Parts
+                .Include(p => p.Index)
+                .Include(p => p.Processes)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Part>> SearchAsync(int page, int pageSize)
