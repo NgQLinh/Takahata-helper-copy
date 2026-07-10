@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Modal,
   Form,
@@ -66,39 +66,42 @@ export default function CreatePart({ open, onClose }: Props) {
     },
   ]);
 
-  useEffect(() => {
-    const fetchIndexes = async () => {
-      setLoadingIndexes(true);
+  const fetchIndexes = useCallback(async () => {
+    setLoadingIndexes(true);
 
-      await getIndexesAsync()
-        .then((data) => {
-          setIndexes(data);
-        })
-        .catch((error) => {
-          console.error("Lỗi khi lấy danh sách indexes:", error);
-        })
-        .finally(() => {
-          setLoadingIndexes(false);
-        });
-    };
-
-    const fetchMachines = async () => {
-      setLoadingMachine(true);
-      await getMachinesAsync()
-        .then((data) => {
-          setMachines(data);
-        })
-        .catch((error) => {
-          console.error("Lỗi khi lấy danh sách máy:", error);
-        })
-        .finally(() => {
-          setLoadingMachine(false);
-        });
-    };
-
-    fetchIndexes();
-    fetchMachines();
+    try {
+      const data = await getIndexesAsync();
+      setIndexes(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách indexes:", error);
+    } finally {
+      setLoadingIndexes(false);
+    }
   }, []);
+
+  const fetchMachines = useCallback(async () => {
+    setLoadingMachine(true);
+
+    try {
+      const data = await getMachinesAsync();
+      setMachines(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách máy:", error);
+    } finally {
+      setLoadingMachine(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const run = async () => {
+      if (!open) return;
+
+      await fetchIndexes();
+      await fetchMachines();
+    };
+
+    void run();
+  }, [fetchIndexes, fetchMachines, open]);
 
   const machineOptions = useMemo(
     () =>
