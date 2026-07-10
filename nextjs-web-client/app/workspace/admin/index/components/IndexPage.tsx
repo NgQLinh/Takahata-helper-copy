@@ -391,23 +391,18 @@ export function IndexPage() {
             dataSource={dataSource}
             tableLayout="fixed"
             rowKey="key"
-            scroll={{ x: 1350, y: "calc(100vh - 480px)" }}
-            pagination={false}
+            scroll={{ x: "max-content", y: "calc(100vh - 480px)" }}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng ${total} part`,
+              onChange: (page, pageSize) => {
+                setPage(page);
+                setPageSize(pageSize);
+              },
+            }}
           />
-
-          <div className="schedule-pagination">
-            <Pagination
-              current={page}
-              pageSize={pageSize}
-              total={total}
-              showSizeChanger
-              showTotal={(value) => `Tổng ${value} part`}
-              onChange={(nextPage, nextPageSize) => {
-                setPage(nextPage);
-                setPageSize(nextPageSize);
-              }}
-            />
-          </div>
         </Card>
       ),
     },
