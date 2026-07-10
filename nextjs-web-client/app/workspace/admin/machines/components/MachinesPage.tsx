@@ -623,73 +623,82 @@ export function MachinesPage() {
       children: (
         <Card className="machine-card">
           <div className="machine-toolbar d-flex justify-content-between align-items-center gap-2 mb-3">
-            <div className="d-flex align-items-center gap-2 flex-wrap">
-              <Select
-                mode="multiple"
-                allowClear
-                showSearch
-                placeholder="Chọn máy"
-                style={{ width: 320 }}
-                value={filterMachineIds}
-                onChange={(values) => setFilterMachineIds(values)}
-                options={machines.map((machine) => ({
-                  value: machine.id,
-                  label: `${machine.name} - ${machine.code}`,
-                }))}
-                maxTagCount="responsive"
-              />
+            <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+              <div style={{ width: 200 }}>
+                <label className="form-label mb-1">Máy</label>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showSearch
+                  placeholder="Chọn máy"
+                  style={{ width: "100%" }}
+                  value={filterMachineIds}
+                  onChange={(values) => setFilterMachineIds(values)}
+                  maxTagCount="responsive"
+                  options={machines.map((machine) => ({
+                    value: machine.id,
+                    label: `${machine.name} - ${machine.code}`,
+                  }))}
+                />
+              </div>
 
-              <Select
-                mode="multiple"
-                allowClear
-                placeholder="Trạng thái"
-                style={{ width: 260 }}
-                value={filterStatuses}
-                onChange={(values) => setFilterStatuses(values)}
-                options={[
-                  { value: ProcessStatus.Planned, label: "Đã Lên kế hoạch" },
-                  { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
-                  { value: ProcessStatus.Completed, label: "Hoàn thành" },
-                  { value: ProcessStatus.Cancelled, label: "Đã hủy" },
-                  { value: ProcessStatus.Overdue, label: "Quá hạn" },
-                ]}
-              />
+              <div style={{ width: 240 }}>
+                <label className="form-label mb-1">Trạng thái</label>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  placeholder="Chọn trạng thái"
+                  style={{ width: "100%" }}
+                  value={filterStatuses}
+                  onChange={(values) => setFilterStatuses(values)}
+                  maxTagCount="responsive"
+                  options={[
+                    { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
+                    {
+                      value: ProcessStatus.InProgress,
+                      label: "Đang thực hiện",
+                    },
+                    { value: ProcessStatus.Completed, label: "Hoàn thành" },
+                    { value: ProcessStatus.Cancelled, label: "Đã hủy" },
+                    { value: ProcessStatus.Overdue, label: "Quá hạn" },
+                  ]}
+                />
+              </div>
 
-              <RangePicker
-                format="DD/MM/YYYY"
-                value={filterDateRange}
-                onChange={(dates) => setFilterDateRange(dates)}
-                placeholder={["Từ ngày", "Đến ngày"]}
-              />
+              <div style={{ width: 270 }}>
+                <label className="form-label mb-1">Ngày kế hoạch</label>
+                <RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                  value={filterDateRange}
+                  onChange={(dates) => setFilterDateRange(dates)}
+                  placeholder={["Từ ngày", "Đến ngày"]}
+                />
+              </div>
 
-              <Button
-                onClick={async () => {
-                  setFilterMachineIds([]);
-                  setFilterDateRange([null, null]);
-                  setFilterStatuses([]);
-                  handleSearchMachineMaintenanceProcess();
-                }}
-              >
-                Xóa bộ lọc
-              </Button>
-
-              <Button
-                type="primary"
-                onClick={() => {
-                  handleSearchMachineMaintenanceProcess();
-                }}
-              >
-                Tìm kiếm
-              </Button>
+              <div className="d-flex gap-2">
+                <Button
+                  onClick={async () => {
+                    setFilterMachineIds([]);
+                    setFilterDateRange([null, null]);
+                    setFilterStatuses([]);
+                    handleSearchMachineMaintenanceProcess();
+                  }}
+                >
+                  Xóa bộ lọc
+                </Button>
+              </div>
             </div>
 
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateMaintenanceProcessOpen(true)}
-            >
-              Thêm lịch bảo dưỡng
-            </Button>
+            <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setCreateMaintenanceProcessOpen(true)}
+              >
+                Thêm lịch bảo dưỡng
+              </Button>
+            </div>
           </div>
 
           <Table<MachineMaintenanceProcess>

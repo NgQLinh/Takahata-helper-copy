@@ -5,8 +5,8 @@ import {
   Card,
   DatePicker,
   Input,
-  Pagination,
   Popconfirm,
+  Select,
   Space,
   Table,
   Tabs,
@@ -19,11 +19,9 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  SearchOutlined,
   ScheduleOutlined,
   CalendarOutlined,
   AppstoreOutlined,
-  FilterOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -38,11 +36,11 @@ import UpdatePart from "./UpdatePart";
 import { Part, PartProcess } from "@/app/types";
 
 const { Title, Text } = Typography;
+const { RangePicker } = DatePicker;
 
 import "./IndexPage.css";
 import dayjs, { Dayjs } from "dayjs";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
-import CreateMachineMaintenanceProcess from "../../machines/components/CreateMachineMaintenanceProcess";
 
 type RowType = "MC" | "P" | "A";
 
@@ -339,40 +337,64 @@ export function IndexPage() {
       ),
       children: (
         <Card>
-          <div className="schedule-toolbar d-flex align-items-center justify-content-between mb-3">
-            <Input
-              placeholder="Tìm theo Part Name hoặc Index (trong trang)..."
-              allowClear
-              prefix={<SearchOutlined />}
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="schedule-search"
-            />
+          <div className="d-flex justify-between">
+            <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+              <div style={{ width: 200 }}>
+                <label className="form-label mb-1">Part Name hoặc Index</label>
+                <Input
+                  placeholder="Nhập Part Name hoặc Index"
+                  allowClear
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                />
+              </div>
 
-            <div className="d-flex align-items-center gap-2">
-              Từ
-              <DatePicker
-                style={{ width: "200px" }}
-                format="DD/MM/YYYY"
-                value={startDate}
-                onChange={(date) => setStartDate(date)}
-              />
-              Đến
-              <DatePicker
-                style={{ width: "200px" }}
-                format="DD/MM/YYYY"
-                value={endDate}
-                onChange={(date) => setEndDate(date)}
-              />
-              <Button
-                type="default"
-                icon={<FilterOutlined />}
-                onClick={() => {
-                  fetchParts();
-                }}
-              >
-                Lọc
-              </Button>
+              <div style={{ width: 240 }}>
+                <label className="form-label mb-1">Trạng thái</label>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  maxTagCount="responsive"
+                  placeholder="Chọn trạng thái"
+                  style={{ width: "100%" }}
+                  options={[
+                    { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
+                    {
+                      value: ProcessStatus.InProgress,
+                      label: "Đang thực hiện",
+                    },
+                    { value: ProcessStatus.Completed, label: "Hoàn thành" },
+                    { value: ProcessStatus.Cancelled, label: "Đã hủy" },
+                    { value: ProcessStatus.Overdue, label: "Quá hạn" },
+                  ]}
+                />
+              </div>
+
+              <div style={{ width: 270 }}>
+                <label className="form-label mb-1">Kế hoạch</label>
+                <RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                  placeholder={["Từ ngày", "Đến ngày"]}
+                />
+              </div>
+
+              <div style={{ width: 270 }}>
+                <label className="form-label mb-1">Thực tế</label>
+                <RangePicker
+                  style={{ width: "100%" }}
+                  format="DD/MM/YYYY"
+                  placeholder={["Từ ngày", "Đến ngày"]}
+                />
+              </div>
+
+              <div className="d-flex gap-2">
+                <Button>Xóa bộ lọc</Button>
+                <Button type="primary">Tìm kiếm</Button>
+              </div>
+            </div>
+
+            <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -391,7 +413,7 @@ export function IndexPage() {
             dataSource={dataSource}
             tableLayout="fixed"
             rowKey="key"
-            scroll={{ x: "max-content", y: "calc(100vh - 480px)" }}
+            scroll={{ x: "max-content", y: "calc(100vh - 510px)" }}
             pagination={{
               current: page,
               pageSize: pageSize,
