@@ -1,4 +1,4 @@
-import { Index, SearchPartResponse } from "@/app/types";
+import { Index, MachineMaintenanceProcess, SearchResponse } from "@/app/types";
 import { apiClient } from "../common/apiClient";
 import { Part } from "@/app/types";
 
@@ -15,8 +15,8 @@ export const updatePartAsync = async (request: unknown): Promise<Part[]> => {
 export const searchPartAsync = async (
   page: number,
   pageSize: number,
-): Promise<SearchPartResponse> => {
-  const response = await apiClient.post<SearchPartResponse>(
+): Promise<SearchResponse<Part[]>> => {
+  const response = await apiClient.post<SearchResponse<Part[]>>(
     "/Part/query-parts",
     {
       page,

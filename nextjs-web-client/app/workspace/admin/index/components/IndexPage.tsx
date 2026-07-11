@@ -118,8 +118,10 @@ export function IndexPage() {
     setLoading(true);
     try {
       const data = await searchPartAsync(page, pageSize);
-      setParts(data.parts);
-      setTotal(data.total);
+      setParts(data.data);
+      setTotal(data.totalItems);
+      setPage(data.page);
+      setPageSize(data.pageSize);
     } catch {
       toast.error("Không thể tải danh sách part");
     } finally {
@@ -341,9 +343,9 @@ export function IndexPage() {
           <div className="d-flex justify-between">
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
               <div style={{ width: 200 }}>
-                <label className="form-label mb-1">Part Name hoặc Index</label>
+                <label className="form-label mb-1">Part Name</label>
                 <Input
-                  placeholder="Nhập Part Name hoặc Index"
+                  placeholder="Nhập Part Name"
                   allowClear
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
@@ -414,15 +416,19 @@ export function IndexPage() {
             dataSource={dataSource}
             tableLayout="fixed"
             rowKey="key"
-            scroll={{ x: "max-content", y: "calc(100vh - 510px)" }}
+            scroll={{
+              x: "max-content",
+              y: "calc(100vh - 510px)",
+            }}
             pagination={{
               current: page,
-              pageSize: pageSize,
+              pageSize,
+              total: parts.length,
               showSizeChanger: true,
               showTotal: (total) => `Tổng ${total} part`,
-              onChange: (page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
+              onChange: (newPage, newPageSize) => {
+                setPage(newPage);
+                setPageSize(newPageSize);
               },
             }}
           />

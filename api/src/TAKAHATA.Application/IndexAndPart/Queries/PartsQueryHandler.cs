@@ -1,12 +1,15 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.IndexAndPart;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.IndexAndPart.Queries
 {
-    public class PartsQueryHandler : IRequestHandler<PartsQuery, ErrorOr<PartsQueryResponse>>
+    public class PartsQueryHandler : IRequestHandler<PartsQuery, ErrorOr<SearchResponse<List<PartResponse>>>>
     {
         private readonly IMapper _mapper;
 
@@ -18,36 +21,20 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
             _mapper = mapper;
         }
 
-        public async Task<ErrorOr<PartsQueryResponse>> Handle(
+        public async Task<ErrorOr<SearchResponse<List<PartResponse>>>> Handle(
             PartsQuery request,
             CancellationToken cancellationToken)
         {
-            var page = request.page;
-            var pageSize = request.pageSize;
 
-            if (page <= 0)
-                page = 1;
-
-            if (pageSize <= 0)
-                pageSize = 10;
-
-            var result = await _partRepository.SearchAsync(page, pageSize);
-
-            var total = await _partRepository.CountTotal();
-
-            var parts = result
-                .Select(r => _mapper.Map<PartResponse>(r))
-                .ToList();
-
-            var response = new PartsQueryResponse
-            {
-                Page = page,
-                PageSize = pageSize,
-                Parts = parts,
-                Total = total
-            };
-
-            return response;
+            return await _partRepository.SearchAsync(
+                request.SearchText,
+                request.Statuses,
+                request.PlantFrom,
+                request.PlantTo,
+                request.ActualFrom,
+                request.ActualTo,
+                request.Page,
+                request.PageSize);
         }
     }
 }
