@@ -166,8 +166,10 @@ export default function PartProcessingScheduleTab() {
   );
 
   useEffect(() => {
-    void fetchParts();
-    // Chỉ gọi lại khi phân trang thay đổi. Bộ lọc chỉ chạy khi nhấn Tìm kiếm.
+    const run = async () => {
+      await fetchParts();
+    };
+    void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize]);
 
