@@ -22,6 +22,7 @@ import {
   ScheduleOutlined,
   CalendarOutlined,
   AppstoreOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -101,7 +102,7 @@ export function IndexPage() {
   const [loading, setLoading] = useState(false);
   const [parts, setParts] = useState<Part[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(0);
 
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -117,7 +118,7 @@ export function IndexPage() {
     [Dayjs | null, Dayjs | null] | null
   >(null);
 
-  const fetchParts = useCallback(async () => {
+  const fetchParts = async () => {
     setLoading(true);
     try {
       const request = {
@@ -149,14 +150,7 @@ export function IndexPage() {
     } finally {
       setLoading(false);
     }
-  }, [
-    filterActualDateRange,
-    filterPlantDateRange,
-    filterStatuses,
-    keyword,
-    page,
-    pageSize,
-  ]);
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -168,10 +162,10 @@ export function IndexPage() {
     };
 
     void run();
-  }, [fetchParts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
 
   const dataSource = useMemo(() => {
-    console.log(parts);
     return mapPartsToRows(parts);
   }, [parts]);
 
@@ -348,7 +342,7 @@ export function IndexPage() {
 
   const tabItems: TabsProps["items"] = [
     {
-      key: "machines",
+      key: "part",
       label: (
         <Space>
           <AppstoreOutlined />
@@ -427,6 +421,14 @@ export function IndexPage() {
                   Xóa bộ lọc
                 </Button>
               </div>
+
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={async () => await fetchParts()}
+              >
+                Tìm kiếm
+              </Button>
             </div>
 
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
@@ -468,7 +470,7 @@ export function IndexPage() {
       ),
     },
     {
-      key: "maintenance-history",
+      key: "index",
       label: (
         <Space>
           <CalendarOutlined />
@@ -478,6 +480,18 @@ export function IndexPage() {
       children: <div>Danh sách index</div>,
     },
   ];
+
+  function handleTabChange(activeKey: string): void {
+    switch (activeKey) {
+      case "index":
+        break;
+      case "part":
+        fetchParts();
+        break;
+      default:
+        break;
+    }
+  }
   return (
     <div className="schedule-page">
       <Card>
@@ -500,7 +514,7 @@ export function IndexPage() {
         </div>
       </Card>
 
-      <Tabs defaultActiveKey="1" items={tabItems} />
+      <Tabs defaultActiveKey="1" items={tabItems} onChange={handleTabChange} />
 
       <CreatePart
         open={isCreateOpen}
