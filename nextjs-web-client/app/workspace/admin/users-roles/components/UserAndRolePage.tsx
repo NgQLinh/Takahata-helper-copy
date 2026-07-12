@@ -15,7 +15,6 @@ import {
 import {
   DeleteOutlined,
   EditOutlined,
-  FilterOutlined,
   PlusOutlined,
   SearchOutlined,
   TeamOutlined,
@@ -38,7 +37,6 @@ import { toast } from "react-toastify";
 import "./UserAndRolePage.css";
 
 const { Title, Text: AntText } = Typography;
-const { Search } = Input;
 
 export function UserAndRolePage() {
   const [users, setUsers] = useState<Account[]>([]);
@@ -263,15 +261,13 @@ export function UserAndRolePage() {
         <div className="user-divider" />
 
         <div className="user-toolbar">
-          <Search
+          <Input
             placeholder="Tìm theo tên đăng nhập hoặc họ tên"
             allowClear
             prefix={<SearchOutlined />}
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 420 }}
           />
-
-          <Button icon={<FilterOutlined />}>Bộ lọc</Button>
         </div>
 
         <Table<Account>
