@@ -6,6 +6,7 @@ import {
   DatePicker,
   Input,
   Popconfirm,
+  Popover,
   Select,
   Space,
   Table,
@@ -214,6 +215,13 @@ export default function PartProcessingScheduleTab() {
     });
   };
 
+  const content = (
+    <div>
+      <p>Content</p>
+      <p>Content</p>
+    </div>
+  );
+
   const columns = useMemo<ColumnsType<TableRow>>(
     () => [
       {
@@ -289,7 +297,12 @@ export default function PartProcessingScheduleTab() {
           render: (_: unknown, row: TableRow) => {
             const process = row.processes[sequence];
 
-            if (!process) return <span className="empty-cell">-</span>;
+            if (!process)
+              return (
+                <Popover content={content} title="Title" trigger="click">
+                  <span className="empty-cell">-</span>
+                </Popover>
+              );
 
             if (row.rowType === "MC") {
               return process.status === ProcessStatus.Completed ? (
@@ -310,7 +323,11 @@ export default function PartProcessingScheduleTab() {
             }
 
             if (!process.actualDate) {
-              return <span className="empty-cell">-</span>;
+              return (
+                <Popover content={content} title="Title" trigger="click">
+                  <span className="empty-cell">-</span>
+                </Popover>
+              );
             }
 
             return (

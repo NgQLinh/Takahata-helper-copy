@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Card, Table, Tag } from "antd";
+import { Card, Table, Tag, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import Title from "antd/es/typography/Title";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import { getMachineSchedulesAsync } from "@/app/services/machine/MachineService"
 import { MachineSchedule } from "@/app/types";
 import "./MachineScheduleBoard.css";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import { CalendarOutlined } from "@ant-design/icons";
 export function MachineScheduleBoard() {
   const [loading, setLoading] = useState(false);
   const [machines, setMachines] = useState<MachineSchedule[]>([]);
@@ -117,15 +118,24 @@ export function MachineScheduleBoard() {
   }, [dates]);
 
   return (
-    <div
-      className="h-100 d-flex flex-column gap-3 overflow-hidden"
-      style={{ minHeight: 0 }}
-    >
+    <div className="schedule-page">
       <Card>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Title level={3} style={{ margin: 0 }}>
-            Lịch gia công theo máy, ngày và work order
-          </Title>
+        <div>
+          <div className="schedule-title-wrap">
+            <div className="schedule-icon">
+              <CalendarOutlined />
+            </div>
+
+            <div>
+              <Title level={3} className="schedule-title">
+                Lịch gia công theo máy, ngày và work order
+              </Title>
+              <Typography.Text type="secondary">
+                Theo dõi kế hoạch, thực tế gia công và trạng thái máy theo từng
+                part.
+              </Typography.Text>
+            </div>
+          </div>
         </div>
       </Card>
 
