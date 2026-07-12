@@ -10,6 +10,6 @@ namespace TAKAHATA.Application.Common.Interface.Equipment
         Task<bool> IsExistedAsync(string name, string code);
         Task<bool> IsExistedExceptIdAsync(string name, string code, long id);
         Task<IEnumerable<Machine>> GetAsync();
-        Task<SearchResponse<List<MachineResponse>>> Search(string? keyWord, int? page, int? pageSize);
+        Task<SearchResponse<List<MachineResponse>>> Search(string? keyword, int? page, int? pageSize);
     }
 }

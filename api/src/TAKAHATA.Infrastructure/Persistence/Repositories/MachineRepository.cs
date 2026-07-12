@@ -29,7 +29,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<MachineResponse>>> Search(
-            string? keyWord,
+            string? keyword,
             int? page,
             int? pageSize)
         {
@@ -37,9 +37,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(keyWord))
+            if (!string.IsNullOrWhiteSpace(keyword))
             {
-                var searchText = keyWord.Trim();
+                var searchText = keyword.Trim();
 
                 query = query.Where(x =>
                     x.Name.Contains(searchText) ||
@@ -51,8 +51,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var currentPageSize = Math.Clamp(pageSize ?? 10, 1, 100);
 
             var totalItems = await query.CountAsync();
-
-            var sql = query.ToQueryString();
 
             var values = await query
                 .OrderByDescending(x => x.CreateAt)

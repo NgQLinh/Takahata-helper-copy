@@ -1,4 +1,4 @@
-import { Index, MachineMaintenanceProcess, SearchResponse } from "@/app/types";
+import { Index, SearchResponse } from "@/app/types";
 import { apiClient } from "../common/apiClient";
 import { Part } from "@/app/types";
 
@@ -35,5 +35,13 @@ export const getPartAsync = async (id: number): Promise<Part> => {
 
 export const getIndexesAsync = async (): Promise<Index[]> => {
   const response = await apiClient.post<Index[]>("/Index/query-indexes");
+  return response.data;
+};
+
+export const searchIndexesAsync = async (): Promise<
+  SearchResponse<Index[]>
+> => {
+  const response =
+    await apiClient.post<SearchResponse<Index[]>>("/Index/search");
   return response.data;
 };

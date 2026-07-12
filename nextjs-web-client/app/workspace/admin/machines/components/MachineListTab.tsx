@@ -59,7 +59,7 @@ export default function MachineListTab() {
 
       try {
         const result = await searchMachinesAsync({
-          keyWord: keyword.trim(),
+          keyword: keyword.trim(),
           page,
           pageSize,
         });

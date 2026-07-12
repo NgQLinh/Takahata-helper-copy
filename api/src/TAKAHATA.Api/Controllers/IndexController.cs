@@ -28,5 +28,17 @@ namespace TAKAHATA.Api.Controllers
                 r => Ok(r),
                 e => Problem(e));
         }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search()
+        {
+            var query = new IndexQuery();
+
+            var result = await _sender.Send(query);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
     }
 }

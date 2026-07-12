@@ -1,14 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.Equipment;
+using TAKAHATA.Contracts.IndexAndPart;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Index = TAKAHATA.Domain.MasterData.Index;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
     public class IndexRepository : BaseRepository<Index>, IIndexRepository
     {
-        public IndexRepository(AppDbContext dbContext) : base(dbContext)
-        {
+        private readonly IMapper _mapper;
 
+        public IndexRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
+        {
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Index>> GetAsync()
@@ -25,6 +32,44 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
             var index = await _dbContext.Indexes.FirstOrDefaultAsync(x => x.Code == indexCode);
             return index != null;
+        }
+
+        public async Task<SearchResponse<List<IndexResponse>>> Search(string? keyword, int? page, int? pageSize)
+        {
+            var query = _dbContext.Indexes
+             .AsNoTracking()
+             .AsQueryable();
+
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var searchText = keyword.Trim();
+
+                query = query.Where(x =>
+                    x.Code.Contains(searchText));
+            }
+
+            var currentPage = Math.Max(page ?? 1, 1);
+            var currentPageSize = Math.Clamp(pageSize ?? 10, 1, 100);
+
+            var totalItems = await query.CountAsync();
+
+            var values = await query
+                .OrderByDescending(x => x.CreateAt)
+                    .ThenBy(x => x.Id)
+                .Skip((currentPage - 1) * currentPageSize)
+                .Take(currentPageSize)
+                .ToListAsync();
+
+            var data = values
+                .Select(v => _mapper.Map<IndexResponse>(v))
+                .ToList();
+
+            return new SearchResponse<List<IndexResponse>>(
+                       currentPage,
+                       currentPageSize,
+                       totalItems,
+                       data);
         }
     }
 }

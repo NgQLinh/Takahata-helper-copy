@@ -29,7 +29,7 @@ namespace TAKAHATA.Application.Equipment.Queries
             MachinesQuery request,
             CancellationToken cancellationToken)
         {
-            var response = await _machineRepository.Search(request.KeyWord, request.Page, request.PageSize);
+            var response = await _machineRepository.Search(request.Keyword, request.Page, request.PageSize);
 
             var users = _userManager.Users.ToList();
 

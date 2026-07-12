@@ -1,4 +1,7 @@
-﻿using Index = TAKAHATA.Domain.MasterData.Index;
+﻿using ErrorOr;
+using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.IndexAndPart;
+using Index = TAKAHATA.Domain.MasterData.Index;
 
 namespace TAKAHATA.Application.Common.Interface.IndexAndPart
 {
@@ -7,5 +10,6 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
         Task<IEnumerable<Index>> GetAsync();
         Task<Index?> GetAsync(string indexCode);
         Task<bool> IsExistedAsync(string indexCode);
+        Task<SearchResponse<List<IndexResponse>>> Search(string? keyword, int? page, int? pageSize);
     }
 }
