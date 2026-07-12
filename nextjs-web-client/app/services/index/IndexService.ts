@@ -13,15 +13,11 @@ export const updatePartAsync = async (request: unknown): Promise<Part[]> => {
 };
 
 export const searchPartAsync = async (
-  page: number,
-  pageSize: number,
+  request: unknown,
 ): Promise<SearchResponse<Part[]>> => {
   const response = await apiClient.post<SearchResponse<Part[]>>(
     "/Part/query-parts",
-    {
-      page,
-      pageSize,
-    },
+    request,
   );
 
   return response.data;

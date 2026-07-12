@@ -96,7 +96,6 @@ const mapPartsToRows = (parts: Part[]): TableRow[] => {
 };
 
 export function IndexPage() {
-  const [keyword, setKeyword] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -109,15 +108,38 @@ export function IndexPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   // Filter state
+  const [keyword, setKeyword] = useState("");
   const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
   const [filterPlantDateRange, setFilterPlantDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
   >([dayjs().startOf("month"), dayjs().endOf("month")]);
+  const [filterActualDateRange, setFilterActualDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
 
   const fetchParts = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await searchPartAsync(page, pageSize);
+      const request = {
+        searchText: keyword,
+        statuses: filterStatuses,
+        plantFrom: filterPlantDateRange?.[0]
+          ? filterPlantDateRange[0].format("YYYY-MM-DD")
+          : null,
+        plantTo: filterPlantDateRange?.[1]
+          ? filterPlantDateRange[1].format("YYYY-MM-DD")
+          : null,
+        actualFrom: filterActualDateRange?.[0]
+          ? filterActualDateRange[0].format("YYYY-MM-DD")
+          : null,
+        actualTo: filterActualDateRange?.[1]
+          ? filterActualDateRange[1].format("YYYY-MM-DD")
+          : null,
+        page: page,
+        pageSize: pageSize,
+      };
+
+      const data = await searchPartAsync(request);
       setParts(data.data);
       setTotal(data.totalItems);
       setPage(data.page);
@@ -127,7 +149,14 @@ export function IndexPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize]);
+  }, [
+    filterActualDateRange,
+    filterPlantDateRange,
+    filterStatuses,
+    keyword,
+    page,
+    pageSize,
+  ]);
 
   useEffect(() => {
     const run = async () => {
@@ -141,22 +170,10 @@ export function IndexPage() {
     void run();
   }, [fetchParts]);
 
-  const filteredParts = useMemo(() => {
-    const value = keyword.trim().toLowerCase();
-
-    if (!value) return parts;
-
-    return parts.filter(
-      (part) =>
-        part.code.toLowerCase().includes(value) ||
-        part.index?.code.toLowerCase().includes(value),
-    );
-  }, [keyword, parts]);
-
   const dataSource = useMemo(() => {
-    console.log(mapPartsToRows(filteredParts));
-    return mapPartsToRows(filteredParts);
-  }, [filteredParts]);
+    console.log(parts);
+    return mapPartsToRows(parts);
+  }, [parts]);
 
   const handlerUpdate = (id: number) => {
     setSelectedId(id);
@@ -359,6 +376,8 @@ export function IndexPage() {
                   allowClear
                   maxTagCount="responsive"
                   placeholder="Chọn trạng thái"
+                  value={filterStatuses}
+                  onChange={(values) => setFilterStatuses(values)}
                   style={{ width: "100%" }}
                   options={[
                     { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
@@ -376,6 +395,8 @@ export function IndexPage() {
               <div style={{ width: 270 }}>
                 <label className="form-label mb-1">Kế hoạch</label>
                 <RangePicker
+                  value={filterPlantDateRange}
+                  onChange={(dates) => setFilterPlantDateRange(dates)}
                   style={{ width: "100%" }}
                   format="DD/MM/YYYY"
                   placeholder={["Từ ngày", "Đến ngày"]}
@@ -385,6 +406,8 @@ export function IndexPage() {
               <div style={{ width: 270 }}>
                 <label className="form-label mb-1">Thực tế</label>
                 <RangePicker
+                  value={filterActualDateRange}
+                  onChange={(dates) => setFilterActualDateRange(dates)}
                   style={{ width: "100%" }}
                   format="DD/MM/YYYY"
                   placeholder={["Từ ngày", "Đến ngày"]}
@@ -392,8 +415,17 @@ export function IndexPage() {
               </div>
 
               <div className="d-flex gap-2">
-                <Button>Xóa bộ lọc</Button>
-                <Button type="primary">Tìm kiếm</Button>
+                <Button
+                  onClick={async () => {
+                    setKeyword("");
+                    setFilterPlantDateRange([null, null]);
+                    setFilterActualDateRange([null, null]);
+                    setFilterStatuses([]);
+                    await fetchParts();
+                  }}
+                >
+                  Xóa bộ lọc
+                </Button>
               </div>
             </div>
 

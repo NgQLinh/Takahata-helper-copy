@@ -682,7 +682,7 @@ export function MachinesPage() {
                     setFilterMachineIds([]);
                     setFilterDateRange([null, null]);
                     setFilterStatuses([]);
-                    handleSearchMachineMaintenanceProcess();
+                    await handleSearchMachineMaintenanceProcess();
                   }}
                 >
                   Xóa bộ lọc
