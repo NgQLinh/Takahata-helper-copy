@@ -31,6 +31,7 @@ import {
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
+  SearchOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
 import { deleteMachineAsync } from "@/app/services/machine/MachineService";
@@ -624,7 +625,7 @@ export function MachinesPage() {
         <Card className="machine-card">
           <div className="d-flex justify-between">
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
-              <div style={{ width: 200 }}>
+              <div style={{ width: 250 }}>
                 <label className="form-label mb-1">Máy</label>
                 <Select
                   mode="multiple"
@@ -688,6 +689,16 @@ export function MachinesPage() {
                   Xóa bộ lọc
                 </Button>
               </div>
+
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={async () =>
+                  await handleSearchMachineMaintenanceProcess()
+                }
+              >
+                Tìm kiếm
+              </Button>
             </div>
 
             <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
