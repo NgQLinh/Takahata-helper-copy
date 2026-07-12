@@ -32,6 +32,7 @@ import {
 import { Part, PartProcess } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import "./PartProcessingScheduleTab.css";
 
 const { RangePicker } = DatePicker;
 
