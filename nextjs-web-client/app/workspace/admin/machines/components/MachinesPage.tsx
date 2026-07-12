@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import {
   deleteMachineMaintenanceProcessAsync,
-  getMachinesAsync,
+  searchMachinesAsync,
   searchMachineMaintenanceProcess,
+  getMachinesAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { DeleteMachineRequest, Machine } from "@/app/types";
@@ -23,6 +24,7 @@ import {
   TabsProps,
   DatePicker,
   Select,
+  Input,
 } from "antd";
 
 import {
@@ -52,8 +54,9 @@ export function MachinesPage() {
   const [loading, setLoading] = useState(true);
 
   // Machine state
-  const [machinePageSize, setMachinePageSize] = useState(100);
+  const [searchMachineText, setMachineSearchText] = useState("");
   const [machinePage, setMachinePage] = useState(1);
+  const [machinePageSize, setMachinePageSize] = useState(100);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [isCreateMachineOpen, setIsCreateMachineOpen] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
@@ -64,6 +67,8 @@ export function MachinesPage() {
   const [updateMaintenanceProcessOpen, setUpdateMaintenanceProcessOpen] =
     useState(false);
   const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
+  const [machineSource, setMachineSource] = useState<Machine[]>([]);
+  const [loadingMachine, setLoadingMachine] = useState(false);
   const [filterMachineIds, setFilterMachineIds] = useState<number[]>([]);
   const [filterDateRange, setFilterDateRange] = useState<
     [Dayjs | null, Dayjs | null] | null
@@ -163,11 +168,15 @@ export function MachinesPage() {
     });
   }, [machines]);
 
-  const fetchMachines = useCallback(async () => {
+  const fetchMachines = async () => {
     setLoading(true);
-    getMachinesAsync()
+    searchMachinesAsync({
+      keyWord: searchMachineText,
+      page: machinePage,
+      pageSize: machinePageSize,
+    })
       .then((data) => {
-        setMachines(data);
+        setMachines(data.data);
       })
       .catch((error) => {
         console.error("Tạo tài khoản không thành công:", error);
@@ -175,19 +184,19 @@ export function MachinesPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  };
 
   useEffect(() => {
-    getMachinesAsync()
-      .then((data) => {
-        setMachines(data);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi call API:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    const run = async () => {
+      try {
+        await fetchMachines();
+      } catch {
+        toast.error("Không thể tải danh sách máy");
+      }
+    };
+
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCreateMachine = async () => {
@@ -579,8 +588,25 @@ export function MachinesPage() {
       ),
       children: (
         <Card className="machine-card">
-          <div className="machine-toolbar d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center gap-2 flex-wrap" />
+          <div className="machine-toolbar d-flex justify-content-between align-items-center gap-3">
+            <div className="d-flex gap-2 align-items-center grow">
+              <Input
+                style={{ width: 400 }}
+                placeholder="Tìm theo tên, mã hoặc thương hiệu máy ..."
+                allowClear
+                prefix={<SearchOutlined />}
+                onChange={(e) => setMachineSearchText(e.target.value)}
+              />
+
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={fetchMachines}
+              >
+                Tìm kiếm
+              </Button>
+            </div>
+
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -604,9 +630,10 @@ export function MachinesPage() {
               pageSize: machinePageSize,
               showSizeChanger: true,
               showTotal: (total) => `Tổng ${total} máy`,
-              onChange: (page, pageSize) => {
+              onChange: async (page, pageSize) => {
                 setMachinePage(page);
                 setMachinePageSize(pageSize);
+                await fetchMachines();
               },
             }}
           />
@@ -631,12 +658,13 @@ export function MachinesPage() {
                   mode="multiple"
                   allowClear
                   showSearch
+                  loading={loadingMachine}
                   placeholder="Chọn máy"
                   style={{ width: "100%" }}
                   value={filterMachineIds}
                   onChange={(values) => setFilterMachineIds(values)}
                   maxTagCount="responsive"
-                  options={machines.map((machine) => ({
+                  options={machineSource.map((machine) => ({
                     value: machine.id,
                     label: `${machine.name} - ${machine.code}`,
                   }))}
@@ -741,7 +769,16 @@ export function MachinesPage() {
     if (activeKey === "maintenance-history") {
       handleSearchMachineMaintenanceProcess();
     } else if (activeKey === "machines") {
-      fetchMachines();
+      getMachinesAsync()
+        .then((data) => {
+          setMachineSource(data);
+        })
+        .catch((error) => {
+          console.error("Lỗi khi lấy danh sách máy:", error);
+        })
+        .finally(() => {
+          setLoadingMachine(false);
+        });
     }
   }
 

@@ -4,5 +4,5 @@ using TAKAHATA.Contracts.Equipment;
 
 namespace TAKAHATA.Application.Equipment.Queries
 {
-    public record MachineQuery() : IRequest<ErrorOr<IEnumerable<MachineResponse>>>;
+    public record AllMachinesQuery() : IRequest<ErrorOr<IEnumerable<MachineResponse>>>;
 }

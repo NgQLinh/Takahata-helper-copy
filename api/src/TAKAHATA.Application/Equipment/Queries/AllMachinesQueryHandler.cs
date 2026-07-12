@@ -8,13 +8,13 @@ using TAKAHATA.Domain.User;
 
 namespace TAKAHATA.Application.Equipment.Queries
 {
-    public class MachineQueryHandler : IRequestHandler<MachineQuery, ErrorOr<IEnumerable<MachineResponse>>>
+    public class AllMachinesQueryHandler : IRequestHandler<AllMachinesQuery, ErrorOr<IEnumerable<MachineResponse>>>
     {
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMachineRepository _machineRepository;
 
-        public MachineQueryHandler(
+        public AllMachinesQueryHandler(
             IMachineRepository machineRepository,
             IMapper mapper,
             UserManager<ApplicationUser> userManager)
@@ -24,7 +24,9 @@ namespace TAKAHATA.Application.Equipment.Queries
             _userManager = userManager;
         }
 
-        public async Task<ErrorOr<IEnumerable<MachineResponse>>> Handle(MachineQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<IEnumerable<MachineResponse>>> Handle(
+            AllMachinesQuery request,
+            CancellationToken cancellationToken)
         {
             var result = await _machineRepository.GetAsync();
 

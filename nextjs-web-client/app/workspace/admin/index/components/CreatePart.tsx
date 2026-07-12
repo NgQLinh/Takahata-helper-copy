@@ -16,7 +16,9 @@ import type { ColumnsType } from "antd/es/table";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { Index, Machine } from "@/app/types";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import {
+  getMachinesAsync,
+} from "@/app/services/machine/MachineService";
 import {
   createPartAsync,
   getIndexesAsync,

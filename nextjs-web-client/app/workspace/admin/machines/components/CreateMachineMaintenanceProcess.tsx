@@ -9,7 +9,9 @@ import {
 } from "antd";
 import type { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import {
+  getMachinesAsync,
+} from "@/app/services/machine/MachineService";
 import { createMachineMaintenanceProcess } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { Machine } from "@/app/types";

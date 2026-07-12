@@ -47,9 +47,17 @@ namespace TAKAHATA.Api.Controllers
         [HttpPost("query-machines")]
         public async Task<IActionResult> GetMachines()
         {
-            var query = new MachineQuery();
+            var result = await _sender.Send(new AllMachinesQuery());
 
-            var result = await _sender.Send(query);
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
+        [HttpPost("search")]
+        public async Task<IActionResult> Search(MachinesQuery request)
+        {
+            var result = await _sender.Send(request);
 
             return result.Match(
                 r => Ok(r),

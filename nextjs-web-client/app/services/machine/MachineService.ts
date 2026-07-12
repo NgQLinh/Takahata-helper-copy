@@ -10,6 +10,16 @@ import {
 
 import { apiClient } from "../common/apiClient";
 
+export const searchMachinesAsync = async (
+  request: unknown,
+): Promise<SearchResponse<Machine[]>> => {
+  const response = await apiClient.post<SearchResponse<Machine[]>>(
+    "/Machine/search",
+    request,
+  );
+  return response.data;
+};
+
 export const getMachinesAsync = async (): Promise<Machine[]> => {
   const response = await apiClient.post<Machine[]>("/Machine/query-machines");
   return response.data;
