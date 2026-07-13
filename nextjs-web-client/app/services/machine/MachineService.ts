@@ -25,12 +25,12 @@ export const getMachinesAsync = async (): Promise<Machine[]> => {
   return response.data;
 };
 
-export const getMachineSchedulesAsync = async (): Promise<
-  MachineSchedule[]
-> => {
-  const response = await apiClient.post<MachineSchedule[]>(
+export const searchMachineSchedulesAsync = async (
+  request: unknown,
+): Promise<SearchResponse<MachineSchedule[]>> => {
+  const response = await apiClient.post<SearchResponse<MachineSchedule[]>>(
     "/Machine/query-machines-schedule",
-    {},
+    request,
   );
   return response.data;
 };

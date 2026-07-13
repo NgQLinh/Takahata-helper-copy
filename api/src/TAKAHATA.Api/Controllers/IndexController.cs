@@ -1,6 +1,5 @@
 ﻿using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.IndexAndPart.Queries;
 

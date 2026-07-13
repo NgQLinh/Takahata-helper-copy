@@ -7,7 +7,7 @@ namespace TAKAHATA.Contracts.MaintenanceProcess
     public class MachineMaintenanceProcessResponse : Response
     {
         public long MachineId { get; set; }
-        public DateOnly PlanDate { get; set; }
+        public DateOnly PlantDate { get; set; }
         public DateOnly? ActualDate { get; set; }
         public decimal WorkingHours { get; set; }
         public string? PerformedBy { get; set; } = string.Empty;

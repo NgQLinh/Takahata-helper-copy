@@ -51,7 +51,7 @@ type PlanRow = {
   key: string;
   id: number;
   machineId?: number;
-  planDate?: Dayjs | null;
+  plantDate?: Dayjs | null;
   actualDate?: Dayjs | null;
   workingHours?: number | null;
   status: ProcessStatus;
@@ -72,7 +72,7 @@ const createEmptyRow = (): PlanRow => ({
   key: crypto.randomUUID(),
   id: 0,
   machineId: undefined,
-  planDate: dayjs(),
+  plantDate: dayjs(),
   actualDate: null,
   workingHours: null,
   status: ProcessStatus.Planned,
@@ -165,7 +165,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 key: crypto.randomUUID(),
                 id: process.id,
                 machineId: process.machineId,
-                planDate: process.planDate ? dayjs(process.planDate) : null,
+                plantDate: process.plantDate ? dayjs(process.plantDate) : null,
                 actualDate: process.actualDate
                   ? dayjs(process.actualDate)
                   : null,
@@ -256,7 +256,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
-    const invalidPlanDateRow = dataSource.findIndex((row) => !row.planDate);
+    const invalidPlanDateRow = dataSource.findIndex((row) => !row.plantDate);
 
     if (invalidPlanDateRow !== -1) {
       toast.warning(
@@ -297,7 +297,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         id: item.id,
         sequence: index + 1,
         machineId: item.machineId,
-        planDate: item.planDate?.format("YYYY-MM-DD") ?? null,
+        plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
         actualDate: item.actualDate?.format("YYYY-MM-DD") ?? null,
         workingHours: item.workingHours,
         status: item.status,
@@ -359,8 +359,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     },
     {
       title: "Ngày kế hoạch",
-      dataIndex: "planDate",
-      key: "planDate",
+      dataIndex: "plantDate",
+      key: "plantDate",
       width: 170,
       render: (value: Dayjs | null | undefined, record) => (
         <DatePicker
@@ -369,7 +369,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           format="DD/MM/YYYY"
           disabled={isBusy}
           style={{ width: "100%" }}
-          onChange={(date) => handleChange(record.key, "planDate", date)}
+          onChange={(date) => handleChange(record.key, "plantDate", date)}
         />
       ),
     },
@@ -487,7 +487,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       }
       onCancel={handleCancel}
       closable={!submitting}
-      maskClosable={false}
       keyboard={!submitting}
       destroyOnHidden
       footer={

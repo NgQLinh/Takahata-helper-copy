@@ -269,7 +269,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("PerformedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly>("PlanDate")
+                    b.Property<DateOnly>("PlantDate")
                         .HasColumnType("date");
 
                     b.Property<int>("Status")
@@ -286,17 +286,17 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlanDate", "Id")
+                    b.HasIndex("PlantDate", "Id")
                         .IsDescending(true, false)
-                        .HasDatabaseName("IX_MachineMaintenanceProcess_PlanDate_Id");
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_PlantDate_Id");
 
-                    b.HasIndex("MachineId", "PlanDate", "Id")
+                    b.HasIndex("MachineId", "PlantDate", "Id")
                         .IsDescending(false, true, false)
-                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_PlanDate_Id");
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_PlantDate_Id");
 
-                    b.HasIndex("MachineId", "Status", "PlanDate", "Id")
+                    b.HasIndex("MachineId", "Status", "PlantDate", "Id")
                         .IsDescending(false, false, true, false)
-                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_Status_PlanDate_Id");
+                        .HasDatabaseName("IX_MachineMaintenanceProcess_MachineId_Status_PlantDate_Id");
 
                     b.ToTable("MachineMaintenanceProcesses");
                 });
@@ -368,7 +368,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<long>("PartId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateOnly?>("PlanDate")
+                    b.Property<DateOnly?>("PlantDate")
                         .HasColumnType("date");
 
                     b.Property<int>("Sequence")

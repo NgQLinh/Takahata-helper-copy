@@ -43,7 +43,7 @@ type Props = {
 type PlanRow = {
   key: string;
   machineId?: number;
-  planDate?: Dayjs | null;
+  plantDate?: Dayjs | null;
   status: ProcessStatus;
   note?: string;
 };
@@ -56,7 +56,7 @@ type FormValues = {
 const createEmptyRow = (): PlanRow => ({
   key: crypto.randomUUID(),
   machineId: undefined,
-  planDate: dayjs(),
+  plantDate: dayjs(),
   status: ProcessStatus.Planned,
   note: "",
 });
@@ -173,7 +173,7 @@ export default function CreatePart({ open, onClose }: Props) {
       return false;
     }
 
-    const invalidPlanDateRow = dataSource.findIndex((row) => !row.planDate);
+    const invalidPlanDateRow = dataSource.findIndex((row) => !row.plantDate);
 
     if (invalidPlanDateRow !== -1) {
       toast.warning(
@@ -201,7 +201,7 @@ export default function CreatePart({ open, onClose }: Props) {
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,
-        planDate: item.planDate?.format("YYYY-MM-DD") ?? null,
+        plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
         status: item.status,
         note: item.note?.trim() ?? "",
       })),
@@ -258,8 +258,8 @@ export default function CreatePart({ open, onClose }: Props) {
     },
     {
       title: "Ngày kế hoạch",
-      dataIndex: "planDate",
-      key: "planDate",
+      dataIndex: "plantDate",
+      key: "plantDate",
       width: 170,
       render: (value: Dayjs | null | undefined, record) => (
         <DatePicker
@@ -267,7 +267,7 @@ export default function CreatePart({ open, onClose }: Props) {
           value={value}
           format="DD/MM/YYYY"
           style={{ width: "100%" }}
-          onChange={(date) => handleChange(record.key, "planDate", date)}
+          onChange={(date) => handleChange(record.key, "plantDate", date)}
         />
       ),
     },
@@ -466,7 +466,7 @@ export default function CreatePart({ open, onClose }: Props) {
               <Alert
                 type="info"
                 showIcon
-                message="Index chưa tồn tại sẽ được tạo tự động."
+                description="Index chưa tồn tại sẽ được tạo tự động."
               />
             </Card>
           </Col>

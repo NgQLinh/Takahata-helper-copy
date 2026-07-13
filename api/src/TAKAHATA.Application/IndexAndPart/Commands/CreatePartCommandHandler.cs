@@ -59,14 +59,14 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 Code = request.PartCode,
                 CreateBy = _currentUserService.UserId,
                 IndexId = index.Id,
-                Processes = [.. request.PartProcesses.OrderBy(x => x.PlanDate).Select((p, i) => new PartProcess
+                Processes = [.. request.PartProcesses.OrderBy(x => x.PlantDate).Select((p, i) => new PartProcess
                 {
                     CreateAt = DateTime.Now,
                     CreateBy = _currentUserService.UserId,
                     Status = p.Status,
                     MachineId = p.MachineId,
                     Note = p.Note,
-                    PlanDate = p.PlanDate,
+                    PlantDate = p.PlantDate,
                     Sequence = i + 1,
                 })]
             };

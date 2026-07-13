@@ -99,7 +99,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
 
                 existingProcess.Note = process.Note;
                 existingProcess.MachineId = process.MachineId;
-                existingProcess.PlanDate = process.PlanDate;
+                existingProcess.PlantDate = process.PlantDate;
                 existingProcess.ActualDate = process.ActualDate;
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
@@ -117,14 +117,14 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     MachineId = process.MachineId,
                     Note = process.Note,
                     Status = process.Status,
-                    PlanDate = process.PlanDate,
+                    PlantDate = process.PlantDate,
                     ActualDate = process.ActualDate,
                     WorkingHours = process.WorkingHours
                 });
             }
 
             part.Processes
-                .OrderBy(p => p.PlanDate)
+                .OrderBy(p => p.PlantDate)
                 .Select((p, index) => new { Process = p, Sequence = index + 1 })
                 .ToList()
                 .ForEach(x =>

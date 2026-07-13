@@ -1,12 +1,9 @@
-﻿using ErrorOr;
-using MapsterMapper;
+﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
-using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.MasterData;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
@@ -82,6 +79,72 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.Machines
                 .Include(m => m.PartProcesses)
                 .ToListAsync();
+        }
+
+        public async Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(
+            string keyword,
+            DateOnly? plantFrom,
+            DateOnly? plantTo,
+            int page,
+            int pageSize)
+        {
+            var query = _dbContext.PartProcesses
+                .AsNoTracking()
+                .AsQueryable();
+
+            // Tìm kiếm theo mã máy
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                keyword = keyword.Trim();
+
+                query = query.Where(x =>
+                    x.Machine != null &&
+                    (x.Machine.Code.Contains(keyword) || x.Machine.Name.Contains(keyword)));
+            }
+
+            if (plantFrom.HasValue)
+                query = query.Where(x => x.PlantDate >= plantFrom.Value);
+
+            if (plantTo.HasValue)
+                query = query.Where(x => x.PlantDate <= plantTo.Value);
+
+            var currentPage = Math.Max(page, 1);
+            var currentPageSize = Math.Clamp(pageSize, 1, 100);
+
+            var groupedQuery = query
+                .GroupBy(x => x.MachineId)
+                .Select(group => new
+                {
+                    MachineId = group.Key,
+                    LatestPlantDate = group.Max(x => x.PlantDate)
+                });
+
+            var totalItems = await groupedQuery.CountAsync();
+
+            var pagedMachineIds = await groupedQuery
+                .OrderByDescending(x => x.LatestPlantDate)
+                .ThenBy(x => x.MachineId)
+                .Skip((currentPage - 1) * currentPageSize)
+                .Take(currentPageSize)
+                .Select(x => x.MachineId)
+                .ToListAsync();
+
+            var machines = await _dbContext.Machines
+                .AsNoTracking()
+                .Where(x => pagedMachineIds.Contains(x.Id))
+                                //.Include(x => x.MachineMaintenanceProcesses)
+                .Include(x => x.PartProcesses)
+                .ToListAsync();
+
+            var data = machines
+                .Select(x => _mapper.Map<MachineScheduleResponse>(x))
+                .ToList();
+
+            return new SearchResponse<List<MachineScheduleResponse>>(
+                currentPage,
+                currentPageSize,
+                totalItems,
+                data);
         }
     }
 }

@@ -199,7 +199,7 @@ export default function MaintenanceHistoryTab() {
       },
       {
         title: "Ngày kế hoạch",
-        dataIndex: "planDate",
+        dataIndex: "plantDate",
         width: 150,
         render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : "-"),
       },

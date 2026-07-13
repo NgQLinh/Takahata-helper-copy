@@ -3,142 +3,273 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Card, DatePicker, Input, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { toast } from "react-toastify";
-import { getMachineSchedulesAsync } from "@/app/services/machine/MachineService";
-import { MachineSchedule } from "@/app/types";
-import "./MachineScheduleBoard.css";
-import { ProcessStatus } from "@/app/types/common/ProcessStatus";
-import dayjs, { Dayjs } from "dayjs";
 import { SearchOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import dayjs, { Dayjs } from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+
+import { searchMachineSchedulesAsync } from "@/app/services/machine/MachineService";
+import { MachineSchedule } from "@/app/types";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+
+import "./MachineScheduleBoard.css";
 
 const { RangePicker } = DatePicker;
+
+dayjs.extend(isoWeek);
+
 type DateRange = [Dayjs | null, Dayjs | null] | null;
+
+const getCurrentWeekRange = (): DateRange => [
+  dayjs().startOf("isoWeek"),
+  dayjs().endOf("isoWeek"),
+];
+
+const formatDate = (date: string) => {
+  return dayjs(date).format("DD/MM");
+};
+
+const getStatusText = (status: ProcessStatus) => {
+  switch (status) {
+    case ProcessStatus.Planned:
+      return "PLANNED";
+
+    case ProcessStatus.InProgress:
+      return "IN PROGRESS";
+
+    case ProcessStatus.Completed:
+      return "DONE";
+
+    case ProcessStatus.Cancelled:
+      return "CANCELLED";
+
+    case ProcessStatus.Overdue:
+      return "OVERDUE";
+
+    default:
+      return "UNKNOWN";
+  }
+};
+
+const getStatusClassName = (status: ProcessStatus) => {
+  switch (status) {
+    case ProcessStatus.Completed:
+      return "timeline-card timeline-card-done";
+
+    case ProcessStatus.InProgress:
+      return "timeline-card timeline-card-in-progress";
+
+    case ProcessStatus.Cancelled:
+      return "timeline-card timeline-card-cancelled";
+
+    case ProcessStatus.Overdue:
+      return "timeline-card timeline-card-overdue";
+
+    case ProcessStatus.Planned:
+    default:
+      return "timeline-card timeline-card-planned";
+  }
+};
 
 export function MachineScheduleBoard() {
   const [loading, setLoading] = useState(false);
   const [machines, setMachines] = useState<MachineSchedule[]>([]);
 
+  /*
+   * Giá trị đang nhập trên giao diện.
+   */
   const [keyword, setKeyword] = useState("");
-  const [filterPlanDateRange, setFilterPlanDateRange] = useState<DateRange>([
-    dayjs().startOf("month"),
-    dayjs().endOf("month"),
-  ]);
+  const [filterPlanDateRange, setFilterPlanDateRange] =
+    useState<DateRange>(getCurrentWeekRange);
+
+  /*
+   * Giá trị thực tế dùng để gọi API.
+   * Tách riêng để API chỉ chạy khi nhấn "Tìm kiếm".
+   */
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchPlanDateRange, setSearchPlanDateRange] =
+    useState<DateRange>(getCurrentWeekRange);
+
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(0);
 
-  const handleResetFilters = async () => {
-    const emptyRange: DateRange = [null, null];
-
-    setKeyword("");
-    setFilterPlanDateRange(emptyRange);
-    setPage(1);
-
-    const data = await getMachineSchedulesAsync();
-    setMachines(data ?? []);
-  };
-
   const fetchMachineSchedule = useCallback(async () => {
     setLoading(true);
+
     try {
-      const data = await getMachineSchedulesAsync();
-      setMachines(data ?? []);
+      const response = await searchMachineSchedulesAsync({
+        keyword: searchKeyword.trim(),
+        plantFrom: searchPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+        plantTo: searchPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+        page,
+        pageSize,
+      });
+
+      setMachines(response.data ?? []);
+      setPage(response.page);
+      setPageSize(response.pageSize);
+      setTotal(response.totalItems);
     } catch {
       toast.error("Không thể tải danh sách kế hoạch");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchKeyword, searchPlanDateRange, page, pageSize]);
 
   useEffect(() => {
     const run = async () => {
-      void fetchMachineSchedule();
+      await fetchMachineSchedule();
     };
     void run();
   }, [fetchMachineSchedule]);
 
+  /*
+   * Sinh tất cả ngày trong khoảng lọc.
+   *
+   * Ví dụ:
+   * 13/07/2026 - 19/07/2026
+   *
+   * Timeline sẽ luôn có đủ 7 cột, kể cả ngày không có process.
+   */
   const dates = useMemo(() => {
-    const allDates = machines.flatMap((m) =>
-      m.partProcesses.map((p) => p.planDate),
-    );
+    const fromDate = searchPlanDateRange?.[0];
+    const toDate = searchPlanDateRange?.[1];
 
-    return Array.from(new Set(allDates)).sort();
-  }, [machines]);
+    if (!fromDate || !toDate) {
+      return [];
+    }
 
-  const formatDate = (date: string) => {
-    const d = new Date(date);
-    return d.toLocaleDateString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-    });
+    const result: string[] = [];
+    let currentDate = fromDate.startOf("day");
+    const endDate = toDate.startOf("day");
+
+    while (
+      currentDate.isBefore(endDate, "day") ||
+      currentDate.isSame(endDate, "day")
+    ) {
+      result.push(currentDate.format("YYYY-MM-DD"));
+      currentDate = currentDate.add(1, "day");
+    }
+
+    return result;
+  }, [searchPlanDateRange]);
+
+  const handleSearch = () => {
+    setSearchKeyword(keyword);
+    setSearchPlanDateRange(filterPlanDateRange);
+
+    if (page !== 1) {
+      setPage(1);
+      return;
+    }
+
+    /*
+     * Khi đang ở trang 1 và giá trị tìm kiếm không thay đổi,
+     * useEffect có thể không chạy lại, nên gọi trực tiếp.
+     */
+    if (
+      searchKeyword === keyword &&
+      searchPlanDateRange?.[0]?.isSame(
+        filterPlanDateRange?.[0] ?? null,
+        "day",
+      ) &&
+      searchPlanDateRange?.[1]?.isSame(filterPlanDateRange?.[1] ?? null, "day")
+    ) {
+      void fetchMachineSchedule();
+    }
+  };
+
+  const handleResetFilters = () => {
+    const currentWeekRange = getCurrentWeekRange();
+
+    setKeyword("");
+    setFilterPlanDateRange(currentWeekRange);
+
+    setSearchKeyword("");
+    setSearchPlanDateRange(currentWeekRange);
+
+    setPage(1);
   };
 
   const columns: ColumnsType<MachineSchedule> = useMemo(() => {
-    return [
-      {
-        title: "Machine",
-        dataIndex: "name",
-        key: "machine",
-        fixed: "left",
-        width: 100,
-        render: (_, machine) => (
-          <div>
-            <div className="fw-bold">{machine.name}</div>
-            <div className="text-muted small">
-              {machine.code} - {machine.type}
-            </div>
+    const machineColumn: ColumnsType<MachineSchedule>[number] = {
+      title: "Máy",
+      dataIndex: "name",
+      key: "machine",
+      fixed: "left",
+      width: 220,
+      render: (_, machine) => (
+        <div className="machine-information">
+          <div className="fw-bold">{machine.name}</div>
+
+          <div className="text-muted small mt-1">
+            {machine.code}
+            {machine.type ? ` - ${machine.type}` : ""}
+          </div>
+
+          {machine.brand && (
             <Tag color="blue" className="mt-2">
               {machine.brand}
             </Tag>
-          </div>
-        ),
-      },
-      ...dates.map((date) => ({
-        title: formatDate(date),
-        key: date,
-        width: 170,
-        align: "center" as const,
-        render: (_: unknown, machine: MachineSchedule) => {
-          const processes = machine.partProcesses.filter(
-            (p) => p.planDate === date,
-          );
+          )}
+        </div>
+      ),
+    };
 
-          if (processes.length === 0) {
-            return <div className="timeline-empty-box" />;
+    const timelineColumns: ColumnsType<MachineSchedule> = dates.map((date) => ({
+      title: (
+        <div className="timeline-date-header">
+          <div className="fw-semibold">{formatDate(date)}</div>
+          <div className="small text-muted">{dayjs(date).format("ddd")}</div>
+        </div>
+      ),
+      key: date,
+      width: 190,
+      align: "center",
+      render: (_: unknown, machine: MachineSchedule) => {
+        const processes = machine.partProcesses.filter((process) => {
+          if (!process.plantDate) {
+            return false;
           }
 
-          return (
-            <div className="d-flex flex-column gap-2">
-              {processes.map((process) => (
-                <div
-                  key={`${process.partId}-${process.sequence}`}
-                  className={
-                    process.status === ProcessStatus.Completed
-                      ? "timeline-card timeline-card-done"
-                      : "timeline-card timeline-card-planned"
-                  }
-                >
-                  <div className="fw-bold">Part #{process.partId}</div>
+          return dayjs(process.plantDate).format("YYYY-MM-DD") === date;
+        });
 
-                  <div className="small text-muted">
-                    Sequence {process.sequence}
+        if (processes.length === 0) {
+          return <div className="timeline-empty-box">Không có kế hoạch</div>;
+        }
+
+        return (
+          <div className="d-flex flex-column gap-2">
+            {processes.map((process) => (
+              <div
+                key={`${machine.id}-${process.partId}-${process.sequence}`}
+                className={getStatusClassName(process.status)}
+              >
+                <div className="d-flex justify-content-between gap-2">
+                  <div className="fw-bold text-start">
+                    Part #{process.partId}
                   </div>
 
-                  <div className="d-flex justify-content-between mt-2 small">
-                    <span>{process.note || "No note"}</span>
-                    <span>
-                      {process.status === ProcessStatus.Completed
-                        ? "DONE"
-                        : "PLANNED"}
-                    </span>
-                  </div>
+                  <Tag className="m-0">{getStatusText(process.status)}</Tag>
                 </div>
-              ))}
-            </div>
-          );
-        },
-      })),
-    ];
+
+                <div className="small text-muted text-start mt-1">
+                  Sequence: {process.sequence}
+                </div>
+
+                <div className="small text-start mt-2">
+                  {process.note || "Không có ghi chú"}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      },
+    }));
+
+    return [machineColumn, ...timelineColumns];
   }, [dates]);
 
   return (
@@ -150,72 +281,84 @@ export function MachineScheduleBoard() {
           height: "100%",
           overflow: "hidden",
           padding: 12,
+          display: "flex",
+          flexDirection: "column",
         },
       }}
     >
       <div className="d-flex justify-content-between gap-3 flex-wrap">
         <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
-          <div style={{ width: 200 }}>
-            <label className="form-label mb-1">Tên máy</label>
+          <div style={{ width: 240 }}>
+            <label className="form-label mb-1">Tên hoặc mã máy</label>
+
             <Input
-              placeholder="Nhập tên máy"
+              placeholder="Nhập tên hoặc mã máy"
               allowClear
               value={keyword}
               onChange={(event) => setKeyword(event.target.value)}
+              onPressEnter={handleSearch}
             />
           </div>
 
-          <div style={{ width: 270 }}>
-            <label className="form-label mb-1">Kế hoạch</label>
+          <div style={{ width: 280 }}>
+            <label className="form-label mb-1">Khoảng ngày kế hoạch</label>
+
             <RangePicker
               value={filterPlanDateRange}
-              onChange={setFilterPlanDateRange}
+              onChange={(value) => setFilterPlanDateRange(value)}
               style={{ width: "100%" }}
               format="DD/MM/YYYY"
               placeholder={["Từ ngày", "Đến ngày"]}
+              allowClear={false}
             />
           </div>
 
-          <Button onClick={() => void handleResetFilters()}>Xóa bộ lọc</Button>
+          <Button onClick={handleResetFilters}>Xóa bộ lọc</Button>
 
           <Button
             type="primary"
             icon={<SearchOutlined />}
-            onClick={() => {
-              if (page === 1) {
-                void fetchMachineSchedule();
-              } else {
-                setPage(1);
-              }
-            }}
+            onClick={handleSearch}
           >
             Tìm kiếm
           </Button>
         </div>
       </div>
 
-      <Table
-        rowKey="id"
-        loading={loading}
-        columns={columns}
-        dataSource={machines}
-        scroll={{
-          x: 260 + dates.length * 170,
-          y: "calc(100vh - 240px)",
-        }}
-        pagination={{
-          current: page,
-          pageSize,
-          total,
-          showSizeChanger: true,
-          showTotal: (value) => `Tổng ${value} part`,
-          onChange: (newPage, newPageSize) => {
-            setPage(newPage);
-            setPageSize(newPageSize);
-          },
-        }}
-        bordered
-      />
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <Table<MachineSchedule>
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={machines}
+          scroll={{
+            x: 220 + dates.length * 190,
+            y: "calc(100vh - 310px)",
+          }}
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            showSizeChanger: true,
+            pageSizeOptions: [10, 20, 50, 100],
+            showTotal: (value) => `Tổng ${value} máy`,
+            onChange: (newPage, newPageSize) => {
+              /*
+               * Khi đổi page size nên quay lại trang 1 để tránh
+               * trang hiện tại vượt quá tổng số trang.
+               */
+              if (newPageSize !== pageSize) {
+                setPage(1);
+                setPageSize(newPageSize);
+                return;
+              }
+
+              setPage(newPage);
+            },
+          }}
+          bordered
+        />
+      </div>
     </Card>
   );
 }

@@ -23,7 +23,7 @@ type Props = {
 
 export type FormValues = {
   machineId: number;
-  planDate: Dayjs;
+  plantDate: Dayjs;
   actualDate?: Dayjs | null;
   workingHours: number;
   performedBy?: string | null;
@@ -89,7 +89,7 @@ export default function CreateMachineMaintenanceProcess({
 
     const request = {
       machineId: values.machineId,
-      planDate: values.planDate?.format("YYYY-MM-DD") ?? null,
+      plantDate: values.plantDate?.format("YYYY-MM-DD") ?? null,
       actualDate: enableActualDate
         ? values.actualDate?.format("YYYY-MM-DD")
         : null,
@@ -183,7 +183,7 @@ export default function CreateMachineMaintenanceProcess({
           <div className="col-md-6">
             <Form.Item
               label="Ngày kế hoạch"
-              name="planDate"
+              name="plantDate"
               rules={[
                 { required: true, message: "Vui lòng chọn ngày kế hoạch" },
               ]}

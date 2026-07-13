@@ -3,12 +3,13 @@ using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Domain.User;
 
 namespace TAKAHATA.Application.Equipment.Queries
 {
-    public class MachineScheduleQueryHandler : IRequestHandler<MachineScheduleQuery, ErrorOr<IEnumerable<MachineScheduleResponse>>>
+    public class MachineScheduleQueryHandler : IRequestHandler<MachineScheduleQuery, ErrorOr<SearchResponse<List<MachineScheduleResponse>>>>
     {
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -24,32 +25,29 @@ namespace TAKAHATA.Application.Equipment.Queries
             _userManager = userManager;
         }
 
-        public async Task<ErrorOr<IEnumerable<MachineScheduleResponse>>> Handle(
+        public async Task<ErrorOr<SearchResponse<List<MachineScheduleResponse>>>> Handle(
             MachineScheduleQuery request,
             CancellationToken cancellationToken)
         {
-            var machines = await _machineRepository.GetAsync();
+            var response = await _machineRepository.SearchSchedule(
+                request.Keyword,
+                request.PlantFrom,
+                request.PlantTo,
+                request.Page,
+                request.PageSize);
 
             var users = _userManager.Users.ToList();
 
-            var response = machines
-                .Select((r, index) =>
-                {
-                    var item = _mapper.Map<MachineScheduleResponse>(r);
-                    item.SequenceNumber = index + 1;
+            response.Data.ForEach(item =>
+            {
+                var createdUser = users.FirstOrDefault(u => u.Id == item.CreateBy);
+                if (createdUser != null)
+                    item.CreateBy = createdUser.FullName;
 
-                    var createdUser = users.FirstOrDefault(u => u.Id == item.CreateBy);
-                    if (createdUser != null)
-                        item.CreateBy = createdUser.FullName;
-
-                    var updatedUser = users.FirstOrDefault(u => u.Id == item.UpdateBy);
-                    if (updatedUser != null)
-                        item.UpdateBy = updatedUser.FullName;
-
-                    return item;
-                })
-                .OrderBy(res => res.SequenceNumber)
-                .ToList();
+                var updatedUser = users.FirstOrDefault(u => u.Id == item.UpdateBy);
+                if (updatedUser != null)
+                    item.UpdateBy = updatedUser.FullName;
+            });
 
             return response;
         }

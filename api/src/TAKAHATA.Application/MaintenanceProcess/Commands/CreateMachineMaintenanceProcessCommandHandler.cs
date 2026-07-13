@@ -33,7 +33,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             {
                 CreateBy = _currentUserService.UserId,
                 ActualDate = request.ActualDate,
-                PlanDate = request.PlanDate,
+                PlantDate = request.PlantDate,
                 MachineId = request.MachineId,
                 Note = request.Note,
                 WorkingHours = request.WorkingHours,

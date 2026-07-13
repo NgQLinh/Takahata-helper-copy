@@ -7,7 +7,7 @@ export interface MachineMaintenanceProcess {
   machineId: number;
   maintenanceType: string;
   description?: string | null;
-  planDate: Dayjs;
+  plantDate: Dayjs;
   actualDate?: Dayjs | null;
   workingHours?: number | null;
   status: ProcessStatus;

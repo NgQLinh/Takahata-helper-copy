@@ -7,7 +7,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
 {
     public record CreateMachineMaintenanceProcessCommand(
         long MachineId,
-        DateOnly PlanDate,
+        DateOnly PlantDate,
         DateOnly? ActualDate,
         decimal WorkingHours,
         string? PerformedBy,

@@ -56,7 +56,7 @@ type TableRow = {
 type SearchOverrides = {
   keyword?: string;
   statuses?: ProcessStatus[];
-  planDateRange?: DateRange;
+  plantDateRange?: DateRange;
   actualDateRange?: DateRange;
   page?: number;
   pageSize?: number;
@@ -123,9 +123,9 @@ export default function PartProcessingScheduleTab() {
       const currentKeyword = overrides.keyword ?? keyword;
       const currentStatuses = overrides.statuses ?? filterStatuses;
       const currentPlanDateRange =
-        overrides.planDateRange === undefined
+        overrides.plantDateRange === undefined
           ? filterPlanDateRange
-          : overrides.planDateRange;
+          : overrides.plantDateRange;
       const currentActualDateRange =
         overrides.actualDateRange === undefined
           ? filterActualDateRange
@@ -209,7 +209,7 @@ export default function PartProcessingScheduleTab() {
     await fetchParts({
       keyword: "",
       statuses: [],
-      planDateRange: emptyRange,
+      plantDateRange: emptyRange,
       actualDateRange: emptyRange,
       page: 1,
     });
@@ -319,7 +319,7 @@ export default function PartProcessingScheduleTab() {
             if (row.rowType === "P") {
               return (
                 <span className="plan-date">
-                  <CalendarOutlined /> {formatDate(process.planDate)}
+                  <CalendarOutlined /> {formatDate(process.plantDate)}
                 </span>
               );
             }

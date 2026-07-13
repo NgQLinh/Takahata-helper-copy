@@ -40,12 +40,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             if (from.HasValue)
             {
-                query = query.Where(x => x.PlanDate >= from.Value);
+                query = query.Where(x => x.PlantDate >= from.Value);
             }
 
             if (to.HasValue)
             {
-                query = query.Where(x => x.PlanDate <= to.Value);
+                query = query.Where(x => x.PlantDate <= to.Value);
             }
 
             var currentPage = Math.Max(page ?? 1, 1);
@@ -54,7 +54,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var totalItems = await query.CountAsync();
 
             var values = await query
-                .OrderByDescending(x => x.PlanDate)
+                .OrderByDescending(x => x.PlantDate)
                 .ThenBy(x => x.Id)
                 .Skip((currentPage - 1) * currentPageSize)
                 .Take(currentPageSize)
