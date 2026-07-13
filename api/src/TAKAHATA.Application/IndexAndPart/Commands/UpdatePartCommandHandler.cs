@@ -101,6 +101,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.PlanDate = process.PlanDate;
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
+                existingProcess.Status = process.Status;
             }
 
             // 6. Add new processes
@@ -110,9 +111,9 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 {
                     CreateAt = DateTime.Now,
                     CreateBy = _currentUserService.UserId,
-                    Status = ProcessStatus.Planned,
                     MachineId = process.MachineId,
                     Note = process.Note,
+                    Status = process.Status,
                     PlanDate = process.PlanDate,
                 });
             }

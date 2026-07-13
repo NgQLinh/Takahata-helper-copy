@@ -63,7 +63,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 {
                     CreateAt = DateTime.Now,
                     CreateBy = _currentUserService.UserId,
-                    Status = ProcessStatus.Planned,
+                    Status = p.Status,
                     MachineId = p.MachineId,
                     Note = p.Note,
                     PlanDate = p.PlanDate,
