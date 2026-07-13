@@ -57,6 +57,9 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             if (part == null)
                 return Errors.Part.NotFound;
 
+            if (await _partRepository.IsExistedAsync(request.PartCode) && part.Code != request.PartCode)
+                return Errors.Part.DuplicatePartCode;
+
             // 3. Update Part
             part.Code = request.PartCode;
             part.IndexId = index.Id;

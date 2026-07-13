@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
   Card,
-  Checkbox,
   DatePicker,
   Divider,
   Form,
@@ -21,12 +20,11 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Index, Machine, PartProcess } from "@/app/types";
+import { Machine, PartProcess } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import {
-  getIndexesAsync,
   getPartAsync,
   updatePartAsync,
 } from "@/app/services/index/IndexService";
@@ -44,6 +42,7 @@ type PlanRow = {
   id: number;
   machineId?: number;
   planDate?: Dayjs | null;
+  actualDate?: Dayjs | null;
   status: ProcessStatus;
   note?: string;
 };
@@ -58,6 +57,7 @@ const createEmptyRow = (): PlanRow => ({
   id: 0,
   machineId: undefined,
   planDate: dayjs(),
+  actualDate: null,
   status: ProcessStatus.Planned,
   note: "",
 });
@@ -105,12 +105,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
 
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingMachine, setLoadingMachine] = useState(false);
-  const [loadingIndexes, setLoadingIndexes] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const [machines, setMachines] = useState<Machine[]>([]);
-  const [indexes, setIndexes] = useState<Index[]>([]);
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
+  const [currentPartInfo, setCurrentPartInfo] = useState<{
+    indexCode: string;
+    partCode: string;
+  } | null>(null);
 
   const machineOptions = useMemo(
     () =>
@@ -120,29 +122,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       })),
     [machines],
   );
-
-  const indexOptions = useMemo(
-    () =>
-      indexes.map((index) => ({
-        label: index.code,
-        value: index.code,
-      })),
-    [indexes],
-  );
-
-  const fetchIndexes = useCallback(async () => {
-    setLoadingIndexes(true);
-
-    try {
-      const data = await getIndexesAsync();
-      setIndexes(data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách Index:", error);
-      toast.error("Không thể tải danh sách Index.");
-    } finally {
-      setLoadingIndexes(false);
-    }
-  }, []);
 
   const fetchMachines = useCallback(async () => {
     setLoadingMachine(true);
@@ -165,11 +144,18 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       try {
         const data = await getPartAsync(partId);
 
-        form.setFieldsValue({
-          IndexCode: data.index?.code,
-          PartCode: data.code,
+        const currentIndexCode = data.index?.code ?? "";
+        const currentPartCode = data.code ?? "";
+
+        setCurrentPartInfo({
+          indexCode: currentIndexCode,
+          partCode: currentPartCode,
         });
 
+        form.setFieldsValue({
+          IndexCode: currentIndexCode,
+          PartCode: currentPartCode,
+        });
         const rows: PlanRow[] =
           data.processes && data.processes.length > 0
             ? data.processes.map((process: PartProcess) => ({
@@ -206,7 +192,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     if (!open) return;
 
     const run = async () => {
-      await Promise.all([fetchIndexes(), fetchMachines()]);
+      await Promise.all([fetchMachines()]);
 
       if (id) {
         await fetchDetail(id);
@@ -214,10 +200,11 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     };
 
     void run();
-  }, [open, id, fetchIndexes, fetchMachines, fetchDetail]);
+  }, [open, id, fetchMachines, fetchDetail]);
 
   const resetForm = () => {
     form.resetFields();
+    setCurrentPartInfo(null);
     setDataSource([createEmptyRow()]);
   };
 
@@ -382,6 +369,21 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
+      title: "Ngày thực tế",
+      dataIndex: "planDate",
+      key: "planDate",
+      width: 170,
+      render: (value: Dayjs | null | undefined, record: PlanRow) => (
+        <DatePicker
+          placeholder="Chọn ngày"
+          style={{ width: "100%" }}
+          value={value}
+          format="DD/MM/YYYY"
+          onChange={(date) => handleChange(record.key, "planDate", date)}
+        />
+      ),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
       key: "status",
@@ -494,9 +496,36 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 },
               }}
             >
+              <div className="rounded border bg-light p-3 mb-4">
+                <div className="fw-semibold mb-3">Thông tin hiện tại</div>
+
+                <div className="row g-3">
+                  <div className="col-12 col-md-6">
+                    <Text type="secondary" className="d-block mb-1">
+                      Index hiện tại
+                    </Text>
+
+                    <Text strong copyable={Boolean(currentPartInfo?.indexCode)}>
+                      {currentPartInfo?.indexCode || "-"}
+                    </Text>
+                  </div>
+
+                  <div className="col-12 col-md-6">
+                    <Text type="secondary" className="d-block mb-1">
+                      Part Code hiện tại
+                    </Text>
+
+                    <Text strong copyable={Boolean(currentPartInfo?.partCode)}>
+                      {currentPartInfo?.partCode || "-"}
+                    </Text>
+                  </div>
+                </div>
+              </div>
+
               <Form.Item
-                label="Index"
+                label="Index mới"
                 name="IndexCode"
+                tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
                 rules={[
                   {
                     required: true,
@@ -508,16 +537,13 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                   },
                 ]}
               >
-                <Input
-                  allowClear
-                  placeholder="Nhập mã Index mới"
-                  maxLength={100}
-                />
+                <Input allowClear placeholder="Nhập mã Index" maxLength={100} />
               </Form.Item>
 
               <Form.Item
-                label="Part Code"
+                label="Part Code mới"
                 name="PartCode"
+                tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
                 rules={[
                   {
                     required: true,
@@ -536,10 +562,11 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 />
               </Form.Item>
 
-              <div className="rounded border bg-light p-3">
+              <div className="rounded border p-3">
                 <Text type="secondary">
-                  Bạn cần nhập Index. Nếu index chưa tồn tại hệ thống sẽ tạo
-                  index mới.
+                  Thông tin hiện tại được giữ cố định phía trên để bạn dễ đối
+                  chiếu. Nếu Index mới chưa tồn tại, hệ thống sẽ tự động tạo
+                  Index khi cập nhật.
                 </Text>
               </div>
             </Card>

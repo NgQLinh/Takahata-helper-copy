@@ -116,7 +116,7 @@ export default function CreatePart({ open, onClose }: Props) {
 
   useEffect(() => {
     const run = async () => {
-      await fetchMachines();
+      await Promise.all([fetchMachines()]);
     };
 
     if (!open) return;
