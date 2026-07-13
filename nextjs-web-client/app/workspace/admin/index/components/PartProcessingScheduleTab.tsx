@@ -390,26 +390,6 @@ export default function PartProcessingScheduleTab() {
               />
             </div>
 
-            <div style={{ width: 240 }}>
-              <label className="form-label mb-1">Trạng thái</label>
-              <Select
-                mode="multiple"
-                allowClear
-                maxTagCount="responsive"
-                placeholder="Chọn trạng thái"
-                value={filterStatuses}
-                onChange={setFilterStatuses}
-                style={{ width: "100%" }}
-                options={[
-                  { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
-                  { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
-                  { value: ProcessStatus.Completed, label: "Hoàn thành" },
-                  { value: ProcessStatus.Cancelled, label: "Đã hủy" },
-                  { value: ProcessStatus.Overdue, label: "Quá hạn" },
-                ]}
-              />
-            </div>
-
             <div style={{ width: 270 }}>
               <label className="form-label mb-1">Kế hoạch</label>
               <RangePicker
