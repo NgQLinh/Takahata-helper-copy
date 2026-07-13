@@ -17,7 +17,6 @@ import {
   EditOutlined,
   PlusOutlined,
   SearchOutlined,
-  TeamOutlined,
   UserOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
@@ -35,9 +34,7 @@ import { DeleteAccountRequest, UpdateAccountRequest } from "@/app/types";
 import { toast } from "react-toastify";
 
 import "./UserAndRolePage.css";
-
-const { Title, Text: AntText } = Typography;
-
+const { Text: AntText } = Typography;
 export function UserAndRolePage() {
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -231,36 +228,7 @@ export function UserAndRolePage() {
   return (
     <div className="user-page">
       <Card className="user-card">
-        <div className="user-header">
-          <div className="user-title-wrap">
-            <div className="user-icon">
-              <TeamOutlined />
-            </div>
-
-            <div>
-              <Title level={3} className="user-title">
-                Quản lý người dùng & phân quyền
-              </Title>
-              <AntText type="secondary">
-                Quản lý tài khoản người dùng, vai trò và quyền truy cập hệ
-                thống.
-              </AntText>
-            </div>
-          </div>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
-            onClick={() => setIsCreateOpen(true)}
-          >
-            Thêm người dùng
-          </Button>
-        </div>
-
-        <div className="user-divider" />
-
-        <div className="user-toolbar">
+        <div className="d-flex justify-content-between mb-3">
           <Input
             placeholder="Tìm theo tên đăng nhập hoặc họ tên"
             allowClear
@@ -268,14 +236,24 @@ export function UserAndRolePage() {
             onChange={(e) => setSearchText(e.target.value)}
             style={{ width: 420 }}
           />
+
+          <Button
+            type="primary"
+            size="medium"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateOpen(true)}
+          >
+            Thêm người dùng
+          </Button>
         </div>
 
         <Table<Account>
           rowKey="id"
           loading={loading}
           columns={columns}
+          size="small"
           dataSource={filteredUsers}
-          scroll={{ x: 900 }}
+          scroll={{ y: "calc(100vh - 250px)" }}
           className="user-table"
           pagination={{
             pageSize: 10,

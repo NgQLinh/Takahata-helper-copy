@@ -403,7 +403,7 @@ export default function PartProcessingScheduleTab() {
               />
             </div>
 
-            <div style={{ width: 270 }}>
+            {/* <div style={{ width: 270 }}>
               <label className="form-label mb-1">Thực tế</label>
               <RangePicker
                 value={filterActualDateRange}
@@ -412,7 +412,7 @@ export default function PartProcessingScheduleTab() {
                 format="DD/MM/YYYY"
                 placeholder={["Từ ngày", "Đến ngày"]}
               />
-            </div>
+            </div> */}
 
             <Button onClick={() => void handleResetFilters()}>
               Xóa bộ lọc
@@ -446,7 +446,7 @@ export default function PartProcessingScheduleTab() {
 
         <Table<TableRow>
           bordered
-          size="middle"
+          size="small"
           loading={loading}
           columns={columns}
           dataSource={dataSource}
@@ -454,7 +454,7 @@ export default function PartProcessingScheduleTab() {
           rowKey="key"
           scroll={{
             x: "max-content",
-            y: "calc(100vh - 500px)",
+            y: "calc(100vh - 360px)",
           }}
           pagination={{
             current: page,

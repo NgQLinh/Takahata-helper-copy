@@ -1,18 +1,42 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Card, Table, Tag, Typography } from "antd";
+import { Button, Card, DatePicker, Input, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import Title from "antd/es/typography/Title";
 import { toast } from "react-toastify";
 import { getMachineSchedulesAsync } from "@/app/services/machine/MachineService";
 import { MachineSchedule } from "@/app/types";
 import "./MachineScheduleBoard.css";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
-import { CalendarOutlined } from "@ant-design/icons";
+import dayjs, { Dayjs } from "dayjs";
+import { SearchOutlined } from "@ant-design/icons";
+
+const { RangePicker } = DatePicker;
+type DateRange = [Dayjs | null, Dayjs | null] | null;
+
 export function MachineScheduleBoard() {
   const [loading, setLoading] = useState(false);
   const [machines, setMachines] = useState<MachineSchedule[]>([]);
+
+  const [keyword, setKeyword] = useState("");
+  const [filterPlanDateRange, setFilterPlanDateRange] = useState<DateRange>([
+    dayjs().startOf("month"),
+    dayjs().endOf("month"),
+  ]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [total, setTotal] = useState(0);
+
+  const handleResetFilters = async () => {
+    const emptyRange: DateRange = [null, null];
+
+    setKeyword("");
+    setFilterPlanDateRange(emptyRange);
+    setPage(1);
+
+    const data = await getMachineSchedulesAsync();
+    setMachines(data ?? []);
+  };
 
   const fetchMachineSchedule = useCallback(async () => {
     setLoading(true);
@@ -118,51 +142,80 @@ export function MachineScheduleBoard() {
   }, [dates]);
 
   return (
-    <div className="schedule-page">
-      <Card>
-        <div>
-          <div className="schedule-title-wrap">
-            <div className="schedule-icon">
-              <CalendarOutlined />
-            </div>
-
-            <div>
-              <Title level={3} className="schedule-title">
-                Lịch gia công theo máy, ngày và work order
-              </Title>
-              <Typography.Text type="secondary">
-                Theo dõi kế hoạch, thực tế gia công và trạng thái máy theo từng
-                part.
-              </Typography.Text>
-            </div>
+    <Card
+      className="grow overflow-hidden"
+      style={{ minHeight: 0 }}
+      styles={{
+        body: {
+          height: "100%",
+          overflow: "hidden",
+          padding: 12,
+        },
+      }}
+    >
+      <div className="d-flex justify-content-between gap-3 flex-wrap">
+        <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+          <div style={{ width: 200 }}>
+            <label className="form-label mb-1">Tên máy</label>
+            <Input
+              placeholder="Nhập tên máy"
+              allowClear
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+            />
           </div>
-        </div>
-      </Card>
 
-      <Card
-        className="grow overflow-hidden"
-        style={{ minHeight: 0 }}
-        styles={{
-          body: {
-            height: "100%",
-            overflow: "hidden",
-            padding: 12,
+          <div style={{ width: 270 }}>
+            <label className="form-label mb-1">Kế hoạch</label>
+            <RangePicker
+              value={filterPlanDateRange}
+              onChange={setFilterPlanDateRange}
+              style={{ width: "100%" }}
+              format="DD/MM/YYYY"
+              placeholder={["Từ ngày", "Đến ngày"]}
+            />
+          </div>
+
+          <Button onClick={() => void handleResetFilters()}>Xóa bộ lọc</Button>
+
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={() => {
+              if (page === 1) {
+                void fetchMachineSchedule();
+              } else {
+                setPage(1);
+              }
+            }}
+          >
+            Tìm kiếm
+          </Button>
+        </div>
+      </div>
+
+      <Table
+        rowKey="id"
+        loading={loading}
+        columns={columns}
+        dataSource={machines}
+        scroll={{
+          x: 260 + dates.length * 170,
+          y: "calc(100vh - 240px)",
+        }}
+        pagination={{
+          current: page,
+          pageSize,
+          total,
+          showSizeChanger: true,
+          showTotal: (value) => `Tổng ${value} part`,
+          onChange: (newPage, newPageSize) => {
+            setPage(newPage);
+            setPageSize(newPageSize);
           },
         }}
-      >
-        <Table
-          rowKey="id"
-          loading={loading}
-          columns={columns}
-          dataSource={machines}
-          pagination={false}
-          bordered
-          scroll={{
-            x: 260 + dates.length * 170,
-            y: "calc(100vh - 260px)",
-          }}
-        />
-      </Card>
-    </div>
+        bordered
+      />
+    </Card>
   );
 }

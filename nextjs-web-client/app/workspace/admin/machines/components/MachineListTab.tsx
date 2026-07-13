@@ -364,12 +364,13 @@ export default function MachineListTab() {
 
         <Table<Machine>
           rowKey="id"
+          size="small"
           loading={loading}
           columns={columns}
           dataSource={machines}
           scroll={{
             x: "max-content",
-            y: "calc(100vh - 450px)",
+            y: "calc(100vh - 285px)",
           }}
           pagination={{
             current: machinePage,

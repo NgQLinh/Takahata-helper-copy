@@ -387,42 +387,6 @@ export default function MaintenanceHistoryTab() {
               />
             </div>
 
-            <div style={{ width: 240 }}>
-              <label className="form-label mb-1">Trạng thái</label>
-
-              <Select<ProcessStatus[]>
-                mode="multiple"
-                allowClear
-                placeholder="Chọn trạng thái"
-                style={{ width: "100%" }}
-                value={filterStatuses}
-                onChange={setFilterStatuses}
-                maxTagCount="responsive"
-                options={[
-                  {
-                    value: ProcessStatus.Planned,
-                    label: "Đã lên kế hoạch",
-                  },
-                  {
-                    value: ProcessStatus.InProgress,
-                    label: "Đang thực hiện",
-                  },
-                  {
-                    value: ProcessStatus.Completed,
-                    label: "Hoàn thành",
-                  },
-                  {
-                    value: ProcessStatus.Cancelled,
-                    label: "Đã hủy",
-                  },
-                  {
-                    value: ProcessStatus.Overdue,
-                    label: "Quá hạn",
-                  },
-                ]}
-              />
-            </div>
-
             <div style={{ width: 270 }}>
               <label className="form-label mb-1">Ngày kế hoạch</label>
 
@@ -463,11 +427,12 @@ export default function MaintenanceHistoryTab() {
         <Table<MachineMaintenanceProcess>
           rowKey="id"
           columns={columns}
+          size="small"
           dataSource={maintenanceProcesses}
           loading={loading}
           scroll={{
             x: "max-content",
-            y: "calc(100vh - 510px)",
+            y: "calc(100vh - 300px)",
           }}
           pagination={{
             current: page,

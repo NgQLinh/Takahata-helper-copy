@@ -148,7 +148,7 @@ export default function IndexSelectionModal({
         columns={columns}
         dataSource={indexes}
         bordered
-        size="middle"
+        size="small"
         scroll={{ y: 420 }}
         rowClassName={(record) =>
           record.code === selectedCode ? "selected-index-row" : ""

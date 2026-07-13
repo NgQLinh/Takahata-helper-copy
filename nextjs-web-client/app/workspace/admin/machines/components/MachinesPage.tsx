@@ -9,7 +9,7 @@ import MaintenanceHistoryTab from "./MaintenanceHistoryTab";
 
 import "./MachinesPage.css";
 
-const { Title, Text } = Typography;
+// const { Title, Text } = Typography;
 
 export function MachinesPage() {
   const tabItems: TabsProps["items"] = [
@@ -37,26 +37,6 @@ export function MachinesPage() {
 
   return (
     <div>
-      <Card>
-        <div className="machine-header">
-          <div className="machine-title-wrap">
-            <div className="machine-icon">
-              <AppstoreOutlined />
-            </div>
-
-            <div>
-              <Title level={3} className="machine-title">
-                Quản lý danh sách máy
-              </Title>
-
-              <Text type="secondary">
-                Quản lý và theo dõi danh sách máy trong hệ thống.
-              </Text>
-            </div>
-          </div>
-        </div>
-      </Card>
-
       <Tabs defaultActiveKey="machines" items={tabItems} />
     </div>
   );

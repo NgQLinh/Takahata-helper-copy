@@ -35,7 +35,6 @@ import {
   getPartAsync,
   updatePartAsync,
 } from "@/app/services/index/IndexService";
-import { number } from "yup";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -637,7 +636,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                   <Alert
                     type="info"
                     showIcon
-                    message="Index chưa tồn tại sẽ được tạo tự động khi cập nhật."
+                    description="Index chưa tồn tại sẽ được tạo tự động khi cập nhật."
                   />
                 </>
               )}
@@ -673,7 +672,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 dataSource={dataSource}
                 columns={columns}
                 pagination={false}
-                size="middle"
+                size="small"
                 bordered
                 tableLayout="fixed"
                 loading={loadingDetail}

@@ -249,7 +249,6 @@ export default function CreatePart({ open, onClose }: Props) {
           loading={loadingMachine}
           value={value}
           options={machineOptions}
-          optionFilterProp="label"
           style={{ width: "100%" }}
           onChange={(machineId: number | undefined) =>
             handleChange(record.key, "machineId", machineId)
@@ -351,7 +350,6 @@ export default function CreatePart({ open, onClose }: Props) {
       }
       onCancel={handleCancel}
       closable={!submitting}
-      maskClosable={false}
       keyboard={!submitting}
       destroyOnHidden
       confirmLoading={submitting}
@@ -502,7 +500,7 @@ export default function CreatePart({ open, onClose }: Props) {
                 dataSource={dataSource}
                 columns={columns}
                 pagination={false}
-                size="middle"
+                size="small"
                 bordered
                 tableLayout="fixed"
                 scroll={{ x: 1020, y: tableScrollY }}
