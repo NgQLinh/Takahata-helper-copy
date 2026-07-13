@@ -333,7 +333,7 @@ export function MachineScheduleBoard() {
           dataSource={machines}
           scroll={{
             x: 220 + dates.length * 190,
-            y: "calc(100vh - 310px)",
+            y: "calc(100vh - 260px)",
           }}
           pagination={{
             current: page,
