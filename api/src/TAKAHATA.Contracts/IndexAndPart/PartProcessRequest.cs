@@ -2,5 +2,5 @@
 
 namespace TAKAHATA.Contracts.IndexAndPart
 {
-    public record PartProcessRequest(long Id, long MachineId, DateOnly PlanDate, ProcessStatus Status, string Note);
+    public record PartProcessRequest(long Id, long MachineId, DateOnly PlanDate, DateOnly ActualDate, ProcessStatus Status, string Note);
 }

@@ -163,6 +163,9 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 id: process.id,
                 machineId: process.machineId,
                 planDate: process.planDate ? dayjs(process.planDate) : null,
+                actualDate: process.actualDate
+                  ? dayjs(process.actualDate)
+                  : null,
                 status:
                   process.status !== undefined && process.status !== null
                     ? process.status
@@ -297,6 +300,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         sequence: index + 1,
         machineId: item.machineId,
         planDate: item.planDate?.format("YYYY-MM-DD") ?? null,
+        actualDate: item.actualDate?.format("YYYY-MM-DD") ?? null,
         status: item.status,
         note: item.note?.trim() ?? "",
       })),
@@ -346,7 +350,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           loading={loadingMachine}
           value={value}
           options={machineOptions}
-          optionFilterProp="label"
           onChange={(machineId: number | undefined) =>
             handleChange(record.key, "machineId", machineId)
           }
@@ -370,8 +373,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     },
     {
       title: "Ngày thực tế",
-      dataIndex: "planDate",
-      key: "planDate",
+      dataIndex: "actualDate",
+      key: "actualDate",
       width: 170,
       render: (value: Dayjs | null | undefined, record: PlanRow) => (
         <DatePicker
@@ -379,7 +382,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           style={{ width: "100%" }}
           value={value}
           format="DD/MM/YYYY"
-          onChange={(date) => handleChange(record.key, "planDate", date)}
+          onChange={(date) => handleChange(record.key, "actualDate", date)}
         />
       ),
     },
@@ -442,26 +445,33 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     <Modal
       title={
         <div>
-          <div className="fw-semibold fs-5">Cập nhật Part và quy trình</div>
+          <div className="fw-semibold fs-5">Thêm mới Part và quy trình</div>
 
           <Text type="secondary" className="fw-normal">
-            Chỉnh sửa thông tin Part và kế hoạch thực hiện trên máy
+            Khai báo thông tin Part và kế hoạch thực hiện trên máy
           </Text>
         </div>
       }
       open={open}
       footer={null}
-      width={1550}
+      width="min(1550px, calc(100vw - 32px))"
       centered
       onCancel={handleCancel}
       destroyOnHidden
       keyboard={!submitting}
-      maskClosable={!submitting}
       styles={{
+        container: {
+          maxHeight: "calc(100vh - 32px)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        },
         body: {
-          maxHeight: "78vh",
-          overflowY: "auto",
+          height: "calc(100vh - 160px)",
+          minHeight: 560,
+          maxHeight: 780,
           paddingTop: 20,
+          overflow: "hidden",
         },
       }}
     >
@@ -469,10 +479,21 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         form={form}
         layout="vertical"
         requiredMark
-        disabled={loadingDetail}
         onFinish={handleSubmit}
+        style={{
+          height: "100%",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <div className="row g-4 m-0">
+        <div
+          className="row g-3 m-0 grow"
+          style={{
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
           <div className="col-12 col-xl-4 px-0 pe-xl-2">
             <Card
               size="small"
@@ -481,18 +502,21 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                   <div className="fw-semibold">Thông tin Part</div>
 
                   <Text type="secondary" className="fw-normal">
-                    Cập nhật thông tin nhận diện của Part
+                    Nhập thông tin nhận diện của Part
                   </Text>
                 </div>
               }
-              style={{ height: "100%" }}
-              loading={loadingDetail}
+              style={{
+                height: "100%",
+                overflow: "hidden",
+              }}
               styles={{
                 header: {
                   minHeight: 62,
                 },
                 body: {
                   padding: 20,
+                  overflow: "hidden",
                 },
               }}
             >
@@ -584,30 +608,61 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                   </Text>
                 </div>
               }
+              style={{
+                height: "100%",
+                minHeight: 0,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
               styles={{
                 header: {
                   minHeight: 62,
+                  flexShrink: 0,
                 },
                 body: {
+                  flex: 1,
+                  minHeight: 0,
                   padding: 0,
+                  display: "grid",
+                  gridTemplateRows: "minmax(0, 1fr) auto",
+                  overflow: "hidden",
                 },
               }}
             >
-              <Table<PlanRow>
-                rowKey="key"
-                dataSource={dataSource}
-                columns={columns}
-                pagination={false}
-                size="middle"
-                bordered
-                loading={loadingDetail}
-                scroll={{
-                  x: 950,
-                  y: 380,
+              {/* Chỉ phần này được phép cuộn */}
+              <div
+                style={{
+                  minHeight: 0,
+                  overflow: "hidden",
                 }}
-              />
+              >
+                <Table<PlanRow>
+                  rowKey="key"
+                  dataSource={dataSource}
+                  columns={columns}
+                  pagination={false}
+                  size="middle"
+                  bordered
+                  tableLayout="fixed"
+                  loading={loadingDetail}
+                  scroll={{
+                    x: 1120,
+                    y: "calc(100vh - 500px)",
+                  }}
+                />
+              </div>
 
-              <div className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light">
+              {/* Thanh này luôn hiển thị */}
+              <div
+                className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light"
+                style={{
+                  minHeight: 48,
+                  flexShrink: 0,
+                  position: "relative",
+                  zIndex: 2,
+                }}
+              >
                 <Text type="secondary">
                   Tổng số công đoạn: {dataSource.length}
                 </Text>

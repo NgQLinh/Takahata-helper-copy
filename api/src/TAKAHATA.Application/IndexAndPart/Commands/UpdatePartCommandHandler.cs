@@ -102,6 +102,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.Note = process.Note;
                 existingProcess.MachineId = process.MachineId;
                 existingProcess.PlanDate = process.PlanDate;
+                existingProcess.ActualDate = process.ActualDate;
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
                 existingProcess.Status = process.Status;
@@ -118,6 +119,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     Note = process.Note,
                     Status = process.Status,
                     PlanDate = process.PlanDate,
+                    ActualDate = process.ActualDate
                 });
             }
 

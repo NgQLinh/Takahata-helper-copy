@@ -357,16 +357,24 @@ export default function CreatePart({ open, onClose }: Props) {
       }
       open={open}
       footer={null}
-      width={1550}
+      width="min(1550px, calc(100vw - 32px))"
       centered
       onCancel={handleCancel}
       destroyOnHidden
       keyboard={!submitting}
       styles={{
+        container: {
+          maxHeight: "calc(100vh - 32px)",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        },
         body: {
-          maxHeight: "78vh",
-          overflowY: "auto",
+          height: "calc(100vh - 160px)",
+          minHeight: 560,
+          maxHeight: 780,
           paddingTop: 20,
+          overflow: "hidden",
         },
       }}
     >
@@ -375,26 +383,43 @@ export default function CreatePart({ open, onClose }: Props) {
         layout="vertical"
         requiredMark
         onFinish={handleSubmit}
+        style={{
+          height: "100%",
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <div className="row g-4 m-0">
-          <div className="col-12 col-xl-4 px-0 pe-xl-2">
+        <div
+          className="row g-3 m-0 grow"
+          style={{
+            minHeight: 0,
+            overflow: "hidden",
+          }}
+        >
+          <div className="col-12 col-xl-3 px-0 pe-xl-2">
             <Card
               size="small"
               title={
                 <div>
                   <div className="fw-semibold">Thông tin Part</div>
+
                   <Text type="secondary" className="fw-normal">
                     Nhập thông tin nhận diện của Part
                   </Text>
                 </div>
               }
-              style={{ height: "100%" }}
+              style={{
+                height: "100%",
+                overflow: "hidden",
+              }}
               styles={{
                 header: {
                   minHeight: 62,
                 },
                 body: {
                   padding: 20,
+                  overflow: "hidden",
                 },
               }}
             >
@@ -449,40 +474,66 @@ export default function CreatePart({ open, onClose }: Props) {
             </Card>
           </div>
 
-          <div className="col-12 col-xl-8 px-0 ps-xl-2">
+          <div className="col-12 col-xl-9 px-0 ps-xl-2">
             <Card
               size="small"
               title={
                 <div>
                   <div className="fw-semibold">Kế hoạch máy</div>
+
                   <Text type="secondary" className="fw-normal">
                     Thiết lập máy, thời gian và trạng thái cho từng công đoạn
                   </Text>
                 </div>
               }
+              style={{
+                height: "100%",
+                minHeight: 0,
+                overflow: "hidden",
+              }}
               styles={{
                 header: {
                   minHeight: 62,
+                  flexShrink: 0,
                 },
                 body: {
+                  height: "calc(100% - 63px)",
+                  minHeight: 0,
                   padding: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
                 },
               }}
             >
-              <Table<PlanRow>
-                rowKey="key"
-                dataSource={dataSource}
-                columns={columns}
-                pagination={false}
-                size="middle"
-                bordered
-                scroll={{
-                  x: 950,
-                  y: 380,
+              <div
+                style={{
+                  flex: 1,
+                  minHeight: 0,
+                  overflow: "hidden",
                 }}
-              />
+              >
+                <Table<PlanRow>
+                  rowKey="key"
+                  dataSource={dataSource}
+                  columns={columns}
+                  pagination={false}
+                  size="middle"
+                  bordered
+                  tableLayout="fixed"
+                  scroll={{
+                    x: 950,
+                    y: "calc(100vh - 430px)",
+                  }}
+                />
+              </div>
 
-              <div className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light">
+              <div
+                className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light"
+                style={{
+                  flexShrink: 0,
+                }}
+              >
                 <Text type="secondary">
                   Tổng số công đoạn: {dataSource.length}
                 </Text>
