@@ -1,18 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Button,
   Card,
+  Col,
   DatePicker,
-  Divider,
+  Flex,
   Form,
+  Grid,
   Input,
   Modal,
+  Row,
   Select,
-  Space,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -26,10 +30,10 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { createPartAsync } from "@/app/services/index/IndexService";
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
+const { useBreakpoint } = Grid;
 
-const TABLE_HEADER_HEIGHT = 48;
-const MIN_TABLE_BODY_HEIGHT = 180;
+const FORM_ID = "create-part-form";
 
 type Props = {
   open: boolean;
@@ -58,38 +62,22 @@ const createEmptyRow = (): PlanRow => ({
 });
 
 const statusOptions = [
-  {
-    value: ProcessStatus.Planned,
-    label: "Đã lên kế hoạch",
-  },
-  {
-    value: ProcessStatus.InProgress,
-    label: "Đang thực hiện",
-  },
-  {
-    value: ProcessStatus.Completed,
-    label: "Hoàn thành",
-  },
-  {
-    value: ProcessStatus.Cancelled,
-    label: "Đã hủy",
-  },
+  { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
+  { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
+  { value: ProcessStatus.Completed, label: "Hoàn thành" },
+  { value: ProcessStatus.Cancelled, label: "Đã hủy" },
 ];
 
 const getStatusTag = (status: ProcessStatus) => {
   switch (status) {
     case ProcessStatus.Planned:
       return <Tag color="blue">Đã lên kế hoạch</Tag>;
-
     case ProcessStatus.InProgress:
       return <Tag color="orange">Đang thực hiện</Tag>;
-
     case ProcessStatus.Completed:
       return <Tag color="green">Hoàn thành</Tag>;
-
     case ProcessStatus.Cancelled:
       return <Tag color="red">Đã hủy</Tag>;
-
     default:
       return <Tag>Không xác định</Tag>;
   }
@@ -97,15 +85,15 @@ const getStatusTag = (status: ProcessStatus) => {
 
 export default function CreatePart({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
-
-  const tableAreaRef = useRef<HTMLDivElement | null>(null);
+  const screens = useBreakpoint();
 
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [tableScrollY, setTableScrollY] = useState(MIN_TABLE_BODY_HEIGHT);
-
   const [machines, setMachines] = useState<Machine[]>([]);
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
+
+  const isDesktop = Boolean(screens.xl);
+  const tableScrollY = isDesktop ? "calc(100dvh - 390px)" : 340;
 
   const fetchMachines = useCallback(async () => {
     setLoadingMachine(true);
@@ -122,33 +110,14 @@ export default function CreatePart({ open, onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-
     const run = async () => {
       await Promise.all([fetchMachines()]);
     };
 
+    if (!open) return;
+
     void run();
   }, [fetchMachines, open]);
-
-  useEffect(() => {
-    if (!open || !tableAreaRef.current) return;
-
-    const tableArea = tableAreaRef.current;
-
-    const updateTableHeight = () => {
-      const availableHeight = tableArea.clientHeight - TABLE_HEADER_HEIGHT;
-
-      setTableScrollY(Math.max(availableHeight, MIN_TABLE_BODY_HEIGHT));
-    };
-
-    updateTableHeight();
-
-    const resizeObserver = new ResizeObserver(updateTableHeight);
-    resizeObserver.observe(tableArea);
-
-    return () => resizeObserver.disconnect();
-  }, [open]);
 
   const machineOptions = useMemo(
     () =>
@@ -165,6 +134,8 @@ export default function CreatePart({ open, onClose }: Props) {
   };
 
   const handleCancel = () => {
+    if (submitting) return;
+
     resetForm();
     onClose();
   };
@@ -176,12 +147,7 @@ export default function CreatePart({ open, onClose }: Props) {
   ) => {
     setDataSource((previousRows) =>
       previousRows.map((row) =>
-        row.key === key
-          ? {
-              ...row,
-              [field]: value,
-            }
-          : row,
+        row.key === key ? { ...row, [field]: value } : row,
       ),
     );
   };
@@ -192,20 +158,12 @@ export default function CreatePart({ open, onClose }: Props) {
 
   const handleRemoveRow = (key: string) => {
     setDataSource((previousRows) => {
-      if (previousRows.length === 1) {
-        return previousRows;
-      }
-
+      if (previousRows.length === 1) return previousRows;
       return previousRows.filter((row) => row.key !== key);
     });
   };
 
   const validatePlanRows = () => {
-    if (dataSource.length === 0) {
-      toast.warning("Vui lòng thêm ít nhất một kế hoạch máy.");
-      return false;
-    }
-
     const invalidMachineRow = dataSource.findIndex(
       (row) => row.machineId === undefined,
     );
@@ -233,7 +191,7 @@ export default function CreatePart({ open, onClose }: Props) {
     const indexCode = values.IndexCode?.trim();
 
     if (!indexCode) {
-      toast.warning("Vui lòng chọn hoặc nhập Index.");
+      toast.warning("Vui lòng nhập Index.");
       return;
     }
 
@@ -253,19 +211,18 @@ export default function CreatePart({ open, onClose }: Props) {
 
     try {
       await createPartAsync(request);
-
-      toast.success("Tạo part thành công.");
+      toast.success("Tạo Part thành công.");
       resetForm();
       onClose();
     } catch (error) {
-      console.error("Lỗi khi tạo part:", error);
+      console.error("Lỗi khi tạo Part:", error);
 
       if (error instanceof ApiError) {
         toast.error(error.getDisplayMessage());
         return;
       }
 
-      toast.error("Có lỗi xảy ra khi tạo part.");
+      toast.error("Có lỗi xảy ra khi tạo Part.");
     } finally {
       setSubmitting(false);
     }
@@ -275,7 +232,7 @@ export default function CreatePart({ open, onClose }: Props) {
     {
       title: "STT",
       key: "sequence",
-      width: 60,
+      width: 64,
       align: "center",
       render: (_, __, index) => index + 1,
     },
@@ -283,17 +240,17 @@ export default function CreatePart({ open, onClose }: Props) {
       title: "Máy",
       dataIndex: "machineId",
       key: "machineId",
-      width: 220,
+      width: 250,
       render: (value: number | undefined, record) => (
         <Select
           showSearch
           allowClear
           placeholder="Chọn máy"
-          style={{ width: "100%" }}
           loading={loadingMachine}
           value={value}
           options={machineOptions}
           optionFilterProp="label"
+          style={{ width: "100%" }}
           onChange={(machineId: number | undefined) =>
             handleChange(record.key, "machineId", machineId)
           }
@@ -308,9 +265,9 @@ export default function CreatePart({ open, onClose }: Props) {
       render: (value: Dayjs | null | undefined, record) => (
         <DatePicker
           placeholder="Chọn ngày"
-          style={{ width: "100%" }}
           value={value}
           format="DD/MM/YYYY"
+          style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "planDate", date)}
         />
       ),
@@ -322,10 +279,9 @@ export default function CreatePart({ open, onClose }: Props) {
       width: 190,
       render: (value: ProcessStatus, record) => (
         <Select
-          placeholder="Chọn trạng thái"
-          style={{ width: "100%" }}
           value={value}
           options={statusOptions}
+          style={{ width: "100%" }}
           optionRender={(option) => getStatusTag(option.value as ProcessStatus)}
           labelRender={(option) => getStatusTag(option.value as ProcessStatus)}
           onChange={(status: ProcessStatus) =>
@@ -338,7 +294,7 @@ export default function CreatePart({ open, onClose }: Props) {
       title: "Ghi chú",
       dataIndex: "note",
       key: "note",
-      minWidth: 220,
+      width: 280,
       render: (value: string | undefined, record) => (
         <Input
           value={value}
@@ -351,279 +307,211 @@ export default function CreatePart({ open, onClose }: Props) {
       ),
     },
     {
-      title: "Thao tác",
+      title: "",
       key: "action",
-      width: 90,
+      width: 64,
       align: "center",
       fixed: "right",
       render: (_, record) => (
-        <Button
-          danger
-          type="text"
-          shape="circle"
-          icon={<DeleteOutlined />}
-          title="Xóa dòng"
-          disabled={dataSource.length === 1}
-          onClick={() => handleRemoveRow(record.key)}
-        />
+        <Tooltip
+          title={
+            dataSource.length === 1
+              ? "Cần giữ lại ít nhất một công đoạn"
+              : "Xóa công đoạn"
+          }
+        >
+          <Button
+            danger
+            type="text"
+            shape="circle"
+            icon={<DeleteOutlined />}
+            disabled={dataSource.length === 1}
+            aria-label="Xóa công đoạn"
+            onClick={() => handleRemoveRow(record.key)}
+          />
+        </Tooltip>
       ),
     },
   ];
 
   return (
     <Modal
+      open={open}
+      centered
+      width={1400}
       title={
-        <div>
-          <div className="fw-semibold fs-5">Thêm mới Part và quy trình</div>
-
-          <Text type="secondary" className="fw-normal">
+        <Flex vertical gap={2}>
+          <Title level={4} style={{ margin: 0 }}>
+            Thêm mới Part và quy trình
+          </Title>
+          <Text type="secondary">
             Khai báo thông tin Part và kế hoạch thực hiện trên máy
           </Text>
-        </div>
+        </Flex>
       }
-      open={open}
-      footer={null}
-      width="min(1400px, calc(100vw - 32px))"
-      centered
       onCancel={handleCancel}
-      destroyOnHidden
+      closable={!submitting}
+      maskClosable={false}
       keyboard={!submitting}
-      styles={{
-        container: {
-          maxHeight: "calc(100dvh - 32px)",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        },
-        header: {
-          flexShrink: 0,
-        },
-        body: {
-          height: "clamp(560px, calc(100dvh - 160px), 780px)",
-          minHeight: 0,
-          paddingTop: 20,
-          overflow: "hidden",
-        },
-      }}
-    >
-      <Form<FormValues>
-        form={form}
-        layout="vertical"
-        requiredMark
-        onFinish={handleSubmit}
-        className="d-flex flex-column h-100 overflow-hidden"
-      >
-        <div className="create-part-content flex-grow-1 overflow-hidden">
-          <div className="row g-3 m-0 h-100">
-            <div className="create-part-info-col col-12 col-xl-3 px-0 pe-xl-2">
-              <Card
-                size="small"
-                title={
-                  <div>
-                    <div className="fw-semibold">Thông tin Part</div>
+      destroyOnHidden
+      confirmLoading={submitting}
+      footer={
+        <Flex justify="space-between" align="center" wrap gap={12}>
+          <Text type="secondary">
+            <Text strong>{dataSource.length}</Text> công đoạn đã khai báo
+          </Text>
 
-                    <Text type="secondary" className="fw-normal">
-                      Nhập thông tin nhận diện của Part
-                    </Text>
-                  </div>
-                }
-                className="create-part-info-card h-100"
-                styles={{
-                  header: {
-                    minHeight: 62,
-                  },
-                  body: {
-                    padding: 20,
-                  },
-                }}
-              >
-                <Form.Item
-                  label="Index"
-                  name="IndexCode"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập Index",
-                    },
-                    {
-                      whitespace: true,
-                      message: "Index không được để trống",
-                    },
-                  ]}
-                >
-                  <Input
-                    allowClear
-                    placeholder="Nhập mã Index mới"
-                    maxLength={100}
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  label="Part Code"
-                  name="PartCode"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập Part Code",
-                    },
-                    {
-                      whitespace: true,
-                      message: "Part Code không được để trống",
-                    },
-                  ]}
-                >
-                  <Input
-                    allowClear
-                    placeholder="Nhập Part Code"
-                    maxLength={100}
-                  />
-                </Form.Item>
-
-                <div className="rounded border bg-light p-3">
-                  <Text type="secondary">
-                    Bạn cần nhập Index. Nếu index chưa tồn tại hệ thống sẽ tạo
-                    index mới.
-                  </Text>
-                </div>
-              </Card>
-            </div>
-
-            <div className="create-part-plan-col col-12 col-xl-9 px-0 ps-xl-2">
-              <Card
-                size="small"
-                title={
-                  <div>
-                    <div className="fw-semibold">Kế hoạch máy</div>
-
-                    <Text type="secondary" className="fw-normal">
-                      Thiết lập máy, thời gian và trạng thái cho từng công đoạn
-                    </Text>
-                  </div>
-                }
-                className="create-part-plan-card h-100 overflow-hidden"
-                styles={{
-                  header: {
-                    minHeight: 62,
-                    flexShrink: 0,
-                  },
-                  body: {
-                    height: "calc(100% - 63px)",
-                    minHeight: 0,
-                    padding: 0,
-                    overflow: "hidden",
-                  },
-                }}
-              >
-                <div className="d-flex flex-column h-100 overflow-hidden">
-                  <div
-                    ref={tableAreaRef}
-                    className="flex-grow-1 overflow-hidden"
-                    style={{ minHeight: 0 }}
-                  >
-                    <Table<PlanRow>
-                      rowKey="key"
-                      dataSource={dataSource}
-                      columns={columns}
-                      pagination={false}
-                      size="middle"
-                      bordered
-                      tableLayout="fixed"
-                      scroll={{
-                        x: 950,
-                        y: tableScrollY,
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex-shrink-0 border-top bg-light px-3 py-2">
-                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
-                      <Text
-                        type="secondary"
-                        className="text-center text-sm-start"
-                      >
-                        Tổng số công đoạn: {dataSource.length}
-                      </Text>
-
-                      <Button
-                        type="link"
-                        icon={<PlusOutlined />}
-                        onClick={handleAddRow}
-                        className="align-self-center align-self-sm-auto"
-                      >
-                        Thêm công đoạn
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
-        </div>
-
-        <Divider className="flex-shrink-0" style={{ margin: "16px 0" }} />
-
-        <div className="d-flex flex-shrink-0 justify-content-end">
-          <Space size="middle" wrap>
-            <Button size="large" disabled={submitting} onClick={handleCancel}>
+          <Flex gap={8}>
+            <Button disabled={submitting} onClick={handleCancel}>
               Đóng
             </Button>
-
             <Button
               type="primary"
               htmlType="submit"
-              size="large"
+              form={FORM_ID}
               icon={<SaveOutlined />}
               loading={submitting}
             >
               Lưu Part
             </Button>
-          </Space>
-        </div>
+          </Flex>
+        </Flex>
+      }
+      styles={{
+        container: {
+          maxWidth: "calc(100vw - 24px)",
+          maxHeight: "calc(100dvh - 24px)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        },
+        header: {
+          flexShrink: 0,
+          marginBottom: 0,
+          paddingBottom: 16,
+          borderBottom: "1px solid rgba(5, 5, 5, 0.06)",
+        },
+        body: {
+          flex: 1,
+          minHeight: 0,
+          maxHeight: "calc(100dvh - 210px)",
+          paddingTop: 20,
+          paddingBottom: 20,
+          overflowY: "auto",
+          overflowX: "hidden",
+        },
+        footer: {
+          flexShrink: 0,
+          marginTop: 0,
+          paddingTop: 16,
+          borderTop: "1px solid rgba(5, 5, 5, 0.06)",
+        },
+      }}
+    >
+      <Form<FormValues>
+        id={FORM_ID}
+        form={form}
+        layout="vertical"
+        requiredMark="optional"
+        onFinish={handleSubmit}
+      >
+        <Row gutter={[16, 16]} align="stretch">
+          <Col xs={24} xl={6}>
+            <Card
+              title={
+                <Flex vertical gap={2}>
+                  <Text strong>Thông tin Part</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Nhập thông tin nhận diện của Part
+                  </Text>
+                </Flex>
+              }
+              styles={{
+                body: { padding: 20 },
+              }}
+              style={{ height: "100%" }}
+            >
+              <Form.Item
+                label="Index"
+                name="IndexCode"
+                rules={[
+                  { required: true, message: "Vui lòng nhập Index" },
+                  { whitespace: true, message: "Index không được để trống" },
+                ]}
+              >
+                <Input
+                  allowClear
+                  placeholder="Nhập mã Index"
+                  maxLength={100}
+                  autoFocus
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Part Code"
+                name="PartCode"
+                rules={[
+                  { required: true, message: "Vui lòng nhập Part Code" },
+                  {
+                    whitespace: true,
+                    message: "Part Code không được để trống",
+                  },
+                ]}
+              >
+                <Input
+                  allowClear
+                  placeholder="Nhập Part Code"
+                  maxLength={100}
+                />
+              </Form.Item>
+
+              <Alert
+                type="info"
+                showIcon
+                message="Index chưa tồn tại sẽ được tạo tự động."
+              />
+            </Card>
+          </Col>
+
+          <Col xs={24} xl={18}>
+            <Card
+              title={
+                <Flex vertical gap={2}>
+                  <Text strong>Kế hoạch máy</Text>
+                  <Text type="secondary" style={{ fontSize: 12 }}>
+                    Thiết lập máy, ngày kế hoạch và trạng thái cho từng công
+                    đoạn
+                  </Text>
+                </Flex>
+              }
+              extra={
+                <Button
+                  type="primary"
+                  ghost
+                  icon={<PlusOutlined />}
+                  onClick={handleAddRow}
+                >
+                  Thêm công đoạn
+                </Button>
+              }
+              styles={{ body: { padding: 0 } }}
+              style={{ height: "100%", overflow: "hidden" }}
+            >
+              <Table<PlanRow>
+                rowKey="key"
+                dataSource={dataSource}
+                columns={columns}
+                pagination={false}
+                size="middle"
+                bordered
+                tableLayout="fixed"
+                scroll={{ x: 1020, y: tableScrollY }}
+                locale={{ emptyText: "Chưa có công đoạn" }}
+              />
+            </Card>
+          </Col>
+        </Row>
       </Form>
-
-      <style jsx global>{`
-        .create-part-content {
-          min-height: 0;
-        }
-
-        .create-part-info-col,
-        .create-part-plan-col {
-          min-height: 0;
-        }
-
-        .create-part-info-card,
-        .create-part-plan-card {
-          min-height: 0;
-        }
-
-        @media (max-width: 1199.98px) {
-          .create-part-content {
-            overflow-x: hidden !important;
-            overflow-y: auto !important;
-            padding-right: 4px;
-          }
-
-          .create-part-content > .row {
-            height: auto !important;
-          }
-
-          .create-part-info-card {
-            height: auto !important;
-          }
-
-          .create-part-plan-card {
-            height: 520px !important;
-            min-height: 420px;
-          }
-        }
-
-        @media (max-width: 575.98px) {
-          .create-part-plan-card {
-            height: 460px !important;
-            min-height: 380px;
-          }
-        }
-      `}</style>
     </Modal>
   );
 }
