@@ -454,7 +454,7 @@ export default function PartProcessingScheduleTab() {
           rowKey="key"
           scroll={{
             x: "max-content",
-            y: "calc(100vh - 510px)",
+            y: "calc(100vh - 500px)",
           }}
           pagination={{
             current: page,
