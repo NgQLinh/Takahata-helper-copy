@@ -12,6 +12,7 @@ import {
   Form,
   Grid,
   Input,
+  InputNumber,
   Modal,
   Row,
   Select,
@@ -34,6 +35,7 @@ import {
   getPartAsync,
   updatePartAsync,
 } from "@/app/services/index/IndexService";
+import { number } from "yup";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -52,6 +54,7 @@ type PlanRow = {
   machineId?: number;
   planDate?: Dayjs | null;
   actualDate?: Dayjs | null;
+  workingHours?: number | null;
   status: ProcessStatus;
   note?: string;
 };
@@ -72,6 +75,7 @@ const createEmptyRow = (): PlanRow => ({
   machineId: undefined,
   planDate: dayjs(),
   actualDate: null,
+  workingHours: null,
   status: ProcessStatus.Planned,
   note: "",
 });
@@ -166,6 +170,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 actualDate: process.actualDate
                   ? dayjs(process.actualDate)
                   : null,
+                workingHours: process.workingHours,
                 status: process.status ?? ProcessStatus.Planned,
                 note: process.note ?? "",
               }))
@@ -261,20 +266,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
-    const invalidActualDateRow = dataSource.findIndex(
-      (row) =>
-        row.planDate &&
-        row.actualDate &&
-        row.actualDate.startOf("day").isBefore(row.planDate.startOf("day")),
-    );
-
-    if (invalidActualDateRow !== -1) {
-      toast.warning(
-        `Ngày thực tế tại dòng ${invalidActualDateRow + 1} không được trước ngày kế hoạch.`,
-      );
-      return false;
-    }
-
     return true;
   };
 
@@ -309,10 +300,13 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         machineId: item.machineId,
         planDate: item.planDate?.format("YYYY-MM-DD") ?? null,
         actualDate: item.actualDate?.format("YYYY-MM-DD") ?? null,
+        workingHours: item.workingHours,
         status: item.status,
         note: item.note?.trim() ?? "",
       })),
     };
+
+    console.log(request);
 
     setSubmitting(true);
 
@@ -394,6 +388,22 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           disabled={isBusy}
           style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "actualDate", date)}
+        />
+      ),
+    },
+    {
+      title: "Giờ làm thực tế",
+      dataIndex: "workingHours",
+      key: "workingHours",
+      width: 150,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "workingHours", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
         />
       ),
     },

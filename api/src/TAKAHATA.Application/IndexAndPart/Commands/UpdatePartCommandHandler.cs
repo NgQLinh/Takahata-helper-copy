@@ -1,8 +1,6 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Diagnostics;
 using TAKAHATA.Application.Common.Interface;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Contracts.IndexAndPart;
@@ -106,6 +104,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
                 existingProcess.Status = process.Status;
+                existingProcess.WorkingHours = process.WorkingHours;
             }
 
             // 6. Add new processes
@@ -119,7 +118,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     Note = process.Note,
                     Status = process.Status,
                     PlanDate = process.PlanDate,
-                    ActualDate = process.ActualDate
+                    ActualDate = process.ActualDate,
+                    WorkingHours = process.WorkingHours
                 });
             }
 

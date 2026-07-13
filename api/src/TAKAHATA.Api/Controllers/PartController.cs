@@ -1,7 +1,6 @@
 ﻿using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TAKAHATA.Application.Equipment.Queries;
 using TAKAHATA.Application.IndexAndPart.Commands;
 using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;

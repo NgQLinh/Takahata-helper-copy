@@ -299,9 +299,11 @@ export default function PartProcessingScheduleTab() {
 
             if (!process)
               return (
-                <Popover content={content} title="Title" trigger="click">
-                  <span className="empty-cell">-</span>
-                </Popover>
+                // <Popover content={content} title="Title" trigger="click">
+                //   <span className="empty-cell">-</span>
+                // </Popover>
+
+                <span className="empty-cell">-</span>
               );
 
             if (row.rowType === "MC") {
