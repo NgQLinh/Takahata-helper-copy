@@ -392,12 +392,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           value={value}
           format="DD/MM/YYYY"
           disabled={isBusy}
-          disabledDate={(current) =>
-            Boolean(
-              record.planDate &&
-              current.startOf("day").isBefore(record.planDate.startOf("day")),
-            )
-          }
           style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "actualDate", date)}
         />
