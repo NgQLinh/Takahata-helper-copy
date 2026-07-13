@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -30,6 +30,9 @@ import {
 } from "@/app/services/index/IndexService";
 
 const { Text } = Typography;
+
+const TABLE_HEADER_HEIGHT = 48;
+const MIN_TABLE_BODY_HEIGHT = 180;
 
 type Props = {
   id?: number | null;
@@ -103,9 +106,12 @@ const getStatusTag = (status: ProcessStatus) => {
 export default function UpdatePart({ id, open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
 
+  const tableAreaRef = useRef<HTMLDivElement | null>(null);
+
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [tableScrollY, setTableScrollY] = useState(MIN_TABLE_BODY_HEIGHT);
 
   const [machines, setMachines] = useState<Machine[]>([]);
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
@@ -204,6 +210,25 @@ export default function UpdatePart({ id, open, onClose }: Props) {
 
     void run();
   }, [open, id, fetchMachines, fetchDetail]);
+
+  useEffect(() => {
+    if (!open || !tableAreaRef.current) return;
+
+    const tableArea = tableAreaRef.current;
+
+    const updateTableHeight = () => {
+      const availableHeight = tableArea.clientHeight - TABLE_HEADER_HEIGHT;
+
+      setTableScrollY(Math.max(availableHeight, MIN_TABLE_BODY_HEIGHT));
+    };
+
+    updateTableHeight();
+
+    const resizeObserver = new ResizeObserver(updateTableHeight);
+    resizeObserver.observe(tableArea);
+
+    return () => resizeObserver.disconnect();
+  }, [open]);
 
   const resetForm = () => {
     form.resetFields();
@@ -350,6 +375,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           loading={loadingMachine}
           value={value}
           options={machineOptions}
+          optionFilterProp="label"
           onChange={(machineId: number | undefined) =>
             handleChange(record.key, "machineId", machineId)
           }
@@ -445,10 +471,10 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     <Modal
       title={
         <div>
-          <div className="fw-semibold fs-5">Thêm mới Part và quy trình</div>
+          <div className="fw-semibold fs-5">Cập nhật Part và quy trình</div>
 
           <Text type="secondary" className="fw-normal">
-            Khai báo thông tin Part và kế hoạch thực hiện trên máy
+            Cập nhật thông tin Part và kế hoạch thực hiện trên máy
           </Text>
         </div>
       }
@@ -461,15 +487,17 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       keyboard={!submitting}
       styles={{
         container: {
-          maxHeight: "calc(100vh - 32px)",
+          maxHeight: "calc(100dvh - 32px)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
         },
+        header: {
+          flexShrink: 0,
+        },
         body: {
-          height: "calc(100vh - 160px)",
-          minHeight: 560,
-          maxHeight: 780,
+          height: "clamp(560px, calc(100dvh - 160px), 780px)",
+          minHeight: 0,
           paddingTop: 20,
           overflow: "hidden",
         },
@@ -480,210 +508,197 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         layout="vertical"
         requiredMark
         onFinish={handleSubmit}
-        style={{
-          height: "100%",
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className="d-flex flex-column h-100 overflow-hidden"
       >
-        <div
-          className="row g-3 m-0 grow"
-          style={{
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-          <div className="col-12 col-xl-4 px-0 pe-xl-2">
-            <Card
-              size="small"
-              title={
-                <div>
-                  <div className="fw-semibold">Thông tin Part</div>
+        <div className="update-part-content grow overflow-hidden">
+          <div className="row g-3 m-0 h-100">
+            <div className="update-part-info-col col-12 col-xl-4 px-0 pe-xl-2">
+              <Card
+                size="small"
+                title={
+                  <div>
+                    <div className="fw-semibold">Thông tin Part</div>
 
-                  <Text type="secondary" className="fw-normal">
-                    Nhập thông tin nhận diện của Part
-                  </Text>
-                </div>
-              }
-              style={{
-                height: "100%",
-                overflow: "hidden",
-              }}
-              styles={{
-                header: {
-                  minHeight: 62,
-                },
-                body: {
-                  padding: 20,
-                  overflow: "hidden",
-                },
-              }}
-            >
-              <div className="rounded border bg-light p-3 mb-4">
-                <div className="fw-semibold mb-3">Thông tin hiện tại</div>
-
-                <div className="row g-3">
-                  <div className="col-12 col-md-6">
-                    <Text type="secondary" className="d-block mb-1">
-                      Index hiện tại
-                    </Text>
-
-                    <Text strong copyable={Boolean(currentPartInfo?.indexCode)}>
-                      {currentPartInfo?.indexCode || "-"}
+                    <Text type="secondary" className="fw-normal">
+                      Cập nhật thông tin nhận diện của Part
                     </Text>
                   </div>
+                }
+                className="update-part-info-card h-100"
+                loading={loadingDetail}
+                styles={{
+                  header: {
+                    minHeight: 62,
+                  },
+                  body: {
+                    padding: 20,
+                  },
+                }}
+              >
+                <div className="rounded border bg-light p-3 mb-4">
+                  <div className="fw-semibold mb-3">Thông tin hiện tại</div>
 
-                  <div className="col-12 col-md-6">
-                    <Text type="secondary" className="d-block mb-1">
-                      Part Code hiện tại
-                    </Text>
+                  <div className="row g-3">
+                    <div className="col-12 col-md-6">
+                      <Text type="secondary" className="d-block mb-1">
+                        Index hiện tại
+                      </Text>
 
-                    <Text strong copyable={Boolean(currentPartInfo?.partCode)}>
-                      {currentPartInfo?.partCode || "-"}
-                    </Text>
+                      <Text
+                        strong
+                        copyable={Boolean(currentPartInfo?.indexCode)}
+                      >
+                        {currentPartInfo?.indexCode || "-"}
+                      </Text>
+                    </div>
+
+                    <div className="col-12 col-md-6">
+                      <Text type="secondary" className="d-block mb-1">
+                        Part Code hiện tại
+                      </Text>
+
+                      <Text
+                        strong
+                        copyable={Boolean(currentPartInfo?.partCode)}
+                      >
+                        {currentPartInfo?.partCode || "-"}
+                      </Text>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Form.Item
-                label="Index mới"
-                name="IndexCode"
-                tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Index",
-                  },
-                  {
-                    whitespace: true,
-                    message: "Index không được để trống",
-                  },
-                ]}
-              >
-                <Input allowClear placeholder="Nhập mã Index" maxLength={100} />
-              </Form.Item>
-
-              <Form.Item
-                label="Part Code mới"
-                name="PartCode"
-                tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Part Code",
-                  },
-                  {
-                    whitespace: true,
-                    message: "Part Code không được để trống",
-                  },
-                ]}
-              >
-                <Input
-                  allowClear
-                  placeholder="Nhập Part Code"
-                  maxLength={100}
-                />
-              </Form.Item>
-
-              <div className="rounded border p-3">
-                <Text type="secondary">
-                  Thông tin hiện tại được giữ cố định phía trên để bạn dễ đối
-                  chiếu. Nếu Index mới chưa tồn tại, hệ thống sẽ tự động tạo
-                  Index khi cập nhật.
-                </Text>
-              </div>
-            </Card>
-          </div>
-
-          <div className="col-12 col-xl-8 px-0 ps-xl-2">
-            <Card
-              size="small"
-              title={
-                <div>
-                  <div className="fw-semibold">Kế hoạch máy</div>
-
-                  <Text type="secondary" className="fw-normal">
-                    Thiết lập máy, thời gian và trạng thái cho từng công đoạn
-                  </Text>
-                </div>
-              }
-              style={{
-                height: "100%",
-                minHeight: 0,
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-              }}
-              styles={{
-                header: {
-                  minHeight: 62,
-                  flexShrink: 0,
-                },
-                body: {
-                  flex: 1,
-                  minHeight: 0,
-                  padding: 0,
-                  display: "grid",
-                  gridTemplateRows: "minmax(0, 1fr) auto",
-                  overflow: "hidden",
-                },
-              }}
-            >
-              {/* Chỉ phần này được phép cuộn */}
-              <div
-                style={{
-                  minHeight: 0,
-                  overflow: "hidden",
-                }}
-              >
-                <Table<PlanRow>
-                  rowKey="key"
-                  dataSource={dataSource}
-                  columns={columns}
-                  pagination={false}
-                  size="middle"
-                  bordered
-                  tableLayout="fixed"
-                  loading={loadingDetail}
-                  scroll={{
-                    x: 1120,
-                    y: "calc(100vh - 500px)",
-                  }}
-                />
-              </div>
-
-              {/* Thanh này luôn hiển thị */}
-              <div
-                className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light"
-                style={{
-                  minHeight: 48,
-                  flexShrink: 0,
-                  position: "relative",
-                  zIndex: 2,
-                }}
-              >
-                <Text type="secondary">
-                  Tổng số công đoạn: {dataSource.length}
-                </Text>
-
-                <Button
-                  type="link"
-                  icon={<PlusOutlined />}
-                  disabled={loadingDetail || submitting}
-                  onClick={handleAddRow}
+                <Form.Item
+                  label="Index mới"
+                  name="IndexCode"
+                  tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập Index",
+                    },
+                    {
+                      whitespace: true,
+                      message: "Index không được để trống",
+                    },
+                  ]}
                 >
-                  Thêm công đoạn
-                </Button>
-              </div>
-            </Card>
+                  <Input
+                    allowClear
+                    placeholder="Nhập mã Index"
+                    maxLength={100}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Part Code mới"
+                  name="PartCode"
+                  tooltip="Giá trị hiện tại được hiển thị phía trên để bạn đối chiếu trước khi chỉnh sửa"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập Part Code",
+                    },
+                    {
+                      whitespace: true,
+                      message: "Part Code không được để trống",
+                    },
+                  ]}
+                >
+                  <Input
+                    allowClear
+                    placeholder="Nhập Part Code"
+                    maxLength={100}
+                  />
+                </Form.Item>
+
+                <div className="rounded border p-3">
+                  <Text type="secondary">
+                    Thông tin hiện tại được giữ phía trên để bạn dễ đối chiếu.
+                    Nếu Index mới chưa tồn tại, hệ thống sẽ tự động tạo Index
+                    khi cập nhật.
+                  </Text>
+                </div>
+              </Card>
+            </div>
+
+            <div className="update-part-plan-col col-12 col-xl-8 px-0 ps-xl-2">
+              <Card
+                size="small"
+                title={
+                  <div>
+                    <div className="fw-semibold">Kế hoạch máy</div>
+
+                    <Text type="secondary" className="fw-normal">
+                      Thiết lập máy, thời gian và trạng thái cho từng công đoạn
+                    </Text>
+                  </div>
+                }
+                className="update-part-plan-card h-100 overflow-hidden"
+                styles={{
+                  header: {
+                    minHeight: 62,
+                    flexShrink: 0,
+                  },
+                  body: {
+                    height: "calc(100% - 63px)",
+                    minHeight: 0,
+                    padding: 0,
+                    overflow: "hidden",
+                  },
+                }}
+              >
+                <div className="d-flex flex-column h-100 overflow-hidden">
+                  <div
+                    ref={tableAreaRef}
+                    className="grow overflow-hidden"
+                    style={{ minHeight: 0 }}
+                  >
+                    <Table<PlanRow>
+                      rowKey="key"
+                      dataSource={dataSource}
+                      columns={columns}
+                      pagination={false}
+                      size="middle"
+                      bordered
+                      tableLayout="fixed"
+                      loading={loadingDetail}
+                      scroll={{
+                        x: 1120,
+                        y: tableScrollY,
+                      }}
+                    />
+                  </div>
+
+                  <div className="shrink-0 border-top bg-light px-3 py-2">
+                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+                      <Text
+                        type="secondary"
+                        className="text-center text-sm-start"
+                      >
+                        Tổng số công đoạn: {dataSource.length}
+                      </Text>
+
+                      <Button
+                        type="link"
+                        icon={<PlusOutlined />}
+                        disabled={loadingDetail || submitting}
+                        onClick={handleAddRow}
+                        className="align-self-center align-self-sm-auto"
+                      >
+                        Thêm công đoạn
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
 
-        <Divider style={{ margin: "24px 0 16px" }} />
+        <Divider className="shrink-0" style={{ margin: "16px 0" }} />
 
-        <div className="d-flex justify-content-end">
-          <Space size="middle">
+        <div className="d-flex shrink-0 justify-content-end">
+          <Space size="middle" wrap>
             <Button size="large" disabled={submitting} onClick={handleCancel}>
               Đóng
             </Button>
@@ -701,6 +716,55 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           </Space>
         </div>
       </Form>
+
+      <style jsx global>{`
+        .update-part-content {
+          min-height: 0;
+        }
+
+        .update-part-info-col,
+        .update-part-plan-col {
+          min-height: 0;
+        }
+
+        .update-part-info-card,
+        .update-part-plan-card {
+          min-height: 0;
+        }
+
+        .update-part-info-card .ant-card-body {
+          overflow-x: hidden;
+          overflow-y: auto;
+        }
+
+        @media (max-width: 1199.98px) {
+          .update-part-content {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            padding-right: 4px;
+          }
+
+          .update-part-content > .row {
+            height: auto !important;
+          }
+
+          .update-part-info-card {
+            height: auto !important;
+          }
+
+          .update-part-plan-card {
+            height: 540px !important;
+            min-height: 440px;
+          }
+        }
+
+        @media (max-width: 575.98px) {
+          .update-part-plan-card {
+            height: 480px !important;
+            min-height: 400px;
+          }
+        }
+      `}</style>
     </Modal>
   );
 }

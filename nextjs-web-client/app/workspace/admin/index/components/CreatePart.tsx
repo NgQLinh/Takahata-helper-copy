@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Card,
@@ -20,13 +20,17 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Index, Machine } from "@/app/types";
+import { Machine } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { createPartAsync } from "@/app/services/index/IndexService";
 
 const { Text } = Typography;
+
+const TABLE_HEADER_HEIGHT = 48;
+const MIN_TABLE_BODY_HEIGHT = 180;
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -94,8 +98,11 @@ const getStatusTag = (status: ProcessStatus) => {
 export default function CreatePart({ open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
 
+  const tableAreaRef = useRef<HTMLDivElement | null>(null);
+
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [tableScrollY, setTableScrollY] = useState(MIN_TABLE_BODY_HEIGHT);
 
   const [machines, setMachines] = useState<Machine[]>([]);
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
@@ -115,14 +122,33 @@ export default function CreatePart({ open, onClose }: Props) {
   }, []);
 
   useEffect(() => {
+    if (!open) return;
+
     const run = async () => {
       await Promise.all([fetchMachines()]);
     };
 
-    if (!open) return;
-
     void run();
   }, [fetchMachines, open]);
+
+  useEffect(() => {
+    if (!open || !tableAreaRef.current) return;
+
+    const tableArea = tableAreaRef.current;
+
+    const updateTableHeight = () => {
+      const availableHeight = tableArea.clientHeight - TABLE_HEADER_HEIGHT;
+
+      setTableScrollY(Math.max(availableHeight, MIN_TABLE_BODY_HEIGHT));
+    };
+
+    updateTableHeight();
+
+    const resizeObserver = new ResizeObserver(updateTableHeight);
+    resizeObserver.observe(tableArea);
+
+    return () => resizeObserver.disconnect();
+  }, [open]);
 
   const machineOptions = useMemo(
     () =>
@@ -357,22 +383,24 @@ export default function CreatePart({ open, onClose }: Props) {
       }
       open={open}
       footer={null}
-      width="min(1550px, calc(100vw - 32px))"
+      width="min(1400px, calc(100vw - 32px))"
       centered
       onCancel={handleCancel}
       destroyOnHidden
       keyboard={!submitting}
       styles={{
         container: {
-          maxHeight: "calc(100vh - 32px)",
+          maxHeight: "calc(100dvh - 32px)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
         },
+        header: {
+          flexShrink: 0,
+        },
         body: {
-          height: "calc(100vh - 160px)",
-          minHeight: 560,
-          maxHeight: 780,
+          height: "clamp(560px, calc(100dvh - 160px), 780px)",
+          minHeight: 0,
           paddingTop: 20,
           overflow: "hidden",
         },
@@ -383,177 +411,159 @@ export default function CreatePart({ open, onClose }: Props) {
         layout="vertical"
         requiredMark
         onFinish={handleSubmit}
-        style={{
-          height: "100%",
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className="d-flex flex-column h-100 overflow-hidden"
       >
-        <div
-          className="row g-3 m-0 grow"
-          style={{
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-          <div className="col-12 col-xl-3 px-0 pe-xl-2">
-            <Card
-              size="small"
-              title={
-                <div>
-                  <div className="fw-semibold">Thông tin Part</div>
+        <div className="create-part-content flex-grow-1 overflow-hidden">
+          <div className="row g-3 m-0 h-100">
+            <div className="create-part-info-col col-12 col-xl-3 px-0 pe-xl-2">
+              <Card
+                size="small"
+                title={
+                  <div>
+                    <div className="fw-semibold">Thông tin Part</div>
 
-                  <Text type="secondary" className="fw-normal">
-                    Nhập thông tin nhận diện của Part
-                  </Text>
-                </div>
-              }
-              style={{
-                height: "100%",
-                overflow: "hidden",
-              }}
-              styles={{
-                header: {
-                  minHeight: 62,
-                },
-                body: {
-                  padding: 20,
-                  overflow: "hidden",
-                },
-              }}
-            >
-              <Form.Item
-                label="Index"
-                name="IndexCode"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Index",
+                    <Text type="secondary" className="fw-normal">
+                      Nhập thông tin nhận diện của Part
+                    </Text>
+                  </div>
+                }
+                className="create-part-info-card h-100"
+                styles={{
+                  header: {
+                    minHeight: 62,
                   },
-                  {
-                    whitespace: true,
-                    message: "Index không được để trống",
+                  body: {
+                    padding: 20,
                   },
-                ]}
-              >
-                <Input
-                  allowClear
-                  placeholder="Nhập mã Index mới"
-                  maxLength={100}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="Part Code"
-                name="PartCode"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập Part Code",
-                  },
-                  {
-                    whitespace: true,
-                    message: "Part Code không được để trống",
-                  },
-                ]}
-              >
-                <Input
-                  allowClear
-                  placeholder="Nhập Part Code"
-                  maxLength={100}
-                />
-              </Form.Item>
-
-              <div className="rounded border bg-light p-3">
-                <Text type="secondary">
-                  Bạn cần nhập Index. Nếu index chưa tồn tại hệ thống sẽ tạo
-                  index mới.
-                </Text>
-              </div>
-            </Card>
-          </div>
-
-          <div className="col-12 col-xl-9 px-0 ps-xl-2">
-            <Card
-              size="small"
-              title={
-                <div>
-                  <div className="fw-semibold">Kế hoạch máy</div>
-
-                  <Text type="secondary" className="fw-normal">
-                    Thiết lập máy, thời gian và trạng thái cho từng công đoạn
-                  </Text>
-                </div>
-              }
-              style={{
-                height: "100%",
-                minHeight: 0,
-                overflow: "hidden",
-              }}
-              styles={{
-                header: {
-                  minHeight: 62,
-                  flexShrink: 0,
-                },
-                body: {
-                  height: "calc(100% - 63px)",
-                  minHeight: 0,
-                  padding: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  overflow: "hidden",
-                },
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  minHeight: 0,
-                  overflow: "hidden",
                 }}
               >
-                <Table<PlanRow>
-                  rowKey="key"
-                  dataSource={dataSource}
-                  columns={columns}
-                  pagination={false}
-                  size="middle"
-                  bordered
-                  tableLayout="fixed"
-                  scroll={{
-                    x: 950,
-                    y: "calc(100vh - 430px)",
-                  }}
-                />
-              </div>
-
-              <div
-                className="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light"
-                style={{
-                  flexShrink: 0,
-                }}
-              >
-                <Text type="secondary">
-                  Tổng số công đoạn: {dataSource.length}
-                </Text>
-
-                <Button
-                  type="link"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddRow}
+                <Form.Item
+                  label="Index"
+                  name="IndexCode"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập Index",
+                    },
+                    {
+                      whitespace: true,
+                      message: "Index không được để trống",
+                    },
+                  ]}
                 >
-                  Thêm công đoạn
-                </Button>
-              </div>
-            </Card>
+                  <Input
+                    allowClear
+                    placeholder="Nhập mã Index mới"
+                    maxLength={100}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Part Code"
+                  name="PartCode"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập Part Code",
+                    },
+                    {
+                      whitespace: true,
+                      message: "Part Code không được để trống",
+                    },
+                  ]}
+                >
+                  <Input
+                    allowClear
+                    placeholder="Nhập Part Code"
+                    maxLength={100}
+                  />
+                </Form.Item>
+
+                <div className="rounded border bg-light p-3">
+                  <Text type="secondary">
+                    Bạn cần nhập Index. Nếu index chưa tồn tại hệ thống sẽ tạo
+                    index mới.
+                  </Text>
+                </div>
+              </Card>
+            </div>
+
+            <div className="create-part-plan-col col-12 col-xl-9 px-0 ps-xl-2">
+              <Card
+                size="small"
+                title={
+                  <div>
+                    <div className="fw-semibold">Kế hoạch máy</div>
+
+                    <Text type="secondary" className="fw-normal">
+                      Thiết lập máy, thời gian và trạng thái cho từng công đoạn
+                    </Text>
+                  </div>
+                }
+                className="create-part-plan-card h-100 overflow-hidden"
+                styles={{
+                  header: {
+                    minHeight: 62,
+                    flexShrink: 0,
+                  },
+                  body: {
+                    height: "calc(100% - 63px)",
+                    minHeight: 0,
+                    padding: 0,
+                    overflow: "hidden",
+                  },
+                }}
+              >
+                <div className="d-flex flex-column h-100 overflow-hidden">
+                  <div
+                    ref={tableAreaRef}
+                    className="flex-grow-1 overflow-hidden"
+                    style={{ minHeight: 0 }}
+                  >
+                    <Table<PlanRow>
+                      rowKey="key"
+                      dataSource={dataSource}
+                      columns={columns}
+                      pagination={false}
+                      size="middle"
+                      bordered
+                      tableLayout="fixed"
+                      scroll={{
+                        x: 950,
+                        y: tableScrollY,
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex-shrink-0 border-top bg-light px-3 py-2">
+                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+                      <Text
+                        type="secondary"
+                        className="text-center text-sm-start"
+                      >
+                        Tổng số công đoạn: {dataSource.length}
+                      </Text>
+
+                      <Button
+                        type="link"
+                        icon={<PlusOutlined />}
+                        onClick={handleAddRow}
+                        className="align-self-center align-self-sm-auto"
+                      >
+                        Thêm công đoạn
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
 
-        <Divider style={{ margin: "24px 0 16px" }} />
+        <Divider className="flex-shrink-0" style={{ margin: "16px 0" }} />
 
-        <div className="d-flex justify-content-end">
-          <Space size="middle">
+        <div className="d-flex flex-shrink-0 justify-content-end">
+          <Space size="middle" wrap>
             <Button size="large" disabled={submitting} onClick={handleCancel}>
               Đóng
             </Button>
@@ -570,6 +580,50 @@ export default function CreatePart({ open, onClose }: Props) {
           </Space>
         </div>
       </Form>
+
+      <style jsx global>{`
+        .create-part-content {
+          min-height: 0;
+        }
+
+        .create-part-info-col,
+        .create-part-plan-col {
+          min-height: 0;
+        }
+
+        .create-part-info-card,
+        .create-part-plan-card {
+          min-height: 0;
+        }
+
+        @media (max-width: 1199.98px) {
+          .create-part-content {
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            padding-right: 4px;
+          }
+
+          .create-part-content > .row {
+            height: auto !important;
+          }
+
+          .create-part-info-card {
+            height: auto !important;
+          }
+
+          .create-part-plan-card {
+            height: 520px !important;
+            min-height: 420px;
+          }
+        }
+
+        @media (max-width: 575.98px) {
+          .create-part-plan-card {
+            height: 460px !important;
+            min-height: 380px;
+          }
+        }
+      `}</style>
     </Modal>
   );
 }
