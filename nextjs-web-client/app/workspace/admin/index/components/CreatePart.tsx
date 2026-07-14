@@ -51,6 +51,7 @@ type PlanRow = {
 type FormValues = {
   IndexCode?: string;
   PartCode: string;
+  Quantity: number;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -198,6 +199,7 @@ export default function CreatePart({ open, onClose }: Props) {
     const request = {
       indexCode,
       partCode: values.PartCode.trim(),
+      quantity: values.Quantity,
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,
@@ -341,7 +343,7 @@ export default function CreatePart({ open, onClose }: Props) {
       title={
         <Flex vertical gap={2}>
           <Title level={4} style={{ margin: 0 }}>
-            Thêm mới Part và quy trình
+            Thêm mới Part và nguyên công
           </Title>
           <Text type="secondary">
             Khai báo thông tin Part và kế hoạch thực hiện trên máy
@@ -410,7 +412,7 @@ export default function CreatePart({ open, onClose }: Props) {
         id={FORM_ID}
         form={form}
         layout="vertical"
-        requiredMark="optional"
+        requiredMark
         onFinish={handleSubmit}
       >
         <Row gutter={[16, 16]} align="stretch">
@@ -460,6 +462,22 @@ export default function CreatePart({ open, onClose }: Props) {
                   allowClear
                   placeholder="Nhập Part Code"
                   maxLength={100}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Số lượng"
+                name="Quantity"
+                rules={[
+                  { required: true, message: "Vui lòng nhập số lượng" },
+                  { whitespace: true, message: "Số lượng không được để trống" },
+                ]}
+              >
+                <Input
+                  allowClear
+                  placeholder="Nhập số lượng"
+                  maxLength={100}
+                  autoFocus
                 />
               </Form.Item>
 

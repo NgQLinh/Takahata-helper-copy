@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TAKAHATA.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class updatedb260713001 : Migration
+    public partial class updatedb260714003 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -260,6 +260,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     IndexId = table.Column<long>(type: "bigint", nullable: false),
                     Code = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -325,6 +326,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
                     ActualDate = table.Column<DateOnly>(type: "date", nullable: true),
                     WorkingHours = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    SetupTime = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    WaitingTime = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
                     Note = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Status = table.Column<int>(type: "int", nullable: false),

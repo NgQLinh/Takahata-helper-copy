@@ -19,4 +19,5 @@ export type { UpdateAccountRequest } from "./account/UpdateAccountRequest";
 export type { Part } from "./part/Part";
 export type { Index } from "./part/Index";
 export type { PartProcess } from "./part/PartProcess";
+export type { ManufacturingProcess as ManufacturingProcess } from "./part/Process";
 export type { MachineMaintenanceProcess } from "./machine/MachineMaintenanceProcess";

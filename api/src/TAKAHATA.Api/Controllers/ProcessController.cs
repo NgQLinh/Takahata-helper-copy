@@ -14,7 +14,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("get-part-process-by-machine")]
-        public async Task<IActionResult> GetPartProcessByMachine(PartProcessesOfMachineQuery query)
+        public async Task<IActionResult> GetPartProcessByMachine(ProcessesOfMachineQuery query)
         {
             var result = await _sender.Send(query);
 

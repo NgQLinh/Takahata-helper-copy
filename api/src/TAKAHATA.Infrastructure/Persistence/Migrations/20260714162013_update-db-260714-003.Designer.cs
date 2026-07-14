@@ -12,8 +12,8 @@ using TAKAHATA.Infrastructure.Persistence;
 namespace TAKAHATA.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260713090020_update-db-260713-001")]
-    partial class updatedb260713001
+    [Migration("20260714162013_update-db-260714-003")]
+    partial class updatedb260714003
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -326,6 +326,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<long>("IndexId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime(6)");
 
@@ -377,6 +380,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("SetupTime")
+                        .HasColumnType("decimal(65,30)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -385,6 +391,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
+
+                    b.Property<decimal?>("WaitingTime")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<decimal?>("WorkingHours")
                         .HasColumnType("decimal(65,30)");

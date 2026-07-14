@@ -323,6 +323,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<long>("IndexId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("ProcessedQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdateAt")
                         .HasColumnType("datetime(6)");
 
@@ -374,6 +380,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("SetupTime")
+                        .HasColumnType("decimal(65,30)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -382,6 +391,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
+
+                    b.Property<decimal?>("WaitingTime")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<decimal?>("WorkingHours")
                         .HasColumnType("decimal(65,30)");

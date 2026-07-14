@@ -2,17 +2,18 @@
 using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Application.MaintenanceProcess.Queries
 {
-    public class PartProcessesOfMachineQueryHandler : IRequestHandler<PartProcessesOfMachineQuery, ErrorOr<IEnumerable<PartProcessResponse>>>
+    public class ProcessesOfMachineQueryHandler : IRequestHandler<ProcessesOfMachineQuery, ErrorOr<SearchResponse<List<ManufacturingProcessResponse>>>>
     {
         private readonly IMapper _mapper;
 
         private readonly IPartProcessRepository _partProcessRepository;
 
-        public PartProcessesOfMachineQueryHandler(
+        public ProcessesOfMachineQueryHandler(
             IMapper mapper,
             IPartProcessRepository partProcessRepository)
         {
@@ -20,16 +21,12 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
             _partProcessRepository = partProcessRepository;
         }
 
-        public async Task<ErrorOr<IEnumerable<PartProcessResponse>>> Handle(
-            PartProcessesOfMachineQuery request,
+        public async Task<ErrorOr<SearchResponse<List<ManufacturingProcessResponse>>>> Handle(
+            ProcessesOfMachineQuery request,
             CancellationToken cancellationToken)
         {
-            var partProcesses = await _partProcessRepository
-                .GetByMachineIdAsync(request.MachineId);
-
-            return partProcesses
-                 .Select(p => _mapper.Map<PartProcessResponse>(p))
-                 .ToList();
+            return await _partProcessRepository
+                .SearchByMachineIdAsync(request.MachineId, request.Page, request.PageSize);
         }
     }
 }

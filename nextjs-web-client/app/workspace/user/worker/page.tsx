@@ -9,7 +9,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Progress,
   Radio,
   Row,
   Table,
@@ -30,14 +29,10 @@ import {
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, PartProcess } from "@/app/types";
+import { Machine, ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 const { Text } = Typography;
-
-type ProcessingStatus = "waiting" | "processing" | "completed";
-
-type Priority = "low" | "medium" | "high";
 
 type ProcessingFormValues = {
   setupTime: number;
@@ -49,49 +44,19 @@ type ProcessingFormValues = {
   note?: string;
 };
 
-const priorityConfig: Record<Priority, { label: string; color: string }> = {
-  high: {
-    label: "Cao",
-    color: "red",
-  },
-  medium: {
-    label: "Trung bình",
-    color: "orange",
-  },
-  low: {
-    label: "Thấp",
-    color: "green",
-  },
-};
-
-const statusConfig: Record<ProcessingStatus, { label: string; color: string }> =
-  {
-    waiting: {
-      label: "Chờ gia công",
-      color: "blue",
-    },
-    processing: {
-      label: "Đang gia công",
-      color: "orange",
-    },
-    completed: {
-      label: "Hoàn thành",
-      color: "green",
-    },
-  };
-
 export default function Page() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(100);
+  const [loading, setLoading] = useState(false);
 
   // New state
   const [machineKeyword, setMachineKeyword] = useState("");
   const [machines, setMachines] = useState<Machine[]>([]);
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
-  const [partProcesses, setPartProcesses] = useState<PartProcess[]>([]);
-  const [partProcessSelected, setPartProcessSelected] =
-    useState<PartProcess | null>(null);
+  const [processes, setProcesses] = useState<ManufacturingProcess[]>([]);
+  const [selectedProcess, setSelectedProcess] =
+    useState<ManufacturingProcess | null>(null);
 
   const [processingForm] = Form.useForm<ProcessingFormValues>();
 
@@ -108,20 +73,27 @@ export default function Page() {
     }
   }, []);
 
-  const fetchPartProcess = useCallback(async () => {
+  const fetchManufacturingProcess = useCallback(async () => {
     if (selectedMachine)
       try {
+        setLoading(true);
+
         const request = {
           machineId: selectedMachine.id,
         };
 
-        const data = await getPartProcessByMachineAsync(request);
-        setPartProcesses(data);
+        const result = await getPartProcessByMachineAsync(request);
+        setProcesses(result.data);
+        setPage(result.page ?? page);
+        setPageSize(result.pageSize ?? pageSize);
+        setTotal(result.totalItems ?? result.data.length);
       } catch (error) {
-        console.error("Lỗi khi lấy danh sách máy:", error);
-        toast.error("Không thể tải danh sách máy.");
+        console.error("Lỗi khi lấy danh sách chi tiết cần gia công:", error);
+        toast.error("Không thể tải danh sách chi tiết cần gia công.");
+      } finally {
+        setLoading(false);
       }
-  }, [selectedMachine]);
+  }, [page, pageSize, selectedMachine]);
 
   useEffect(() => {
     const run = async () => {
@@ -135,10 +107,10 @@ export default function Page() {
 
   useEffect(() => {
     const run = async () => {
-      await Promise.all([fetchPartProcess()]);
+      await Promise.all([fetchManufacturingProcess()]);
     };
     if (selectedMachine) void run();
-  }, [fetchPartProcess, selectedMachine]);
+  }, [fetchManufacturingProcess, selectedMachine]);
 
   const filteredMachines = useMemo(() => {
     const normalizedKeyword = machineKeyword.trim().toLowerCase();
@@ -154,8 +126,8 @@ export default function Page() {
     });
   }, [machineKeyword, machines]);
 
-  function handleSelectItem(record: PartProcess): void {
-    setPartProcessSelected(record);
+  function handleSelectItem(record: ManufacturingProcess): void {
+    setSelectedProcess(record);
   }
 
   const handleStartProcessing = () => {};
@@ -166,7 +138,7 @@ export default function Page() {
 
   const handleCompleteProcessing = async () => {};
 
-  const processingColumns: ColumnsType<PartProcess> = [
+  const processingColumns: ColumnsType<ManufacturingProcess> = [
     {
       title: "",
       key: "select",
@@ -174,7 +146,7 @@ export default function Page() {
       align: "center",
       render: (_, record) => (
         <Radio
-          checked={partProcessSelected?.id === record.id}
+          checked={selectedProcess?.id === record.id}
           disabled={record.status === ProcessStatus.Completed}
           onChange={() => handleSelectItem(record)}
         />
@@ -194,13 +166,19 @@ export default function Page() {
     },
     {
       title: "Tên chi tiết",
-      dataIndex: "partName",
+      dataIndex: "partCode",
       width: 170,
       ellipsis: true,
     },
     {
       title: "Số lượng",
       dataIndex: "quantity",
+      width: 90,
+      align: "center",
+    },
+    {
+      title: "Ghi chí",
+      dataIndex: "note",
       width: 90,
       align: "center",
     },
@@ -229,17 +207,46 @@ export default function Page() {
     //     </Tag>
     //   ),
     // },
-    // {
-    //   title: "Trạng thái",
-    //   dataIndex: "status",
-    //   width: 130,
-    //   align: "center",
-    //   render: (status: ProcessingStatus) => (
-    //     <Tag color={statusConfig[status].color}>
-    //       {statusConfig[status].label}
-    //     </Tag>
-    //   ),
-    // },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      width: 130,
+      align: "center",
+      render: (status: ProcessStatus) => {
+        const statusMap: Record<
+          ProcessStatus,
+          { color: string; text: string }
+        > = {
+          [ProcessStatus.Planned]: {
+            color: "blue",
+            text: "Đã lên kế hoạch",
+          },
+          [ProcessStatus.InProgress]: {
+            color: "processing",
+            text: "Đang thực hiện",
+          },
+          [ProcessStatus.Completed]: {
+            color: "success",
+            text: "Hoàn thành",
+          },
+          [ProcessStatus.Cancelled]: {
+            color: "error",
+            text: "Đã hủy",
+          },
+          [ProcessStatus.Overdue]: {
+            color: "warning",
+            text: "Quá hạn",
+          },
+        };
+
+        const current = statusMap[status] ?? {
+          color: "default",
+          text: "Không xác định",
+        };
+
+        return <Tag color={current.color}>{current.text}</Tag>;
+      },
+    },
     {
       title: "Thao tác",
       key: "action",
@@ -251,7 +258,7 @@ export default function Page() {
           <Text type="secondary">-</Text>
         ) : (
           <Button
-            type={partProcessSelected?.id === record.id ? "primary" : "default"}
+            type={selectedProcess?.id === record.id ? "primary" : "default"}
             size="small"
             onClick={() => handleSelectItem(record)}
           >
@@ -374,11 +381,12 @@ export default function Page() {
               }
             >
               <div className="h-100 overflow-hidden">
-                <Table<PartProcess>
+                <Table<ManufacturingProcess>
                   rowKey="id"
+                  loading={loading}
                   size="small"
                   columns={processingColumns}
-                  dataSource={partProcesses}
+                  dataSource={processes}
                   scroll={{
                     x: "max-content",
                     y: "calc(100vh - 560px)",
@@ -386,11 +394,10 @@ export default function Page() {
                   pagination={{
                     current: page,
                     pageSize,
-                    total: partProcesses.length,
+                    total: total,
                     showSizeChanger: true,
                     pageSizeOptions: [5, 10, 20],
-                    showTotal: (totalItems, range) =>
-                      `Hiển thị ${range[0]} - ${range[1]} / ${totalItems} chi tiết`,
+                    showTotal: (total) => `Tổng ${total} chi tiết cần gia công`,
                     onChange: (newPage, newPageSize) => {
                       const pageSizeChanged = newPageSize !== pageSize;
 
@@ -399,7 +406,7 @@ export default function Page() {
                     },
                   }}
                   rowClassName={(record) =>
-                    partProcessSelected?.id === record.id
+                    selectedProcess?.id === record.id
                       ? "selected-table-row"
                       : ""
                   }
@@ -463,11 +470,11 @@ export default function Page() {
                             Chi tiết
                           </Text>
 
-                          {/* <Text strong ellipsis={{ tooltip: true }}>
-                            {selectedItem
-                              ? `${selectedItem.indexCode} - ${selectedItem.partName}`
+                          <Text strong ellipsis={{ tooltip: true }}>
+                            {selectedProcess
+                              ? `${selectedProcess.indexCode} - ${selectedProcess.partCode}`
                               : "Chưa chọn chi tiết"}
-                          </Text> */}
+                          </Text>
                         </div>
 
                         <div className="mb-3">
@@ -489,7 +496,7 @@ export default function Page() {
                         size="large"
                         block
                         icon={<PlayCircleOutlined />}
-                        disabled={!partProcessSelected || isRunning}
+                        disabled={!selectedProcess || isRunning}
                         onClick={handleStartProcessing}
                       >
                         {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
@@ -499,8 +506,8 @@ export default function Page() {
 
                   {/* Cột phải: Form nhập thông tin */}
                   <Col xs={24} lg={16} className="h-100">
-                    <div className="d-flex flex-column h-100 border rounded p-3">
-                      <div className="grow overflow-auto pe-1">
+                    <div className="d-flex flex-column h-100 border rounded p-3 overflow-hidden">
+                      <div className="grow overflow-y-auto overflow-x-hidden px-1">
                         <Form<ProcessingFormValues>
                           form={processingForm}
                           layout="vertical"
@@ -539,10 +546,26 @@ export default function Page() {
                               </Form.Item>
                             </Col>
                           </Row>
+                          <Row gutter={[12, 0]}>
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                label="Số lượng đã gia công"
+                                name="processedQuantity"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Nhập số lượng đã gia công",
+                                  },
+                                ]}
+                              >
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+                          </Row>
                         </Form>
                       </div>
 
-                      <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top">
+                      <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top shrink-0">
                         <Button
                           icon={<PauseOutlined />}
                           disabled={!isRunning}
@@ -555,7 +578,7 @@ export default function Page() {
                           type="primary"
                           className="complete-button"
                           icon={<CheckCircleOutlined />}
-                          disabled={!partProcessSelected}
+                          disabled={!selectedProcess}
                           onClick={handleCompleteProcessing}
                         >
                           Hoàn thành
