@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Button,
   Card,
   Col,
+  Empty,
   Form,
   Input,
   InputNumber,
@@ -35,19 +36,14 @@ import {
   ToolOutlined,
 } from "@ant-design/icons";
 import "./page.css";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { toast } from "react-toastify";
+import { Machine } from "@/app/types";
 
 const { Text, Title } = Typography;
 const { TextArea } = Input;
 
 type MachineStatus = "ready" | "maintenance";
-
-type Machine = {
-  id: number;
-  code: string;
-  name: string;
-  image: string;
-  status: MachineStatus;
-};
 
 type ProcessingStatus = "waiting" | "processing" | "completed";
 
@@ -89,44 +85,6 @@ type ExceptionFormValues = {
   description: string;
   severity: Priority;
 };
-
-const machines: Machine[] = [
-  {
-    id: 1,
-    code: "MC-001",
-    name: "Máy tiện CNC 01",
-    image: "⚙️",
-    status: "ready",
-  },
-  {
-    id: 2,
-    code: "MC-002",
-    name: "Máy phay CNC 02",
-    image: "🏭",
-    status: "ready",
-  },
-  {
-    id: 3,
-    code: "MC-003",
-    name: "Máy mài phẳng 01",
-    image: "🔩",
-    status: "maintenance",
-  },
-  {
-    id: 4,
-    code: "MC-004",
-    name: "Máy khoan 02",
-    image: "🛠️",
-    status: "ready",
-  },
-  {
-    id: 5,
-    code: "MC-005",
-    name: "Máy cắt dây 01",
-    image: "⚙️",
-    status: "ready",
-  },
-];
 
 const initialProcessingItems: ProcessingItem[] = [
   {
@@ -238,6 +196,13 @@ const exceptionStatusConfig: Record<
 };
 
 export default function Page() {
+  // New state
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [loadingMachine, setLoadingMachine] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [total, setTotal] = useState(100);
+
   const [processingForm] = Form.useForm<ProcessingFormValues>();
   const [exceptionForm] = Form.useForm<ExceptionFormValues>();
 
@@ -250,6 +215,31 @@ export default function Page() {
 
   const [isRunning, setIsRunning] = useState(false);
   const [showExceptionForm, setShowExceptionForm] = useState(true);
+
+  // New function
+  const fetchMachines = useCallback(async () => {
+    setLoadingMachine(true);
+
+    try {
+      const data = await getMachinesAsync();
+      setMachines(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách máy:", error);
+      toast.error("Không thể tải danh sách máy.");
+    } finally {
+      setLoadingMachine(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const run = async () => {
+      await Promise.all([fetchMachines()]);
+    };
+
+    if (!open) return;
+
+    void run();
+  }, [fetchMachines]);
 
   const selectedMachine = useMemo(
     () => machines.find((machine) => machine.id === selectedMachineId),
@@ -538,10 +528,11 @@ export default function Page() {
 
   return (
     <main className="worker-processing-page">
-      <Row gutter={[12, 12]}>
-        <Col xs={24} xl={5}>
+      <div className="processing-layout">
+        {/* Cột chọn máy */}
+        <section className="processing-machine-column">
           <Card
-            className="h-100 processing-card machine-card"
+            className="processing-card machine-card"
             title={
               <div className="section-title">
                 <span className="section-number">1</span>
@@ -549,150 +540,162 @@ export default function Page() {
               </div>
             }
           >
-            <Input
-              allowClear
-              prefix={<SearchOutlined />}
-              placeholder="Tìm kiếm máy theo tên hoặc mã..."
-              value={machineKeyword}
-              onChange={(event) => setMachineKeyword(event.target.value)}
-              className="mb-3"
-            />
+            <div className="machine-card-content">
+              <div className="machine-search">
+                <Input
+                  allowClear
+                  prefix={<SearchOutlined />}
+                  placeholder="Tìm kiếm máy theo tên hoặc mã..."
+                  value={machineKeyword}
+                  onChange={(event) => setMachineKeyword(event.target.value)}
+                />
+              </div>
 
-            <div className="machine-list">
-              {filteredMachines.map((machine) => {
-                const isSelected = selectedMachineId === machine.id;
+              <div className="machine-list">
+                {filteredMachines.length > 0 ? (
+                  filteredMachines.map((machine) => {
+                    const isSelected = selectedMachineId === machine.id;
 
-                return (
-                  <button
-                    type="button"
-                    key={machine.id}
-                    className={`machine-item ${isSelected ? "selected" : ""}`}
-                    disabled={machine.status === "maintenance"}
-                    onClick={() => setSelectedMachineId(machine.id)}
-                  >
-                    <Radio checked={isSelected} />
-
-                    <div className="machine-thumbnail">
-                      <span>{machine.image}</span>
-                    </div>
-
-                    <div className="machine-information">
-                      <strong>{machine.code}</strong>
-                      <span>{machine.name}</span>
-
-                      <small
-                        className={
-                          machine.status === "ready"
-                            ? "status-ready"
-                            : "status-maintenance"
-                        }
+                    return (
+                      <button
+                        type="button"
+                        key={machine.id}
+                        className={`machine-item ${
+                          isSelected ? "selected" : ""
+                        }`}
+                        // onClick={() => handleSelectMachine(machine.id)}
                       >
-                        <span className="status-dot" />
-                        {machine.status === "ready" ? "Sẵn sàng" : "Bảo trì"}
-                      </small>
-                    </div>
-                  </button>
-                );
-              })}
+                        <Radio checked={isSelected} />
+
+                        <div className="machine-thumbnail">
+                          <ToolOutlined />
+                        </div>
+
+                        <div className="machine-information">
+                          <strong>{machine.code}</strong>
+
+                          <span title={machine.name}>{machine.name}</span>
+
+                          {/* <small
+                            className={
+                              machine.status === "maintenance"
+                                ? "status-maintenance"
+                                : "status-ready"
+                            }
+                          >
+                            <span className="status-dot" />
+
+                            {machine.status === "maintenance"
+                              ? "Đang bảo dưỡng"
+                              : "Sẵn sàng"}
+                          </small> */}
+                        </div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="Không tìm thấy máy"
+                    className="machine-empty"
+                  />
+                )}
+              </div>
             </div>
           </Card>
-        </Col>
+        </section>
 
-        <Col xs={24} xl={19}>
-          <Row gutter={[12, 12]}>
-            <Col span={24}>
-              <Card
-                className="processing-card"
-                title={
-                  <div className="section-title">
-                    <span className="section-number">2</span>
-                    <span>Danh sách chi tiết cần gia công</span>
-                  </div>
-                }
-                extra={
-                  <div className="summary-list">
-                    <div className="summary-box summary-total">
-                      <Statistic
-                        title="Tổng số chi tiết"
-                        value={summary.total}
-                      />
-                    </div>
-
-                    <div className="summary-box summary-completed">
-                      <Statistic
-                        title="Đã hoàn thành"
-                        value={summary.completed}
-                      />
-                    </div>
-
-                    <div className="summary-box summary-processing">
-                      <Statistic
-                        title="Đang gia công"
-                        value={summary.processing}
-                      />
-                    </div>
-
-                    <div className="summary-box summary-remaining">
-                      <Statistic title="Còn lại" value={summary.remaining} />
-                    </div>
-                  </div>
-                }
-              >
-                <Table<ProcessingItem>
-                  rowKey="id"
-                  size="small"
-                  columns={processingColumns}
-                  dataSource={items}
-                  pagination={false}
-                  scroll={{ x: 1100 }}
-                  rowClassName={(record) =>
-                    selectedItemId === record.id ? "selected-table-row" : ""
-                  }
-                  onRow={(record) => ({
-                    onClick: () => handleSelectItem(record),
-                  })}
-                />
-
-                <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
-                  <Text type="secondary">
-                    Hiển thị 1 đến 5 trong tổng số 12 chi tiết
-                  </Text>
-
-                  <Pagination
+        {/* Khu vực bên phải */}
+        <section className="processing-main-column">
+          <div className="right-panel">
+            {/* Danh sách chi tiết */}
+            <Card
+              className="processing-card processing-list-card"
+              title={
+                <div className="section-title">
+                  <span className="section-number">2</span>
+                  <span>Danh sách chi tiết cần gia công</span>
+                </div>
+              }
+            >
+              <div className="processing-list-content">
+                <div className="processing-table-wrapper">
+                  <Table<ProcessingItem>
+                    rowKey="id"
                     size="small"
-                    current={1}
-                    pageSize={5}
-                    total={12}
-                    showSizeChanger
-                    pageSizeOptions={[5, 10, 20]}
+                    columns={processingColumns}
+                    dataSource={items}
+                    scroll={{
+                      x: "max-content",
+                    }}
+                    pagination={{
+                      current: page,
+                      pageSize,
+                      total: items.length,
+                      showSizeChanger: true,
+                      pageSizeOptions: [5, 10, 20],
+                      showTotal: (totalItems, range) =>
+                        `Hiển thị ${range[0]} - ${range[1]} / ${totalItems} chi tiết`,
+                      onChange: (newPage, newPageSize) => {
+                        const pageSizeChanged = newPageSize !== pageSize;
+
+                        setPage(pageSizeChanged ? 1 : newPage);
+                        setPageSize(newPageSize);
+                      },
+                    }}
+                    rowClassName={(record) =>
+                      selectedItemId === record.id ? "selected-table-row" : ""
+                    }
+                    onRow={(record) => ({
+                      onClick: () => handleSelectItem(record),
+                    })}
+                    locale={{
+                      emptyText: (
+                        <Empty
+                          image={Empty.PRESENTED_IMAGE_SIMPLE}
+                          description={
+                            selectedMachine
+                              ? "Máy này chưa có chi tiết cần gia công"
+                              : "Vui lòng chọn máy"
+                          }
+                        />
+                      ),
+                    }}
                   />
                 </div>
-              </Card>
-            </Col>
+              </div>
+            </Card>
 
-            <Col xs={24} xxl={12}>
-              <Card
-                className="processing-card h-100"
-                title={
-                  <div className="section-title">
-                    <span className="section-number">3</span>
-                    <span>Thông tin gia công</span>
-                  </div>
-                }
-              >
+            {/* Thông tin gia công */}
+            <Card
+              className="processing-card processing-information-card"
+              title={
+                <div className="section-title">
+                  <span className="section-number">3</span>
+                  <span>Thông tin gia công</span>
+                </div>
+              }
+            >
+              <div className="processing-information-content">
                 <div className="current-job-panel">
-                  <div>
-                    <div>
-                      <Text type="secondary">Máy: </Text>
-                      <Text strong>
-                        {selectedMachine?.code} - {selectedMachine?.name}
+                  <div className="current-job-information">
+                    <div className="current-job-line">
+                      <Text type="secondary">Máy:</Text>
+
+                      <Text strong ellipsis={{ tooltip: true }}>
+                        {selectedMachine
+                          ? `${selectedMachine.code} - ${selectedMachine.name}`
+                          : "Chưa chọn máy"}
                       </Text>
                     </div>
 
-                    <div>
-                      <Text type="secondary">Chi tiết: </Text>
-                      <Text strong>
-                        {selectedItem?.indexCode} - {selectedItem?.partName}
+                    <div className="current-job-line">
+                      <Text type="secondary">Chi tiết:</Text>
+
+                      <Text strong ellipsis={{ tooltip: true }}>
+                        {selectedItem
+                          ? `${selectedItem.indexCode} - ${selectedItem.partName}`
+                          : "Chưa chọn chi tiết"}
                       </Text>
                     </div>
                   </div>
@@ -707,304 +710,138 @@ export default function Page() {
                   </Button>
                 </div>
 
-                <Progress
-                  percent={completedPercent}
-                  size="small"
-                  className="mb-3"
-                  status={
-                    selectedItem?.status === "completed" ? "success" : "active"
-                  }
-                />
+                <div className="processing-progress">
+                  <Progress
+                    percent={completedPercent}
+                    size="small"
+                    status={completedPercent === 100 ? "success" : "active"}
+                  />
+                </div>
 
-                <Form<ProcessingFormValues>
-                  form={processingForm}
-                  layout="vertical"
-                  initialValues={{
-                    setupTime: 15,
-                    waitingTime: 10,
-                    actualTime: 0,
-                    machineTime: 0,
-                    processedQuantity: selectedItem?.processedQuantity ?? 0,
-                    passedQuantity: selectedItem?.processedQuantity ?? 0,
-                    note: "",
-                  }}
-                >
-                  <Row gutter={12}>
-                    <Col xs={24} md={8}>
-                      <Form.Item
-                        label="Thời gian gá đặt (phút)"
-                        name="setupTime"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Nhập thời gian gá đặt",
-                          },
-                        ]}
-                      >
-                        <InputNumber
-                          min={0}
-                          className="w-100"
-                          addonAfter="phút"
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
-                      <Form.Item
-                        label="Thời gian chờ (phút)"
-                        name="waitingTime"
-                      >
-                        <InputNumber
-                          min={0}
-                          className="w-100"
-                          addonAfter="phút"
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
-                      <Form.Item
-                        label="Thời gian thực tế (phút)"
-                        name="actualTime"
-                      >
-                        <InputNumber
-                          min={0}
-                          className="w-100"
-                          addonAfter={<ClockCircleOutlined />}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
-                      <Form.Item label="Thời gian chạy máy" name="machineTime">
-                        <InputNumber
-                          min={0}
-                          className="w-100"
-                          addonAfter="phút"
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
-                      <Form.Item
-                        label="Số lượng gia công"
-                        name="processedQuantity"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Nhập số lượng gia công",
-                          },
-                        ]}
-                      >
-                        <InputNumber
-                          min={0}
-                          max={selectedItem?.quantity}
-                          className="w-100"
-                          addonAfter={`/${selectedItem?.quantity ?? 0}`}
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col xs={24} md={8}>
-                      <Form.Item label="Số lượng đạt" name="passedQuantity">
-                        <InputNumber
-                          min={0}
-                          max={selectedItem?.quantity}
-                          className="w-100"
-                        />
-                      </Form.Item>
-                    </Col>
-
-                    <Col span={24}>
-                      <Form.Item label="Ghi chú" name="note">
-                        <TextArea
-                          rows={4}
-                          placeholder="Nhập ghi chú nếu có..."
-                          maxLength={500}
-                          showCount
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <div className="d-flex justify-content-end gap-2">
-                    <Button
-                      icon={<PauseOutlined />}
-                      disabled={!isRunning}
-                      onClick={handlePauseProcessing}
-                    >
-                      Tạm dừng
-                    </Button>
-
-                    <Button
-                      type="primary"
-                      className="complete-button"
-                      icon={<CheckCircleOutlined />}
-                      disabled={!selectedItem}
-                      onClick={handleCompleteProcessing}
-                    >
-                      Hoàn thành
-                    </Button>
-                  </div>
-                </Form>
-              </Card>
-            </Col>
-
-            <Col xs={24} xxl={12}>
-              <Card
-                className="processing-card h-100"
-                title={
-                  <div className="section-title">
-                    <span className="section-number">4</span>
-                    <span>Ngoại lệ nếu có</span>
-                  </div>
-                }
-                extra={
-                  <Button
-                    type="default"
-                    icon={<PlusOutlined />}
-                    className="exception-button"
-                    onClick={() => setShowExceptionForm((current) => !current)}
+                <div className="processing-form-scroll">
+                  <Form<ProcessingFormValues>
+                    form={processingForm}
+                    layout="vertical"
+                    initialValues={{
+                      setupTime: 15,
+                      waitingTime: 10,
+                      actualTime: 0,
+                      machineTime: 0,
+                      processedQuantity: 0,
+                      passedQuantity: 0,
+                      note: "",
+                    }}
                   >
-                    Thêm ngoại lệ
+                    <Row gutter={[12, 0]}>
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item
+                          label="Thời gian gá đặt"
+                          name="setupTime"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Nhập thời gian gá đặt",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            min={0}
+                            className="w-100"
+                            addonAfter="phút"
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item label="Thời gian chờ" name="waitingTime">
+                          <InputNumber
+                            min={0}
+                            className="w-100"
+                            addonAfter="phút"
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item label="Thời gian thực tế" name="actualTime">
+                          <InputNumber
+                            min={0}
+                            className="w-100"
+                            addonAfter={<ClockCircleOutlined />}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item
+                          label="Thời gian chạy máy"
+                          name="machineTime"
+                        >
+                          <InputNumber
+                            min={0}
+                            className="w-100"
+                            addonAfter="phút"
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item
+                          label="Số lượng gia công"
+                          name="processedQuantity"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Nhập số lượng gia công",
+                            },
+                          ]}
+                        >
+                          <InputNumber
+                            min={0}
+                            max={selectedItem?.quantity}
+                            className="w-100"
+                            addonAfter={`/${selectedItem?.quantity ?? 0}`}
+                          />
+                        </Form.Item>
+                      </Col>
+
+                      <Col xs={24} sm={12} xl={8}>
+                        <Form.Item label="Số lượng đạt" name="passedQuantity">
+                          <InputNumber
+                            min={0}
+                            max={selectedItem?.quantity}
+                            className="w-100"
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </Form>
+                </div>
+
+                <div className="processing-actions">
+                  <Button
+                    icon={<PauseOutlined />}
+                    disabled={!isRunning}
+                    onClick={handlePauseProcessing}
+                  >
+                    Tạm dừng
                   </Button>
-                }
-              >
-                <Table<ProcessingException>
-                  rowKey="id"
-                  size="small"
-                  columns={exceptionColumns}
-                  dataSource={exceptions}
-                  pagination={false}
-                  scroll={{ x: 760 }}
-                />
 
-                {showExceptionForm && (
-                  <div className="exception-form-wrapper mt-3">
-                    <Title level={5}>Thêm ngoại lệ mới</Title>
-
-                    <Form<ExceptionFormValues>
-                      form={exceptionForm}
-                      layout="vertical"
-                      initialValues={{
-                        severity: "high",
-                      }}
-                    >
-                      <Row gutter={12}>
-                        <Col xs={24} lg={7}>
-                          <Form.Item
-                            label="Loại ngoại lệ"
-                            name="type"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Chọn loại ngoại lệ",
-                              },
-                            ]}
-                          >
-                            <Select
-                              placeholder="Chọn loại ngoại lệ"
-                              options={[
-                                {
-                                  label: "Cần sửa chữa gấp",
-                                  value: "Cần sửa chữa gấp",
-                                },
-                                {
-                                  label: "Sai thông số kỹ thuật",
-                                  value: "Sai thông số kỹ thuật",
-                                },
-                                {
-                                  label: "Thiếu nguyên vật liệu",
-                                  value: "Thiếu nguyên vật liệu",
-                                },
-                                {
-                                  label: "Dừng máy bất thường",
-                                  value: "Dừng máy bất thường",
-                                },
-                                {
-                                  label: "Khác",
-                                  value: "Khác",
-                                },
-                              ]}
-                            />
-                          </Form.Item>
-                        </Col>
-
-                        <Col xs={24} lg={10}>
-                          <Form.Item
-                            label="Mô tả chi tiết"
-                            name="description"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Nhập mô tả ngoại lệ",
-                              },
-                            ]}
-                          >
-                            <TextArea
-                              rows={3}
-                              placeholder="Nhập mô tả chi tiết về ngoại lệ..."
-                              maxLength={500}
-                            />
-                          </Form.Item>
-                        </Col>
-
-                        <Col xs={24} lg={7}>
-                          <Form.Item
-                            label="Mức độ"
-                            name="severity"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Chọn mức độ",
-                              },
-                            ]}
-                          >
-                            <Select
-                              options={[
-                                {
-                                  label: "Cao",
-                                  value: "high",
-                                },
-                                {
-                                  label: "Trung bình",
-                                  value: "medium",
-                                },
-                                {
-                                  label: "Thấp",
-                                  value: "low",
-                                },
-                              ]}
-                            />
-                          </Form.Item>
-
-                          <div className="d-flex justify-content-end">
-                            <Button
-                              type="primary"
-                              icon={<SendOutlined />}
-                              onClick={handleCreateException}
-                            >
-                              Gửi để duyệt
-                            </Button>
-                          </div>
-                        </Col>
-                      </Row>
-                    </Form>
-                  </div>
-                )}
-
-                <Alert
-                  className="mt-3"
-                  type="info"
-                  showIcon
-                  icon={<ExclamationCircleOutlined />}
-                  description="Vui lòng nhập đầy đủ thông tin và báo cáo ngoại lệ nếu có để quản lý hiệu quả quá trình gia công."
-                />
-              </Card>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
+                  <Button
+                    type="primary"
+                    className="complete-button"
+                    icon={<CheckCircleOutlined />}
+                    disabled={!selectedItem}
+                    onClick={handleCompleteProcessing}
+                  >
+                    Hoàn thành
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

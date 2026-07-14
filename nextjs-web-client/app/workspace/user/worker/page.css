@@ -1,35 +1,108 @@
 .worker-processing-page {
-  min-height: 100vh;
-  padding: 12px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px;
+  overflow: hidden;
   background: #f4f6f9;
 }
 
+/* =========================
+   Bố cục tổng
+   ========================= */
+
+.processing-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.processing-machine-column,
+.processing-main-column {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.right-panel {
+  display: grid;
+  grid-template-rows:
+    minmax(250px, 0.9fr)
+    minmax(330px, 1.1fr);
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* =========================
+   Card dùng chung
+   ========================= */
+
 .processing-card {
-  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #e2e7ee;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
 }
 
 .processing-card > .ant-card-head {
-  min-height: 50px;
-  padding: 0 14px;
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 12px;
   border-bottom: 1px solid #e8edf3;
 }
 
+.processing-card > .ant-card-head .ant-card-head-wrapper {
+  min-width: 0;
+}
+
+.processing-card > .ant-card-head .ant-card-head-title {
+  min-width: 0;
+  padding: 10px 0;
+  overflow: hidden;
+}
+
 .processing-card > .ant-card-body {
-  padding: 14px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 10px;
+  overflow: hidden;
 }
 
 .section-title {
   display: flex;
-  align-items: center;
   gap: 8px;
-  font-weight: 600;
+  align-items: center;
+  min-width: 0;
   color: #172033;
+  font-weight: 600;
+}
+
+.section-title > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .section-number {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   min-width: 22px;
@@ -41,55 +114,81 @@
   border-radius: 6px;
 }
 
-.machine-card > .ant-card-body {
-  height: calc(100vh - 86px);
-  min-height: 650px;
-  overflow: hidden;
+/* =========================
+   Danh sách máy
+   ========================= */
+
+.machine-card-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.machine-search {
+  flex: 0 0 auto;
 }
 
 .machine-list {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: 8px;
-  max-height: calc(100vh - 175px);
+  gap: 7px;
+  min-width: 0;
+  min-height: 0;
   padding-right: 3px;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .machine-item {
   display: grid;
-  grid-template-columns: 22px 48px minmax(0, 1fr);
+  grid-template-columns: 20px 42px minmax(0, 1fr);
+  flex: 0 0 auto;
   gap: 8px;
   align-items: center;
   width: 100%;
-  min-height: 82px;
-  padding: 10px;
+  min-width: 0;
+  min-height: 70px;
+  padding: 8px;
   color: inherit;
+  font: inherit;
   text-align: left;
   cursor: pointer;
   background: #fff;
   border: 1px solid #dfe5ec;
   border-radius: 7px;
+  outline: none;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
-    background 0.2s ease;
+    background-color 0.2s ease;
 }
 
 .machine-item:hover:not(:disabled) {
+  background: #fafcff;
   border-color: #69b1ff;
   box-shadow: 0 2px 8px rgb(22 119 255 / 10%);
 }
 
-.machine-item.selected {
-  background: #f4f9ff;
+.machine-item:focus-visible {
   border-color: #1677ff;
-  box-shadow: 0 0 0 1px rgb(22 119 255 / 10%);
+  box-shadow: 0 0 0 2px rgb(22 119 255 / 16%);
+}
+
+.machine-item.selected {
+  background: #f0f7ff;
+  border-color: #1677ff;
+  box-shadow: inset 3px 0 0 #1677ff;
 }
 
 .machine-item:disabled {
   cursor: not-allowed;
-  opacity: 0.72;
+  opacity: 0.65;
 }
 
 .machine-item .ant-radio-wrapper {
@@ -101,9 +200,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  font-size: 28px;
+  width: 42px;
+  height: 42px;
+  color: #526173;
+  font-size: 21px;
   background: #eef2f6;
   border-radius: 6px;
 }
@@ -115,25 +215,31 @@
 }
 
 .machine-information strong {
+  overflow: hidden;
   color: #172033;
   font-size: 13px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .machine-information > span {
   margin-top: 2px;
   overflow: hidden;
-  color: #374151;
-  font-size: 13px;
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .machine-information small {
   display: flex;
-  align-items: center;
   gap: 5px;
+  align-items: center;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .status-ready {
@@ -141,102 +247,186 @@
 }
 
 .status-maintenance {
-  color: #f59e0b;
+  color: #d97706;
 }
 
 .status-dot {
+  flex: 0 0 auto;
   width: 7px;
   height: 7px;
   background: currentColor;
   border-radius: 50%;
 }
 
-.summary-list {
+.machine-empty {
+  margin-block: auto;
+}
+
+/* =========================
+   Card danh sách gia công
+   ========================= */
+
+.processing-list-content {
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.summary-box {
-  width: 118px;
-  padding: 7px 11px;
-  border: 1px solid;
-  border-radius: 7px;
+.processing-table-wrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
-.summary-box .ant-statistic-title {
-  margin-bottom: 1px;
-  font-size: 11px;
-  font-weight: 500;
+.processing-table-wrapper > .ant-table-wrapper {
+  min-width: 100%;
 }
 
-.summary-box .ant-statistic-content {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
+/*
+ Không đặt scroll.y cố định trong Table.
+ Wrapper bên ngoài sẽ quản lý scroll theo kích thước thẻ cha.
+*/
+
+.worker-processing-page .ant-table {
+  font-size: 12px;
 }
 
-.summary-total {
-  background: #f0f7ff;
-  border-color: #cfe3ff;
+.worker-processing-page .ant-table-container {
+  min-width: 0;
 }
 
-.summary-total .ant-statistic-title,
-.summary-total .ant-statistic-content {
-  color: #1677ff;
+.worker-processing-page .ant-table-thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: #263244;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #f6f8fb;
 }
 
-.summary-completed {
-  background: #f1fbf5;
-  border-color: #ccebd7;
+.worker-processing-page .ant-table-tbody > tr {
+  cursor: pointer;
 }
 
-.summary-completed .ant-statistic-title,
-.summary-completed .ant-statistic-content {
-  color: #16a34a;
+.worker-processing-page .ant-table-tbody > tr > td {
+  padding-top: 7px;
+  padding-bottom: 7px;
 }
 
-.summary-processing {
-  background: #fff8ef;
-  border-color: #ffe0b5;
+.worker-processing-page .ant-table-tbody > tr:hover > td {
+  background: #f7fbff;
 }
 
-.summary-processing .ant-statistic-title,
-.summary-processing .ant-statistic-content {
-  color: #d97706;
-}
-
-.summary-remaining {
-  background: #f6f7f9;
-  border-color: #e1e5eb;
-}
-
-.summary-remaining .ant-statistic-title,
-.summary-remaining .ant-statistic-content {
-  color: #1f2937;
+.worker-processing-page .ant-pagination {
+  margin: 8px 0 0;
 }
 
 .selected-table-row > td {
-  background: #f0f7ff !important;
+  background: #eaf4ff !important;
+}
+
+/* =========================
+   Thông tin gia công
+   ========================= */
+
+.processing-information-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .current-job-panel {
   display: flex;
+  flex: 0 0 auto;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  margin-bottom: 8px;
+  min-width: 0;
+  padding: 9px 10px;
   background: linear-gradient(135deg, #eef6ff 0%, #f7fbff 100%);
   border: 1px solid #cfe3ff;
   border-radius: 7px;
 }
 
-.current-job-panel > div:first-child {
+.current-job-information {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
+}
+
+.current-job-line {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.current-job-line > span {
+  min-width: 0;
+}
+
+.current-job-panel > .ant-btn {
+  flex: 0 0 auto;
+}
+
+.processing-progress {
+  flex: 0 0 auto;
+}
+
+.processing-progress .ant-progress {
+  margin: 0;
+}
+
+.processing-form-scroll {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding-right: 3px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.worker-processing-page .ant-form-item {
+  margin-bottom: 10px;
+}
+
+.worker-processing-page .ant-form-item-label {
+  padding-bottom: 3px;
+}
+
+.worker-processing-page .ant-form-item-label > label {
+  height: auto;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.processing-note-item {
+  margin-bottom: 0 !important;
+}
+
+.processing-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid #edf0f4;
 }
 
 .complete-button {
@@ -244,97 +434,96 @@
   border-color: #16a34a;
 }
 
-.complete-button:hover {
+.complete-button:not(:disabled):hover {
   background: #15803d !important;
   border-color: #15803d !important;
-}
-
-.exception-button {
-  color: #d97706;
-  border-color: #f5c575;
-}
-
-.exception-button:hover {
-  color: #b45309 !important;
-  border-color: #d97706 !important;
-}
-
-.exception-form-wrapper {
-  padding: 14px;
-  background: #fafbfd;
-  border: 1px solid #e3e8ef;
-  border-radius: 7px;
-}
-
-.exception-form-wrapper .ant-typography {
-  margin-top: 0;
-}
-
-.worker-processing-page .ant-form-item {
-  margin-bottom: 14px;
-}
-
-.worker-processing-page .ant-form-item-label > label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #374151;
-}
-
-.worker-processing-page .ant-table-wrapper .ant-table {
-  font-size: 12px;
-}
-
-.worker-processing-page .ant-table-wrapper .ant-table-thead > tr > th {
-  color: #263244;
-  font-weight: 600;
-  background: #f6f8fb;
-}
-
-.worker-processing-page .ant-table-wrapper .ant-table-tbody > tr {
-  cursor: pointer;
 }
 
 .worker-processing-page .ant-tag {
   margin-inline-end: 0;
 }
 
-@media (max-width: 1399px) {
-  .machine-card > .ant-card-body {
-    height: auto;
-    min-height: auto;
-  }
+/* =========================
+   Scrollbar
+   ========================= */
 
-  .machine-list {
-    max-height: 420px;
-  }
+.machine-list::-webkit-scrollbar,
+.processing-table-wrapper::-webkit-scrollbar,
+.processing-form-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
+.machine-list::-webkit-scrollbar-thumb,
+.processing-table-wrapper::-webkit-scrollbar-thumb,
+.processing-form-scroll::-webkit-scrollbar-thumb {
+  background: #c5ccd6;
+  border-radius: 10px;
+}
+
+.machine-list::-webkit-scrollbar-track,
+.processing-table-wrapper::-webkit-scrollbar-track,
+.processing-form-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
 @media (max-width: 1199px) {
-  .summary-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(110px, 1fr));
-    width: 100%;
+  .worker-processing-page {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
   }
 
-  .summary-box {
-    width: auto;
+  .processing-layout {
+    grid-template-columns: 1fr;
+    height: auto;
   }
 
-  .processing-card > .ant-card-head {
-    flex-wrap: wrap;
-    padding-top: 8px;
-    padding-bottom: 8px;
+  .processing-machine-column,
+  .processing-main-column {
+    overflow: visible;
   }
 
-  .processing-card > .ant-card-head .ant-card-extra {
-    width: 100%;
-    margin-left: 0;
-    padding-top: 8px;
+  .machine-card {
+    height: auto;
+    max-height: 420px;
+  }
+
+  .machine-card-content {
+    min-height: 300px;
+  }
+
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .processing-list-card {
+    height: 420px;
+  }
+
+  .processing-information-card {
+    height: auto;
+    min-height: 450px;
   }
 }
 
 @media (max-width: 767px) {
   .worker-processing-page {
+    padding: 6px;
+  }
+
+  .processing-layout,
+  .right-panel {
+    gap: 6px;
+  }
+
+  .processing-card > .ant-card-body {
     padding: 8px;
   }
 
@@ -343,11 +532,32 @@
     flex-direction: column;
   }
 
-  .current-job-panel .ant-btn {
+  .current-job-panel > .ant-btn {
     width: 100%;
   }
 
-  .summary-list {
-    grid-template-columns: repeat(2, 1fr);
+  .processing-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .processing-actions .ant-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .machine-item {
+    grid-template-columns: 20px 36px minmax(0, 1fr);
+  }
+
+  .machine-thumbnail {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .processing-actions {
+    grid-template-columns: 1fr;
   }
 }
