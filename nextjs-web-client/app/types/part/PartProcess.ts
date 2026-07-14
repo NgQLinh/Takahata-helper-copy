@@ -12,4 +12,6 @@ export interface PartProcess {
   status: ProcessStatus;
   note?: string | null;
   machine: Machine | null;
+  quantity: number;
+  processedQuantity: number;
 }

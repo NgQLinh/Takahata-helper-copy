@@ -26,6 +26,7 @@ namespace TAKAHATA.Infrastructure
             services.AddScoped<IMachineRepository, MachineRepository>();
             services.AddScoped<IIndexRepository, IndexRepository>();
             services.AddScoped<IPartRepository, PartRepository>();
+            services.AddScoped<IPartProcessRepository, PartProcessRepository>();
             services.AddScoped<IMachineMaintenanceProcessRepository, MachineMaintenanceProcessRepository>();
 
             // MySQL

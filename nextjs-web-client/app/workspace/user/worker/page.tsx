@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Button,
   Card,
   Col,
@@ -10,13 +9,9 @@ import {
   Form,
   Input,
   InputNumber,
-  Pagination,
   Progress,
   Radio,
   Row,
-  Select,
-  Space,
-  Statistic,
   Table,
   Tag,
   Typography,
@@ -24,50 +19,24 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import {
   CheckCircleOutlined,
-  ClockCircleOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
   PauseOutlined,
   PlayCircleOutlined,
-  PlusOutlined,
   SearchOutlined,
-  SendOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import {
+  getMachinesAsync,
+  getPartProcessByMachineAsync,
+} from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine } from "@/app/types";
+import { Machine, PartProcess } from "@/app/types";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
-const { Text, Title } = Typography;
-const { TextArea } = Input;
-
-type MachineStatus = "ready" | "maintenance";
+const { Text } = Typography;
 
 type ProcessingStatus = "waiting" | "processing" | "completed";
 
 type Priority = "low" | "medium" | "high";
-
-type ProcessingItem = {
-  id: number;
-  indexCode: string;
-  partName: string;
-  quantity: number;
-  processedQuantity: number;
-  priority: Priority;
-  status: ProcessingStatus;
-};
-
-type ExceptionStatus = "pending" | "approved" | "rejected";
-
-type ProcessingException = {
-  id: number;
-  createdAt: string;
-  type: string;
-  description: string;
-  severity: Priority;
-  status: ExceptionStatus;
-};
 
 type ProcessingFormValues = {
   setupTime: number;
@@ -78,72 +47,6 @@ type ProcessingFormValues = {
   passedQuantity: number;
   note?: string;
 };
-
-type ExceptionFormValues = {
-  type: string;
-  description: string;
-  severity: Priority;
-};
-
-const initialProcessingItems: ProcessingItem[] = [
-  {
-    id: 1,
-    indexCode: "IDX-1001",
-    partName: "Trục chính",
-    quantity: 10,
-    processedQuantity: 2,
-    priority: "high",
-    status: "waiting",
-  },
-  {
-    id: 2,
-    indexCode: "IDX-1002",
-    partName: "Bạc dẫn hướng",
-    quantity: 20,
-    processedQuantity: 0,
-    priority: "medium",
-    status: "waiting",
-  },
-  {
-    id: 3,
-    indexCode: "IDX-1003",
-    partName: "Vỏ hộp số",
-    quantity: 5,
-    processedQuantity: 5,
-    priority: "high",
-    status: "completed",
-  },
-  {
-    id: 4,
-    indexCode: "IDX-1004",
-    partName: "Puly truyền động",
-    quantity: 15,
-    processedQuantity: 7,
-    priority: "medium",
-    status: "processing",
-  },
-  {
-    id: 5,
-    indexCode: "IDX-1005",
-    partName: "Bánh răng",
-    quantity: 30,
-    processedQuantity: 0,
-    priority: "low",
-    status: "waiting",
-  },
-];
-
-const initialExceptions: ProcessingException[] = [
-  {
-    id: 1,
-    createdAt: "13/07/2026 10:30",
-    type: "Cần sửa chữa gấp",
-    description:
-      "Máy rung mạnh bất thường, phát ra tiếng kêu lớn ở trục chính.",
-    severity: "high",
-    status: "pending",
-  },
-];
 
 const priorityConfig: Record<Priority, { label: string; color: string }> = {
   high: {
@@ -176,59 +79,48 @@ const statusConfig: Record<ProcessingStatus, { label: string; color: string }> =
     },
   };
 
-const exceptionStatusConfig: Record<
-  ExceptionStatus,
-  { label: string; color: string }
-> = {
-  pending: {
-    label: "Chờ duyệt",
-    color: "orange",
-  },
-  approved: {
-    label: "Đã duyệt",
-    color: "green",
-  },
-  rejected: {
-    label: "Từ chối",
-    color: "red",
-  },
-};
-
 export default function Page() {
-  // New state
-  const [machines, setMachines] = useState<Machine[]>([]);
-  const [loadingMachine, setLoadingMachine] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(100);
 
-  const [processingForm] = Form.useForm<ProcessingFormValues>();
-  const [exceptionForm] = Form.useForm<ExceptionFormValues>();
-
-  const [selectedMachineId, setSelectedMachineId] = useState<number>(1);
-  const [selectedItemId, setSelectedItemId] = useState<number>(1);
+  // New state
   const [machineKeyword, setMachineKeyword] = useState("");
-  const [items, setItems] = useState<ProcessingItem[]>(initialProcessingItems);
-  const [exceptions, setExceptions] =
-    useState<ProcessingException[]>(initialExceptions);
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
+  const [partProcesses, setPartProcesses] = useState<PartProcess[]>([]);
+  const [partProcessSelected, setPartProcessSelected] =
+    useState<PartProcess | null>(null);
+
+  const [processingForm] = Form.useForm<ProcessingFormValues>();
 
   const [isRunning, setIsRunning] = useState(false);
-  const [showExceptionForm, setShowExceptionForm] = useState(true);
 
   // New function
   const fetchMachines = useCallback(async () => {
-    setLoadingMachine(true);
-
     try {
       const data = await getMachinesAsync();
       setMachines(data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách máy:", error);
       toast.error("Không thể tải danh sách máy.");
-    } finally {
-      setLoadingMachine(false);
     }
   }, []);
+
+  const fetchPartProcess = useCallback(async () => {
+    if (selectedMachine)
+      try {
+        const request = {
+          machineId: selectedMachine.id,
+        };
+
+        const data = await getPartProcessByMachineAsync(request);
+        setPartProcesses(data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách máy:", error);
+        toast.error("Không thể tải danh sách máy.");
+      }
+  }, [selectedMachine]);
 
   useEffect(() => {
     const run = async () => {
@@ -240,15 +132,12 @@ export default function Page() {
     void run();
   }, [fetchMachines]);
 
-  const selectedMachine = useMemo(
-    () => machines.find((machine) => machine.id === selectedMachineId),
-    [selectedMachineId],
-  );
-
-  const selectedItem = useMemo(
-    () => items.find((item) => item.id === selectedItemId),
-    [items, selectedItemId],
-  );
+  useEffect(() => {
+    const run = async () => {
+      await Promise.all([fetchPartProcess()]);
+    };
+    if (selectedMachine) void run();
+  }, [fetchPartProcess, selectedMachine]);
 
   const filteredMachines = useMemo(() => {
     const normalizedKeyword = machineKeyword.trim().toLowerCase();
@@ -262,108 +151,21 @@ export default function Page() {
 
       return searchableText.includes(normalizedKeyword);
     });
-  }, [machineKeyword]);
+  }, [machineKeyword, machines]);
 
-  const summary = useMemo(() => {
-    const completed = items.filter(
-      (item) => item.status === "completed",
-    ).length;
+  function handleSelectItem(record: PartProcess): void {
+    setPartProcessSelected(record);
+  }
 
-    const processing = items.filter(
-      (item) => item.status === "processing",
-    ).length;
-
-    return {
-      total: 12,
-      completed,
-      processing,
-      remaining: 12 - completed - processing,
-    };
-  }, [items]);
-
-  const handleSelectItem = (item: ProcessingItem) => {
-    if (item.status === "completed") {
-      return;
-    }
-
-    setSelectedItemId(item.id);
-
-    processingForm.setFieldsValue({
-      processedQuantity: item.processedQuantity,
-      passedQuantity: item.processedQuantity,
-    });
-  };
-
-  const handleStartProcessing = () => {
-    if (!selectedItem) {
-      return;
-    }
-
-    setIsRunning(true);
-
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === selectedItem.id
-          ? {
-              ...item,
-              status: "processing",
-            }
-          : item,
-      ),
-    );
-  };
+  const handleStartProcessing = () => {};
 
   const handlePauseProcessing = () => {
     setIsRunning(false);
   };
 
-  const handleCompleteProcessing = async () => {
-    const values = await processingForm.validateFields();
+  const handleCompleteProcessing = async () => {};
 
-    if (!selectedItem) {
-      return;
-    }
-
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === selectedItem.id
-          ? {
-              ...item,
-              processedQuantity: values.processedQuantity ?? item.quantity,
-              status: "completed",
-            }
-          : item,
-      ),
-    );
-
-    setIsRunning(false);
-  };
-
-  const handleCreateException = async () => {
-    const values = await exceptionForm.validateFields();
-
-    const newException: ProcessingException = {
-      id: Date.now(),
-      createdAt: new Date().toLocaleString("vi-VN"),
-      type: values.type,
-      description: values.description,
-      severity: values.severity,
-      status: "pending",
-    };
-
-    setExceptions((currentExceptions) => [...currentExceptions, newException]);
-
-    exceptionForm.resetFields();
-    setShowExceptionForm(false);
-  };
-
-  const handleDeleteException = (id: number) => {
-    setExceptions((currentExceptions) =>
-      currentExceptions.filter((item) => item.id !== id),
-    );
-  };
-
-  const processingColumns: ColumnsType<ProcessingItem> = [
+  const processingColumns: ColumnsType<PartProcess> = [
     {
       title: "",
       key: "select",
@@ -371,8 +173,8 @@ export default function Page() {
       align: "center",
       render: (_, record) => (
         <Radio
-          checked={selectedItemId === record.id}
-          disabled={record.status === "completed"}
+          checked={partProcessSelected?.id === record.id}
+          disabled={record.status === ProcessStatus.Completed}
           onChange={() => handleSelectItem(record)}
         />
       ),
@@ -415,28 +217,28 @@ export default function Page() {
       render: (_, record) =>
         Math.max(record.quantity - record.processedQuantity, 0),
     },
-    {
-      title: "Ưu tiên",
-      dataIndex: "priority",
-      width: 105,
-      align: "center",
-      render: (priority: Priority) => (
-        <Tag color={priorityConfig[priority].color}>
-          {priorityConfig[priority].label}
-        </Tag>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      width: 130,
-      align: "center",
-      render: (status: ProcessingStatus) => (
-        <Tag color={statusConfig[status].color}>
-          {statusConfig[status].label}
-        </Tag>
-      ),
-    },
+    // {
+    //   title: "Ưu tiên",
+    //   dataIndex: "priority",
+    //   width: 105,
+    //   align: "center",
+    //   render: (priority: Priority) => (
+    //     <Tag color={priorityConfig[priority].color}>
+    //       {priorityConfig[priority].label}
+    //     </Tag>
+    //   ),
+    // },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: "status",
+    //   width: 130,
+    //   align: "center",
+    //   render: (status: ProcessingStatus) => (
+    //     <Tag color={statusConfig[status].color}>
+    //       {statusConfig[status].label}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: "Thao tác",
       key: "action",
@@ -444,11 +246,11 @@ export default function Page() {
       fixed: "right",
       align: "center",
       render: (_, record) =>
-        record.status === "completed" ? (
+        record.status === ProcessStatus.Completed ? (
           <Text type="secondary">-</Text>
         ) : (
           <Button
-            type={selectedItemId === record.id ? "primary" : "default"}
+            type={partProcessSelected?.id === record.id ? "primary" : "default"}
             size="small"
             onClick={() => handleSelectItem(record)}
           >
@@ -457,73 +259,6 @@ export default function Page() {
         ),
     },
   ];
-
-  const exceptionColumns: ColumnsType<ProcessingException> = [
-    {
-      title: "Thời gian",
-      dataIndex: "createdAt",
-      width: 130,
-    },
-    {
-      title: "Loại ngoại lệ",
-      dataIndex: "type",
-      width: 160,
-      ellipsis: true,
-    },
-    {
-      title: "Mô tả",
-      dataIndex: "description",
-      ellipsis: true,
-    },
-    {
-      title: "Mức độ",
-      dataIndex: "severity",
-      width: 90,
-      align: "center",
-      render: (severity: Priority) => (
-        <Tag color={priorityConfig[severity].color}>
-          {priorityConfig[severity].label}
-        </Tag>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      width: 110,
-      align: "center",
-      render: (status: ExceptionStatus) => (
-        <Tag color={exceptionStatusConfig[status].color}>
-          {exceptionStatusConfig[status].label}
-        </Tag>
-      ),
-    },
-    {
-      title: "Thao tác",
-      key: "action",
-      width: 90,
-      align: "center",
-      render: (_, record) => (
-        <Space size={4}>
-          <Button type="text" size="small" icon={<EditOutlined />} />
-
-          <Button
-            type="text"
-            danger
-            size="small"
-            icon={<DeleteOutlined />}
-            onClick={() => handleDeleteException(record.id)}
-          />
-        </Space>
-      ),
-    },
-  ];
-
-  const completedPercent = selectedItem
-    ? Math.round(
-        (selectedItem.processedQuantity / Math.max(selectedItem.quantity, 1)) *
-          100,
-      )
-    : 0;
 
   return (
     <main
@@ -566,7 +301,7 @@ export default function Page() {
               <div className="grow overflow-auto pe-1">
                 {filteredMachines.length > 0 ? (
                   filteredMachines.map((machine) => {
-                    const isSelected = selectedMachineId === machine.id;
+                    const isSelected = selectedMachine?.id === machine.id;
 
                     return (
                       <button
@@ -575,7 +310,7 @@ export default function Page() {
                         className={`btn w-100 mb-2 border rounded p-3 text-start d-flex align-items-center gap-3 ${
                           isSelected ? "btn-primary" : "btn-light"
                         }`}
-                        // onClick={() => handleSelectMachine(machine.id)}
+                        onClick={() => setSelectedMachine(machine)}
                       >
                         <Radio checked={isSelected} />
 
@@ -632,19 +367,19 @@ export default function Page() {
               }
             >
               <div className="h-100 overflow-hidden">
-                <Table<ProcessingItem>
+                <Table<PartProcess>
                   rowKey="id"
                   size="small"
                   columns={processingColumns}
-                  dataSource={items}
+                  dataSource={partProcesses}
                   scroll={{
                     x: "max-content",
-                    y: "calc(100vh - 540px)",
+                    y: "calc(100vh - 560px)",
                   }}
                   pagination={{
                     current: page,
                     pageSize,
-                    total: items.length,
+                    total: partProcesses.length,
                     showSizeChanger: true,
                     pageSizeOptions: [5, 10, 20],
                     showTotal: (totalItems, range) =>
@@ -657,7 +392,9 @@ export default function Page() {
                     },
                   }}
                   rowClassName={(record) =>
-                    selectedItemId === record.id ? "selected-table-row" : ""
+                    partProcessSelected?.id === record.id
+                      ? "selected-table-row"
+                      : ""
                   }
                   onRow={(record) => ({
                     onClick: () => handleSelectItem(record),
@@ -719,11 +456,11 @@ export default function Page() {
                             Chi tiết
                           </Text>
 
-                          <Text strong ellipsis={{ tooltip: true }}>
+                          {/* <Text strong ellipsis={{ tooltip: true }}>
                             {selectedItem
                               ? `${selectedItem.indexCode} - ${selectedItem.partName}`
                               : "Chưa chọn chi tiết"}
-                          </Text>
+                          </Text> */}
                         </div>
 
                         <div className="mb-3">
@@ -731,12 +468,12 @@ export default function Page() {
                             Tiến độ gia công
                           </Text>
 
-                          <Progress
+                          {/* <Progress
                             percent={completedPercent}
                             status={
                               completedPercent === 100 ? "success" : "active"
                             }
-                          />
+                          /> */}
                         </div>
                       </div>
 
@@ -745,7 +482,7 @@ export default function Page() {
                         size="large"
                         block
                         icon={<PlayCircleOutlined />}
-                        disabled={!selectedItem || isRunning}
+                        disabled={!partProcessSelected || isRunning}
                         onClick={handleStartProcessing}
                       >
                         {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
@@ -811,7 +548,7 @@ export default function Page() {
                           type="primary"
                           className="complete-button"
                           icon={<CheckCircleOutlined />}
-                          disabled={!selectedItem}
+                          disabled={!partProcessSelected}
                           onClick={handleCompleteProcessing}
                         >
                           Hoàn thành

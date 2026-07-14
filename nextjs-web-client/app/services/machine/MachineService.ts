@@ -6,6 +6,7 @@ import {
   SearchResponse,
   UpdateMachineRequest,
   MachineMaintenanceProcess,
+  PartProcess,
 } from "@/app/types";
 
 import { apiClient } from "../common/apiClient";
@@ -102,6 +103,16 @@ export const getMachineMaintenanceProcessAsync = async (
 ): Promise<MachineMaintenanceProcess> => {
   const response = await apiClient.post<MachineMaintenanceProcess>(
     "/MachineMaintenanceProcess/detail",
+    request,
+  );
+  return response.data;
+};
+
+export const getPartProcessByMachineAsync = async (
+  request: unknown,
+): Promise<PartProcess[]> => {
+  const response = await apiClient.post<PartProcess[]>(
+    "/Process/get-part-process-by-machine",
     request,
   );
   return response.data;
