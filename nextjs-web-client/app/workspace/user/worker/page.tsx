@@ -35,7 +35,6 @@ import {
   SendOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
-import "./page.css";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { Machine } from "@/app/types";
@@ -534,7 +533,7 @@ export default function Page() {
       <div className="d-flex h-100 gap-2 overflow-hidden">
         {/* Cột chọn máy */}
         <section
-          className="flex-shrink-0 h-100 overflow-hidden"
+          className="shrink-0 h-100 overflow-hidden"
           style={{ width: 320 }}
         >
           <Card
@@ -554,7 +553,7 @@ export default function Page() {
             }
           >
             <div className="d-flex flex-column h-100 overflow-hidden">
-              <div className="flex-shrink-0 mb-2">
+              <div className="shrink-0 mb-2">
                 <Input
                   allowClear
                   prefix={<SearchOutlined />}
@@ -564,7 +563,7 @@ export default function Page() {
                 />
               </div>
 
-              <div className="flex-grow-1 overflow-auto pe-1">
+              <div className="grow overflow-auto pe-1">
                 {filteredMachines.length > 0 ? (
                   filteredMachines.map((machine) => {
                     const isSelected = selectedMachineId === machine.id;
@@ -573,20 +572,29 @@ export default function Page() {
                       <button
                         type="button"
                         key={machine.id}
-                        className={`machine-item w-100 mb-2 ${
-                          isSelected ? "selected" : ""
+                        className={`btn w-100 mb-2 border rounded p-3 text-start d-flex align-items-center gap-3 ${
+                          isSelected ? "btn-primary" : "btn-light"
                         }`}
                         // onClick={() => handleSelectMachine(machine.id)}
                       >
                         <Radio checked={isSelected} />
 
-                        <div className="machine-thumbnail">
-                          <ToolOutlined />
+                        <div
+                          className="d-flex align-items-center justify-content-center rounded bg-body-secondary shrink-0"
+                          style={{ width: 48, height: 48 }}
+                        >
+                          <ToolOutlined className="fs-4" />
                         </div>
 
-                        <div className="machine-information">
+                        <div className="d-flex flex-column grow overflow-hidden">
                           <strong>{machine.code}</strong>
-                          <span title={machine.name}>{machine.name}</span>
+
+                          <span
+                            className="text-muted text-truncate"
+                            title={machine.name}
+                          >
+                            {machine.name}
+                          </span>
                         </div>
                       </button>
                     );
@@ -604,11 +612,11 @@ export default function Page() {
         </section>
 
         {/* Khu vực bên phải */}
-        <section className="flex-grow-1 h-100 overflow-hidden">
+        <section className="grow h-100 overflow-hidden">
           <div className="d-flex flex-column h-100 gap-2 overflow-hidden">
             {/* Danh sách chi tiết */}
             <Card
-              className="processing-card processing-list-card flex-grow-1 overflow-hidden"
+              className="processing-card processing-list-card grow overflow-hidden"
               styles={{
                 body: {
                   height: "calc(100% - 57px)",
@@ -689,154 +697,129 @@ export default function Page() {
               }
             >
               <div className="d-flex flex-column h-100 overflow-hidden">
-                <div className="d-flex justify-content-between align-items-center gap-3 shrink-0">
-                  <div className="grow overflow-hidden">
-                    <div className="d-flex align-items-center gap-2">
-                      <Text type="secondary">Máy:</Text>
-                      <Text strong ellipsis={{ tooltip: true }}>
-                        {selectedMachine
-                          ? `${selectedMachine.code} - ${selectedMachine.name}`
-                          : "Chưa chọn máy"}
-                      </Text>
+                <Row gutter={[16, 16]} className="grow overflow-hidden">
+                  {/* Cột trái: Thông tin gia công */}
+                  <Col xs={24} lg={8} className="h-100">
+                    <div className="d-flex flex-column h-100 border rounded p-3 bg-light">
+                      <div className="grow overflow-auto">
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Máy
+                          </Text>
+
+                          <Text strong ellipsis={{ tooltip: true }}>
+                            {selectedMachine
+                              ? `${selectedMachine.code} - ${selectedMachine.name}`
+                              : "Chưa chọn máy"}
+                          </Text>
+                        </div>
+
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Chi tiết
+                          </Text>
+
+                          <Text strong ellipsis={{ tooltip: true }}>
+                            {selectedItem
+                              ? `${selectedItem.indexCode} - ${selectedItem.partName}`
+                              : "Chưa chọn chi tiết"}
+                          </Text>
+                        </div>
+
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Tiến độ gia công
+                          </Text>
+
+                          <Progress
+                            percent={completedPercent}
+                            status={
+                              completedPercent === 100 ? "success" : "active"
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <Button
+                        type="primary"
+                        size="large"
+                        block
+                        icon={<PlayCircleOutlined />}
+                        disabled={!selectedItem || isRunning}
+                        onClick={handleStartProcessing}
+                      >
+                        {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
+                      </Button>
                     </div>
+                  </Col>
 
-                    <div className="d-flex align-items-center gap-2 mt-1">
-                      <Text type="secondary">Chi tiết:</Text>
-                      <Text strong ellipsis={{ tooltip: true }}>
-                        {selectedItem
-                          ? `${selectedItem.indexCode} - ${selectedItem.partName}`
-                          : "Chưa chọn chi tiết"}
-                      </Text>
+                  {/* Cột phải: Form nhập thông tin */}
+                  <Col xs={24} lg={16} className="h-100">
+                    <div className="d-flex flex-column h-100 border rounded p-3">
+                      <div className="grow overflow-auto pe-1">
+                        <Form<ProcessingFormValues>
+                          form={processingForm}
+                          layout="vertical"
+                          initialValues={{
+                            setupTime: 15,
+                            waitingTime: 10,
+                            actualTime: 0,
+                            machineTime: 0,
+                            processedQuantity: 0,
+                            passedQuantity: 0,
+                            note: "",
+                          }}
+                        >
+                          <Row gutter={[12, 0]}>
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                label="Thời gian gá đặt (phút)"
+                                name="setupTime"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Nhập thời gian gá đặt",
+                                  },
+                                ]}
+                              >
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                label="Thời gian chờ (phút)"
+                                name="waitingTime"
+                              >
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Form>
+                      </div>
+
+                      <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top">
+                        <Button
+                          icon={<PauseOutlined />}
+                          disabled={!isRunning}
+                          onClick={handlePauseProcessing}
+                        >
+                          Tạm dừng
+                        </Button>
+
+                        <Button
+                          type="primary"
+                          className="complete-button"
+                          icon={<CheckCircleOutlined />}
+                          disabled={!selectedItem}
+                          onClick={handleCompleteProcessing}
+                        >
+                          Hoàn thành
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-
-                  <Button
-                    type="primary"
-                    icon={<PlayCircleOutlined />}
-                    disabled={!selectedItem || isRunning}
-                    onClick={handleStartProcessing}
-                  >
-                    {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
-                  </Button>
-                </div>
-
-                <div className="my-2 shrink-0">
-                  <Progress
-                    percent={completedPercent}
-                    size="small"
-                    status={completedPercent === 100 ? "success" : "active"}
-                  />
-                </div>
-
-                <div className="grow overflow-auto pe-1">
-                  <Form<ProcessingFormValues>
-                    form={processingForm}
-                    layout="vertical"
-                    initialValues={{
-                      setupTime: 15,
-                      waitingTime: 10,
-                      actualTime: 0,
-                      machineTime: 0,
-                      processedQuantity: 0,
-                      passedQuantity: 0,
-                      note: "",
-                    }}
-                  >
-                    <Row gutter={[12, 0]}>
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item
-                          label="Thời gian gá đặt"
-                          name="setupTime"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Nhập thời gian gá đặt",
-                            },
-                          ]}
-                        >
-                          <InputNumber
-                            min={0}
-                            className="w-100"
-                            addonAfter="phút"
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item label="Thời gian chờ" name="waitingTime">
-                          <InputNumber
-                            min={0}
-                            className="w-100"
-                            addonAfter="phút"
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item label="Thời gian thực tế" name="actualTime">
-                          <InputNumber
-                            min={0}
-                            className="w-100"
-                            addonAfter={<ClockCircleOutlined />}
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item
-                          label="Thời gian chạy máy"
-                          name="machineTime"
-                        >
-                          <InputNumber
-                            min={0}
-                            className="w-100"
-                            addonAfter="phút"
-                          />
-                        </Form.Item>
-                      </Col>
-
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item
-                          label="Số lượng gia công"
-                          name="processedQuantity"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Nhập số lượng gia công",
-                            },
-                          ]}
-                        >
-                          <InputNumber
-                            min={0}
-                            max={selectedItem?.quantity}
-                            className="w-100"
-                            addonAfter={`/${selectedItem?.quantity ?? 0}`}
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  </Form>
-                </div>
-
-                <div className="d-flex justify-content-end align-items-center gap-2 pt-2 border-top shrink-0">
-                  <Button
-                    icon={<PauseOutlined />}
-                    disabled={!isRunning}
-                    onClick={handlePauseProcessing}
-                  >
-                    Tạm dừng
-                  </Button>
-
-                  <Button
-                    type="primary"
-                    className="complete-button"
-                    icon={<CheckCircleOutlined />}
-                    disabled={!selectedItem}
-                    onClick={handleCompleteProcessing}
-                  >
-                    Hoàn thành
-                  </Button>
-                </div>
+                  </Col>
+                </Row>
               </div>
             </Card>
           </div>
