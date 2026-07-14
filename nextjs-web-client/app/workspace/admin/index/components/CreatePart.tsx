@@ -191,11 +191,6 @@ export default function CreatePart({ open, onClose }: Props) {
 
     const indexCode = values.IndexCode?.trim();
 
-    if (!indexCode) {
-      toast.warning("Vui lòng nhập Index.");
-      return;
-    }
-
     const request = {
       indexCode,
       partCode: values.PartCode.trim(),

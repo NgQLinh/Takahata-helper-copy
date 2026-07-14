@@ -61,11 +61,13 @@ type PlanRow = {
 type FormValues = {
   IndexCode?: string;
   PartCode: string;
+  Quantity: number;
 };
 
 type CurrentPartInfo = {
   indexCode: string;
   partCode: string;
+  quantity: number;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -152,11 +154,13 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         setCurrentPartInfo({
           indexCode: currentIndexCode,
           partCode: currentPartCode,
+          quantity: data.quantity,
         });
 
         form.setFieldsValue({
           IndexCode: currentIndexCode,
           PartCode: currentPartCode,
+          Quantity: data.quantity,
         });
 
         const rows: PlanRow[] =
@@ -279,20 +283,11 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     const indexCode = values.IndexCode?.trim();
     const partCode = values.PartCode?.trim();
 
-    if (!indexCode) {
-      toast.warning("Vui lòng nhập Index.");
-      return;
-    }
-
-    if (!partCode) {
-      toast.warning("Vui lòng nhập Part Code.");
-      return;
-    }
-
     const request = {
       id,
       indexCode,
       partCode,
+      quantity: values.Quantity,
       partProcesses: dataSource.map((item, index) => ({
         id: item.id,
         sequence: index + 1,
@@ -629,6 +624,25 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                       allowClear
                       placeholder="Nhập Part Code"
                       maxLength={100}
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Số lượng"
+                    name="Quantity"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập số lượng" },
+                      {
+                        whitespace: true,
+                        message: "Số lượng không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input
+                      allowClear
+                      placeholder="Nhập số lượng"
+                      maxLength={100}
+                      autoFocus
                     />
                   </Form.Item>
 

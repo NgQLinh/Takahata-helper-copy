@@ -11,4 +11,6 @@ export interface Part {
   createBy: string;
   updateAt?: string | null;
   updateBy?: string | null;
+  quantity: number;
+  processedQuantity: number;
 }

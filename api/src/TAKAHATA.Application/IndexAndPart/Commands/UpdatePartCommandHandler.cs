@@ -63,6 +63,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             part.IndexId = index.Id;
             part.UpdateBy = _currentUserService.UserId;
             part.UpdateAt = DateTime.Now;
+            part.Quantity = request.Quantity != 0 ? request.Quantity : 1;
 
             var requestProcesses = request.PartProcesses ?? new List<PartProcessRequest>();
 
