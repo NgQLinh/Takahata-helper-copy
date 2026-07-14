@@ -21,6 +21,7 @@ import {
   CheckCircleOutlined,
   PauseOutlined,
   PlayCircleOutlined,
+  PlusOutlined,
   SearchOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
@@ -360,9 +361,15 @@ export default function Page() {
                 },
               }}
               title={
-                <div className="d-flex align-items-center gap-2">
-                  <span className="section-number">2</span>
-                  <span>Danh sách chi tiết cần gia công</span>
+                <div className="d-flex justify-content-between gap-2">
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="section-number">2</span>
+                    <span>Danh sách chi tiết cần gia công</span>
+                  </div>
+
+                  <Button type="primary" icon={<PlusOutlined />}>
+                    Thêm kế hoạch gia công đột xuất
+                  </Button>
                 </div>
               }
             >
