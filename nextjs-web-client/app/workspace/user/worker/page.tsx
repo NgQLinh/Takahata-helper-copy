@@ -527,21 +527,34 @@ export default function Page() {
     : 0;
 
   return (
-    <main className="worker-processing-page">
-      <div className="processing-layout">
+    <main
+      className="container-fluid overflow-hidden p-2"
+      style={{ height: "100vh" }}
+    >
+      <div className="d-flex h-100 gap-2 overflow-hidden">
         {/* Cột chọn máy */}
-        <section className="processing-machine-column">
+        <section
+          className="flex-shrink-0 h-100 overflow-hidden"
+          style={{ width: 320 }}
+        >
           <Card
-            className="processing-card machine-card"
+            className="processing-card machine-card h-100"
+            styles={{
+              body: {
+                height: "calc(100% - 57px)",
+                padding: 12,
+                overflow: "hidden",
+              },
+            }}
             title={
-              <div className="section-title">
+              <div className="d-flex align-items-center gap-2">
                 <span className="section-number">1</span>
                 <span>Chọn máy</span>
               </div>
             }
           >
-            <div className="machine-card-content">
-              <div className="machine-search">
+            <div className="d-flex flex-column h-100 overflow-hidden">
+              <div className="flex-shrink-0 mb-2">
                 <Input
                   allowClear
                   prefix={<SearchOutlined />}
@@ -551,7 +564,7 @@ export default function Page() {
                 />
               </div>
 
-              <div className="machine-list">
+              <div className="flex-grow-1 overflow-auto pe-1">
                 {filteredMachines.length > 0 ? (
                   filteredMachines.map((machine) => {
                     const isSelected = selectedMachineId === machine.id;
@@ -560,7 +573,7 @@ export default function Page() {
                       <button
                         type="button"
                         key={machine.id}
-                        className={`machine-item ${
+                        className={`machine-item w-100 mb-2 ${
                           isSelected ? "selected" : ""
                         }`}
                         // onClick={() => handleSelectMachine(machine.id)}
@@ -573,22 +586,7 @@ export default function Page() {
 
                         <div className="machine-information">
                           <strong>{machine.code}</strong>
-
                           <span title={machine.name}>{machine.name}</span>
-
-                          {/* <small
-                            className={
-                              machine.status === "maintenance"
-                                ? "status-maintenance"
-                                : "status-ready"
-                            }
-                          >
-                            <span className="status-dot" />
-
-                            {machine.status === "maintenance"
-                              ? "Đang bảo dưỡng"
-                              : "Sẵn sàng"}
-                          </small> */}
                         </div>
                       </button>
                     );
@@ -606,82 +604,95 @@ export default function Page() {
         </section>
 
         {/* Khu vực bên phải */}
-        <section className="processing-main-column">
-          <div className="right-panel">
+        <section className="flex-grow-1 h-100 overflow-hidden">
+          <div className="d-flex flex-column h-100 gap-2 overflow-hidden">
             {/* Danh sách chi tiết */}
             <Card
-              className="processing-card processing-list-card"
+              className="processing-card processing-list-card flex-grow-1 overflow-hidden"
+              styles={{
+                body: {
+                  height: "calc(100% - 57px)",
+                  padding: 12,
+                  overflow: "hidden",
+                },
+              }}
               title={
-                <div className="section-title">
+                <div className="d-flex align-items-center gap-2">
                   <span className="section-number">2</span>
                   <span>Danh sách chi tiết cần gia công</span>
                 </div>
               }
             >
-              <div className="processing-list-content">
-                <div className="processing-table-wrapper">
-                  <Table<ProcessingItem>
-                    rowKey="id"
-                    size="small"
-                    columns={processingColumns}
-                    dataSource={items}
-                    scroll={{
-                      x: "max-content",
-                    }}
-                    pagination={{
-                      current: page,
-                      pageSize,
-                      total: items.length,
-                      showSizeChanger: true,
-                      pageSizeOptions: [5, 10, 20],
-                      showTotal: (totalItems, range) =>
-                        `Hiển thị ${range[0]} - ${range[1]} / ${totalItems} chi tiết`,
-                      onChange: (newPage, newPageSize) => {
-                        const pageSizeChanged = newPageSize !== pageSize;
+              <div className="h-100 overflow-hidden">
+                <Table<ProcessingItem>
+                  rowKey="id"
+                  size="small"
+                  columns={processingColumns}
+                  dataSource={items}
+                  scroll={{
+                    x: "max-content",
+                    y: "calc(100vh - 540px)",
+                  }}
+                  pagination={{
+                    current: page,
+                    pageSize,
+                    total: items.length,
+                    showSizeChanger: true,
+                    pageSizeOptions: [5, 10, 20],
+                    showTotal: (totalItems, range) =>
+                      `Hiển thị ${range[0]} - ${range[1]} / ${totalItems} chi tiết`,
+                    onChange: (newPage, newPageSize) => {
+                      const pageSizeChanged = newPageSize !== pageSize;
 
-                        setPage(pageSizeChanged ? 1 : newPage);
-                        setPageSize(newPageSize);
-                      },
-                    }}
-                    rowClassName={(record) =>
-                      selectedItemId === record.id ? "selected-table-row" : ""
-                    }
-                    onRow={(record) => ({
-                      onClick: () => handleSelectItem(record),
-                    })}
-                    locale={{
-                      emptyText: (
-                        <Empty
-                          image={Empty.PRESENTED_IMAGE_SIMPLE}
-                          description={
-                            selectedMachine
-                              ? "Máy này chưa có chi tiết cần gia công"
-                              : "Vui lòng chọn máy"
-                          }
-                        />
-                      ),
-                    }}
-                  />
-                </div>
+                      setPage(pageSizeChanged ? 1 : newPage);
+                      setPageSize(newPageSize);
+                    },
+                  }}
+                  rowClassName={(record) =>
+                    selectedItemId === record.id ? "selected-table-row" : ""
+                  }
+                  onRow={(record) => ({
+                    onClick: () => handleSelectItem(record),
+                  })}
+                  locale={{
+                    emptyText: (
+                      <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description={
+                          selectedMachine
+                            ? "Máy này chưa có chi tiết cần gia công"
+                            : "Vui lòng chọn máy"
+                        }
+                      />
+                    ),
+                  }}
+                />
               </div>
             </Card>
 
-            {/* Thông tin gia công */}
+            {/* Thông tin gia công - chiều cao cố định 360px */}
             <Card
-              className="processing-card processing-information-card"
+              className="processing-card processing-information-card shrink-0"
+              style={{ height: 360 }}
+              styles={{
+                body: {
+                  height: "calc(100% - 57px)",
+                  padding: 12,
+                  overflow: "hidden",
+                },
+              }}
               title={
-                <div className="section-title">
+                <div className="d-flex align-items-center gap-2">
                   <span className="section-number">3</span>
                   <span>Thông tin gia công</span>
                 </div>
               }
             >
-              <div className="processing-information-content">
-                <div className="current-job-panel">
-                  <div className="current-job-information">
-                    <div className="current-job-line">
+              <div className="d-flex flex-column h-100 overflow-hidden">
+                <div className="d-flex justify-content-between align-items-center gap-3 shrink-0">
+                  <div className="grow overflow-hidden">
+                    <div className="d-flex align-items-center gap-2">
                       <Text type="secondary">Máy:</Text>
-
                       <Text strong ellipsis={{ tooltip: true }}>
                         {selectedMachine
                           ? `${selectedMachine.code} - ${selectedMachine.name}`
@@ -689,9 +700,8 @@ export default function Page() {
                       </Text>
                     </div>
 
-                    <div className="current-job-line">
+                    <div className="d-flex align-items-center gap-2 mt-1">
                       <Text type="secondary">Chi tiết:</Text>
-
                       <Text strong ellipsis={{ tooltip: true }}>
                         {selectedItem
                           ? `${selectedItem.indexCode} - ${selectedItem.partName}`
@@ -710,7 +720,7 @@ export default function Page() {
                   </Button>
                 </div>
 
-                <div className="processing-progress">
+                <div className="my-2 shrink-0">
                   <Progress
                     percent={completedPercent}
                     size="small"
@@ -718,7 +728,7 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="processing-form-scroll">
+                <div className="grow overflow-auto pe-1">
                   <Form<ProcessingFormValues>
                     form={processingForm}
                     layout="vertical"
@@ -804,21 +814,11 @@ export default function Page() {
                           />
                         </Form.Item>
                       </Col>
-
-                      <Col xs={24} sm={12} xl={8}>
-                        <Form.Item label="Số lượng đạt" name="passedQuantity">
-                          <InputNumber
-                            min={0}
-                            max={selectedItem?.quantity}
-                            className="w-100"
-                          />
-                        </Form.Item>
-                      </Col>
                     </Row>
                   </Form>
                 </div>
 
-                <div className="processing-actions">
+                <div className="d-flex justify-content-end align-items-center gap-2 pt-2 border-top shrink-0">
                   <Button
                     icon={<PauseOutlined />}
                     disabled={!isRunning}
