@@ -31,6 +31,7 @@ import {
 import { toast } from "react-toastify";
 import { Machine, ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import CreatePart from "../../admin/index/components/CreatePart";
 
 const { Text } = Typography;
 
@@ -49,6 +50,7 @@ export default function Page() {
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(100);
   const [loading, setLoading] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // New state
   const [machineKeyword, setMachineKeyword] = useState("");
@@ -374,8 +376,12 @@ export default function Page() {
                     <span>Danh sách chi tiết cần gia công</span>
                   </div>
 
-                  <Button type="primary" icon={<PlusOutlined />}>
-                    Thêm kế hoạch gia công đột xuất
+                  <Button
+                    onClick={() => setIsCreateOpen(true)}
+                    type="primary"
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm Part gia công đột xuất
                   </Button>
                 </div>
               }
@@ -591,6 +597,14 @@ export default function Page() {
             </Card>
           </div>
         </section>
+
+        <CreatePart
+          open={isCreateOpen}
+          onClose={() => {
+            setIsCreateOpen(false);
+            void fetchManufacturingProcess();
+          }}
+        />
       </div>
     </main>
   );
