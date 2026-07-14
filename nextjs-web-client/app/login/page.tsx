@@ -29,10 +29,17 @@ export default function LoginPage() {
 
         const res = await loginAsync(req);
 
+        console.log(res.roles);
+
         localStorage.setItem("access_token", res.accessToken);
         localStorage.setItem("refresh_token", res.refreshToken);
 
-        router.push("/workspace/admin/dashboard");
+        if (!res.roles) return;
+
+        if (res.roles.includes("ADMIN"))
+          router.push("/workspace/admin/dashboard");
+        else if (res.roles.includes("USER"))
+          router.push("/workspace/user/worker");
       } catch (error: unknown) {
         console.error("Login error:", error);
 

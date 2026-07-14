@@ -2,6 +2,7 @@
 {
     public record LoginResponse(
         string AccessToken,
-        string RefreshToken
+        string RefreshToken,
+        List<string> Roles
     );
 }

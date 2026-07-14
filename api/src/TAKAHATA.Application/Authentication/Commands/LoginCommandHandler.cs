@@ -50,7 +50,8 @@ namespace TAKAHATA.Application.Authentication.Commands
 
             return new LoginResponse(
                 accessToken,
-                refreshToken);
+                refreshToken,
+                roles != null ? [.. roles] : []);
         }
     }
 }

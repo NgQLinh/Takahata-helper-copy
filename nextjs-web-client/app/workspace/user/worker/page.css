@@ -1,0 +1,353 @@
+.worker-processing-page {
+  min-height: 100vh;
+  padding: 12px;
+  background: #f4f6f9;
+}
+
+.processing-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 5%);
+}
+
+.processing-card > .ant-card-head {
+  min-height: 50px;
+  padding: 0 14px;
+  border-bottom: 1px solid #e8edf3;
+}
+
+.processing-card > .ant-card-body {
+  padding: 14px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #172033;
+}
+
+.section-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  color: #fff;
+  font-size: 12px;
+  background: #1677ff;
+  border-radius: 6px;
+}
+
+.machine-card > .ant-card-body {
+  height: calc(100vh - 86px);
+  min-height: 650px;
+  overflow: hidden;
+}
+
+.machine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 175px);
+  padding-right: 3px;
+  overflow-y: auto;
+}
+
+.machine-item {
+  display: grid;
+  grid-template-columns: 22px 48px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 82px;
+  padding: 10px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #dfe5ec;
+  border-radius: 7px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.machine-item:hover:not(:disabled) {
+  border-color: #69b1ff;
+  box-shadow: 0 2px 8px rgb(22 119 255 / 10%);
+}
+
+.machine-item.selected {
+  background: #f4f9ff;
+  border-color: #1677ff;
+  box-shadow: 0 0 0 1px rgb(22 119 255 / 10%);
+}
+
+.machine-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.machine-item .ant-radio-wrapper {
+  margin: 0;
+  pointer-events: none;
+}
+
+.machine-thumbnail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 28px;
+  background: #eef2f6;
+  border-radius: 6px;
+}
+
+.machine-information {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.machine-information strong {
+  color: #172033;
+  font-size: 13px;
+}
+
+.machine-information > span {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #374151;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-information small {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.status-ready {
+  color: #16a34a;
+}
+
+.status-maintenance {
+  color: #f59e0b;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.summary-list {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.summary-box {
+  width: 118px;
+  padding: 7px 11px;
+  border: 1px solid;
+  border-radius: 7px;
+}
+
+.summary-box .ant-statistic-title {
+  margin-bottom: 1px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.summary-box .ant-statistic-content {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.summary-total {
+  background: #f0f7ff;
+  border-color: #cfe3ff;
+}
+
+.summary-total .ant-statistic-title,
+.summary-total .ant-statistic-content {
+  color: #1677ff;
+}
+
+.summary-completed {
+  background: #f1fbf5;
+  border-color: #ccebd7;
+}
+
+.summary-completed .ant-statistic-title,
+.summary-completed .ant-statistic-content {
+  color: #16a34a;
+}
+
+.summary-processing {
+  background: #fff8ef;
+  border-color: #ffe0b5;
+}
+
+.summary-processing .ant-statistic-title,
+.summary-processing .ant-statistic-content {
+  color: #d97706;
+}
+
+.summary-remaining {
+  background: #f6f7f9;
+  border-color: #e1e5eb;
+}
+
+.summary-remaining .ant-statistic-title,
+.summary-remaining .ant-statistic-content {
+  color: #1f2937;
+}
+
+.selected-table-row > td {
+  background: #f0f7ff !important;
+}
+
+.current-job-panel {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #eef6ff 0%, #f7fbff 100%);
+  border: 1px solid #cfe3ff;
+  border-radius: 7px;
+}
+
+.current-job-panel > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.complete-button {
+  background: #16a34a;
+  border-color: #16a34a;
+}
+
+.complete-button:hover {
+  background: #15803d !important;
+  border-color: #15803d !important;
+}
+
+.exception-button {
+  color: #d97706;
+  border-color: #f5c575;
+}
+
+.exception-button:hover {
+  color: #b45309 !important;
+  border-color: #d97706 !important;
+}
+
+.exception-form-wrapper {
+  padding: 14px;
+  background: #fafbfd;
+  border: 1px solid #e3e8ef;
+  border-radius: 7px;
+}
+
+.exception-form-wrapper .ant-typography {
+  margin-top: 0;
+}
+
+.worker-processing-page .ant-form-item {
+  margin-bottom: 14px;
+}
+
+.worker-processing-page .ant-form-item-label > label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.worker-processing-page .ant-table-wrapper .ant-table {
+  font-size: 12px;
+}
+
+.worker-processing-page .ant-table-wrapper .ant-table-thead > tr > th {
+  color: #263244;
+  font-weight: 600;
+  background: #f6f8fb;
+}
+
+.worker-processing-page .ant-table-wrapper .ant-table-tbody > tr {
+  cursor: pointer;
+}
+
+.worker-processing-page .ant-tag {
+  margin-inline-end: 0;
+}
+
+@media (max-width: 1399px) {
+  .machine-card > .ant-card-body {
+    height: auto;
+    min-height: auto;
+  }
+
+  .machine-list {
+    max-height: 420px;
+  }
+}
+
+@media (max-width: 1199px) {
+  .summary-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
+    width: 100%;
+  }
+
+  .summary-box {
+    width: auto;
+  }
+
+  .processing-card > .ant-card-head {
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .processing-card > .ant-card-head .ant-card-extra {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .worker-processing-page {
+    padding: 8px;
+  }
+
+  .current-job-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .current-job-panel .ant-btn {
+    width: 100%;
+  }
+
+  .summary-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
