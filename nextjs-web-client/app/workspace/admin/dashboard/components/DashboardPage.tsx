@@ -1,40 +1,42 @@
 "use client";
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  DashboardMachine,
-  MachineStatus,
-  dashboardMachines,
-  delayedWorkOrders,
-  operationTrend,
-  todayPlan,
-  utilizationByMachine,
-} from "./dashboard-data";
-
-const statusClass: Record<MachineStatus, string> = {
-  AUTO: "bg-green-100 text-green-700",
-  MANUAL: "bg-blue-100 text-blue-700",
-  SETUP: "bg-yellow-100 text-yellow-700",
-  STOP: "bg-gray-100 text-gray-700",
-  ALARM: "bg-red-100 text-red-700",
-  OFFLINE: "bg-zinc-200 text-zinc-600",
-};
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("vi-VN").format(new Date(date));
-}
+import { useCallback, useEffect, useState } from "react";
+import { dashboardMachines } from "./dashboard-data";
+import dayjs, { Dayjs } from "dayjs";
+import { Machine } from "@/app/types";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { toast } from "react-toastify";
 
 export function DashboardPage() {
+  const [today, setToday] = useState<Dayjs | undefined>(dayjs());
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [loadingMachine, setLoadingMachine] = useState(false);
+
+  const fetchMachines = useCallback(async () => {
+    setLoadingMachine(true);
+
+    try {
+      const data = await getMachinesAsync();
+      setMachines(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách máy:", error);
+      toast.error("Không thể tải danh sách máy.");
+    } finally {
+      setLoadingMachine(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const run = async () => {
+      await Promise.all([fetchMachines()]);
+    };
+
+    if (!open) return;
+
+    void run();
+  }, [fetchMachines]);
+
   const runningMachines = dashboardMachines.filter(
     (x) => x.status === "AUTO" || x.status === "MANUAL",
   ).length;
@@ -62,19 +64,6 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Tổng quan trạng thái máy, kế hoạch hôm nay, cảnh báo trễ và KPI vận
-            hành
-          </h1>
-        </div>
-
-        <div className="rounded-lg border bg-white px-4 py-2 text-sm text-gray-600">
-          Today · 07/06/2026
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-6">
         <SummaryCard label="Running" value={runningMachines} />
         <SummaryCard label="Setup" value={setupMachines} />
@@ -93,13 +82,19 @@ export function DashboardPage() {
               </h2>
             </div>
 
-            <button className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100">
-              View All
-            </button>
+            <div className="d-flex gap-1">
+              <div className="rounded-lg border bg-white px-4 py-2 text-sm text-gray-600">
+                Today · {dayjs(today).format("DD/MM/YYYY HH:mm")}
+              </div>
+
+              <button className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100">
+                View All
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-4">
-            {dashboardMachines.map((machine) => (
+            {machines.map((machine) => (
               <MachineCard key={machine.id} machine={machine} />
             ))}
           </div>
@@ -109,7 +104,7 @@ export function DashboardPage() {
   );
 }
 
-function MachineCard({ machine }: { machine: DashboardMachine }) {
+function MachineCard({ machine }: { machine: Machine }) {
   return (
     <div className="rounded-xl border bg-gray-50 p-4">
       <div className="flex items-start justify-between gap-3">
@@ -119,35 +114,35 @@ function MachineCard({ machine }: { machine: DashboardMachine }) {
           <div className="text-sm text-gray-500">{machine.type}</div>
         </div>
 
-        <span
+        {/* <span
           className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
             statusClass[machine.status]
           }`}
         >
           {machine.status}
-        </span>
+        </span> */}
       </div>
 
-      <div className="mt-4 space-y-2 text-sm">
+      {/* <div className="mt-4 space-y-2 text-sm">
         <InfoRow
           label="Work Order"
           value={machine.currentWorkOrder ?? "No active WO"}
         />
         <InfoRow label="Operator" value={machine.operator ?? "-"} />
         <InfoRow label="Runtime" value={`${machine.runtimeHours}h`} />
-      </div>
+      </div> */}
 
       <div className="mt-4">
         <div className="mb-1 flex justify-between text-xs">
           <span className="text-gray-500">Utilization</span>
-          <span className="font-medium">{machine.utilization}%</span>
+          {/* <span className="font-medium">{machine.utilization}%</span> */}
         </div>
 
         <div className="h-2 rounded-full bg-white">
-          <div
+          {/* <div
             className="h-2 rounded-full bg-gray-900"
             style={{ width: `${machine.utilization}%` }}
-          />
+          /> */}
         </div>
       </div>
     </div>
@@ -173,30 +168,6 @@ function SummaryCard({
       >
         {value}
       </div>
-    </div>
-  );
-}
-
-function ChartCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border bg-white p-5">
-      <h2 className="mb-4 font-semibold text-gray-900">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-3">
-      <span className="text-gray-500">{label}</span>
-      <span className="text-right font-medium text-gray-900">{value}</span>
     </div>
   );
 }
