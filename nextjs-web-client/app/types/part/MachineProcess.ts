@@ -1,3 +1,4 @@
+import { MachineProcessType } from "../common/MachineProcessType";
 import { ProcessStatus } from "../common/ProcessStatus";
 
 export interface MachineProcess {
@@ -15,4 +16,5 @@ export interface MachineProcess {
   actualDate?: string | null;
   workingHours?: number | null;
   sequence: number;
+  type: MachineProcessType;
 }

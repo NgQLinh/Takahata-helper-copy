@@ -9,7 +9,7 @@ import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
 import { searchMachineSchedulesAsync } from "@/app/services/machine/MachineService";
-import { MachineSchedule } from "@/app/types";
+import { MachineProcessType, MachineSchedule } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 import "./MachineScheduleBoard.css";
@@ -225,7 +225,7 @@ export function MachineScheduleBoard() {
         </div>
       ),
       key: date,
-      width: 190,
+      width: 300,
       align: "center",
       render: (_: unknown, machine: MachineSchedule) => {
         const processes = machine.processes.filter((process) => {
@@ -242,28 +242,85 @@ export function MachineScheduleBoard() {
 
         return (
           <div className="d-flex flex-column gap-2">
-            {processes.map((process) => (
-              <div
-                key={`${machine.id}-${process.partId}-${process.sequence}`}
-                className={getStatusClassName(process.status)}
-              >
-                <div className="d-flex justify-content-between gap-2">
-                  <div className="fw-bold text-start">
-                    Part #{process.partId}
+            {processes.map((process) => {
+              const isMaintenance =
+                process.type === MachineProcessType.Maintenance;
+
+              return (
+                <div
+                  key={`${machine.id}-${process.partId}-${process.sequence}`}
+                  className={`rounded-3 border p-2 ${
+                    isMaintenance
+                      ? "border-danger-subtle bg-danger-subtle"
+                      : getStatusClassName(process.status)
+                  }`}
+                  style={{
+                    minWidth: 220,
+                    textAlign: "left",
+                  }}
+                >
+                  {/* Header */}
+                  <div className="d-flex align-items-start justify-content-between gap-2">
+                    <div className="flex-grow-1 overflow-hidden">
+                      <div
+                        className={`fw-semibold text-truncate ${
+                          isMaintenance ? "text-danger" : ""
+                        }`}
+                        title={isMaintenance ? "Bảo trì" : process.partCode}
+                      >
+                        {isMaintenance
+                          ? "🔧 Bảo trì"
+                          : `📦 ${process.partCode}`}
+                      </div>
+                    </div>
+
+                    <Tag
+                      color={isMaintenance ? "red" : undefined}
+                      className="m-0 flex-shrink-0"
+                    >
+                      {getStatusText(process.status)}
+                    </Tag>
                   </div>
 
-                  <Tag className="m-0">{getStatusText(process.status)}</Tag>
-                </div>
+                  {/* Nội dung */}
+                  <div
+                    className="small mt-2 text-body-secondary"
+                    style={{
+                      lineHeight: 1.5,
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {process.note || "Không có ghi chú"}
+                  </div>
 
-                <div className="small text-muted text-start mt-1">
-                  Sequence: {process.sequence}
-                </div>
+                  {/* Thông tin bổ sung */}
+                  <div className="d-flex flex-wrap align-items-center gap-x-3 gap-y-1 mt-2">
+                    {isMaintenance ? (
+                      <>
+                        {process.actualDate && (
+                          <div className="small text-muted">
+                            <span className="fw-medium">Thực tế:</span>{" "}
+                            {process.actualDate}
+                          </div>
+                        )}
 
-                <div className="small text-start mt-2">
-                  {process.note || "Không có ghi chú"}
+                        {process.workingHours != null && (
+                          <div className="small text-muted">
+                            <span className="fw-medium">Giờ máy:</span>{" "}
+                            {process.workingHours}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="small text-muted">
+                        <span className="fw-medium">Số lượng:</span>{" "}
+                        {process.quantity}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         );
       },

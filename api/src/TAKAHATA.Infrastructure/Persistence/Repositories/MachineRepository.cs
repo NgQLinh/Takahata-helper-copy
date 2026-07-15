@@ -164,7 +164,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         UpdateBy = partProcess.UpdateBy,
                         PlantDate = partProcess.PlantDate,
                         ActualDate = partProcess.ActualDate,
-                        WorkingHours = partProcess.WorkingHours
+                        WorkingHours = partProcess.WorkingHours,
+                        Type = MachineProcessType.Manufacturing
                     };
 
                     item.Processes.Add(process);
@@ -185,7 +186,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         UpdateBy = machineMaintenanceProcess.UpdateBy,
                         PlantDate = machineMaintenanceProcess.PlantDate,
                         ActualDate = machineMaintenanceProcess.ActualDate,
-                        WorkingHours = machineMaintenanceProcess.WorkingHours
+                        WorkingHours = machineMaintenanceProcess.WorkingHours,
+                        Type = MachineProcessType.Maintenance
                     };
 
                     item.Processes.Add(process);
