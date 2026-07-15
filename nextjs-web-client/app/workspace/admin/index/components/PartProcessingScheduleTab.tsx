@@ -457,9 +457,7 @@ export default function PartProcessingScheduleTab() {
         ),
       },
     ],
-    // Các handler sử dụng state hiện tại từ component.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fetchParts],
+    [handleDelete],
   );
 
   return (
