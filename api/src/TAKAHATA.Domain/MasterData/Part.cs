@@ -10,5 +10,6 @@ namespace TAKAHATA.Domain.MasterData
         public int ProcessedQuantity { get; set; }
         public Index? Index { get; set; }
         public ICollection<PartProcess> Processes { get; set; } = [];
+        public PartStatus Status { get; set; } = PartStatus.Approved;
     }
 }
