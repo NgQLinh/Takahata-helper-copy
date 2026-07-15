@@ -248,7 +248,7 @@ export function MachineScheduleBoard() {
 
               return (
                 <div
-                  key={`${machine.id}-${process.partId}-${process.sequence}`}
+                  key={`${process.type}-${process.id}`}
                   className={`rounded-3 border p-2 ${
                     isMaintenance
                       ? "border-danger-subtle bg-danger-subtle"
@@ -261,7 +261,7 @@ export function MachineScheduleBoard() {
                 >
                   {/* Header */}
                   <div className="d-flex align-items-start justify-content-between gap-2">
-                    <div className="flex-grow-1 overflow-hidden">
+                    <div className="grow overflow-hidden">
                       <div
                         className={`fw-semibold text-truncate ${
                           isMaintenance ? "text-danger" : ""
@@ -276,7 +276,7 @@ export function MachineScheduleBoard() {
 
                     <Tag
                       color={isMaintenance ? "red" : undefined}
-                      className="m-0 flex-shrink-0"
+                      className="m-0 shrink-0"
                     >
                       {getStatusText(process.status)}
                     </Tag>

@@ -123,8 +123,7 @@ export default function MaintenanceHistoryTab() {
     };
 
     void run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMachineSource, fetchMaintenanceProcesses, page, pageSize]);
 
   const handleResetFilter = async () => {
     const emptyMachineIds: number[] = [];

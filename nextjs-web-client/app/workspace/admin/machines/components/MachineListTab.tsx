@@ -84,8 +84,7 @@ export default function MachineListTab() {
     };
 
     void run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMachines, machinePage, machinePageSize]);
 
   const typeMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
