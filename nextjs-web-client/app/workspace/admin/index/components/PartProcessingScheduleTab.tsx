@@ -6,7 +6,7 @@ import {
   DatePicker,
   Input,
   Popconfirm,
-  Popover,
+  // Popover,
   Space,
   Table,
   Tag,
@@ -177,8 +177,7 @@ export default function PartProcessingScheduleTab() {
       await fetchParts();
     };
     void run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  }, [fetchParts, page, pageSize]);
 
   const dataSource = useMemo(() => mapPartsToRows(parts), [parts]);
 
@@ -187,20 +186,23 @@ export default function PartProcessingScheduleTab() {
     setIsUpdateOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await deletePartAsync(id);
-      toast.success("Xóa part thành công.");
-      await fetchParts();
-    } catch (error) {
-      if (error instanceof ApiError) {
-        toast.error(error.getDisplayMessage());
-        return;
-      }
+  const handleDelete = useCallback(
+    async (id: number) => {
+      try {
+        await deletePartAsync(id);
+        toast.success("Xóa part thành công.");
+        await fetchParts();
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
 
-      toast.error("Có lỗi xảy ra.");
-    }
-  };
+        toast.error("Có lỗi xảy ra.");
+      }
+    },
+    [fetchParts],
+  );
 
   const handleResetFilters = async () => {
     const emptyRange: DateRange = [null, null];
@@ -220,12 +222,12 @@ export default function PartProcessingScheduleTab() {
     });
   };
 
-  const content = (
-    <div>
-      <p>Content</p>
-      <p>Content</p>
-    </div>
-  );
+  // const content = (
+  //   <div>
+  //     <p>Content</p>
+  //     <p>Content</p>
+  //   </div>
+  // );
 
   const columns = useMemo<ColumnsType<TableRow>>(
     () => [
