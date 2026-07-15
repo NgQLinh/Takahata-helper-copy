@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.Equipment;
 using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
+using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
@@ -132,13 +133,64 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var machines = await _dbContext.Machines
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.Id))
-                                //.Include(x => x.MachineMaintenanceProcesses)
+                .Include(x => x.MachineMaintenanceProcesses)
                 .Include(x => x.PartProcesses)
+                    .ThenInclude(x => x.Part)
                 .ToListAsync();
 
             var data = machines
                 .Select(x => _mapper.Map<MachineScheduleResponse>(x))
                 .ToList();
+
+            foreach (var item in data)
+            {
+                var machine = machines.FirstOrDefault(x => x.Id == item.Id);
+                if (machine == null)
+                    continue;
+
+                foreach (var partProcess in machine.PartProcesses)
+                {
+                    var process = new MachineProcessResponse
+                    {
+                        Id = partProcess.Id,
+                        CreateAt = partProcess.CreateAt,
+                        CreateBy = partProcess.CreateBy,
+                        Note = partProcess.Note,
+                        PartCode = partProcess.Part != null ? partProcess.Part.Code : string.Empty,
+                        PartId = partProcess.PartId,
+                        Quantity = partProcess.Part != null ? partProcess.Part.Quantity : 0,
+                        Status = partProcess.Status,
+                        UpdateAt = partProcess.UpdateAt,
+                        UpdateBy = partProcess.UpdateBy,
+                        PlantDate = partProcess.PlantDate,
+                        ActualDate = partProcess.ActualDate,
+                        WorkingHours = partProcess.WorkingHours
+                    };
+
+                    item.Processes.Add(process);
+                }
+
+                foreach (var machineMaintenanceProcess in machine.MachineMaintenanceProcesses)
+                {
+                    var process = new MachineProcessResponse
+                    {
+                        Id = machineMaintenanceProcess.Id,
+                        CreateAt = machineMaintenanceProcess.CreateAt,
+                        CreateBy = machineMaintenanceProcess.CreateBy,
+                        Note = machineMaintenanceProcess.Note ?? string.Empty,
+                        PartCode = string.Empty,
+                        Quantity = 0,
+                        Status = machineMaintenanceProcess.Status,
+                        UpdateAt = machineMaintenanceProcess.UpdateAt,
+                        UpdateBy = machineMaintenanceProcess.UpdateBy,
+                        PlantDate = machineMaintenanceProcess.PlantDate,
+                        ActualDate = machineMaintenanceProcess.ActualDate,
+                        WorkingHours = machineMaintenanceProcess.WorkingHours
+                    };
+
+                    item.Processes.Add(process);
+                }
+            }
 
             return new SearchResponse<List<MachineScheduleResponse>>(
                 currentPage,

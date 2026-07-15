@@ -6,7 +6,6 @@ export interface ManufacturingProcess {
   createBy: string;
   updateAt?: string | null;
   updateBy?: string | null;
-
   indexId: number;
   indexCode: string;
   partId: number;

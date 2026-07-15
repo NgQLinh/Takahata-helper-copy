@@ -228,7 +228,7 @@ export function MachineScheduleBoard() {
       width: 190,
       align: "center",
       render: (_: unknown, machine: MachineSchedule) => {
-        const processes = machine.partProcesses.filter((process) => {
+        const processes = machine.processes.filter((process) => {
           if (!process.plantDate) {
             return false;
           }
