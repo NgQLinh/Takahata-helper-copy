@@ -632,10 +632,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                     name="Quantity"
                     rules={[
                       { required: true, message: "Vui lòng nhập số lượng" },
-                      {
-                        whitespace: true,
-                        message: "Số lượng không được để trống",
-                      },
                     ]}
                   >
                     <Input
