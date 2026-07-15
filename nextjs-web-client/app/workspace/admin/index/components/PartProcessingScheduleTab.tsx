@@ -255,40 +255,87 @@ export default function PartProcessingScheduleTab() {
           </div>
         ),
         dataIndex: "partName",
-        width: 260,
+        width: 300,
         fixed: "left",
         onCell: (row) => ({
           rowSpan: row.rowSpan,
         }),
         render: (_, row) => (
-          <div className="text-start">
-            <strong className="part-name d-block mb-2">
-              {row.partName || "-"}
-            </strong>
+          <div
+            className="part-info-card text-start"
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e8e8e8",
+              borderRadius: 10,
+              padding: 14,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+            }}
+          >
+            <div
+              className="d-flex align-items-start justify-content-between gap-2 pb-2 mb-2"
+              style={{
+                borderBottom: "1px solid #f0f0f0",
+              }}
+            >
+              <div className="grow overflow-hidden">
+                <div
+                  className="fw-bold text-dark text-truncate"
+                  title={row.partName || "-"}
+                  style={{
+                    fontSize: 15,
+                  }}
+                >
+                  {row.partName || "-"}
+                </div>
 
-            <div className="small text-muted">
-              <div className="mb-1">
-                <span className="fw-semibold">Người tạo:</span>{" "}
-                {row.createBy || "-"}
+                {/* {row.indexCode && (
+                  <div className="small text-muted mt-1">
+                    Mã Index:{" "}
+                    <span className="fw-semibold text-dark">
+                      {row.indexCode}
+                    </span>
+                  </div>
+                )} */}
+              </div>
+            </div>
+
+            <div className="d-flex flex-column gap-2 small">
+              <div className="d-flex justify-content-between gap-3">
+                <span className="text-muted text-nowrap">Người tạo</span>
+                <span
+                  className="fw-semibold text-dark text-end text-truncate"
+                  title={row.createBy || "-"}
+                >
+                  {row.createBy || "-"}
+                </span>
               </div>
 
-              <div className="mb-1">
-                <span className="fw-semibold">Ngày tạo:</span>{" "}
-                {row.createAt
-                  ? dayjs(row.createAt).format("DD/MM/YYYY HH:mm")
-                  : "-"}
+              <div className="d-flex justify-content-between gap-3">
+                <span className="text-muted text-nowrap">Ngày tạo</span>
+                <span className="text-dark text-end">
+                  {row.createAt
+                    ? dayjs(row.createAt).format("DD/MM/YYYY HH:mm")
+                    : "-"}
+                </span>
               </div>
 
-              <div className="mb-1">
-                <span className="fw-semibold">Người sửa:</span>{" "}
-                {row.updateBy || "-"}
+              <div className="d-flex justify-content-between gap-3">
+                <span className="text-muted text-nowrap">Người sửa</span>
+                <span
+                  className="fw-semibold text-dark text-end text-truncate"
+                  title={row.updateBy || "-"}
+                >
+                  {row.updateBy || "-"}
+                </span>
               </div>
 
-              <div>
-                <span className="fw-semibold">Ngày sửa:</span>{" "}
-                {row.updateAt
-                  ? dayjs(row.updateAt).format("DD/MM/YYYY HH:mm")
-                  : "-"}
+              <div className="d-flex justify-content-between gap-3">
+                <span className="text-muted text-nowrap">Ngày sửa</span>
+                <span className="text-dark text-end">
+                  {row.updateAt
+                    ? dayjs(row.updateAt).format("DD/MM/YYYY HH:mm")
+                    : "-"}
+                </span>
               </div>
             </div>
           </div>
@@ -363,9 +410,10 @@ export default function PartProcessingScheduleTab() {
 
             if (!process.actualDate) {
               return (
-                <Popover content={content} title="Title" trigger="click">
-                  <span className="empty-cell">-</span>
-                </Popover>
+                // <Popover content={content} title="Title" trigger="click">
+                //   <span className="empty-cell">-</span>
+                // </Popover>
+                <span className="empty-cell">-</span>
               );
             }
 

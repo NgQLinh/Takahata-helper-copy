@@ -287,7 +287,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       id,
       indexCode,
       partCode,
-      quantity: values.Quantity,
+      quantity: values.Quantity | 1,
       partProcesses: dataSource.map((item, index) => ({
         id: item.id,
         sequence: index + 1,
