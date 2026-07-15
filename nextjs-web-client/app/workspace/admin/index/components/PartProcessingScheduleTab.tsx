@@ -7,7 +7,6 @@ import {
   Input,
   Popconfirm,
   Popover,
-  Select,
   Space,
   Table,
   Tag,
@@ -47,7 +46,10 @@ type TableRow = {
   partId: number;
   indexCode?: string;
   partName?: string;
-  createAt?: string;
+  createBy?: string;
+  createAt?: Dayjs | null;
+  updateBy?: string | null;
+  updateAt?: Dayjs | null;
   rowType: RowType;
   rowSpan: number;
   processes: Record<number, PartProcess | undefined>;
@@ -76,7 +78,10 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       partId: part.id,
       indexCode: part.index?.code,
       partName: part.code,
-      createAt: formatDate(part.createAt),
+      createAt: part.createAt ? dayjs(part.createAt) : null,
+      createBy: part.createBy,
+      updateBy: part.updateBy,
+      updateAt: part.updateAt ? dayjs(part.updateAt) : null,
       rowType: "MC",
       rowSpan: 3,
       processes: part.processes,
@@ -84,7 +89,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
     {
       key: `${part.id}-P`,
       partId: part.id,
-      createAt: formatDate(part.createAt),
+      createAt: part.createAt ? dayjs(part.createAt) : null,
       rowType: "P",
       rowSpan: 0,
       processes: part.processes,
@@ -250,11 +255,43 @@ export default function PartProcessingScheduleTab() {
           </div>
         ),
         dataIndex: "partName",
-        width: 150,
+        width: 260,
         fixed: "left",
-        onCell: (row) => ({ rowSpan: row.rowSpan }),
+        onCell: (row) => ({
+          rowSpan: row.rowSpan,
+        }),
         render: (_, row) => (
-          <strong className="part-name">{row.partName}</strong>
+          <div className="text-start">
+            <strong className="part-name d-block mb-2">
+              {row.partName || "-"}
+            </strong>
+
+            <div className="small text-muted">
+              <div className="mb-1">
+                <span className="fw-semibold">Người tạo:</span>{" "}
+                {row.createBy || "-"}
+              </div>
+
+              <div className="mb-1">
+                <span className="fw-semibold">Ngày tạo:</span>{" "}
+                {row.createAt
+                  ? dayjs(row.createAt).format("DD/MM/YYYY HH:mm")
+                  : "-"}
+              </div>
+
+              <div className="mb-1">
+                <span className="fw-semibold">Người sửa:</span>{" "}
+                {row.updateBy || "-"}
+              </div>
+
+              <div>
+                <span className="fw-semibold">Ngày sửa:</span>{" "}
+                {row.updateAt
+                  ? dayjs(row.updateAt).format("DD/MM/YYYY HH:mm")
+                  : "-"}
+              </div>
+            </div>
+          </div>
         ),
       },
       {
