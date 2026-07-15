@@ -3,9 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Authentication.Commands;
-using TAKAHATA.Contracts.Authentication;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.Common
 {
     [AllowAnonymous]
     public class AuthenticationController : ApiController

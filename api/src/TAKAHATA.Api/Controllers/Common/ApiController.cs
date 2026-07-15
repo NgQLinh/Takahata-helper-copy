@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TAKAHATA.Api.Common.Http;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.Common
 {
     [ApiController]
     [Route("api/v1/[controller]")]

@@ -1,11 +1,14 @@
 ﻿using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.IndexAndPart.Commands;
 using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;
+using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.Admin
 {
     public class PartController : ApiController
     {
@@ -19,6 +22,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = $"{Role.Admin}, {Role.User}")]
         public async Task<IActionResult> CreatePart(CreatePartCommand request)
         {
             var result = await _sender.Send(request);
@@ -29,6 +33,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("update")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> UpdatePart(UpdatePartCommand request)
         {
             var result = await _sender.Send(request);
@@ -39,6 +44,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("delete")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeletePart(DeletePartCommand request)
         {
             var result = await _sender.Send(request);
@@ -49,6 +55,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("query-parts")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> GetParts(PartsQuery query)
         {
             var result = await _sender.Send(query);
@@ -59,6 +66,7 @@ namespace TAKAHATA.Api.Controllers
         }
 
         [HttpPost("detail")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> Detail(PartQuery query)
         {
             var result = await _sender.Send(query);

@@ -1,4 +1,5 @@
 ﻿using TAKAHATA.Contracts.Common;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.IndexAndPart
 {
@@ -9,6 +10,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public int Quantity { get; set; }
         public int ProcessedQuantity { get; set; }
         public IndexResponse? Index { get; set; }
+        public PartStatus Status { get; set; }
         public ICollection<PartProcessResponse> Processes { get; set; } = [];
     }
 }

@@ -13,6 +13,7 @@ import {
 } from "antd";
 import {
   CalendarOutlined,
+  CheckOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
@@ -52,6 +53,7 @@ type TableRow = {
   updateAt?: Dayjs | null;
   rowType: RowType;
   rowSpan: number;
+  status: PartStatus | null;
   processes: Record<number, PartProcess | undefined>;
 };
 
@@ -85,6 +87,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowType: "MC",
       rowSpan: 3,
       processes: part.processes,
+      status: part.status,
     },
     {
       key: `${part.id}-P`,
@@ -93,6 +96,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowType: "P",
       rowSpan: 0,
       processes: part.processes,
+      status: part.status,
     },
     {
       key: `${part.id}-A`,
@@ -100,6 +104,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowType: "A",
       rowSpan: 0,
       processes: part.processes,
+      status: part.status,
     },
   ]);
 
@@ -203,6 +208,10 @@ export default function PartProcessingScheduleTab() {
     },
     [fetchParts],
   );
+
+  function handleApprove(partId: number): void {
+    throw new Error("Function not implemented.");
+  }
 
   const handleResetFilters = async () => {
     const emptyRange: DateRange = [null, null];
@@ -435,27 +444,53 @@ export default function PartProcessingScheduleTab() {
         width: 180,
         onCell: (row) => ({ rowSpan: row.rowSpan }),
         render: (_: unknown, row: TableRow) => (
-          <Space size={8}>
-            <Button
-              icon={<EditOutlined />}
-              className="action-btn"
-              onClick={() => handleUpdate(row.partId)}
-            >
-              Sửa
-            </Button>
-
-            <Popconfirm
-              title="Xóa part"
-              description={`Bạn có chắc muốn xóa ${row.partName}?`}
-              okText="Xóa"
-              cancelText="Hủy"
-              onConfirm={() => handleDelete(row.partId)}
-            >
-              <Button danger icon={<DeleteOutlined />} className="delete-btn">
-                Xóa
+          <div className="d-flex flex-column gap-2" style={{ width: 220 }}>
+            {/* Hàng trên */}
+            <div className="d-flex gap-2">
+              <Button
+                icon={<EditOutlined />}
+                className="action-btn flex-fill"
+                onClick={() => handleUpdate(row.partId)}
+              >
+                Sửa
               </Button>
-            </Popconfirm>
-          </Space>
+
+              <Popconfirm
+                title="Xóa part"
+                description={`Bạn có chắc muốn xóa ${row.partName}?`}
+                okText="Xóa"
+                cancelText="Hủy"
+                onConfirm={() => handleDelete(row.partId)}
+              >
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  className="delete-btn flex-fill"
+                >
+                  Xóa
+                </Button>
+              </Popconfirm>
+            </div>
+
+            {/* Hàng dưới */}
+            {row.status === PartStatus.PendingApproval && (
+              <Popconfirm
+                title="Phê duyệt Part"
+                description={`Bạn có chắc muốn phê duyệt ${row.partName}?`}
+                okText="Phê duyệt"
+                cancelText="Hủy"
+                onConfirm={() => handleApprove(row.partId)}
+              >
+                <Button
+                  type="primary"
+                  icon={<CheckOutlined />}
+                  className="w-100"
+                >
+                  Phê duyệt
+                </Button>
+              </Popconfirm>
+            )}
+          </div>
         ),
       },
     ],

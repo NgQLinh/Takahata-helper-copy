@@ -1,9 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.MaintenanceProcess.Queries;
+using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.User
 {
+    [Authorize(Roles = Role.User)]
     public class ProcessController : ApiController
     {
         private ISender _sender;

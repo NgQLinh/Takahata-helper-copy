@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.Common
 {
     [AllowAnonymous]
     public class HealthCheckController : ApiController

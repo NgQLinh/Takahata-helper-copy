@@ -2,11 +2,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.Account.Commands;
 using TAKAHATA.Application.Account.Queries;
 using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers
+namespace TAKAHATA.Api.Controllers.Admin
 {
     [Authorize(Roles = Role.Admin)]
     public class AccountController : ApiController
