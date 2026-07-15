@@ -29,7 +29,7 @@ import {
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, ManufacturingProcess } from "@/app/types";
+import { Machine, ManufacturingProcess, PartStatus } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 
@@ -583,6 +583,7 @@ export default function WorkerPage() {
 
       <CreatePart
         open={isCreateOpen}
+        status={PartStatus.PendingApproval}
         onClose={() => {
           setIsCreateOpen(false);
           void fetchManufacturingProcess();

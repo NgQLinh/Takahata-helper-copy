@@ -30,7 +30,7 @@ import {
   deletePartAsync,
   searchPartAsync,
 } from "@/app/services/index/IndexService";
-import { Part, PartProcess } from "@/app/types";
+import { Part, PartProcess, PartStatus } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import "./PartProcessingScheduleTab.css";
@@ -472,6 +472,7 @@ export default function PartProcessingScheduleTab() {
 
       <CreatePart
         open={isCreateOpen}
+        status={PartStatus.Approved}
         onClose={() => {
           setIsCreateOpen(false);
           void fetchParts();

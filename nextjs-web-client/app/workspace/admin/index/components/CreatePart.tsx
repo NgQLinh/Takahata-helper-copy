@@ -24,7 +24,7 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine } from "@/app/types";
+import { Machine, PartStatus } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
@@ -37,6 +37,7 @@ const FORM_ID = "create-part-form";
 
 type Props = {
   open: boolean;
+  status: PartStatus;
   onClose: () => void;
 };
 
@@ -84,7 +85,7 @@ const getStatusTag = (status: ProcessStatus) => {
   }
 };
 
-export default function CreatePart({ open, onClose }: Props) {
+export default function CreatePart({ open, status, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
   const screens = useBreakpoint();
 
@@ -195,6 +196,7 @@ export default function CreatePart({ open, onClose }: Props) {
       indexCode,
       partCode: values.PartCode.trim(),
       quantity: values.Quantity,
+      status: status,
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,

@@ -60,6 +60,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 CreateBy = _currentUserService.UserId,
                 IndexId = index.Id,
                 Quantity = request.Quantity != 0 ? request.Quantity : 1,
+                Status = request.Status,
                 Processes = [.. request.PartProcesses.OrderBy(x => x.PlantDate).Select((p, i) => new PartProcess
                 {
                     CreateAt = DateTime.Now,
