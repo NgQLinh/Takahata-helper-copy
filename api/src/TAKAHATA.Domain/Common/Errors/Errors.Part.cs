@@ -25,7 +25,10 @@ namespace TAKAHATA.Domain.Common.Errors
                 Error.NotFound(code: "Part.NotFoundIndex", description: "Không tìm thấy part.");
 
             public static Error NotFoundProcess =>
-                Error.NotFound(code: "Part.NotFoundProcess", description: "Không tìm thấy part process.");
+                Error.NotFound(code: "PartProcess.NotFoundProcess", description: "Không tìm thấy part process.");
+
+            public static Error UpdatePartProcessFalse =>
+                Error.Failure(code: "UpdatePartProcessFalse.UpdateFalse", description: "Cập nhật part process không thành công.");
         }
     }
 

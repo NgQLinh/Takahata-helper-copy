@@ -147,6 +147,7 @@ export default function WorkerPage() {
       };
 
       const data = await startAsync(request);
+      await fetchManufacturingProcess();
       console.log(data);
     } catch (error) {
       console.log(error);
@@ -162,6 +163,7 @@ export default function WorkerPage() {
       };
 
       const data = await pauseAsync(request);
+      await fetchManufacturingProcess();
       console.log(data);
     } catch (error) {
       console.log(error);
@@ -179,6 +181,7 @@ export default function WorkerPage() {
       };
 
       const data = await completeAsync(request);
+      await fetchManufacturingProcess();
       console.log(data);
     } catch (error) {
       console.log(error);
@@ -275,6 +278,10 @@ export default function WorkerPage() {
           [ProcessStatus.Overdue]: {
             color: "warning",
             text: "Quá hạn",
+          },
+          [ProcessStatus.Paused]: {
+            color: "warning",
+            text: "Tạm dừng",
           },
         };
 
