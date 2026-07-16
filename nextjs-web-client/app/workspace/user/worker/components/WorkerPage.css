@@ -1,0 +1,7 @@
+.ant-table-tbody > tr.selected-table-row > td {
+  background: #e6f4ff !important;
+}
+
+.ant-table-tbody > tr.selected-table-row:hover > td {
+  background: #e6f4ff !important;
+}

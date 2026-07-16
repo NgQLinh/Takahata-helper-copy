@@ -1,4 +1,5 @@
 export enum ProcessStatus {
+  PendingApproval = -1,
   Planned = 0,
   InProgress = 1,
   Completed = 2,

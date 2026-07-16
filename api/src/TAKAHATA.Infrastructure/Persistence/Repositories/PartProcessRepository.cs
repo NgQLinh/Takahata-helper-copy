@@ -1,8 +1,6 @@
-﻿using MapsterMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Contracts.Common;
-using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.MasterData;
 
@@ -10,13 +8,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
     public class PartProcessRepository : BaseRepository<PartProcess>, IPartProcessRepository
     {
-        private readonly IMapper _mapper;
-
-        public PartProcessRepository(
-            AppDbContext dbContext,
-            IMapper mapper) : base(dbContext)
+        public PartProcessRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _mapper = mapper;
         }
 
         public async Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
@@ -62,8 +55,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         : string.Empty,
 
                     Note = x.Note,
-                    Status = x.Status,
-                    PartStatus = x.Part != null ? x.Part.Status : PartStatus.Approved,
+                    Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status
                 })
                 .ToListAsync();
 

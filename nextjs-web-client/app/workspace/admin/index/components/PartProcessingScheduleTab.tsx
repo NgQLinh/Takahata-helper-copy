@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  DatePicker,
-  Input,
-  Popconfirm,
-  // Popover,
-  Space,
-  Table,
-  Tag,
-} from "antd";
+import { Button, Card, DatePicker, Input, Popconfirm, Table, Tag } from "antd";
 import {
   CalendarOutlined,
   CheckOutlined,
@@ -31,7 +21,7 @@ import {
   deletePartAsync,
   searchPartAsync,
 } from "@/app/services/index/IndexService";
-import { Part, PartProcess, PartStatus } from "@/app/types";
+import { Part, PartProcess } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import "./PartProcessingScheduleTab.css";
@@ -54,7 +44,7 @@ type TableRow = {
   updateAt?: Dayjs | null;
   rowType: RowType;
   rowSpan: number;
-  status: PartStatus | null;
+  status: ProcessStatus | null;
   processes: Record<number, PartProcess | undefined>;
 };
 
@@ -488,7 +478,7 @@ export default function PartProcessingScheduleTab() {
             </div>
 
             {/* Hàng dưới */}
-            {row.status === PartStatus.PendingApproval && (
+            {row.status === ProcessStatus.PendingApproval && (
               <Popconfirm
                 title="Phê duyệt Part"
                 description={`Bạn có chắc muốn phê duyệt ${row.partName}?`}
@@ -607,7 +597,7 @@ export default function PartProcessingScheduleTab() {
 
       <CreatePart
         open={isCreateOpen}
-        status={PartStatus.Approved}
+        status={ProcessStatus.Planned}
         onClose={() => {
           setIsCreateOpen(false);
           void fetchParts();

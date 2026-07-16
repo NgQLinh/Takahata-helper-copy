@@ -24,7 +24,7 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine, PartStatus } from "@/app/types";
+import { Machine } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
@@ -37,7 +37,7 @@ const FORM_ID = "create-part-form";
 
 type Props = {
   open: boolean;
-  status: PartStatus;
+  status: ProcessStatus;
   onClose: () => void;
 };
 

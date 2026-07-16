@@ -18,7 +18,6 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import {
   CheckCircleOutlined,
-  ClockCircleOutlined,
   PauseOutlined,
   PlayCircleOutlined,
   PlusOutlined,
@@ -30,7 +29,7 @@ import {
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, ManufacturingProcess, PartStatus } from "@/app/types";
+import { Machine, ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 import {
@@ -40,6 +39,8 @@ import {
 } from "@/app/services/machine/ManufacturingService";
 
 const { Text } = Typography;
+
+import "./WorkerPage.css";
 
 type ProcessingFormValues = {
   setupTime: number;
@@ -189,20 +190,6 @@ export default function WorkerPage() {
   };
 
   const processingColumns: ColumnsType<ManufacturingProcess> = [
-    // {
-    //   title: "",
-    //   fixed: "left",
-    //   key: "select",
-    //   width: 44,
-    //   align: "center",
-    //   render: (_, record) => (
-    //     <Radio
-    //       checked={selectedProcess?.id === record.id}
-    //       disabled={record.status === ProcessStatus.Completed}
-    //       onChange={() => handleSelectItem(record)}
-    //     />
-    //   ),
-    // },
     {
       title: "#",
       fixed: "left",
@@ -219,6 +206,7 @@ export default function WorkerPage() {
     },
     {
       title: "Tên chi tiết",
+      fixed: "left",
       dataIndex: "partCode",
       width: 170,
       ellipsis: true,
@@ -251,6 +239,7 @@ export default function WorkerPage() {
     },
     {
       title: "Trạng thái",
+      fixed: "right",
       dataIndex: "status",
       width: 130,
       align: "center",
@@ -283,6 +272,10 @@ export default function WorkerPage() {
             color: "warning",
             text: "Tạm dừng",
           },
+          [ProcessStatus.PendingApproval]: {
+            color: "warning",
+            text: "Chờ phê duyệt",
+          },
         };
 
         const current = statusMap[status] ?? {
@@ -292,53 +285,6 @@ export default function WorkerPage() {
 
         return <Tag color={current.color}>{current.text}</Tag>;
       },
-    },
-    {
-      title: "Trạng thái Part",
-      key: "actions",
-      align: "center",
-      fixed: "right",
-      width: 120,
-      render: (_, record) => (
-        <div className="d-flex justify-content-center">
-          {record.partStatus === PartStatus.PendingApproval ? (
-            <Tag
-              color="gold"
-              icon={<ClockCircleOutlined />}
-              className="px-2 py-1 fw-semibold"
-            >
-              Chờ phê duyệt
-            </Tag>
-          ) : (
-            <Tag
-              color="success"
-              icon={<CheckCircleOutlined />}
-              className="px-2 py-1 fw-semibold"
-            >
-              Đã phê duyệt
-            </Tag>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: "Thao tác",
-      key: "action",
-      width: 100,
-      fixed: "right",
-      align: "center",
-      render: (_, record) =>
-        record.status === ProcessStatus.Completed ? (
-          <Text type="secondary">-</Text>
-        ) : (
-          <Button
-            type={selectedProcess?.id === record.id ? "primary" : "default"}
-            size="small"
-            onClick={() => handleSelectItem(record)}
-          >
-            Chọn
-          </Button>
-        ),
     },
   ];
 
@@ -571,8 +517,7 @@ export default function WorkerPage() {
                       disabled={
                         !selectedProcess ||
                         isRunning ||
-                        selectedProcess.partStatus ===
-                          PartStatus.PendingApproval
+                        selectedProcess.status === ProcessStatus.PendingApproval
                       }
                       onClick={handleStartProcessing}
                     >
@@ -657,8 +602,8 @@ export default function WorkerPage() {
                         icon={<CheckCircleOutlined />}
                         disabled={
                           !selectedProcess ||
-                          selectedProcess.partStatus ===
-                            PartStatus.PendingApproval
+                          selectedProcess.status ===
+                            ProcessStatus.PendingApproval
                         }
                         onClick={handleCompleteProcessing}
                       >
@@ -675,7 +620,7 @@ export default function WorkerPage() {
 
       <CreatePart
         open={isCreateOpen}
-        status={PartStatus.PendingApproval}
+        status={ProcessStatus.PendingApproval}
         onClose={() => {
           setIsCreateOpen(false);
           void fetchManufacturingProcess();

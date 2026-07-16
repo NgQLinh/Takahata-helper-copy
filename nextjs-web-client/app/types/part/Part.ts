@@ -1,6 +1,6 @@
+import { ProcessStatus } from "../common/ProcessStatus";
 import { Index } from "./Index";
 import { PartProcess } from "./PartProcess";
-import { PartStatus } from "./PartStatus";
 
 export interface Part {
   id: number;
@@ -14,5 +14,5 @@ export interface Part {
   updateBy?: string | null;
   quantity: number;
   processedQuantity: number;
-  status: PartStatus;
+  status: ProcessStatus;
 }

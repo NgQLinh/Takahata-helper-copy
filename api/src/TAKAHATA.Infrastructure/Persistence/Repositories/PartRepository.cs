@@ -153,7 +153,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             if (part == null)
                 return null;
 
-            part.Status = PartStatus.Approved;
+            part.Status = ProcessStatus.Planned;
             _dbContext.Parts.Update(part);
 
             var effectedRow = await _dbContext.SaveChangesAsync();
