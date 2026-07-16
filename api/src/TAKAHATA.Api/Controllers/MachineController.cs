@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Application.Equipment.Queries;
 using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers.Admin
+namespace TAKAHATA.Api.Controllers
 {
 
     public class MachineController : ApiController

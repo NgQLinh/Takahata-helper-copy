@@ -2,13 +2,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.IndexAndPart.Commands;
 using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers.Admin
+namespace TAKAHATA.Api.Controllers
 {
     public class PartController : ApiController
     {

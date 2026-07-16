@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace TAKAHATA.Api.Controllers.Common
+namespace TAKAHATA.Api.Controllers
 {
     public class ErrorsController : ControllerBase
     {

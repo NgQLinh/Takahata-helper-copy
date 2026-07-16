@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Authentication.Commands;
 
-namespace TAKAHATA.Api.Controllers.Common
+namespace TAKAHATA.Api.Controllers
 {
     [AllowAnonymous]
     public class AuthenticationController : ApiController

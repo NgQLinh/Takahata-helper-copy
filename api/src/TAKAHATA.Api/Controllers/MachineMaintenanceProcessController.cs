@@ -1,12 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TAKAHATA.Api.Controllers.Common;
 using TAKAHATA.Application.MaintenanceProcess.Commands;
 using TAKAHATA.Application.MaintenanceProcess.Queries;
 using TAKAHATA.Domain.Common.Constant;
 
-namespace TAKAHATA.Api.Controllers.Admin
+namespace TAKAHATA.Api.Controllers
 {
     [Authorize(Roles = Role.Admin)]
     public class MachineMaintenanceProcessController : ApiController
