@@ -146,5 +146,19 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
             return await _dbContext.Parts.CountAsync();
         }
+
+        public async Task<Part?> ApproveAsync(int id)
+        {
+            var part = _dbContext.Parts.FirstOrDefault(x => x.Id == id);
+            if (part == null)
+                return null;
+
+            part.Status = PartStatus.Approved;
+            _dbContext.Parts.Update(part);
+
+            var effectedRow = await _dbContext.SaveChangesAsync();
+
+            return effectedRow != 0 ? part : null;
+        }
     }
 }

@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import CreatePart from "./CreatePart";
 import UpdatePart from "./UpdatePart";
 import {
+  approvePartAsync,
   deletePartAsync,
   searchPartAsync,
 } from "@/app/services/index/IndexService";
@@ -209,9 +210,23 @@ export default function PartProcessingScheduleTab() {
     [fetchParts],
   );
 
-  function handleApprove(partId: number): void {
-    throw new Error("Function not implemented.");
-  }
+  const handleApprove = useCallback(
+    async (id: number) => {
+      try {
+        await approvePartAsync({ id });
+        toast.success("Phê duyệt part thành công.");
+        await fetchParts();
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
+          return;
+        }
+
+        toast.error("Có lỗi xảy ra.");
+      }
+    },
+    [fetchParts],
+  );
 
   const handleResetFilters = async () => {
     const emptyRange: DateRange = [null, null];

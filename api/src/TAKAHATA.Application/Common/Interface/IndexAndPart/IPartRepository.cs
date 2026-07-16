@@ -17,5 +17,6 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
             int page,
             int pageSize);
         Task<int> CountTotal();
+        Task<Part?> ApproveAsync(int id);
     }
 }

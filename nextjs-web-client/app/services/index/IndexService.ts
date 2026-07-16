@@ -12,6 +12,16 @@ export const updatePartAsync = async (request: unknown): Promise<Part[]> => {
   return response.data;
 };
 
+export const deletePartAsync = async (id: number): Promise<Part> => {
+  const response = await apiClient.post<Part>("/Part/delete", { id: id });
+  return response.data;
+};
+
+export const approvePartAsync = async (request: unknown): Promise<Part[]> => {
+  const response = await apiClient.post<Part[]>("/Part/approve", request);
+  return response.data;
+};
+
 export const searchPartAsync = async (
   request: unknown,
 ): Promise<SearchResponse<Part[]>> => {
@@ -23,10 +33,7 @@ export const searchPartAsync = async (
   return response.data;
 };
 
-export const deletePartAsync = async (id: number): Promise<Part> => {
-  const response = await apiClient.post<Part>("/Part/delete", { id: id });
-  return response.data;
-};
+
 
 export const getPartAsync = async (id: number): Promise<Part> => {
   const response = await apiClient.post<Part>("/Part/detail", { id: id });

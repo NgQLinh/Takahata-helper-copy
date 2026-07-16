@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Application.IndexAndPart.Commands;
 using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;
@@ -69,6 +70,17 @@ namespace TAKAHATA.Api.Controllers
         public async Task<IActionResult> Detail(PartQuery query)
         {
             var result = await _sender.Send(query);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
+        [HttpPost("approve")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> Approve(ApproveCommand command)
+        {
+            var result = await _sender.Send(command);
 
             return result.Match(
                 r => Ok(r),
