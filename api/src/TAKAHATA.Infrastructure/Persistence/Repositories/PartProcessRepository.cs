@@ -63,6 +63,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
                     Note = x.Note,
                     Status = x.Status,
+                    PartStatus = x.Part != null ? x.Part.Status : PartStatus.Approved,
                 })
                 .ToListAsync();
 

@@ -509,7 +509,7 @@ export default function PartProcessingScheduleTab() {
         ),
       },
     ],
-    [handleDelete],
+    [handleApprove, handleDelete],
   );
 
   return (

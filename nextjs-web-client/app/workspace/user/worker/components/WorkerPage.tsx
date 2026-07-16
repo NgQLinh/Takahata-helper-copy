@@ -18,6 +18,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import {
   CheckCircleOutlined,
+  ClockCircleOutlined,
   PauseOutlined,
   PlayCircleOutlined,
   PlusOutlined,
@@ -32,6 +33,11 @@ import { toast } from "react-toastify";
 import { Machine, ManufacturingProcess, PartStatus } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
+import {
+  completeAsync,
+  pauseAsync,
+  startAsync,
+} from "@/app/services/machine/ManufacturingService";
 
 const { Text } = Typography;
 
@@ -132,30 +138,71 @@ export default function WorkerPage() {
     setSelectedProcess(record);
   }
 
-  const handleStartProcessing = () => {};
+  const handleStartProcessing = async () => {
+    if (!selectedProcess) return;
 
-  const handlePauseProcessing = () => {
-    setIsRunning(false);
+    try {
+      const request = {
+        id: selectedProcess.id,
+      };
+
+      const data = await startAsync(request);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleCompleteProcessing = async () => {};
+  const handlePauseProcessing = async () => {
+    if (!selectedProcess) return;
+    setIsRunning(false);
+    try {
+      const request = {
+        id: selectedProcess.id,
+      };
+
+      const data = await pauseAsync(request);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsRunning(true);
+    }
+  };
+
+  const handleCompleteProcessing = async () => {
+    if (!selectedProcess) return;
+
+    try {
+      const request = {
+        id: selectedProcess.id,
+      };
+
+      const data = await completeAsync(request);
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const processingColumns: ColumnsType<ManufacturingProcess> = [
-    {
-      title: "",
-      key: "select",
-      width: 44,
-      align: "center",
-      render: (_, record) => (
-        <Radio
-          checked={selectedProcess?.id === record.id}
-          disabled={record.status === ProcessStatus.Completed}
-          onChange={() => handleSelectItem(record)}
-        />
-      ),
-    },
+    // {
+    //   title: "",
+    //   fixed: "left",
+    //   key: "select",
+    //   width: 44,
+    //   align: "center",
+    //   render: (_, record) => (
+    //     <Radio
+    //       checked={selectedProcess?.id === record.id}
+    //       disabled={record.status === ProcessStatus.Completed}
+    //       onChange={() => handleSelectItem(record)}
+    //     />
+    //   ),
+    // },
     {
       title: "#",
+      fixed: "left",
       key: "index",
       width: 48,
       align: "center",
@@ -163,6 +210,7 @@ export default function WorkerPage() {
     },
     {
       title: "Mã Index",
+      fixed: "left",
       dataIndex: "indexCode",
       width: 110,
     },
@@ -179,9 +227,9 @@ export default function WorkerPage() {
       align: "center",
     },
     {
-      title: "Ghi chí",
+      title: "Ghi chú",
       dataIndex: "note",
-      width: 90,
+      width: 200,
       align: "center",
     },
     {
@@ -237,6 +285,34 @@ export default function WorkerPage() {
 
         return <Tag color={current.color}>{current.text}</Tag>;
       },
+    },
+    {
+      title: "Trạng thái Part",
+      key: "actions",
+      align: "center",
+      fixed: "right",
+      width: 120,
+      render: (_, record) => (
+        <div className="d-flex justify-content-center">
+          {record.partStatus === PartStatus.PendingApproval ? (
+            <Tag
+              color="gold"
+              icon={<ClockCircleOutlined />}
+              className="px-2 py-1 fw-semibold"
+            >
+              Chờ phê duyệt
+            </Tag>
+          ) : (
+            <Tag
+              color="success"
+              icon={<CheckCircleOutlined />}
+              className="px-2 py-1 fw-semibold"
+            >
+              Đã phê duyệt
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Thao tác",
@@ -485,7 +561,12 @@ export default function WorkerPage() {
                       size="large"
                       block
                       icon={<PlayCircleOutlined />}
-                      disabled={!selectedProcess || isRunning}
+                      disabled={
+                        !selectedProcess ||
+                        isRunning ||
+                        selectedProcess.partStatus ===
+                          PartStatus.PendingApproval
+                      }
                       onClick={handleStartProcessing}
                     >
                       {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
@@ -567,7 +648,11 @@ export default function WorkerPage() {
                         type="primary"
                         className="complete-button"
                         icon={<CheckCircleOutlined />}
-                        disabled={!selectedProcess}
+                        disabled={
+                          !selectedProcess ||
+                          selectedProcess.partStatus ===
+                            PartStatus.PendingApproval
+                        }
                         onClick={handleCompleteProcessing}
                       >
                         Hoàn thành

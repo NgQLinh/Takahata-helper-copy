@@ -1,4 +1,5 @@
 import { ProcessStatus } from "../common/ProcessStatus";
+import { PartStatus } from "./PartStatus";
 
 export interface ManufacturingProcess {
   id: number;
@@ -14,4 +15,5 @@ export interface ManufacturingProcess {
   processedQuantity: number;
   status: ProcessStatus;
   note: string;
+  partStatus: PartStatus;
 }

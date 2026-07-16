@@ -6,7 +6,6 @@ import {
   SearchResponse,
   UpdateMachineRequest,
   MachineMaintenanceProcess,
-  PartProcess,
   ManufacturingProcess,
 } from "@/app/types";
 
