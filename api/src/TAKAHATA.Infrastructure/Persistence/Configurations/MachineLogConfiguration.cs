@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TAKAHATA.Domain.Log;
+using TAKAHATA.Domain.DataLog;
 
 namespace TAKAHATA.Infrastructure.Persistence.Configurations
 {
