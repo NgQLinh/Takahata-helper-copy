@@ -63,40 +63,58 @@ export function DashboardPage() {
     .toFixed(1);
 
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-6">
-        <SummaryCard label="Running" value={runningMachines} />
-        <SummaryCard label="Setup" value={setupMachines} />
-        <SummaryCard label="Alarm" value={alarmMachines} danger />
-        <SummaryCard label="Stop" value={stopMachines} />
-        <SummaryCard label="Utilization" value={`${avgUtilization}%`} />
-        <SummaryCard label="Runtime" value={`${totalRuntime}h`} />
+    <div className="d-flex flex-column h-100">
+      {/* Summary */}
+      <div className="row g-3 shrink-0 mb-3">
+        <div className="col-6 col-xl">
+          <SummaryCard label="Running" value={runningMachines} />
+        </div>
+        <div className="col-6 col-xl">
+          <SummaryCard label="Setup" value={setupMachines} />
+        </div>
+        <div className="col-6 col-xl">
+          <SummaryCard label="Alarm" value={alarmMachines} danger />
+        </div>
+        <div className="col-6 col-xl">
+          <SummaryCard label="Stop" value={stopMachines} />
+        </div>
+        <div className="col-6 col-xl">
+          <SummaryCard label="Utilization" value={`${avgUtilization}%`} />
+        </div>
+        <div className="col-6 col-xl">
+          <SummaryCard label="Runtime" value={`${totalRuntime}h`} />
+        </div>
       </div>
 
-      <div className="grid gap-5">
-        <div className="rounded-xl border bg-white p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold text-gray-900">
-                Trạng thái realtime của từng máy.
-              </h2>
-            </div>
+      {/* Panel */}
+      <div className="card grow d-flex flex-column overflow-hidden">
+        <div className="card-body d-flex flex-column overflow-hidden">
+          <div className="d-flex justify-content-between align-items-center mb-3 shrink-0">
+            <h5 className="mb-0">Trạng thái realtime của từng máy</h5>
 
-            <div className="d-flex gap-1">
-              <div className="rounded-lg border bg-white px-4 py-2 text-sm text-gray-600">
+            <div className="d-flex gap-2">
+              <div className="border rounded px-3 py-2 text-muted small">
                 Today · {dayjs(today).format("DD/MM/YYYY HH:mm")}
               </div>
 
-              <button className="rounded-lg border px-3 py-1.5 text-sm hover:bg-gray-100">
+              <button className="btn btn-outline-secondary btn-sm">
                 View All
               </button>
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
-            {machines.map((machine) => (
-              <MachineCard key={machine.id} machine={machine} />
-            ))}
+          {/* Danh sách máy */}
+          <div
+            className="overflow-auto"
+            style={{ height: "calc(100vh - 240px)" }}
+          >
+            <div className="row g-3">
+              {machines.map((machine) => (
+                <div key={machine.id} className="col-12 col-md-6 col-xl-3">
+                  <MachineCard machine={machine} />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
