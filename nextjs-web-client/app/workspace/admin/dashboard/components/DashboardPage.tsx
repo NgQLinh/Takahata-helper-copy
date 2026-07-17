@@ -12,6 +12,24 @@ export function DashboardPage() {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [loadingMachine, setLoadingMachine] = useState(false);
 
+  useEffect(() => {
+    const loadMachines = async () => {
+      try {
+        // await getMachineStatus();
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    // Load ngay lần đầu
+    loadMachines();
+
+    // Sau đó 5s cập nhật một lần
+    const interval = setInterval(loadMachines, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const fetchMachines = useCallback(async () => {
     setLoadingMachine(true);
 
