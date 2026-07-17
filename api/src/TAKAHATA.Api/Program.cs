@@ -7,6 +7,7 @@ using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
 using TAKAHATA.Application.Account.Commands;
 using TAKAHATA.Application.Common.Mapping;
+using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
@@ -103,7 +104,9 @@ using (var scope = app.Services.CreateScope())
         "Admin",
         Role.Admin
     );
+    var createDefaultMachineCommand = new CreateDefaultMachineCommand(true);
     await sender.Send(registerCommand);
+    await sender.Send(createDefaultMachineCommand);
 }
 
 // Configure the HTTP request pipeline.

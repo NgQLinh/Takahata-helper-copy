@@ -118,7 +118,15 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .ToList();
 
             var data = parts
-                .Select(x => _mapper.Map<PartResponse>(x))
+                .Select(x =>
+                {
+                    var part = _mapper.Map<PartResponse>(x);
+                    part.Processes = part.Processes
+                        .OrderBy(p => p.Sequence)
+                        .ToList();
+
+                    return part;
+                })
                 .ToList();
 
             return new SearchResponse<List<PartResponse>>(

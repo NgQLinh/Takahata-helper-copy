@@ -28,6 +28,10 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
             if (part == null)
                 return Errors.Part.NotFound;
 
+            part.Processes = part.Processes
+                .OrderBy(x => x.Sequence)
+                .ToList();
+
             return _mapper.Map<PartResponse>(part);
         }
     }
