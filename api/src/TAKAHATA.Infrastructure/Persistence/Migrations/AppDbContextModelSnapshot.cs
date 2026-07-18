@@ -154,44 +154,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.Log.MachineLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("MachineId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("MachineStatus")
-                        .HasColumnType("int");
-
-                    b.Property<long>("PartId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("PartProcessId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MachineLog");
-                });
-
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Index", b =>
                 {
                     b.Property<long>("Id")
