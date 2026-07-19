@@ -90,14 +90,8 @@ namespace TAKAHATA.Application.Services
             return new MachineLog
             {
                 MachineId = machine.Id,
-                MachineName = machine.Name,
-                MachineCode = machine.Code,
-
                 PartId = _random.Next(1, 100),
-                PartName = $"Part {_random.Next(1, 50):D2}",
-                PartCode = $"P{_random.Next(1000, 9999)}",
-
-                MachineStatus = (MachineStatus)_random.Next(
+                Status = (MachineStatus)_random.Next(
                     Enum.GetValues<MachineStatus>().Length)
             };
         }
