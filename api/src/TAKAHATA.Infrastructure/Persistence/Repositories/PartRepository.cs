@@ -168,5 +168,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             return effectedRow != 0 ? part : null;
         }
+
+        public async Task<IEnumerable<Part>> GetByIdsAsync(HashSet<long> partIds)
+        {
+            return await _dbContext.Parts
+                .Where(p => partIds.Contains(p.Id))
+                .ToListAsync();
+        }
     }
 }

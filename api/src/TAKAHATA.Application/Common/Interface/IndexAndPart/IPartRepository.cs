@@ -18,5 +18,6 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
             int pageSize);
         Task<int> CountTotal();
         Task<Part?> ApproveAsync(int id);
+        Task<IEnumerable<Part>> GetByIdsAsync(HashSet<long> partIds);
     }
 }

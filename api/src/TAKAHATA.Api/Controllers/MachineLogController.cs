@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Common.Interface.Influx.Repositories;
+using TAKAHATA.Application.DataLog.Queries;
 using TAKAHATA.Domain.DataLog;
 
 namespace TAKAHATA.Api.Controllers;
@@ -9,12 +11,14 @@ namespace TAKAHATA.Api.Controllers;
 [AllowAnonymous]
 public class MachineLogController : ApiController
 {
+    private readonly ISender _sender;
     private readonly IMachineLogRepository _machineLogRepository;
 
     public MachineLogController(
-        IMachineLogRepository machineLogRepository)
+        IMachineLogRepository machineLogRepository, ISender sender)
     {
         _machineLogRepository = machineLogRepository;
+        _sender = sender;
     }
 
     [HttpPost]
@@ -38,9 +42,13 @@ public class MachineLogController : ApiController
     [HttpGet("latest")]
     public async Task<IActionResult> GetLatestAsync()
     {
-        var result = await _machineLogRepository.GetLatestAsync();
+        var request = new MachineLogsQuery();
 
-        return Ok(result);
+        var result = await _sender.Send(request);
+
+        return result.Match(
+            r => Ok(r),
+            e => Problem(e));
     }
 
     [HttpGet("latest/{machineId:long}")]

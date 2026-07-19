@@ -18,7 +18,7 @@ namespace TAKAHATA.Domain.DataLog
         public int Status { get; set; }
 
         [Column(IsTimestamp = true)]
-        public DateTime Time { get; set; } = DateTime.UtcNow;
+        public DateTime Time { get; set; } = DateTime.Now;
 
         public MachineStatus GetStatus()
         {
