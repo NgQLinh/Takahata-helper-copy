@@ -15,9 +15,21 @@ namespace TAKAHATA.Domain.DataLog
 
         // Fields
         [Column("status")]
-        public MachineStatus Status { get; set; }
+        public int Status { get; set; }
 
         [Column(IsTimestamp = true)]
         public DateTime Time { get; set; } = DateTime.UtcNow;
+
+        public MachineStatus GetStatus()
+        {
+            return Enum.IsDefined(typeof(MachineStatus), Status)
+                ? (MachineStatus)Status
+                : throw new InvalidOperationException($"Invalid status value: {Status}");
+        }
+
+        public void SetStatus(MachineStatus status)
+        {
+            Status = (int)status;
+        }
     }
 }

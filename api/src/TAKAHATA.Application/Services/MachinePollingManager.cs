@@ -87,13 +87,15 @@ namespace TAKAHATA.Application.Services
 
         private MachineLog GenerateRandomLog(Machine machine)
         {
-            return new MachineLog
+            var log = new MachineLog
             {
                 MachineId = machine.Id,
-                PartId = _random.Next(1, 100),
-                Status = (MachineStatus)_random.Next(
-                    Enum.GetValues<MachineStatus>().Length)
+                PartId = _random.Next(1, 100)
             };
+
+            log.SetStatus((MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length));
+
+            return log;
         }
     }
 }
