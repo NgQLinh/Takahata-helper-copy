@@ -39,7 +39,7 @@ public class MachineLogController : ApiController
         return Ok();
     }
 
-    [HttpGet("latest")]
+    [HttpPost("latest")]
     public async Task<IActionResult> GetLatestAsync()
     {
         var request = new MachineLogsQuery();

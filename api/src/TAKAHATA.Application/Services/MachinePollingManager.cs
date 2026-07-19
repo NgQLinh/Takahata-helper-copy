@@ -90,11 +90,10 @@ namespace TAKAHATA.Application.Services
             var log = new MachineLog
             {
                 MachineId = machine.Id,
-                PartId = 100 /*_random.Next(1, 100)*/,
-                Status = 2
+                PartId = _random.Next(1, 100)
             };
 
-            //log.SetStatus((MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length));
+            log.SetStatus((MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length));
 
             return log;
         }

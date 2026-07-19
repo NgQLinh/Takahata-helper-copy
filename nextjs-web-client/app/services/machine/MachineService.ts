@@ -10,6 +10,7 @@ import {
 } from "@/app/types";
 
 import { apiClient } from "../common/apiClient";
+import { MachineLog } from "@/app/types/machine/MachineLog";
 
 export const searchMachinesAsync = async (
   request: unknown,
@@ -115,5 +116,11 @@ export const getPartProcessByMachineAsync = async (
     "/Process/get-part-process-by-machine",
     request,
   );
+  return response.data;
+};
+
+// Machine log
+export const getLatestMachineLogsAsync = async (): Promise<MachineLog[]> => {
+  const response = await apiClient.post<MachineLog[]>("/MachineLog/latest");
   return response.data;
 };

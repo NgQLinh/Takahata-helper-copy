@@ -4,18 +4,23 @@ import { useCallback, useEffect, useState } from "react";
 import { dashboardMachines } from "./dashboard-data";
 import dayjs, { Dayjs } from "dayjs";
 import { Machine } from "@/app/types";
-import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import {
+  getLatestMachineLogsAsync,
+  getMachinesAsync,
+} from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
+import { MachineLog } from "@/app/types/machine/MachineLog";
 
 export function DashboardPage() {
   const [today, setToday] = useState<Dayjs | undefined>(dayjs());
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
   const [loadingMachine, setLoadingMachine] = useState(false);
 
   useEffect(() => {
     const loadMachines = async () => {
       try {
-        // await getMachineStatus();
+        const data = await getLatestMachineLogsAsync();
+        setMachineLogs(data);
       } catch (err) {
         console.error(err);
       }
@@ -30,30 +35,30 @@ export function DashboardPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchMachines = useCallback(async () => {
-    setLoadingMachine(true);
+  // const fetchMachines = useCallback(async () => {
+  //   setLoadingMachine(true);
 
-    try {
-      const data = await getMachinesAsync();
-      setMachines(data);
-      console.log(data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách máy:", error);
-      toast.error("Không thể tải danh sách máy.");
-    } finally {
-      setLoadingMachine(false);
-    }
-  }, []);
+  //   try {
+  //     const data = await getMachinesAsync();
+  //     setMachines(data);
+  //     console.log(data);
+  //   } catch (error) {
+  //     console.error("Lỗi khi lấy danh sách máy:", error);
+  //     toast.error("Không thể tải danh sách máy.");
+  //   } finally {
+  //     setLoadingMachine(false);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    const run = async () => {
-      await Promise.all([fetchMachines()]);
-    };
+  // useEffect(() => {
+  //   const run = async () => {
+  //     await Promise.all([fetchMachines()]);
+  //   };
 
-    if (!open) return;
+  //   if (!open) return;
 
-    void run();
-  }, [fetchMachines]);
+  //   void run();
+  // }, [fetchMachines]);
 
   const runningMachines = dashboardMachines.filter(
     (x) => x.status === "AUTO" || x.status === "MANUAL",
@@ -127,9 +132,12 @@ export function DashboardPage() {
             style={{ height: "calc(100vh - 240px)" }}
           >
             <div className="row g-3">
-              {machines.map((machine) => (
-                <div key={machine.id} className="col-12 col-md-6 col-xl-3">
-                  <MachineCard machine={machine} />
+              {machineLogs.map((machineLog) => (
+                <div
+                  key={machineLog.time.toString()}
+                  className="col-12 col-md-6 col-xl-3"
+                >
+                  <MachineCard machineLog={machineLog} />
                 </div>
               ))}
             </div>
@@ -140,23 +148,25 @@ export function DashboardPage() {
   );
 }
 
-function MachineCard({ machine }: { machine: Machine }) {
+function MachineCard({ machineLog }: { machineLog: MachineLog }) {
   return (
     <div className="rounded-xl border bg-gray-50 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs text-gray-500">{machine.code}</div>
-          <div className="font-semibold text-gray-900">{machine.name}</div>
-          <div className="text-sm text-gray-500">{machine.type}</div>
+          <div className="text-xs text-gray-500">{machineLog.machine.code}</div>
+          <div className="font-semibold text-gray-900">
+            {machineLog.machine.name}
+          </div>
+          <div className="text-sm text-gray-500">{machineLog.machine.type}</div>
         </div>
 
-        {/* <span
-          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-            statusClass[machine.status]
-          }`}
+        <span
+        // className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+        //   statusClass[machine.status]
+        // }`}
         >
-          {machine.status}
-        </span> */}
+          {machineLog.status}
+        </span>
       </div>
 
       {/* <div className="mt-4 space-y-2 text-sm">
