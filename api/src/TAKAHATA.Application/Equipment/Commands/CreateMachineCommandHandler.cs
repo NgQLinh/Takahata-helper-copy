@@ -3,6 +3,7 @@ using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface;
 using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
 
@@ -13,16 +14,18 @@ namespace TAKAHATA.Application.Equipment.Commands
         private readonly IMapper _mapper;
         private readonly IMachineRepository _machineRepository;
         private readonly ICurrentUserService _currentUserService;
-
+        private readonly IMachinePollingManager _polling;
 
         public CreateMachineCommandHandler(
             IMachineRepository machineRepository,
             IMapper mapper,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IMachinePollingManager polling)
         {
             _machineRepository = machineRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
+            _polling = polling;
         }
 
         public async Task<ErrorOr<Machine>> Handle(CreateMachineCommand command, CancellationToken cancellationToken)
@@ -36,6 +39,8 @@ namespace TAKAHATA.Application.Equipment.Commands
             machine = await _machineRepository.AddAsync(machine);
             if (machine is null)
                 return Errors.Machine.CreateMachineFalse;
+
+            _polling.RequestReload();
 
             return machine;
         }

@@ -1,8 +1,10 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using TAKAHATA.Application.Common.Behaviors;
-using FluentValidation;
+using TAKAHATA.Application.Common.Interface.Services;
+using TAKAHATA.Application.Services;
 
 namespace TAKAHATA.Application
 {
@@ -15,6 +17,10 @@ namespace TAKAHATA.Application
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+            services.AddSingleton<IMachinePollingManager, MachinePollingManager>();
+
+            services.AddHostedService<MachinePollingBackgroundService>();
 
             return services;
         }

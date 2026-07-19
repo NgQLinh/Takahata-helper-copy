@@ -5,7 +5,7 @@ using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 
-namespace TAKAHATA.Application.Equipment.Commands
+namespace TAKAHATA.Application.IndexAndPart.Commands
 {
     public class ApproveCommandHandler : IRequestHandler<ApproveCommand, ErrorOr<PartResponse>>
     {

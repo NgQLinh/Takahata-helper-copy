@@ -14,6 +14,7 @@ using TAKAHATA.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .Enrich.WithThreadId()
@@ -74,6 +75,8 @@ builder.Services.AddSwaggerGen(options =>
         [new OpenApiSecuritySchemeReference("bearer", document)] = []
     });
 });
+
+ 
 
 var app = builder.Build();
 

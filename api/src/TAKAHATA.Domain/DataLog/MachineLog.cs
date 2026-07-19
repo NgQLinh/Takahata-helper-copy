@@ -22,7 +22,7 @@ namespace TAKAHATA.Domain.DataLog
         public string? PartName { get; set; }
 
         [Column("partCode")]
-        public string? partCode { get; set; }
+        public string? PartCode { get; set; }
 
         [Column("status")]
         public MachineStatus MachineStatus { get; set; }

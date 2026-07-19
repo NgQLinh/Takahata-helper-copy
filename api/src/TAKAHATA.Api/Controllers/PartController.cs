@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TAKAHATA.Application.Equipment.Commands;
 using TAKAHATA.Application.IndexAndPart.Commands;
 using TAKAHATA.Application.IndexAndPart.Queries;
 using TAKAHATA.Contracts.IndexAndPart;
