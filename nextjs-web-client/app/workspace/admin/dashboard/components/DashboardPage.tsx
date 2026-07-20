@@ -82,8 +82,12 @@ export function DashboardPage() {
   );
 
   return (
-    <div className="container-fluid py-3">
-      <div className="row g-3 mb-3">
+    <div
+      className="container-fluid py-3 d-flex flex-column"
+      style={{ height: "calc(100vh - 20px)" }}
+    >
+      {/* Summary */}
+      <div className="row g-3 mb-3 shrink-0">
         <SummaryCard label="Running" value={summary.running} />
         <SummaryCard label="Setup" value={summary.setup} />
         <SummaryCard label="Alarm" value={summary.alarm} danger />
@@ -91,27 +95,30 @@ export function DashboardPage() {
         <SummaryCard label="Total" value={summary.total} />
       </div>
 
-      <div className="card">
-        <div className="card-header d-flex justify-content-between">
+      {/* Danh sách máy */}
+      <div className="card grow d-flex flex-column overflow-hidden">
+        <div className="card-header d-flex justify-content-between align-items-center shrink-0">
           <strong>Trạng thái realtime</strong>
           <span>{now.format("DD/MM/YYYY HH:mm:ss")}</span>
         </div>
 
-        <div className="card-body">
+        <div className="card-body overflow-hidden">
           {loading ? (
-            <div className="text-center py-5">
+            <div className="d-flex justify-content-center align-items-center h-100">
               <div className="spinner-border" />
             </div>
           ) : (
-            <div className="row g-3">
-              {machineLogs.map((log) => (
-                <div
-                  className="col-lg-3 col-md-6"
-                  key={`${log.machineId}-${String(log.time)}`}
-                >
-                  <MachineCard machineLog={log} />
-                </div>
-              ))}
+            <div className="overflow-auto h-100">
+              <div className="row g-3">
+                {machineLogs.map((log) => (
+                  <div
+                    key={`${log.machineId}-${String(log.time)}`}
+                    className="col-lg-3 col-md-6"
+                  >
+                    <MachineCard machineLog={log} />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
