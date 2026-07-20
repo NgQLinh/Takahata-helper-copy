@@ -1,147 +1,119 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { dashboardMachines } from "./dashboard-data";
-import dayjs, { Dayjs } from "dayjs";
-import { Machine } from "@/app/types";
-import {
-  getLatestMachineLogsAsync,
-  getMachinesAsync,
-} from "@/app/services/machine/MachineService";
+import { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
+
+import { getLatestMachineLogsAsync } from "@/app/services/machine/MachineService";
 import { MachineLog } from "@/app/types/machine/MachineLog";
+import { MachineStatus } from "@/app/types/machine/MachineStatus";
+
+const statusConfig: Record<
+  number,
+  {
+    text: string;
+    badge: string;
+    border: string;
+  }
+> = {
+  [MachineStatus.Active]: {
+    text: "AUTO",
+    badge: "bg-success",
+    border: "border-success",
+  },
+  [MachineStatus.Inactive]: {
+    text: "MANUAL",
+    badge: "bg-primary",
+    border: "border-primary",
+  },
+  [MachineStatus.Removed]: {
+    text: "SETUP",
+    badge: "bg-warning text-dark",
+    border: "border-warning",
+  },
+  // [MachineStatus.Alarm]: { text: "ALARM", badge: "bg-danger", border: "border-danger" },
+  [MachineStatus.Stop]: {
+    text: "STOP",
+    badge: "bg-secondary",
+    border: "border-secondary",
+  },
+};
 
 export function DashboardPage() {
-  const [today, setToday] = useState<Dayjs | undefined>(dayjs());
+  const [now, setNow] = useState(dayjs());
   const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
-  const [loadingMachine, setLoadingMachine] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loadMachines = async () => {
+    const timer = setInterval(() => setNow(dayjs()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const load = async () => {
       try {
+        setLoading(true);
         const data = await getLatestMachineLogsAsync();
         setMachineLogs(data);
-      } catch (err) {
-        console.error(err);
+      } catch {
+        toast.error("Không thể tải trạng thái máy.");
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Load ngay lần đầu
-    loadMachines();
-
-    // Sau đó 5s cập nhật một lần
-    const interval = setInterval(loadMachines, 5000);
-
-    return () => clearInterval(interval);
+    load();
+    const timer = setInterval(load, 5000);
+    return () => clearInterval(timer);
   }, []);
 
-  // const fetchMachines = useCallback(async () => {
-  //   setLoadingMachine(true);
-
-  //   try {
-  //     const data = await getMachinesAsync();
-  //     setMachines(data);
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error("Lỗi khi lấy danh sách máy:", error);
-  //     toast.error("Không thể tải danh sách máy.");
-  //   } finally {
-  //     setLoadingMachine(false);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const run = async () => {
-  //     await Promise.all([fetchMachines()]);
-  //   };
-
-  //   if (!open) return;
-
-  //   void run();
-  // }, [fetchMachines]);
-
-  const runningMachines = dashboardMachines.filter(
-    (x) => x.status === "AUTO" || x.status === "MANUAL",
-  ).length;
-
-  const setupMachines = dashboardMachines.filter(
-    (x) => x.status === "SETUP",
-  ).length;
-
-  const alarmMachines = dashboardMachines.filter(
-    (x) => x.status === "ALARM",
-  ).length;
-
-  const stopMachines = dashboardMachines.filter(
-    (x) => x.status === "STOP" || x.status === "OFFLINE",
-  ).length;
-
-  const avgUtilization = Math.round(
-    dashboardMachines.reduce((sum, x) => sum + x.utilization, 0) /
-      dashboardMachines.length,
+  const summary = useMemo(
+    () => ({
+      running: machineLogs.filter((x) => x.status === MachineStatus.Active)
+        .length,
+      setup: machineLogs.filter((x) => x.status === MachineStatus.Inactive)
+        .length,
+      alarm: machineLogs.filter((x) => x.status === MachineStatus.Removed)
+        .length,
+      stop: machineLogs.filter((x) => x.status === MachineStatus.Stop).length,
+      total: machineLogs.length,
+    }),
+    [machineLogs],
   );
 
-  const totalRuntime = dashboardMachines
-    .reduce((sum, x) => sum + x.runtimeHours, 0)
-    .toFixed(1);
-
   return (
-    <div className="d-flex flex-column h-100">
-      {/* Summary */}
-      <div className="row g-3 shrink-0 mb-3">
-        <div className="col-6 col-xl">
-          <SummaryCard label="Running" value={runningMachines} />
-        </div>
-        <div className="col-6 col-xl">
-          <SummaryCard label="Setup" value={setupMachines} />
-        </div>
-        <div className="col-6 col-xl">
-          <SummaryCard label="Alarm" value={alarmMachines} danger />
-        </div>
-        <div className="col-6 col-xl">
-          <SummaryCard label="Stop" value={stopMachines} />
-        </div>
-        <div className="col-6 col-xl">
-          <SummaryCard label="Utilization" value={`${avgUtilization}%`} />
-        </div>
-        <div className="col-6 col-xl">
-          <SummaryCard label="Runtime" value={`${totalRuntime}h`} />
-        </div>
+    <div className="container-fluid py-3">
+      <div className="row g-3 mb-3">
+        <SummaryCard label="Running" value={summary.running} />
+        <SummaryCard label="Setup" value={summary.setup} />
+        <SummaryCard label="Alarm" value={summary.alarm} danger />
+        <SummaryCard label="Stop" value={summary.stop} />
+        <SummaryCard label="Total" value={summary.total} />
       </div>
 
-      {/* Panel */}
-      <div className="card grow d-flex flex-column overflow-hidden">
-        <div className="card-body d-flex flex-column overflow-hidden">
-          <div className="d-flex justify-content-between align-items-center mb-3 shrink-0">
-            <h5 className="mb-0">Trạng thái realtime của từng máy</h5>
+      <div className="card">
+        <div className="card-header d-flex justify-content-between">
+          <strong>Trạng thái realtime</strong>
+          <span>{now.format("DD/MM/YYYY HH:mm:ss")}</span>
+        </div>
 
-            <div className="d-flex gap-2">
-              <div className="border rounded px-3 py-2 text-muted small">
-                Today · {dayjs(today).format("DD/MM/YYYY HH:mm")}
-              </div>
-
-              <button className="btn btn-outline-secondary btn-sm">
-                View All
-              </button>
+        <div className="card-body">
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border" />
             </div>
-          </div>
-
-          {/* Danh sách máy */}
-          <div
-            className="overflow-auto"
-            style={{ height: "calc(100vh - 240px)" }}
-          >
+          ) : (
             <div className="row g-3">
-              {machineLogs.map((machineLog) => (
+              {machineLogs.map((log) => (
                 <div
-                  key={machineLog.time.toString()}
-                  className="col-12 col-md-6 col-xl-3"
+                  className="col-lg-3 col-md-6"
+                  key={`${log.machineId}-${String(log.time)}`}
                 >
-                  <MachineCard machineLog={machineLog} />
+                  <MachineCard machineLog={log} />
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -149,47 +121,43 @@ export function DashboardPage() {
 }
 
 function MachineCard({ machineLog }: { machineLog: MachineLog }) {
+  const cfg = statusConfig[machineLog.status];
+
   return (
-    <div className="rounded-xl border bg-gray-50 p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-xs text-gray-500">{machineLog.machine.code}</div>
-          <div className="font-semibold text-gray-900">
-            {machineLog.machine.name}
+    <div className={`card h-100 border-start border-4 ${cfg?.border ?? ""}`}>
+      <div className="card-body">
+        <div className="d-flex justify-content-between">
+          <div>
+            <div className="fw-bold">{machineLog.machine?.name}</div>
+            <div className="text-muted small">{machineLog.machine?.code}</div>
+            <div className="text-muted small">{machineLog.machine?.type}</div>
           </div>
-          <div className="text-sm text-gray-500">{machineLog.machine.type}</div>
+
+          <span className={`badge ${cfg?.badge ?? "bg-dark"}`}>
+            {cfg?.text ?? machineLog.status}
+          </span>
         </div>
 
-        <span
-        // className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-        //   statusClass[machine.status]
-        // }`}
-        >
-          {machineLog.status}
-        </span>
-      </div>
+        <hr />
 
-      {/* <div className="mt-4 space-y-2 text-sm">
-        <InfoRow
-          label="Work Order"
-          value={machine.currentWorkOrder ?? "No active WO"}
-        />
-        <InfoRow label="Operator" value={machine.operator ?? "-"} />
-        <InfoRow label="Runtime" value={`${machine.runtimeHours}h`} />
-      </div> */}
-
-      <div className="mt-4">
-        <div className="mb-1 flex justify-between text-xs">
-          <span className="text-gray-500">Utilization</span>
-          {/* <span className="font-medium">{machine.utilization}%</span> */}
-        </div>
-
-        <div className="h-2 rounded-full bg-white">
-          {/* <div
-            className="h-2 rounded-full bg-gray-900"
-            style={{ width: `${machine.utilization}%` }}
-          /> */}
-        </div>
+        <table className="table table-sm mb-0">
+          <tbody>
+            <tr>
+              <td>Part</td>
+              <td className="text-end">{machineLog.part?.code ?? "-"}</td>
+            </tr>
+            <tr>
+              <td>Tên</td>
+              <td className="text-end">{machineLog.part?.code ?? "-"}</td>
+            </tr>
+            <tr>
+              <td>Cập nhật</td>
+              <td className="text-end">
+                {dayjs(machineLog.time).format("HH:mm:ss")}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -201,18 +169,16 @@ function SummaryCard({
   danger,
 }: {
   label: string;
-  value: string | number;
+  value: number;
   danger?: boolean;
 }) {
   return (
-    <div className="rounded-xl border bg-white p-4">
-      <div className="text-sm text-gray-500">{label}</div>
-      <div
-        className={`mt-1 text-2xl font-bold ${
-          danger ? "text-red-600" : "text-gray-900"
-        }`}
-      >
-        {value}
+    <div className="col">
+      <div className="card text-center h-100">
+        <div className="card-body">
+          <div className="text-muted">{label}</div>
+          <h3 className={danger ? "text-danger" : ""}>{value}</h3>
+        </div>
       </div>
     </div>
   );
