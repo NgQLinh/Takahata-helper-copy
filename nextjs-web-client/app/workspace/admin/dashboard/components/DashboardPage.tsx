@@ -16,26 +16,40 @@ const statusConfig: Record<
     border: string;
   }
 > = {
-  [MachineStatus.Active]: {
-    text: "AUTO",
+  [MachineStatus.None]: {
+    text: "NONE",
+    badge: "bg-dark",
+    border: "border-dark",
+  },
+
+  [MachineStatus.Running]: {
+    text: "RUNNING",
     badge: "bg-success",
     border: "border-success",
   },
-  [MachineStatus.Inactive]: {
-    text: "MANUAL",
-    badge: "bg-primary",
-    border: "border-primary",
-  },
-  [MachineStatus.Removed]: {
-    text: "SETUP",
+
+  [MachineStatus.Paused]: {
+    text: "PAUSED",
     badge: "bg-warning text-dark",
     border: "border-warning",
   },
-  // [MachineStatus.Alarm]: { text: "ALARM", badge: "bg-danger", border: "border-danger" },
-  [MachineStatus.Stop]: {
-    text: "STOP",
+
+  [MachineStatus.Stopped]: {
+    text: "STOPPED",
     badge: "bg-secondary",
     border: "border-secondary",
+  },
+
+  [MachineStatus.Alarm]: {
+    text: "ALARM",
+    badge: "bg-danger",
+    border: "border-danger",
+  },
+
+  [MachineStatus.Maintenance]: {
+    text: "MAINTENANCE",
+    badge: "bg-info text-dark",
+    border: "border-info",
   },
 };
 
@@ -69,13 +83,16 @@ export function DashboardPage() {
 
   const summary = useMemo(
     () => ({
-      running: machineLogs.filter((x) => x.status === MachineStatus.Active)
+      running: machineLogs.filter((x) => x.status === MachineStatus.Running)
         .length,
-      setup: machineLogs.filter((x) => x.status === MachineStatus.Inactive)
+      paused: machineLogs.filter((x) => x.status === MachineStatus.Paused)
         .length,
-      alarm: machineLogs.filter((x) => x.status === MachineStatus.Removed)
+      stopped: machineLogs.filter((x) => x.status === MachineStatus.Stopped)
         .length,
-      stop: machineLogs.filter((x) => x.status === MachineStatus.Stop).length,
+      alarm: machineLogs.filter((x) => x.status === MachineStatus.Alarm).length,
+      maintenance: machineLogs.filter(
+        (x) => x.status === MachineStatus.Maintenance,
+      ).length,
       total: machineLogs.length,
     }),
     [machineLogs],
@@ -88,11 +105,20 @@ export function DashboardPage() {
     >
       {/* Summary */}
       <div className="row g-3 mb-3 shrink-0">
-        <SummaryCard label="Running" value={summary.running} />
-        <SummaryCard label="Setup" value={summary.setup} />
-        <SummaryCard label="Alarm" value={summary.alarm} danger />
-        <SummaryCard label="Stop" value={summary.stop} />
-        <SummaryCard label="Total" value={summary.total} />
+        <SummaryCard label="Running" value={summary.running} color="success" />
+        <SummaryCard label="Paused" value={summary.paused} color="warning" />
+        <SummaryCard
+          label="Stopped"
+          value={summary.stopped}
+          color="secondary"
+        />
+        <SummaryCard label="Alarm" value={summary.alarm} color="danger" />
+        <SummaryCard
+          label="Maintenance"
+          value={summary.maintenance}
+          color="info"
+        />
+        <SummaryCard label="Total" value={summary.total} color="dark" />
       </div>
 
       {/* Danh sách máy */}
@@ -173,18 +199,18 @@ function MachineCard({ machineLog }: { machineLog: MachineLog }) {
 function SummaryCard({
   label,
   value,
-  danger,
+  color = "dark",
 }: {
   label: string;
   value: number;
-  danger?: boolean;
+  color?: string;
 }) {
   return (
     <div className="col">
-      <div className="card text-center h-100">
-        <div className="card-body">
-          <div className="text-muted">{label}</div>
-          <h3 className={danger ? "text-danger" : ""}>{value}</h3>
+      <div className={`card border-${color} h-100`}>
+        <div className="card-body text-center">
+          <div className={`text-${color} fw-semibold`}>{label}</div>
+          <h2 className={`text-${color} mb-0`}>{value}</h2>
         </div>
       </div>
     </div>

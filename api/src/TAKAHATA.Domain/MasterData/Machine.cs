@@ -9,7 +9,7 @@ namespace TAKAHATA.Domain.MasterData
         public string Code { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
-        public MachineStatus MachineStatus { get; set; } = MachineStatus.Active;
+        public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }
         public int PartProcessBitAddress { get; set; }
