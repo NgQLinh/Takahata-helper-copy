@@ -33,9 +33,8 @@ import {
 import { DeleteAccountRequest, UpdateAccountRequest } from "@/app/types";
 import { toast } from "react-toastify";
 
-import "./UserAndRolePage.css";
 const { Text: AntText } = Typography;
-export function UserAndRolePage() {
+export default function UserListTab() {
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);

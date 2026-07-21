@@ -41,7 +41,7 @@ const navItems = [
   },
   {
     href: "/workspace/admin/users-roles",
-    label: "Người dùng & phân quyền",
+    label: "Người dùng & cài đặt",
     icon: <TeamOutlined />,
   },
   {
