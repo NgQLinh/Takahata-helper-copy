@@ -129,24 +129,18 @@ export function DashboardPage() {
         </div>
 
         <div className="card-body overflow-hidden">
-          {loading ? (
-            <div className="d-flex justify-content-center align-items-center h-100">
-              <div className="spinner-border" />
+          <div className="overflow-auto h-100">
+            <div className="row g-3">
+              {machineLogs.map((log) => (
+                <div
+                  key={`${log.machineId}-${String(log.time)}`}
+                  className="col-lg-3 col-md-6"
+                >
+                  <MachineCard machineLog={log} />
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="overflow-auto h-100">
-              <div className="row g-3">
-                {machineLogs.map((log) => (
-                  <div
-                    key={`${log.machineId}-${String(log.time)}`}
-                    className="col-lg-3 col-md-6"
-                  >
-                    <MachineCard machineLog={log} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

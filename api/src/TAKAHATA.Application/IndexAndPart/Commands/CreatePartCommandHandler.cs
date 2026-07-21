@@ -75,7 +75,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
 
             part = await _partRepository.AddAsync(part);
             if (part == null)
-                return Errors.Index.CreateIndexFalse;
+                return Errors.Index.CreateFalse;
 
             return _mapper.Map<PartResponse>(part);
         }

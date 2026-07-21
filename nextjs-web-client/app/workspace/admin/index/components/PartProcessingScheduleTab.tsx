@@ -99,7 +99,11 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
     },
   ]);
 
-export default function PartProcessingScheduleTab() {
+interface Props {
+  active: boolean;
+}
+
+export default function PartProcessingScheduleTab({ active }: Props) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -119,61 +123,46 @@ export default function PartProcessingScheduleTab() {
   const [filterActualDateRange, setFilterActualDateRange] =
     useState<DateRange>(null);
 
-  const fetchParts = useCallback(
-    async (overrides: SearchOverrides = {}) => {
-      const currentKeyword = overrides.keyword ?? keyword;
-      const currentStatuses = overrides.statuses ?? filterStatuses;
-      const currentPlanDateRange =
-        overrides.plantDateRange === undefined
-          ? filterPlanDateRange
-          : overrides.plantDateRange;
-      const currentActualDateRange =
-        overrides.actualDateRange === undefined
-          ? filterActualDateRange
-          : overrides.actualDateRange;
-      const currentPage = overrides.page ?? page;
-      const currentPageSize = overrides.pageSize ?? pageSize;
+  const fetchParts = useCallback(async () => {
+    setLoading(true);
 
-      setLoading(true);
+    try {
+      const data = await searchPartAsync({
+        searchText: keyword,
+        statuses: filterStatuses,
+        plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+        plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+        actualFrom: filterActualDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+        actualTo: filterActualDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+        page: page,
+        pageSize: pageSize,
+      });
 
-      try {
-        const data = await searchPartAsync({
-          searchText: currentKeyword,
-          statuses: currentStatuses,
-          plantFrom: currentPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-          plantTo: currentPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-          actualFrom: currentActualDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-          actualTo: currentActualDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-          page: currentPage,
-          pageSize: currentPageSize,
-        });
-
-        setParts(data.data);
-        setTotal(data.totalItems);
-        setPage(data.page);
-        setPageSize(data.pageSize);
-      } catch {
-        toast.error("Không thể tải danh sách part");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      filterActualDateRange,
-      filterPlanDateRange,
-      filterStatuses,
-      keyword,
-      page,
-      pageSize,
-    ],
-  );
+      setParts(data.data);
+      setTotal(data.totalItems);
+      setPage(data.page);
+      setPageSize(data.pageSize);
+    } catch {
+      toast.error("Không thể tải danh sách part");
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    filterActualDateRange,
+    filterPlanDateRange,
+    filterStatuses,
+    keyword,
+    page,
+    pageSize,
+  ]);
 
   useEffect(() => {
     const run = async () => {
       await fetchParts();
     };
     void run();
-  }, [fetchParts, page, pageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   const dataSource = useMemo(() => mapPartsToRows(parts), [parts]);
 
@@ -227,21 +216,8 @@ export default function PartProcessingScheduleTab() {
     setFilterActualDateRange(emptyRange);
     setPage(1);
 
-    await fetchParts({
-      keyword: "",
-      statuses: [],
-      plantDateRange: emptyRange,
-      actualDateRange: emptyRange,
-      page: 1,
-    });
+    await fetchParts();
   };
-
-  // const content = (
-  //   <div>
-  //     <p>Content</p>
-  //     <p>Content</p>
-  //   </div>
-  // );
 
   const columns = useMemo<ColumnsType<TableRow>>(
     () => [
@@ -528,17 +504,6 @@ export default function PartProcessingScheduleTab() {
               />
             </div>
 
-            {/* <div style={{ width: 270 }}>
-              <label className="form-label mb-1">Thực tế</label>
-              <RangePicker
-                value={filterActualDateRange}
-                onChange={setFilterActualDateRange}
-                style={{ width: "100%" }}
-                format="DD/MM/YYYY"
-                placeholder={["Từ ngày", "Đến ngày"]}
-              />
-            </div> */}
-
             <Button onClick={() => void handleResetFilters()}>
               Xóa bộ lọc
             </Button>
@@ -546,12 +511,8 @@ export default function PartProcessingScheduleTab() {
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              onClick={() => {
-                if (page === 1) {
-                  void fetchParts({ page: 1 });
-                } else {
-                  setPage(1);
-                }
+              onClick={async () => {
+                await fetchParts();
               }}
             >
               Tìm kiếm
@@ -587,9 +548,8 @@ export default function PartProcessingScheduleTab() {
             total,
             showSizeChanger: true,
             showTotal: (value) => `Tổng ${value} part`,
-            onChange: (newPage, newPageSize) => {
-              setPage(newPage);
-              setPageSize(newPageSize);
+            onChange: () => {
+              void fetchParts();
             },
           }}
         />

@@ -47,7 +47,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 index = await _indexRepository.AddAsync(index);
 
                 if (index == null)
-                    return Errors.Index.CreateIndexFalse;
+                    return Errors.Index.CreateFalse;
             }
 
             // 2. Get Part include Processes

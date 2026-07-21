@@ -53,38 +53,31 @@ export default function MachineListTab({ active }: Props) {
   const [isCreateMachineOpen, setIsCreateMachineOpen] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
-  const fetchMachines = useCallback(
-    async (
-      page = machinePage,
-      pageSize = machinePageSize,
-      keyword = searchText,
-    ) => {
-      setLoading(true);
+  const fetchMachines = useCallback(async () => {
+    setLoading(true);
 
-      try {
-        const result = await searchMachinesAsync({
-          keyword: keyword.trim(),
-          page,
-          pageSize,
-        });
+    try {
+      const result = await searchMachinesAsync({
+        keyword: searchText.trim(),
+        page: machinePage,
+        pageSize: machinePageSize,
+      });
 
-        setMachines(result.data);
-        setMachinePage(result.page ?? page);
-        setMachinePageSize(result.pageSize ?? pageSize);
-        setTotalMachines(result.totalItems ?? result.data.length);
-      } catch (error) {
-        console.error("Không thể tải danh sách máy:", error);
-        toast.error("Không thể tải danh sách máy");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [machinePage, machinePageSize, searchText],
-  );
+      setMachines(result.data);
+      setMachinePage(result.page ?? machinePage);
+      setMachinePageSize(result.pageSize ?? machinePageSize);
+      setTotalMachines(result.totalItems ?? result.data.length);
+    } catch (error) {
+      console.error("Không thể tải danh sách máy:", error);
+      toast.error("Không thể tải danh sách máy");
+    } finally {
+      setLoading(false);
+    }
+  }, [machinePage, machinePageSize, searchText]);
 
   useEffect(() => {
     const run = () => {
-      void fetchMachines(machinePage, machinePageSize, searchText);
+      void fetchMachines();
     };
 
     void run();
@@ -140,7 +133,7 @@ export default function MachineListTab({ active }: Props) {
   );
 
   const handleSearch = async () => {
-    await fetchMachines(machinePage, machinePageSize, searchText);
+    await fetchMachines();
   };
 
   const handleDeleteMachine = useCallback(
@@ -151,18 +144,13 @@ export default function MachineListTab({ active }: Props) {
         await deleteMachineAsync(request);
         toast.success("Xóa máy thành công");
 
-        const nextPage =
-          machines.length === 1 && machinePage > 1
-            ? machinePage - 1
-            : machinePage;
-
-        await fetchMachines(nextPage, machinePageSize);
+        await fetchMachines();
       } catch (error) {
         console.error("Xóa máy không thành công:", error);
         toast.error("Xóa máy không thành công");
       }
     },
-    [fetchMachines, machinePage, machinePageSize, machines.length],
+    [fetchMachines],
   );
 
   const columns = useMemo<ColumnsType<Machine>>(
@@ -399,8 +387,8 @@ export default function MachineListTab({ active }: Props) {
             total: totalMachines,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} máy`,
-            onChange: (page, pageSize) => {
-              void fetchMachines(page, pageSize);
+            onChange: async () => {
+              await fetchMachines();
             },
           }}
         />
@@ -409,9 +397,9 @@ export default function MachineListTab({ active }: Props) {
       <CreateMachine
         open={isCreateMachineOpen}
         onClose={() => setIsCreateMachineOpen(false)}
-        onCreate={() => {
+        onCreate={async () => {
           setIsCreateMachineOpen(false);
-          void fetchMachines(1, machinePageSize);
+          await fetchMachines();
         }}
       />
 
@@ -419,9 +407,9 @@ export default function MachineListTab({ active }: Props) {
         open={Boolean(editingMachine)}
         machine={editingMachine}
         onClose={() => setEditingMachine(null)}
-        onUpdate={() => {
+        onUpdate={async () => {
           setEditingMachine(null);
-          void fetchMachines(machinePage, machinePageSize);
+          await fetchMachines();
         }}
       />
     </>

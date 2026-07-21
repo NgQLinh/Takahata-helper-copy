@@ -344,7 +344,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           disabled={isBusy}
           value={value}
           options={machineOptions}
-          optionFilterProp="label"
           style={{ width: "100%" }}
           onChange={(machineId: number | undefined) =>
             handleChange(record.key, "machineId", machineId)

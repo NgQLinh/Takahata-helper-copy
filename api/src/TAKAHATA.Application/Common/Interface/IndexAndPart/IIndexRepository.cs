@@ -10,6 +10,7 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
         Task<IEnumerable<Index>> GetAsync();
         Task<Index?> GetAsync(string indexCode);
         Task<bool> IsExistedAsync(string indexCode);
-        Task<SearchResponse<List<IndexResponse>>> Search(string? keyword, int? page, int? pageSize);
+        Task<bool> IsExistedAsync(long id, string indexCode);
+        Task<SearchResponse<List<IndexResponse>>> SearchAsync(string? keyword, int? page, int? pageSize);
     }
 }

@@ -6,13 +6,16 @@ namespace TAKAHATA.Domain.Common.Errors
     {
         public static class Index
         {
-            public static Error CreateIndexFalse =>
+            public static Error CreateFalse =>
                 Error.Validation(code: "Index.CreateFalse", description: "Tạo mới index không thành công.");
 
-            public static Error UpdateIndexFalse =>
+            public static Error UpdateFalse =>
                 Error.Validation(code: "Index.UpdateFalse", description: "Cập nhật index không thành công.");
 
-            public static Error DeleteIndexFalse =>
+            public static Error DuplicateIndexCode =>
+                Error.Validation(code: "Index.DuplicateIndexCode", description: "Index code đã tồn tại.");
+
+            public static Error DeleteFalse =>
                 Error.Validation(code: "Index.DeleteIndexFalse", description: "Xóa index không thành công.");
 
             public static Error NotFound =>

@@ -33,22 +33,37 @@ export const searchPartAsync = async (
   return response.data;
 };
 
-
-
 export const getPartAsync = async (id: number): Promise<Part> => {
   const response = await apiClient.post<Part>("/Part/detail", { id: id });
   return response.data;
 };
 
-export const getIndexesAsync = async (): Promise<Index[]> => {
-  const response = await apiClient.post<Index[]>("/Index/query-indexes");
+export const searchIndexesAsync = async (
+  request: unknown,
+): Promise<SearchResponse<Index[]>> => {
+  const response = await apiClient.post<SearchResponse<Index[]>>(
+    "/Index/search",
+    request,
+  );
   return response.data;
 };
 
-export const searchIndexesAsync = async (): Promise<
-  SearchResponse<Index[]>
-> => {
-  const response =
-    await apiClient.post<SearchResponse<Index[]>>("/Index/search");
+export const deleteIndexesAsync = async (
+  request: unknown,
+): Promise<SearchResponse<Index[]>> => {
+  const response = await apiClient.post<SearchResponse<Index[]>>(
+    "/Index/delete",
+    request,
+  );
+  return response.data;
+};
+
+export const updateIndexAsync = async (
+  request: unknown,
+): Promise<SearchResponse<Index[]>> => {
+  const response = await apiClient.post<SearchResponse<Index[]>>(
+    "/Index/update",
+    request,
+  );
   return response.data;
 };

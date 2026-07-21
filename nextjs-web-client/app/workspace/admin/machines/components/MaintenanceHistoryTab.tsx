@@ -86,52 +86,47 @@ export default function MaintenanceHistoryTab({ active }: Props) {
     }
   }, []);
 
-  const fetchMaintenanceProcesses = useCallback(
-    async (
-      currentPage = page,
-      currentPageSize = pageSize,
-      machineIds = filterMachineIds,
-      statuses = filterStatuses,
-      dateRange = filterDateRange,
-    ) => {
-      await fetchMachineSource();
+  const fetchMaintenanceProcesses = useCallback(async () => {
+    await fetchMachineSource();
 
-      setLoading(true);
+    setLoading(true);
 
-      try {
-        const result = await searchMachineMaintenanceProcess({
-          machineIds,
-          statuses,
-          from: dateRange?.[0] ? dateRange[0].format("YYYY-MM-DD") : null,
-          to: dateRange?.[1] ? dateRange[1].format("YYYY-MM-DD") : null,
-          page: currentPage,
-          pageSize: currentPageSize,
-        });
+    try {
+      const result = await searchMachineMaintenanceProcess({
+        machineIds: filterMachineIds,
+        statuses: filterStatuses,
+        from: filterDateRange?.[0]
+          ? filterDateRange[0].format("YYYY-MM-DD")
+          : null,
+        to: filterDateRange?.[1]
+          ? filterDateRange[1].format("YYYY-MM-DD")
+          : null,
+        page: page,
+        pageSize: pageSize,
+      });
 
-        setMaintenanceProcesses(result.data);
-        setPage(result.page);
-        setPageSize(result.pageSize);
-        setTotalItems(result.totalItems);
-      } catch (error) {
-        console.error("Không thể tải lịch sử bảo dưỡng:", error);
-        toast.error("Không thể tải lịch sử bảo dưỡng");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [
-      fetchMachineSource,
-      filterDateRange,
-      filterMachineIds,
-      filterStatuses,
-      page,
-      pageSize,
-    ],
-  );
+      setMaintenanceProcesses(result.data);
+      setPage(result.page);
+      setPageSize(result.pageSize);
+      setTotalItems(result.totalItems);
+    } catch (error) {
+      console.error("Không thể tải lịch sử bảo dưỡng:", error);
+      toast.error("Không thể tải lịch sử bảo dưỡng");
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    fetchMachineSource,
+    filterDateRange,
+    filterMachineIds,
+    filterStatuses,
+    page,
+    pageSize,
+  ]);
 
   useEffect(() => {
     const run = async () => {
-      await fetchMaintenanceProcesses(1, pageSize);
+      await fetchMaintenanceProcesses();
     };
 
     void run();
@@ -148,13 +143,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
     setFilterDateRange(emptyDateRange);
     setPage(1);
 
-    await fetchMaintenanceProcesses(
-      1,
-      pageSize,
-      emptyMachineIds,
-      emptyStatuses,
-      emptyDateRange,
-    );
+    await fetchMaintenanceProcesses();
   };
 
   const handleDelete = useCallback(
@@ -165,16 +154,13 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         await deleteMachineMaintenanceProcessAsync(request);
         toast.success("Xóa lịch bảo dưỡng thành công");
 
-        const nextPage =
-          maintenanceProcesses.length === 1 && page > 1 ? page - 1 : page;
-
-        await fetchMaintenanceProcesses(nextPage, pageSize);
+        await fetchMaintenanceProcesses();
       } catch (error) {
         console.error("Xóa lịch bảo dưỡng không thành công:", error);
         toast.error("Xóa lịch bảo dưỡng không thành công");
       }
     },
-    [fetchMaintenanceProcesses, maintenanceProcesses.length, page, pageSize],
+    [fetchMaintenanceProcesses],
   );
 
   const handleOpenUpdate = (id: number) => {
@@ -412,9 +398,8 @@ export default function MaintenanceHistoryTab({ active }: Props) {
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              onClick={() => {
-                setPage(1);
-                void fetchMaintenanceProcesses(1, pageSize);
+              onClick={async () => {
+                await fetchMaintenanceProcesses();
               }}
             >
               Tìm kiếm
@@ -446,8 +431,8 @@ export default function MaintenanceHistoryTab({ active }: Props) {
             total: totalItems,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} bản ghi`,
-            onChange: (newPage, newPageSize) => {
-              void fetchMaintenanceProcesses(newPage, newPageSize);
+            onChange: async () => {
+              await void fetchMaintenanceProcesses();
             },
           }}
         />
@@ -457,7 +442,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         open={createOpen}
         onClose={() => {
           setCreateOpen(false);
-          void fetchMaintenanceProcesses(page, pageSize);
+          void fetchMaintenanceProcesses();
         }}
       />
 
@@ -467,7 +452,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         onClose={() => {
           setUpdateOpen(false);
           setSelectedProcessId(null);
-          void fetchMaintenanceProcesses(page, pageSize);
+          void fetchMaintenanceProcesses();
         }}
       />
     </>

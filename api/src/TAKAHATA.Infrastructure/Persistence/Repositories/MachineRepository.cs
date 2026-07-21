@@ -180,7 +180,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return machine != null;
         }
 
-        public async Task<SearchResponse<List<MachineResponse>>> Search(
+        public async Task<SearchResponse<List<MachineResponse>>> SearchAsync(
             string? keyword,
             int? page,
             int? pageSize)

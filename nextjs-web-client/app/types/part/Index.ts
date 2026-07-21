@@ -5,4 +5,5 @@ export interface Index {
   createBy: string;
   updateAt?: string | null;
   updateBy?: string | null;
+  countPart: number | null;
 }

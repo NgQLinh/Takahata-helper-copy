@@ -5,5 +5,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
     public class IndexResponse : Response
     {
         public string Code { get; set; } = string.Empty;
+        public int CountPart { get; set; }
     }
 }
