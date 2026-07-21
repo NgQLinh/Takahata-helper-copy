@@ -13,12 +13,14 @@ using TAKAHATA.Application.Common.Interface.Influx.Repositories;
 using TAKAHATA.Application.Common.Interface.Influx.Settings;
 using TAKAHATA.Application.Common.Interface.JwtToken;
 using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
+using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.User;
 using TAKAHATA.Infrastructure.Authentication;
 using TAKAHATA.Infrastructure.Influx.Repositories;
 using TAKAHATA.Infrastructure.Influx.Settings;
 using TAKAHATA.Infrastructure.Persistence;
 using TAKAHATA.Infrastructure.Persistence.Repositories;
+using TAKAHATA.Infrastructure.Services;
 using TAKAHATA.Infrastructure.Settings;
 
 namespace TAKAHATA.Infrastructure
@@ -34,6 +36,9 @@ namespace TAKAHATA.Infrastructure
             services.AddScoped<IPartProcessRepository, PartProcessRepository>();
             services.AddScoped<IMachineMaintenanceProcessRepository, MachineMaintenanceProcessRepository>();
             services.AddScoped<IMachineLogRepository, MachineLogRepository>();
+
+            // Service
+            services.AddScoped<IPLCSettingsService, PLCSettingsService>();
 
             // MySQL
             var connectionString = configuration.GetConnectionString("DefaultConnection");
