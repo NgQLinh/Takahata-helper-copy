@@ -214,6 +214,24 @@ export default function MachineListTab() {
         onFilter: (value, record) => record.brand === value,
       },
       {
+        title: "Thanh ghi trạng thái",
+        dataIndex: "statusBitAddress",
+        width: 150,
+        onFilter: (value, record) => record.statusBitAddress === value,
+      },
+      {
+        title: "Thanh ghi part",
+        dataIndex: "partBitAddress",
+        width: 150,
+        onFilter: (value, record) => record.partBitAddress === value,
+      },
+      {
+        title: "Thanh ghi process",
+        dataIndex: "partProcessBitAddress",
+        width: 150,
+        onFilter: (value, record) => record.partProcessBitAddress === value,
+      },
+      {
         title: "Người tạo",
         dataIndex: "createBy",
         width: 130,

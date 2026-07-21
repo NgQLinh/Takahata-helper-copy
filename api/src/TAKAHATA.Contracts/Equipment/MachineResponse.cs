@@ -10,7 +10,9 @@ namespace TAKAHATA.Contracts.Equipment
         public string Type { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
-        public int BitAddress { get; set; }
+        public int StatusBitAddress { get; set; }
+        public int PartBitAddress { get; set; }
+        public int PartProcessBitAddress { get; set; }
         public int SequenceNumber { get; set; }
     }
 }

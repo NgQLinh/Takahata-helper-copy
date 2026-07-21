@@ -37,7 +37,9 @@ export default function UpdateMachine({
       code: values.code,
       brand: values.brand,
       type: values.type,
-      bitAddress: 0,
+      partBitAddress: values.partBitAddress,
+      partProcessBitAddress: values.partProcessBitAddress,
+      statusBitAddress: values.statusBitAddress,
     };
 
     await updateMachineAsync(request)
@@ -77,26 +79,32 @@ export default function UpdateMachine({
         onFinish={handleSubmit}
         initialValues={machine}
       >
-        <Form.Item
-          label="Tên máy"
-          name="name"
-          rules={[
-            { required: true, message: "Vui lòng nhập tên máy" },
-            { whitespace: true, message: "Vui lòng nhập tên máy" },
-          ]}
-        >
-          <Input placeholder="Nhập tên máy" />
-        </Form.Item>
-        <Form.Item
-          label="Mã máy"
-          name="code"
-          rules={[
-            { required: true, message: "Vui lòng nhập mã máy" },
-            { whitespace: true, message: "Vui lòng nhập mã máy" },
-          ]}
-        >
-          <Input placeholder="Nhập mã máy" />
-        </Form.Item>
+        <div className="row">
+          <div className="col-6">
+            <Form.Item
+              label="Tên máy"
+              name="name"
+              rules={[
+                { required: true, message: "Vui lòng nhập tên máy" },
+                { whitespace: true, message: "Vui lòng nhập tên máy" },
+              ]}
+            >
+              <Input placeholder="Nhập tên máy" />
+            </Form.Item>
+          </div>
+          <div className="col-6">
+            <Form.Item
+              label="Mã máy"
+              name="code"
+              rules={[
+                { required: true, message: "Vui lòng nhập mã máy" },
+                { whitespace: true, message: "Vui lòng nhập mã máy" },
+              ]}
+            >
+              <Input placeholder="Nhập mã máy" />
+            </Form.Item>
+          </div>
+        </div>
 
         <Form.Item
           label="Loại máy"
@@ -133,6 +141,70 @@ export default function UpdateMachine({
         >
           <Input placeholder="Nhập thương hiệu máy" />
         </Form.Item>
+
+        <Form.Item
+          label="Thanh ghi trạng thái"
+          name="statusBitAddress"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng nhập thanh ghi trạng thái",
+            },
+            {
+              whitespace: true,
+              message: "Thanh ghi trạng thái không được để trống",
+            },
+          ]}
+        >
+          <Input allowClear placeholder="Nhập địa chỉ thanh ghi" autoFocus />
+        </Form.Item>
+
+        <div className="row">
+          <div className="col-6">
+            <Form.Item
+              label="Thanh ghi part"
+              name="partBitAddress"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập thanh ghi part",
+                },
+                {
+                  whitespace: true,
+                  message: "Thanh ghi part không được để trống",
+                },
+              ]}
+            >
+              <Input
+                allowClear
+                placeholder="Nhập địa chỉ thanh ghi"
+                autoFocus
+              />
+            </Form.Item>
+          </div>
+          <div className="col-6">
+            <Form.Item
+              label="Địa chỉ thanh ghi process"
+              name="partProcessBitAddress"
+              rules={[
+                {
+                  required: true,
+                  message: "Vui lòng nhập thanh ghi process",
+                },
+                {
+                  whitespace: true,
+                  message: "Thanh ghi process không được để trống",
+                },
+              ]}
+            >
+              <Input
+                allowClear
+                placeholder="Nhập địa chỉ thanh ghi"
+                autoFocus
+              />
+            </Form.Item>
+          </div>
+        </div>
 
         <div className="flex justify-end gap-2">
           <Button onClick={handleCancel}>Hủy</Button>

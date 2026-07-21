@@ -40,7 +40,9 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity.Brand = command.Brand;
             entity.UpdateBy = _currentUserService.UserId;
             entity.UpdateAt = DateTime.Now;
-            entity.StatusBitAddress = command.BitAddress;
+            entity.StatusBitAddress = command.StatusBitAddress;
+            entity.PartBitAddress = command.PartBitAddress;
+            entity.PartProcessBitAddress = command.PartProcessBitAddress;
 
             entity = await _machineRepository.UpdateAsync(entity);
             if (entity == null)
