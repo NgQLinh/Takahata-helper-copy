@@ -56,7 +56,6 @@ const statusConfig: Record<
 export function DashboardPage() {
   const [now, setNow] = useState(dayjs());
   const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(dayjs()), 1000);
@@ -66,13 +65,10 @@ export function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        setLoading(true);
         const data = await getLatestMachineLogsAsync();
         setMachineLogs(data);
-      } catch {
-        toast.error("Không thể tải trạng thái máy.");
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.log(error);
       }
     };
 

@@ -48,15 +48,6 @@ type TableRow = {
   processes: Record<number, PartProcess | undefined>;
 };
 
-type SearchOverrides = {
-  keyword?: string;
-  statuses?: ProcessStatus[];
-  plantDateRange?: DateRange;
-  actualDateRange?: DateRange;
-  page?: number;
-  pageSize?: number;
-};
-
 const formatDate = (value?: string | null) => {
   if (!value) return "";
 
@@ -123,38 +114,41 @@ export default function PartProcessingScheduleTab({ active }: Props) {
   const [filterActualDateRange, setFilterActualDateRange] =
     useState<DateRange>(null);
 
-  const fetchParts = useCallback(async () => {
-    setLoading(true);
+  const fetchParts = useCallback(
+    async (currentPage = page, currentPageSize = pageSize) => {
+      setLoading(true);
 
-    try {
-      const data = await searchPartAsync({
-        searchText: keyword,
-        statuses: filterStatuses,
-        plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-        plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-        actualFrom: filterActualDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-        actualTo: filterActualDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-        page: page,
-        pageSize: pageSize,
-      });
+      try {
+        const data = await searchPartAsync({
+          searchText: keyword,
+          statuses: filterStatuses,
+          plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+          plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+          actualFrom: filterActualDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+          actualTo: filterActualDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+          page: currentPage,
+          pageSize: currentPageSize,
+        });
 
-      setParts(data.data);
-      setTotal(data.totalItems);
-      setPage(data.page);
-      setPageSize(data.pageSize);
-    } catch {
-      toast.error("Không thể tải danh sách part");
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    filterActualDateRange,
-    filterPlanDateRange,
-    filterStatuses,
-    keyword,
-    page,
-    pageSize,
-  ]);
+        setParts(data.data);
+        setTotal(data.totalItems);
+        setPage(data.page ?? currentPage);
+        setPageSize(data.pageSize ?? currentPageSize);
+      } catch {
+        toast.error("Không thể tải danh sách part");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      filterActualDateRange,
+      filterPlanDateRange,
+      filterStatuses,
+      keyword,
+      page,
+      pageSize,
+    ],
+  );
 
   useEffect(() => {
     const run = async () => {
@@ -512,7 +506,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               type="primary"
               icon={<SearchOutlined />}
               onClick={async () => {
-                await fetchParts();
+                setPage(1);
+                await fetchParts(1, pageSize);
               }}
             >
               Tìm kiếm
@@ -548,8 +543,10 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             total,
             showSizeChanger: true,
             showTotal: (value) => `Tổng ${value} part`,
-            onChange: () => {
-              void fetchParts();
+            onChange: (current, size) => {
+              setPage(current);
+              setPageSize(size);
+              void fetchParts(current, size);
             },
           }}
         />

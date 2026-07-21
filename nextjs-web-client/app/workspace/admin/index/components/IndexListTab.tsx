@@ -43,53 +43,68 @@ export default function IndexListTab({ active }: Props) {
 
   const [indexes, setIndexes] = useState<Index[]>([]);
 
-  const handleSearch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const request = {
-        keyword: searchText,
-        page: page,
-        pageSize: pageSize,
-      };
+  const handleSearch = useCallback(
+    async (
+      currentPage = page,
+      currentPageSize = pageSize,
+      keyword = searchText,
+    ) => {
+      setLoading(true);
 
-      const data = await searchIndexesAsync(request);
+      try {
+        const data = await searchIndexesAsync({
+          keyword: keyword.trim(),
+          page: currentPage,
+          pageSize: currentPageSize,
+        });
 
-      setIndexes(data.data);
-      setTotal(data.totalItems);
-      setPage(data.page);
-      setPageSize(data.pageSize);
-    } catch (error) {
-      console.error("Không thể tải lịch sử bảo dưỡng:", error);
-      toast.error("Không thể tải lịch sử bảo dưỡng");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize, searchText]);
+        setIndexes(data.data);
+        setTotal(data.totalItems);
+        setPage(data.page ?? currentPage);
+        setPageSize(data.pageSize ?? currentPageSize);
+      } catch (error) {
+        console.error("Không thể tải danh sách index:", error);
+        toast.error("Không thể tải danh sách index");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [page, pageSize, searchText],
+  );
 
   useEffect(() => {
-    const run = async () => {
-      await handleSearch();
+    const run = () => {
+      void handleSearch();
     };
 
+    if (!active) {
+      return;
+    }
+
     void run();
+    // Chỉ tải lại một lần khi tab được kích hoạt.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, page, pageSize]);
+  }, [active]);
 
   const handleDelete = useCallback(
     async (id: number) => {
-      const request = { id };
-
       try {
-        await deleteIndexesAsync(request);
-        toast.success("Xóa máy thành công");
+        await deleteIndexesAsync({ id });
+        toast.success("Xóa index thành công");
 
-        await handleSearch();
+        const nextPage = indexes.length === 1 && page > 1 ? page - 1 : page;
+
+        if (nextPage !== page) {
+          setPage(nextPage);
+        }
+
+        await handleSearch(nextPage, pageSize);
       } catch (error) {
-        console.error("Xóa máy không thành công:", error);
-        toast.error("Xóa máy không thành công");
+        console.error("Xóa index không thành công:", error);
+        toast.error("Xóa index không thành công");
       }
     },
-    [handleSearch],
+    [handleSearch, indexes.length, page, pageSize],
   );
 
   const columns = useMemo<ColumnsType<Index>>(
@@ -105,13 +120,13 @@ export default function IndexListTab({ active }: Props) {
         title: "Số lượng part",
         dataIndex: "countPart",
         width: 150,
-        render: (value: string) => <div>{value}</div>,
+        render: (value: number) => <div>{value}</div>,
       },
       {
         title: "Người tạo",
         dataIndex: "createBy",
         width: 120,
-        render: (value: string) => (
+        render: (value?: string | null) => (
           <Space>
             <Avatar
               size={28}
@@ -133,12 +148,15 @@ export default function IndexListTab({ active }: Props) {
         width: 200,
         sorter: (a, b) =>
           dayjs(a.createAt).valueOf() - dayjs(b.createAt).valueOf(),
-        render: (value) => (
-          <Space>
-            <CalendarOutlined style={{ color: "#64748b" }} />
-            <span>{dayjs(value).format("HH:mm:ss DD/MM/YYYY")}</span>
-          </Space>
-        ),
+        render: (value) =>
+          value ? (
+            <Space>
+              <CalendarOutlined style={{ color: "#64748b" }} />
+              <span>{dayjs(value).format("HH:mm:ss DD/MM/YYYY")}</span>
+            </Space>
+          ) : (
+            <Text type="secondary">-</Text>
+          ),
       },
       {
         title: "Người sửa",
@@ -196,7 +214,7 @@ export default function IndexListTab({ active }: Props) {
 
             <Popconfirm
               title="Xóa index"
-              description="Bạn có chắc muốn xóa index? các part bên trong index cũng sẽ bị xóa."
+              description="Bạn có chắc muốn xóa index? Các part bên trong index cũng sẽ bị xóa."
               okText="Xóa"
               cancelText="Hủy"
               onConfirm={() => handleDelete(record.id)}
@@ -215,7 +233,7 @@ export default function IndexListTab({ active }: Props) {
   return (
     <Card>
       <div className="machine-toolbar d-flex justify-content-between align-items-center gap-3">
-        <div className="d-flex gap-2 align-items-center grow  mb-3">
+        <div className="d-flex gap-2 align-items-center grow mb-3">
           <Input
             style={{ width: 400 }}
             value={searchText}
@@ -223,13 +241,19 @@ export default function IndexListTab({ active }: Props) {
             allowClear
             prefix={<SearchOutlined />}
             onChange={(event) => setSearchText(event.target.value)}
-            onPressEnter={() => void handleSearch()}
+            onPressEnter={async () => {
+              setPage(1);
+              await handleSearch(1, pageSize);
+            }}
           />
 
           <Button
             type="primary"
             icon={<SearchOutlined />}
-            onClick={() => void handleSearch()}
+            onClick={async () => {
+              setPage(1);
+              await handleSearch(1, pageSize);
+            }}
           >
             Tìm kiếm
           </Button>
@@ -248,13 +272,15 @@ export default function IndexListTab({ active }: Props) {
         }}
         pagination={{
           current: page,
-          pageSize: pageSize,
-          total: total,
+          pageSize,
+          total,
           showSizeChanger: true,
-          showTotal: (total) => `Tổng ${total} máy`,
+          showTotal: (value) => `Tổng ${value} index`,
           onChange: async (newPage, newPageSize) => {
             setPage(newPage);
             setPageSize(newPageSize);
+
+            await handleSearch(newPage, newPageSize);
           },
         }}
       />
@@ -264,7 +290,7 @@ export default function IndexListTab({ active }: Props) {
         index={editingIndex}
         onClose={async () => {
           setEditingIndex(null);
-          await handleSearch();
+          await handleSearch(page, pageSize);
         }}
       />
     </Card>

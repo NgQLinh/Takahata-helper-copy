@@ -86,43 +86,46 @@ export default function MaintenanceHistoryTab({ active }: Props) {
     }
   }, []);
 
-  const fetchMaintenanceProcesses = useCallback(async () => {
-    await fetchMachineSource();
+  const fetchMaintenanceProcesses = useCallback(
+    async (currentPage = page, currentPageSize = pageSize) => {
+      await fetchMachineSource();
 
-    setLoading(true);
+      setLoading(true);
 
-    try {
-      const result = await searchMachineMaintenanceProcess({
-        machineIds: filterMachineIds,
-        statuses: filterStatuses,
-        from: filterDateRange?.[0]
-          ? filterDateRange[0].format("YYYY-MM-DD")
-          : null,
-        to: filterDateRange?.[1]
-          ? filterDateRange[1].format("YYYY-MM-DD")
-          : null,
-        page: page,
-        pageSize: pageSize,
-      });
+      try {
+        const result = await searchMachineMaintenanceProcess({
+          machineIds: filterMachineIds,
+          statuses: filterStatuses,
+          from: filterDateRange?.[0]
+            ? filterDateRange[0].format("YYYY-MM-DD")
+            : null,
+          to: filterDateRange?.[1]
+            ? filterDateRange[1].format("YYYY-MM-DD")
+            : null,
+          page: currentPage,
+          pageSize: currentPageSize,
+        });
 
-      setMaintenanceProcesses(result.data);
-      setPage(result.page);
-      setPageSize(result.pageSize);
-      setTotalItems(result.totalItems);
-    } catch (error) {
-      console.error("Không thể tải lịch sử bảo dưỡng:", error);
-      toast.error("Không thể tải lịch sử bảo dưỡng");
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    fetchMachineSource,
-    filterDateRange,
-    filterMachineIds,
-    filterStatuses,
-    page,
-    pageSize,
-  ]);
+        setMaintenanceProcesses(result.data);
+        setPage(result.page ?? currentPage);
+        setPageSize(result.pageSize ?? currentPageSize);
+        setTotalItems(result.totalItems);
+      } catch (error) {
+        console.error("Không thể tải lịch sử bảo dưỡng:", error);
+        toast.error("Không thể tải lịch sử bảo dưỡng");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      fetchMachineSource,
+      filterDateRange,
+      filterMachineIds,
+      filterStatuses,
+      page,
+      pageSize,
+    ],
+  );
 
   useEffect(() => {
     const run = async () => {
@@ -399,7 +402,8 @@ export default function MaintenanceHistoryTab({ active }: Props) {
               type="primary"
               icon={<SearchOutlined />}
               onClick={async () => {
-                await fetchMaintenanceProcesses();
+                setPage(1);
+                await fetchMaintenanceProcesses(1, pageSize);
               }}
             >
               Tìm kiếm
@@ -431,8 +435,10 @@ export default function MaintenanceHistoryTab({ active }: Props) {
             total: totalItems,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} bản ghi`,
-            onChange: async () => {
-              await void fetchMaintenanceProcesses();
+            onChange: async (current, size) => {
+              setPage(current);
+              setPageSize(size);
+              await fetchMaintenanceProcesses(current, size);
             },
           }}
         />

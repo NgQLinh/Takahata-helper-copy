@@ -53,27 +53,34 @@ export default function MachineListTab({ active }: Props) {
   const [isCreateMachineOpen, setIsCreateMachineOpen] = useState(false);
   const [editingMachine, setEditingMachine] = useState<Machine | null>(null);
 
-  const fetchMachines = useCallback(async () => {
-    setLoading(true);
+  const fetchMachines = useCallback(
+    async (
+      page = machinePage,
+      pageSize = machinePageSize,
+      keyword = searchText,
+    ) => {
+      setLoading(true);
 
-    try {
-      const result = await searchMachinesAsync({
-        keyword: searchText.trim(),
-        page: machinePage,
-        pageSize: machinePageSize,
-      });
+      try {
+        const result = await searchMachinesAsync({
+          keyword: keyword.trim(),
+          page,
+          pageSize,
+        });
 
-      setMachines(result.data);
-      setMachinePage(result.page ?? machinePage);
-      setMachinePageSize(result.pageSize ?? machinePageSize);
-      setTotalMachines(result.totalItems ?? result.data.length);
-    } catch (error) {
-      console.error("Không thể tải danh sách máy:", error);
-      toast.error("Không thể tải danh sách máy");
-    } finally {
-      setLoading(false);
-    }
-  }, [machinePage, machinePageSize, searchText]);
+        setMachines(result.data);
+        setMachinePage(result.page ?? page);
+        setMachinePageSize(result.pageSize ?? pageSize);
+        setTotalMachines(result.totalItems ?? result.data.length);
+      } catch (error) {
+        console.error("Không thể tải danh sách máy:", error);
+        toast.error("Không thể tải danh sách máy");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [machinePage, machinePageSize, searchText],
+  );
 
   useEffect(() => {
     const run = () => {
@@ -132,8 +139,11 @@ export default function MachineListTab({ active }: Props) {
     [machines],
   );
 
-  const handleSearch = async () => {
-    await fetchMachines();
+  const handleSearch = async (
+    page = machinePage,
+    pageSize = machinePageSize,
+  ) => {
+    await fetchMachines(page, pageSize);
   };
 
   const handleDeleteMachine = useCallback(
@@ -350,13 +360,19 @@ export default function MachineListTab({ active }: Props) {
               allowClear
               prefix={<SearchOutlined />}
               onChange={(event) => setSearchText(event.target.value)}
-              onPressEnter={() => void handleSearch()}
+              onPressEnter={async () => {
+                setMachinePage(1);
+                await handleSearch(1, machinePageSize);
+              }}
             />
 
             <Button
               type="primary"
               icon={<SearchOutlined />}
-              onClick={() => void handleSearch()}
+              onClick={async () => {
+                setMachinePage(1);
+                await handleSearch(1, machinePageSize);
+              }}
             >
               Tìm kiếm
             </Button>
@@ -387,8 +403,10 @@ export default function MachineListTab({ active }: Props) {
             total: totalMachines,
             showSizeChanger: true,
             showTotal: (total) => `Tổng ${total} máy`,
-            onChange: async () => {
-              await fetchMachines();
+            onChange: async (page, pageSize) => {
+              setMachinePage(page);
+              setMachinePageSize(pageSize);
+              await handleSearch(page, pageSize);
             },
           }}
         />
