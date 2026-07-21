@@ -6,34 +6,41 @@ import type { TabsProps } from "antd";
 
 import MachineListTab from "./MachineListTab";
 import MaintenanceHistoryTab from "./MaintenanceHistoryTab";
+import { useState } from "react";
 
 export function MachinesPage() {
+  const [activeKey, setActiveKey] = useState("1");
+
   const tabItems: TabsProps["items"] = [
     {
-      key: "machines",
+      key: "1",
       label: (
         <Space>
           <AppstoreOutlined />
           Danh sách máy
         </Space>
       ),
-      children: <MachineListTab />,
+      children: <MachineListTab active={activeKey === "1"} />,
     },
     {
-      key: "maintenance-history",
+      key: "2",
       label: (
         <Space>
           <CalendarOutlined />
           Lịch sử bảo dưỡng
         </Space>
       ),
-      children: <MaintenanceHistoryTab />,
+      children: <MaintenanceHistoryTab active={activeKey === "2"} />,
     },
   ];
 
   return (
     <div>
-      <Tabs destroyOnHidden defaultActiveKey="machines" items={tabItems} />
+      <Tabs
+        onChange={(key) => setActiveKey(key)}
+        defaultActiveKey="machines"
+        items={tabItems}
+      />
     </div>
   );
 }

@@ -42,7 +42,11 @@ const { RangePicker } = DatePicker;
 
 type DateRangeValue = [Dayjs | null, Dayjs | null] | null;
 
-export default function MaintenanceHistoryTab() {
+interface Props {
+  active: boolean;
+}
+
+export default function MaintenanceHistoryTab({ active }: Props) {
   const [loading, setLoading] = useState(false);
   const [loadingMachines, setLoadingMachines] = useState(false);
 
@@ -132,7 +136,7 @@ export default function MaintenanceHistoryTab() {
 
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [active]);
 
   const handleResetFilter = async () => {
     const emptyMachineIds: number[] = [];

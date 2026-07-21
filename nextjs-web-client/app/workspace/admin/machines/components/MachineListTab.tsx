@@ -37,7 +37,11 @@ import UpdateMachine from "./UpdateMachine";
 
 const { Text } = Typography;
 
-export default function MachineListTab() {
+interface Props {
+  active: boolean;
+}
+
+export default function MachineListTab({ active }: Props) {
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
 
@@ -85,7 +89,7 @@ export default function MachineListTab() {
 
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [active]);
 
   const typeMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
