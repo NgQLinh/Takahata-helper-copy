@@ -90,6 +90,8 @@ export default function MaintenanceHistoryTab() {
       statuses = filterStatuses,
       dateRange = filterDateRange,
     ) => {
+      await fetchMachineSource();
+
       setLoading(true);
 
       try {
@@ -113,17 +115,24 @@ export default function MaintenanceHistoryTab() {
         setLoading(false);
       }
     },
-    [filterDateRange, filterMachineIds, filterStatuses, page, pageSize],
+    [
+      fetchMachineSource,
+      filterDateRange,
+      filterMachineIds,
+      filterStatuses,
+      page,
+      pageSize,
+    ],
   );
 
   useEffect(() => {
     const run = async () => {
-      await fetchMachineSource();
       await fetchMaintenanceProcesses(1, pageSize);
     };
 
     void run();
-  }, [fetchMachineSource, fetchMaintenanceProcesses, page, pageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleResetFilter = async () => {
     const emptyMachineIds: number[] = [];
@@ -135,11 +144,6 @@ export default function MaintenanceHistoryTab() {
     setFilterDateRange(emptyDateRange);
     setPage(1);
 
-    /*
-     * Truyền trực tiếp giá trị mới vì setState là bất đồng bộ.
-     * Nếu gọi API bằng state ngay sau setState, API có thể vẫn nhận
-     * bộ lọc cũ.
-     */
     await fetchMaintenanceProcesses(
       1,
       pageSize,
@@ -378,7 +382,6 @@ export default function MaintenanceHistoryTab() {
                 value={filterMachineIds}
                 onChange={setFilterMachineIds}
                 maxTagCount="responsive"
-                optionFilterProp="label"
                 options={machineSource.map((machine) => ({
                   value: machine.id,
                   label: `${machine.name} - ${machine.code}`,

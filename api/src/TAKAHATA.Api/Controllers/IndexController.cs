@@ -19,23 +19,9 @@ namespace TAKAHATA.Api.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost("query-indexes")]
-        public async Task<IActionResult> GetIndexes()
-        {
-            var query = new IndexQuery();
-
-            var result = await _sender.Send(query);
-
-            return result.Match(
-                r => Ok(r),
-                e => Problem(e));
-        }
-
         [HttpPost("search")]
-        public async Task<IActionResult> Search()
+        public async Task<IActionResult> Search(SearchIndexQuery query)
         {
-            var query = new IndexQuery();
-
             var result = await _sender.Send(query);
 
             return result.Match(

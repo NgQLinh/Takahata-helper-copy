@@ -1,15 +1,11 @@
 "use client";
 
 import { AppstoreOutlined, CalendarOutlined } from "@ant-design/icons";
-import { Card, Space, Tabs, Typography } from "antd";
+import { Space, Tabs } from "antd";
 import type { TabsProps } from "antd";
 
 import MachineListTab from "./MachineListTab";
 import MaintenanceHistoryTab from "./MaintenanceHistoryTab";
-
-import "./MachinesPage.css";
-
-// const { Title, Text } = Typography;
 
 export function MachinesPage() {
   const tabItems: TabsProps["items"] = [
@@ -37,7 +33,7 @@ export function MachinesPage() {
 
   return (
     <div>
-      <Tabs defaultActiveKey="machines" items={tabItems} />
+      <Tabs destroyOnHidden defaultActiveKey="machines" items={tabItems} />
     </div>
   );
 }

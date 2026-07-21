@@ -5,5 +5,8 @@ using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Application.IndexAndPart.Queries
 {
-    public record SearchIndexQuery(string? Keyword, int? Page, int? PageZie) : IRequest<ErrorOr<SearchResponse<List<IndexResponse>>>>;
+    public record SearchIndexQuery(
+        string? Keyword,
+        int? Page,
+        int? PageZie) : IRequest<ErrorOr<SearchResponse<List<IndexResponse>>>>;
 }

@@ -39,7 +39,7 @@ const { Text } = Typography;
 
 export default function MachineListTab() {
   const [loading, setLoading] = useState(false);
-  const [searchMachineText, setSearchMachineText] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   const [machinePage, setMachinePage] = useState(1);
   const [machinePageSize, setMachinePageSize] = useState(100);
@@ -53,7 +53,7 @@ export default function MachineListTab() {
     async (
       page = machinePage,
       pageSize = machinePageSize,
-      keyword = searchMachineText,
+      keyword = searchText,
     ) => {
       setLoading(true);
 
@@ -75,16 +75,17 @@ export default function MachineListTab() {
         setLoading(false);
       }
     },
-    [machinePage, machinePageSize, searchMachineText],
+    [machinePage, machinePageSize, searchText],
   );
 
   useEffect(() => {
     const run = () => {
-      void fetchMachines(1, machinePageSize);
+      void fetchMachines(machinePage, machinePageSize, searchText);
     };
 
     void run();
-  }, [fetchMachines, machinePage, machinePageSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const typeMachineFilter = useMemo<ColumnFilterItem[]>(
     () =>
@@ -135,8 +136,7 @@ export default function MachineListTab() {
   );
 
   const handleSearch = async () => {
-    setMachinePage(1);
-    await fetchMachines(1, machinePageSize);
+    await fetchMachines(machinePage, machinePageSize, searchText);
   };
 
   const handleDeleteMachine = useCallback(
@@ -348,16 +348,16 @@ export default function MachineListTab() {
 
   return (
     <>
-      <Card className="machine-card">
-        <div className="machine-toolbar d-flex justify-content-between align-items-center gap-3">
-          <div className="d-flex gap-2 align-items-center flex-grow-1">
+      <Card>
+        <div className="d-flex justify-content-between align-items-center gap-3">
+          <div className="d-flex gap-2 align-items-center grow mb-3">
             <Input
               style={{ width: 400 }}
-              value={searchMachineText}
+              value={searchText}
               placeholder="Tìm theo tên, mã hoặc thương hiệu máy ..."
               allowClear
               prefix={<SearchOutlined />}
-              onChange={(event) => setSearchMachineText(event.target.value)}
+              onChange={(event) => setSearchText(event.target.value)}
               onPressEnter={() => void handleSearch()}
             />
 

@@ -6,6 +6,7 @@ import type { TabsProps } from "antd";
 
 import PartProcessingScheduleTab from "./PartProcessingScheduleTab";
 import "./IndexPage.css";
+import IndexListTab from "./IndexListTab";
 
 export function IndexPage() {
   const tabItems: TabsProps["items"] = [
@@ -27,7 +28,7 @@ export function IndexPage() {
           Danh sách index
         </Space>
       ),
-      children: <div>Danh sách index</div>,
+      children: <IndexListTab />,
     },
   ];
 
