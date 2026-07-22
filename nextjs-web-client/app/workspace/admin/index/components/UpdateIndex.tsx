@@ -14,32 +14,35 @@ type Props = {
   onClose: () => void;
 };
 
+type UpdateIndexFormValues = {
+  id: number;
+  code: string;
+};
+
 const FORM_ID = "update-index-form";
 
 export default function UpdateIndex({ index, open, onClose }: Props) {
-  const [form] = Form.useForm<Index>();
+  const [form] = Form.useForm<UpdateIndexFormValues>();
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (open && index) {
-      form.setFieldsValue({
-        id: index.id,
-        code: index.code,
-      });
-    } else {
-      form.resetFields();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, index]);
+    if (!open || !index) return;
+
+    form.setFieldsValue({
+      id: index.id,
+      code: index.code,
+    });
+  }, [open, index, form]);
 
   const handleCancel = () => {
     if (submitting) return;
 
+    // Form vẫn đang được mount tại thời điểm này nên có thể reset
     form.resetFields();
     onClose();
   };
 
-  const handleSubmit = async (values: Index) => {
+  const handleSubmit = async (values: UpdateIndexFormValues) => {
     if (!index) return;
 
     try {
@@ -47,7 +50,7 @@ export default function UpdateIndex({ index, open, onClose }: Props) {
 
       await updateIndexAsync({
         id: index.id,
-        code: values.code,
+        code: values.code.trim(),
       });
 
       toast.success("Cập nhật index thành công");
@@ -73,12 +76,14 @@ export default function UpdateIndex({ index, open, onClose }: Props) {
       onCancel={handleCancel}
       footer={null}
       destroyOnHidden
+      forceRender
       closable={!submitting}
       keyboard={!submitting}
     >
-      <Form<Index>
+      <Form<UpdateIndexFormValues>
         id={FORM_ID}
         form={form}
+        preserve={false}
         layout="vertical"
         onFinish={handleSubmit}
       >
@@ -100,7 +105,11 @@ export default function UpdateIndex({ index, open, onClose }: Props) {
             },
           ]}
         >
-          <Input placeholder="Nhập mã index" maxLength={100} />
+          <Input
+            placeholder="Nhập mã index"
+            maxLength={100}
+            disabled={submitting}
+          />
         </Form.Item>
 
         <div className="flex justify-end gap-2">

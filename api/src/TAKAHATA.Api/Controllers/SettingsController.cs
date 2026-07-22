@@ -8,14 +8,17 @@ namespace TAKAHATA.Api.Controllers
     public class SettingsController : ApiController
     {
         private readonly ISender _sender;
+        private readonly IPLCService _pLCService;
         private readonly IPLCSettingsService _pLCSettingsService;
 
         public SettingsController(
             ISender sender,
-            IPLCSettingsService pLCSettingsService)
+            IPLCSettingsService pLCSettingsService,
+            IPLCService pLCService)
         {
             _sender = sender;
             _pLCSettingsService = pLCSettingsService;
+            _pLCService = pLCService;
         }
 
         [HttpPost("update")]
@@ -43,13 +46,10 @@ namespace TAKAHATA.Api.Controllers
         [HttpPost("test-connection")]
         public async Task<IActionResult> TestConnection()
         {
-            var response = new
-            {
-                IpAddress = _pLCSettingsService.GetIpAddress(),
-                Port = _pLCSettingsService.GetPort(),
-            };
+            if (_pLCService.TestConnection())
+                return Ok();
 
-            return Ok(response);
+            return Problem();
         }
     }
 }

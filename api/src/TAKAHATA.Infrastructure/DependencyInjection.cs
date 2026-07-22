@@ -38,6 +38,7 @@ namespace TAKAHATA.Infrastructure
             services.AddScoped<IMachineLogRepository, MachineLogRepository>();
 
             // Service
+            services.AddScoped<IPLCService, PLCService>();
             services.AddScoped<IPLCSettingsService, PLCSettingsService>();
 
             // MySQL
