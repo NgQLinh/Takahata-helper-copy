@@ -40,11 +40,19 @@ interface Props {
 }
 
 export default function UserListTab({ active }: Props) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<Account | null>(null);
   const [searchText, setSearchText] = useState("");
+
+  const handleSearchChange = (value: string) => {
+    setSearchText(value);
+    setCurrentPage(1);
+  };
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -237,7 +245,7 @@ export default function UserListTab({ active }: Props) {
             placeholder="Tìm theo tên đăng nhập hoặc họ tên"
             allowClear
             prefix={<SearchOutlined />}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             style={{ width: 420 }}
           />
 
@@ -260,9 +268,21 @@ export default function UserListTab({ active }: Props) {
           scroll={{ y: "calc(100vh - 250px)" }}
           className="user-table"
           pagination={{
-            pageSize: 10,
+            current: currentPage,
+            pageSize,
+            total: filteredUsers.length,
             showSizeChanger: true,
+            pageSizeOptions: [10, 20, 50, 100],
             showTotal: (total) => `Tổng ${total} người dùng`,
+            onChange: (page, newPageSize) => {
+              if (newPageSize !== pageSize) {
+                setCurrentPage(1);
+                setPageSize(newPageSize);
+                return;
+              }
+
+              setCurrentPage(page);
+            },
           }}
         />
       </Card>
