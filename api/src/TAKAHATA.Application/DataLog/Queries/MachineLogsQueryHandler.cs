@@ -33,7 +33,7 @@ namespace TAKAHATA.Application.DataLog.Queries
             CancellationToken cancellationToken)
         {
             var machines = await _machineRepository.GetAsync();
-            var machineLogs = await _machineLogRepository.GetLatestAsync();
+            var machineLogs = await _machineLogRepository.GetLatestAsync(request.MachineIds);
 
             if (machineLogs == null || machines == null)
                 return [];

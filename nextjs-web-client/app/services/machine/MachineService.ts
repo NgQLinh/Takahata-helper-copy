@@ -120,7 +120,12 @@ export const getPartProcessByMachineAsync = async (
 };
 
 // Machine log
-export const getLatestMachineLogsAsync = async (): Promise<MachineLog[]> => {
-  const response = await apiClient.post<MachineLog[]>("/MachineLog/latest");
+export const getLatestMachineLogsAsync = async (
+  request: unknown,
+): Promise<MachineLog[]> => {
+  const response = await apiClient.post<MachineLog[]>(
+    "/MachineLog/latest",
+    request,
+  );
   return response.data;
 };

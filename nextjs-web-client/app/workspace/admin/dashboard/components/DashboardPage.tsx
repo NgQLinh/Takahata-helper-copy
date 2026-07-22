@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import { toast } from "react-toastify";
 
-import { getLatestMachineLogsAsync } from "@/app/services/machine/MachineService";
+import {
+  getLatestMachineLogsAsync,
+  getMachinesAsync,
+} from "@/app/services/machine/MachineService";
 import { MachineLog } from "@/app/types/machine/MachineLog";
 import { MachineStatus } from "@/app/types/machine/MachineStatus";
+import { Machine } from "@/app/types";
 
 const statusConfig: Record<
   number,
@@ -56,6 +59,7 @@ const statusConfig: Record<
 export function DashboardPage() {
   const [now, setNow] = useState(dayjs());
   const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
+  const [machines, setMachines] = useState<Machine[] | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(dayjs()), 1000);
@@ -65,8 +69,18 @@ export function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await getLatestMachineLogsAsync();
-        setMachineLogs(data);
+        if (!machines) {
+          const ms = await getMachinesAsync();
+          if (ms) {
+            setMachines(ms);
+          }
+        } else {
+          const machineIds = machines.map((machine) => machine.id);
+          const data = await getLatestMachineLogsAsync({
+            machineIds: machineIds,
+          });
+          setMachineLogs(data);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -75,7 +89,7 @@ export function DashboardPage() {
     load();
     const timer = setInterval(load, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [machines]);
 
   const summary = useMemo(
     () => ({

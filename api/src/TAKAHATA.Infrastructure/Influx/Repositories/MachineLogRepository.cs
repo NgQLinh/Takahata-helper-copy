@@ -124,5 +124,59 @@ namespace TAKAHATA.Infrastructure.Influx.Repositories
 
             return result;
         }
+
+        public async Task<List<MachineLog>> GetLatestAsync(IReadOnlyCollection<long> activeMachineIds)
+        {
+            if (activeMachineIds.Count == 0)
+            {
+                return [];
+            }
+
+            var machineIdsFlux = string.Join(
+                ", ",
+                activeMachineIds.Select(id => $"\"{id}\"")
+            );
+
+            var flux = $@"
+                activeMachineIds = [{machineIdsFlux}]
+
+                from(bucket: ""{_settings.Bucket}"")
+                |> range(start: -100y)
+                |> filter(fn: (r) => r._measurement == ""machine_log"")
+                |> filter(fn: (r) => r._field == ""status"")
+                |> filter(fn: (r) =>
+                    contains(
+                        value: r.machineId,
+                        set: activeMachineIds
+                    )
+                )
+                |> group(columns: [""machineId""])
+                |> last()
+            ";
+
+            var tables = await QueryApi.QueryAsync(flux, _settings.Org);
+
+            var result = new List<MachineLog>();
+
+            foreach (var table in tables)
+            {
+                foreach (var record in table.Records)
+                {
+                    result.Add(new MachineLog
+                    {
+                        MachineId = long.Parse(
+                            record.GetValueByKey("machineId")!.ToString()!
+                        ),
+                        PartId = long.Parse(
+                            record.GetValueByKey("partId")!.ToString()!
+                        ),
+                        Status = Convert.ToInt32(record.GetValue()),
+                        Time = record.GetTimeInDateTime().GetValueOrDefault()
+                    });
+                }
+            }
+
+            return result;
+        }
     }
 }

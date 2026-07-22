@@ -40,10 +40,8 @@ public class MachineLogController : ApiController
     }
 
     [HttpPost("latest")]
-    public async Task<IActionResult> GetLatestAsync()
+    public async Task<IActionResult> GetLatestAsync(MachineLogsQuery request)
     {
-        var request = new MachineLogsQuery();
-
         var result = await _sender.Send(request);
 
         return result.Match(

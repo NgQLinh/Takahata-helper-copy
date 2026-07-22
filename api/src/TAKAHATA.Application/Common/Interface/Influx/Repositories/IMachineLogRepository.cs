@@ -12,5 +12,7 @@ namespace TAKAHATA.Application.Common.Interface.Influx.Repositories
             long machineId,
             DateTime from,
             DateTime to);
+
+        Task<List<MachineLog>> GetLatestAsync(IReadOnlyCollection<long> activeMachineIds);
     }
 }
