@@ -1,10 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Application.Settings.Commands;
+using TAKAHATA.Domain.Common.Constant;
 
 namespace TAKAHATA.Api.Controllers
 {
+    [Authorize(Roles = Role.Admin)]
     public class SettingsController : ApiController
     {
         private readonly ISender _sender;

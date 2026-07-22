@@ -20,7 +20,12 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             StartCommand request,
             CancellationToken cancellationToken)
         {
-            var partProcess = await _partProcessRepository.GetByIdAsync(request.Id);
+            // TODO
+            var partId = request.PartId;
+            var machineId = request.MachineId;
+            var processId = request.ProcessId;
+
+            var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
             if (partProcess == null)
                 return Errors.Part.NotFoundProcess;
 

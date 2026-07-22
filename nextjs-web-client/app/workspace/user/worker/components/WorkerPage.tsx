@@ -144,7 +144,9 @@ export default function WorkerPage() {
 
     try {
       const request = {
-        id: selectedProcess.id,
+        machineId: selectedMachine?.id,
+        processId: selectedProcess.id,
+        partId: selectedProcess.partId,
       };
 
       const data = await startAsync(request);
@@ -160,7 +162,9 @@ export default function WorkerPage() {
     setIsRunning(false);
     try {
       const request = {
-        id: selectedProcess.id,
+        machineId: selectedMachine?.id,
+        processId: selectedProcess.id,
+        partId: selectedProcess.partId,
       };
 
       const data = await pauseAsync(request);
@@ -177,10 +181,17 @@ export default function WorkerPage() {
     if (!selectedProcess) return;
 
     try {
-      const request = {
-        id: selectedProcess.id,
-      };
+      const { setupTime, waitingTime, processedQuantity } =
+        await processingForm.validateFields();
 
+      const request = {
+        machineId: selectedMachine?.id,
+        processId: selectedProcess.id,
+        partId: selectedProcess.partId,
+        setupTime,
+        waitingTime,
+        processedQuantity,
+      };
       const data = await completeAsync(request);
       await fetchManufacturingProcess();
       console.log(data);

@@ -20,7 +20,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             PauseCommand request,
             CancellationToken cancellationToken)
         {
-            var partProcess = await _partProcessRepository.GetByIdAsync(request.Id);
+            var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
             if (partProcess == null)
                 return Errors.Part.NotFoundProcess;
 
