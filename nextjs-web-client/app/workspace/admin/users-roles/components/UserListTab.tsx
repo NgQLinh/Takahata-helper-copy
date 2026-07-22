@@ -34,7 +34,12 @@ import { DeleteAccountRequest, UpdateAccountRequest } from "@/app/types";
 import { toast } from "react-toastify";
 
 const { Text: AntText } = Typography;
-export default function UserListTab() {
+
+interface Props {
+  active: boolean;
+}
+
+export default function UserListTab({ active }: Props) {
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -63,7 +68,7 @@ export default function UserListTab() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [active]);
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);

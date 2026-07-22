@@ -39,5 +39,17 @@ namespace TAKAHATA.Api.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("test-connection")]
+        public async Task<IActionResult> TestConnection()
+        {
+            var response = new
+            {
+                IpAddress = _pLCSettingsService.GetIpAddress(),
+                Port = _pLCSettingsService.GetPort(),
+            };
+
+            return Ok(response);
+        }
     }
 }

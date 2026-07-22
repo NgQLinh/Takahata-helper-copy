@@ -19,7 +19,7 @@ export default function UserAndSetting() {
           Người dùng & phân quyền
         </Space>
       ),
-      children: <UserListTab />,
+      children: <UserListTab active={activeKey === "1"} />,
     },
     {
       key: "2",
@@ -29,7 +29,7 @@ export default function UserAndSetting() {
           Cài đặt
         </Space>
       ),
-      children: <SettingsTab />,
+      children: <SettingsTab active={activeKey === "2"} />,
     },
   ];
 

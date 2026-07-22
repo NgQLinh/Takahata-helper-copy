@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -21,60 +21,63 @@ import { toast } from "react-toastify";
 import { ApiError } from "@/app/types/common/ApiError";
 import {
   getSettingsAsync,
+  testConnectionAsync,
   updateSettingsAsync,
 } from "@/app/services/settings/SettingsService";
-
-const { Text } = Typography;
-
-const SETTINGS_STORAGE_KEY = "application-system-settings";
 
 interface SettingsFormValues {
   ipAddress: string;
   port: number;
 }
 
+interface Props {
+  active: boolean;
+}
+
 const DEFAULT_SETTINGS: SettingsFormValues = {
-  ipAddress: "127.0.0.1",
-  port: 5000,
+  ipAddress: "192.168.3.250",
+  port: 502,
 };
 
 const IPV4_PATTERN =
   /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/;
 
-export default function SettingsTab() {
+export default function SettingsTab({ active }: Props) {
   const [form] = Form.useForm<SettingsFormValues>();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
+  const fetchSettings = useCallback(async () => {
+    setLoading(true);
     try {
-      const storedSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      const data = await getSettingsAsync();
 
-      if (!storedSettings) {
-        form.setFieldsValue(DEFAULT_SETTINGS);
+      form.setFieldValue("ipAddress", data.ipAddress);
+      form.setFieldValue("port", data.port);
+    } catch (error) {
+      console.error("Có lỗi xảy ra khi lấy thông tin settings:", error);
+
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
         return;
       }
 
-      const parsedSettings = JSON.parse(
-        storedSettings,
-      ) as Partial<SettingsFormValues>;
-
-      form.setFieldsValue({
-        ...DEFAULT_SETTINGS,
-        ...parsedSettings,
-      });
-    } catch (error) {
-      console.error("Không thể đọc cấu hình:", error);
-
-      form.setFieldsValue(DEFAULT_SETTINGS);
-      toast.error("Không thể đọc cấu hình đã lưu");
+      toast.error("Có lỗi xảy ra khi lấy thông tin settings.");
     } finally {
       setLoading(false);
     }
   }, [form]);
+
+  useEffect(() => {
+    const run = async () => {
+      await fetchSettings();
+    };
+
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   const handleSave = async (values: SettingsFormValues) => {
     const request = {
@@ -92,20 +95,37 @@ export default function SettingsTab() {
 
       console.log(data);
     } catch (error) {
-      console.error("Lỗi khi tạo Part:", error);
+      console.error("Lỗi khi update settings:", error);
 
       if (error instanceof ApiError) {
         toast.error(error.getDisplayMessage());
         return;
       }
 
-      toast.error("Có lỗi xảy ra khi tạo Part.");
+      toast.error("Có lỗi xảy ra khi update settings.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleTestConnection = async () => {};
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    try {
+      await testConnectionAsync();
+      toast.success("Success.");
+    } catch (error) {
+      console.error("Connect failure:", error);
+
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+        return;
+      }
+
+      toast.error("Connect failure.");
+    } finally {
+      setTestingConnection(false);
+    }
+  };
 
   return (
     <div className="settings-tab">
@@ -115,7 +135,6 @@ export default function SettingsTab() {
         initialValues={DEFAULT_SETTINGS}
         disabled={loading}
         onFinish={handleSave}
-        onValuesChange={() => setHasChanges(true)}
       >
         <Card
           title={
@@ -130,7 +149,6 @@ export default function SettingsTab() {
               <Form.Item
                 label="Địa chỉ IP"
                 name="ipAddress"
-                tooltip="Địa chỉ IPv4 của máy chủ cung cấp API"
                 rules={[
                   {
                     required: true,
@@ -154,7 +172,6 @@ export default function SettingsTab() {
               <Form.Item
                 label="Port"
                 name="port"
-                tooltip="Port mà máy chủ đang lắng nghe"
                 rules={[
                   {
                     required: true,
@@ -183,14 +200,6 @@ export default function SettingsTab() {
           <Divider />
         </Card>
 
-        <Card className="mt-3" size="small" title="Lưu ý">
-          <Text type="secondary">
-            Sau khi thay đổi IP hoặc Port, các yêu cầu tiếp theo của ứng dụng
-            cần sử dụng địa chỉ máy chủ mới. Hãy bảo đảm máy chủ có thể truy cập
-            từ thiết bị đang sử dụng.
-          </Text>
-        </Card>
-
         <div className="d-flex justify-content-end align-items-center gap-2 flex-wrap mt-3">
           <Button
             icon={<WifiOutlined />}
@@ -205,7 +214,6 @@ export default function SettingsTab() {
             htmlType="submit"
             icon={<SaveOutlined />}
             loading={saving}
-            disabled={!hasChanges}
           >
             Lưu cài đặt
           </Button>
