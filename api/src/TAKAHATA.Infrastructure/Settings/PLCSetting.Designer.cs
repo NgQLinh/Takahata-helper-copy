@@ -12,7 +12,7 @@ namespace TAKAHATA.Infrastructure.Settings {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.7.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.8.0.0")]
     internal sealed partial class PLCSetting : global::System.Configuration.ApplicationSettingsBase {
         
         private static PLCSetting defaultInstance = ((PLCSetting)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new PLCSetting())));
