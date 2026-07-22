@@ -177,7 +177,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         title: "Máy",
         dataIndex: "machine",
         fixed: "left",
-        width: 150,
+        width: 200,
         render: (machine) => (
           <Space>
             <Avatar
