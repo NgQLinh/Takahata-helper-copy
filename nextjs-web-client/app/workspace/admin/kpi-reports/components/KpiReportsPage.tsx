@@ -1,247 +1,132 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { dailyKpis, machineKpis, projectDelayData } from "./kpi-data";
+import { useEffect, useState } from "react";
+import dayjs, { Dayjs } from "dayjs";
+import { Button, DatePicker, Select } from "antd";
+import { Machine } from "@/app/types";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { toast } from "react-toastify";
 
-const dateRanges = ["Today", "This Week", "This Month", "Custom"];
-const machineTypes = ["ALL", "EDM", "CNC", "MILLING"];
+// New
+const { RangePicker } = DatePicker;
+type DateRange = [Dayjs | null, Dayjs | null] | null;
 
 export function KpiReportsPage() {
-  const [dateRange, setDateRange] = useState("This Week");
-  const [machineType, setMachineType] = useState("ALL");
+  // New
+  const [filterDateRange, setFilterDateRange] = useState<DateRange>([
+    dayjs().startOf("month"),
+    dayjs().endOf("month"),
+  ]);
 
-  const filteredMachines = useMemo(() => {
-    if (machineType === "ALL") return machineKpis;
-    return machineKpis.filter((x) => x.type === machineType);
-  }, [machineType]);
+  const [machines, setMachines] = useState<Machine[]>();
+  const [loadingMachines, setLoadingMachines] = useState(false);
+  const [filterMachineIds, setFilterMachineIds] = useState<number[]>([]);
 
-  const avgUtilization = Math.round(
-    filteredMachines.reduce((sum, x) => sum + x.utilization, 0) /
-      filteredMachines.length,
-  );
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setLoadingMachines(true);
+        const data = await getMachinesAsync();
+        if (data) {
+          setMachines(data);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Không thể tải danh sách máy.");
+      } finally {
+        setLoadingMachines(false);
+      }
+    };
 
-  const avgAutoRate = Math.round(
-    filteredMachines.reduce((sum, x) => sum + x.autoRate, 0) /
-      filteredMachines.length,
-  );
-
-  const totalPlanHours = filteredMachines.reduce(
-    (sum, x) => sum + x.planHours,
-    0,
-  );
-
-  const totalActualHours = filteredMachines.reduce(
-    (sum, x) => sum + x.actualHours,
-    0,
-  );
-
-  const totalDelayHours = filteredMachines.reduce(
-    (sum, x) => sum + x.delayHours,
-    0,
-  );
-
-  const operationPieData = [
-    {
-      name: "Auto",
-      value: dailyKpis.reduce((sum, x) => sum + x.auto, 0),
-    },
-    {
-      name: "Manual",
-      value: dailyKpis.reduce((sum, x) => sum + x.manual, 0),
-    },
-    {
-      name: "Setup",
-      value: dailyKpis.reduce((sum, x) => sum + x.setup, 0),
-    },
-    {
-      name: "Alarm",
-      value: dailyKpis.reduce((sum, x) => sum + x.alarm, 0),
-    },
-  ];
+    void run();
+  }, []);
 
   return (
     <div>
-      <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Báo cáo hiệu suất máy, thời gian auto/setup/alarm, plan vs actual
-              và delay
-            </h1>
+      <div
+        className="container-fluid py-3 d-flex flex-column"
+        style={{ height: "calc(100vh - 20px)" }}
+      >
+        <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+          <div style={{ width: 270 }}>
+            <label className="form-label mb-1">Kế hoạch</label>
+            <RangePicker
+              value={filterDateRange}
+              onChange={setFilterDateRange}
+              style={{ width: "100%" }}
+              format="DD/MM/YYYY"
+              placeholder={["Từ ngày", "Đến ngày"]}
+            />
+          </div>
+          <div style={{ width: 250 }}>
+            <label className="form-label mb-1">Máy</label>
+            <Select
+              mode="multiple"
+              allowClear
+              showSearch
+              loading={loadingMachines}
+              placeholder="Chọn máy"
+              style={{ width: "100%" }}
+              value={filterMachineIds}
+              onChange={setFilterMachineIds}
+              maxTagCount="responsive"
+              options={machines?.map((machine) => ({
+                value: machine.id,
+                label: `${machine.name} - ${machine.code}`,
+              }))}
+            />
           </div>
 
-          <button className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100">
-            Export Report
-          </button>
+          <Button>Export report</Button>
         </div>
 
-        <div className="flex flex-wrap gap-3 rounded-xl border bg-white p-4">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="h-10 rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
-          >
-            {dateRanges.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-
-          <select
-            value={machineType}
-            onChange={(e) => setMachineType(e.target.value)}
-            className="h-10 rounded-lg border px-3 text-sm outline-none focus:border-gray-400"
-          >
-            {machineTypes.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-          <SummaryCard label="Utilization" value={`${avgUtilization}%`} />
-          <SummaryCard label="Auto Rate" value={`${avgAutoRate}%`} />
-          <SummaryCard label="Plan Hours" value={`${totalPlanHours}h`} />
-          <SummaryCard label="Actual Hours" value={`${totalActualHours}h`} />
-          <SummaryCard
-            label="Delay Hours"
-            value={`${totalDelayHours}h`}
-            danger
-          />
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-2">
-          <ChartCard title="Machine Utilization %">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredMachines}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="machine" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="utilization" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Auto / Manual / Setup / Alarm by Day">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={dailyKpis}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="auto" />
-                <Line type="monotone" dataKey="manual" />
-                <Line type="monotone" dataKey="setup" />
-                <Line type="monotone" dataKey="alarm" />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Plan Hours vs Actual Hours">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredMachines}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="machine" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="planHours" />
-                <Bar dataKey="actualHours" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Operation Time Ratio">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={operationPieData}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {operationPieData.map((_, index) => (
-                    <Cell key={index} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
-
-        <div className="grid gap-5 xl:grid-cols-[1fr_420px]">
-          <div className="rounded-xl border bg-white">
-            <div className="border-b p-5">
-              <h2 className="font-semibold text-gray-900">
-                Machine KPI Detail
-              </h2>
+        <div className="grow overflow-auto pe-2">
+          <div className="row g-3 mb-4">
+            <div className="col-12 col-md-6 col-xl-3">
+              <SummaryCard label="Hiệu suất" value={`${333}%`} />
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-sm">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-                  <tr>
-                    <th className="px-4 py-3">Machine</th>
-                    <th className="px-4 py-3">Type</th>
-                    <th className="px-4 py-3">Utilization</th>
-                    <th className="px-4 py-3">Auto Rate</th>
-                    <th className="px-4 py-3">Setup Rate</th>
-                    <th className="px-4 py-3">Alarm Rate</th>
-                    <th className="px-4 py-3">Plan / Actual</th>
-                    <th className="px-4 py-3">Delay</th>
-                  </tr>
-                </thead>
+            <div className="col-12 col-md-6 col-xl-3">
+              <SummaryCard label="Thời gian gá đặt" value={`100h`} />
+            </div>
 
-                <tbody className="divide-y">
-                  {filteredMachines.map((item) => (
-                    <tr key={item.machine} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-semibold text-gray-900">
-                        {item.machine}
-                      </td>
-                      <td className="px-4 py-3">{item.type}</td>
-                      <td className="px-4 py-3">{item.utilization}%</td>
-                      <td className="px-4 py-3">{item.autoRate}%</td>
-                      <td className="px-4 py-3">{item.setupRate}%</td>
-                      <td className="px-4 py-3">{item.alarmRate}%</td>
-                      <td className="px-4 py-3">
-                        {item.planHours}/{item.actualHours}h
-                      </td>
-                      <td className="px-4 py-3 text-red-600">
-                        {item.delayHours}h
-                      </td>
+            <div className="col-12 col-md-6 col-xl-3">
+              <SummaryCard label="Thời gian thực tế" value={`$200h`} />
+            </div>
+
+            <div className="col-12 col-md-6 col-xl-3">
+              <SummaryCard label="Thời gian chờ" value={`$400h`} danger />
+            </div>
+          </div>
+
+          <div className="grid gap-5 ">
+            <div className="rounded-xl border bg-white">
+              <div className="border-b p-5">
+                <h2 className="font-semibold text-gray-900">
+                  Machine KPI Detail
+                </h2>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                      <th className="px-4 py-3">Machine</th>
+                      <th className="px-4 py-3">Type</th>
+                      <th className="px-4 py-3">Utilization</th>
+                      <th className="px-4 py-3">Auto Rate</th>
+                      <th className="px-4 py-3">Setup Rate</th>
+                      <th className="px-4 py-3">Alarm Rate</th>
+                      <th className="px-4 py-3">Plan / Actual</th>
+                      <th className="px-4 py-3">Delay</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody className="divide-y"></tbody>
+                </table>
+              </div>
             </div>
           </div>
-
-          <ChartCard title="Delay by Project">
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={projectDelayData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="project" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="delayHours" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
         </div>
       </div>
     </div>
@@ -267,21 +152,6 @@ function SummaryCard({
       >
         {value}
       </div>
-    </div>
-  );
-}
-
-function ChartCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border bg-white p-5">
-      <h2 className="mb-4 font-semibold text-gray-900">{title}</h2>
-      {children}
     </div>
   );
 }
