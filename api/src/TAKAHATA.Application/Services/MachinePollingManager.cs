@@ -102,7 +102,7 @@ namespace TAKAHATA.Application.Services
 
                             if (process != null)
                             {
-                                process.WorkingTime = workingTime;
+                                process.WorkingTime = Math.Round(workingTime, 2);
                                 await partProcessRepository.UpdateAsync(process);
                             }
                         }
@@ -124,7 +124,7 @@ namespace TAKAHATA.Application.Services
 
         private MachineLog GenerateRandomLog(Machine machine, out long processId)
         {
-            processId = _random.Next(1, 100);
+            processId = _random.Next(1, 10);
 
             var log = new MachineLog
             {

@@ -231,9 +231,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<IEnumerable<Machine>> GetAsync()
         {
-            return await _dbContext.Machines
-                .Include(m => m.PartProcesses)
-                .ToListAsync();
+            return await _dbContext.Machines.ToListAsync();
         }
 
         public async Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(
@@ -252,9 +250,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             {
                 keyword = keyword.Trim();
 
-                query = query.Where(x =>
-                    x.Machine != null &&
-                    (x.Machine.Code.Contains(keyword) || x.Machine.Name.Contains(keyword)));
+                var machineIds = _dbContext.Machines
+                    .Where(m => m.Code.Contains(keyword) || m.Name.Contains(keyword))
+                    .Select(m => m.Id).Distinct();
+
+                query = query.Where(x => machineIds.Contains(x.MachineId));
             }
 
             if (plantFrom.HasValue)
@@ -288,13 +288,16 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.Id))
                 .Include(x => x.MachineMaintenanceProcesses)
-                .Include(x => x.PartProcesses)
-                    .ThenInclude(x => x.Part)
+
                 .ToListAsync();
 
             var data = machines
                 .Select(x => _mapper.Map<MachineScheduleResponse>(x))
                 .ToList();
+
+            var partProcesses = _dbContext.PartProcesses
+                .Where(p => pagedMachineIds.Contains(p.MachineId))
+                .Include(x => x.Part);
 
             foreach (var item in data)
             {
@@ -302,7 +305,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 if (machine == null)
                     continue;
 
-                foreach (var partProcess in machine.PartProcesses)
+                foreach (var partProcess in partProcesses.Where(p => p.MachineId == machine.Id))
                 {
                     var process = new MachineProcessResponse
                     {

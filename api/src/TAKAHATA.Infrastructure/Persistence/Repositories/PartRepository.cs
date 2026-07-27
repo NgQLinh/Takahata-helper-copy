@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Contracts.Common;
+using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.MasterData;
 
@@ -105,7 +106,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .Where(x => pagedPartIds.Contains(x.Id))
                 .Include(x => x.Index)
                 .Include(x => x.Processes)
-                    .ThenInclude(x => x.Machine)
                 .ToListAsync();
 
             // Giữ đúng thứ tự phân trang ban đầu
@@ -117,6 +117,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .OrderBy(x => partOrder[x.Id])
                 .ToList();
 
+            var machines = _dbContext.Machines.ToList();
+
             var data = parts
                 .Select(x =>
                 {
@@ -125,9 +127,19 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         .OrderBy(p => p.Sequence)
                         .ToList();
 
+                    foreach (var processes in part.Processes)
+                    {
+                        var machine = machines.FirstOrDefault(m => m.Id == processes.MachineId);
+                        if (machine != null)
+                            processes.Machine = _mapper.Map<MachineResponse>(machine);
+                    }
+
                     return part;
                 })
                 .ToList();
+
+
+
 
             return new SearchResponse<List<PartResponse>>(
                 currentPage,

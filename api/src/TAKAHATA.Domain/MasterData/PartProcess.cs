@@ -16,6 +16,5 @@ namespace TAKAHATA.Domain.MasterData
         public string Note { get; set; } = string.Empty;
         public Part? Part { get; set; }
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
-        public Machine? Machine { get; set; }
     }
 }

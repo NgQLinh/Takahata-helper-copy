@@ -570,19 +570,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.PartProcess", b =>
                 {
-                    b.HasOne("TAKAHATA.Domain.MasterData.Machine", "Machine")
-                        .WithMany("PartProcesses")
-                        .HasForeignKey("MachineId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TAKAHATA.Domain.MasterData.Part", "Part")
                         .WithMany("Processes")
                         .HasForeignKey("PartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Machine");
 
                     b.Navigation("Part");
                 });
@@ -595,8 +587,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
                 {
                     b.Navigation("MachineMaintenanceProcesses");
-
-                    b.Navigation("PartProcesses");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Part", b =>
