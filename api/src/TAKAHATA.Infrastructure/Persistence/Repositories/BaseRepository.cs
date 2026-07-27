@@ -43,6 +43,22 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return affectedRows > 0 ? entity : null;
         }
 
+        public virtual async Task<IReadOnlyCollection<TEntity>> UpdateManyAsync(
+            IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default)
+        {
+            var entityList = entities.ToList();
+
+            if (!entityList.Any())
+                return Array.Empty<TEntity>();
+
+            DbSet.UpdateRange(entityList);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return entityList;
+        }
+
         public virtual async Task<TEntity?> DeleteByIdAsync(
             long id,
             CancellationToken cancellationToken = default)

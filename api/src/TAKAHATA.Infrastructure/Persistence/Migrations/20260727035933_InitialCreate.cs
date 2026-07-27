@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TAKAHATA.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class updatedb260714003 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -110,7 +110,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     Brand = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MachineStatus = table.Column<int>(type: "int", nullable: false),
-                    BitAddress = table.Column<int>(type: "int", nullable: false),
+                    MachineStatusChangeAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    StatusBitAddress = table.Column<int>(type: "int", nullable: false),
+                    PartBitAddress = table.Column<int>(type: "int", nullable: false),
+                    PartProcessBitAddress = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -261,6 +264,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     Code = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    ProcessedQuantity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -289,7 +294,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     MachineId = table.Column<long>(type: "bigint", nullable: false),
                     PlantDate = table.Column<DateOnly>(type: "date", nullable: false),
                     ActualDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    WorkingHours = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    WorkingTime = table.Column<double>(type: "double", nullable: false),
                     PerformedBy = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Note = table.Column<string>(type: "longtext", nullable: true)
@@ -325,9 +330,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     MachineId = table.Column<long>(type: "bigint", nullable: false),
                     PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
                     ActualDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    WorkingHours = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    SetupTime = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    WaitingTime = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    WorkingTime = table.Column<double>(type: "double", nullable: true),
+                    SetupTime = table.Column<double>(type: "double", nullable: true),
+                    WaitingTime = table.Column<double>(type: "double", nullable: true),
                     Note = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Status = table.Column<int>(type: "int", nullable: false),

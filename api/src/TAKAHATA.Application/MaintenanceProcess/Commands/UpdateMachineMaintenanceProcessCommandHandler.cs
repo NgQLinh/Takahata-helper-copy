@@ -41,7 +41,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             machineMaintenanceProcess.PlantDate = request.PlantDate;
             machineMaintenanceProcess.MachineId = request.MachineId;
             machineMaintenanceProcess.Note = request.Note;
-            machineMaintenanceProcess.WorkingHours = request.WorkingHours;
+            machineMaintenanceProcess.WorkingTime = request.WorkingTime;
             machineMaintenanceProcess.Status = request.Status;
             machineMaintenanceProcess.PerformedBy = request.PerformedBy;
 

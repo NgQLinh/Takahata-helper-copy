@@ -207,7 +207,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
       },
       {
         title: "Giờ làm",
-        dataIndex: "workingHours",
+        dataIndex: "workingTime",
         width: 100,
         render: (value) =>
           value === null || value === undefined

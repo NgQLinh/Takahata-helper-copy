@@ -10,7 +10,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
         long MachineId,
         DateOnly PlantDate,
         DateOnly? ActualDate,
-        decimal WorkingHours,
+        double WorkingTime,
         string? PerformedBy,
         string? Note,
         ProcessStatus Status = ProcessStatus.Planned) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;

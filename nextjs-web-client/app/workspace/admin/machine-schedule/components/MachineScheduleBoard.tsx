@@ -304,10 +304,10 @@ export function MachineScheduleBoard() {
                           </div>
                         )}
 
-                        {process.workingHours != null && (
+                        {process.workingTime != null && (
                           <div className="small text-muted">
                             <span className="fw-medium">Giờ máy:</span>{" "}
-                            {process.workingHours}
+                            {process.workingTime}
                           </div>
                         )}
                       </>

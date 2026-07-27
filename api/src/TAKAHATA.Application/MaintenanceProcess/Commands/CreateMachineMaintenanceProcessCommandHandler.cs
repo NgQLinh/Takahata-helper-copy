@@ -36,7 +36,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
                 PlantDate = request.PlantDate,
                 MachineId = request.MachineId,
                 Note = request.Note,
-                WorkingHours = request.WorkingHours,
+                WorkingTime = request.WorkingTime,
                 Status = request.Status,
                 PerformedBy = request.PerformedBy,
             };

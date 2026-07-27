@@ -406,7 +406,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             return (
               <span className="actual-date">
                 <CalendarOutlined /> {formatDate(process.actualDate)}
-                {process.workingHours ? ` - ${process.workingHours}` : ""}
+                {process.workingTime ? ` - ${process.workingTime}` : ""}
               </span>
             );
           },

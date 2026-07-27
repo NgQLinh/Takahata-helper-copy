@@ -29,7 +29,7 @@ export type FormValues = {
   machineId: number;
   plantDate: Dayjs;
   actualDate?: Dayjs | null;
-  workingHours: number | null;
+  workingTime: number | null;
   performedBy?: string | null;
   note?: string | null;
   status: ProcessStatus | ProcessStatus.Planned;
@@ -85,7 +85,7 @@ export default function UpdateMachineMaintenanceProcess({
           machineId: data.machineId,
           plantDate: data.plantDate ? dayjs(data.plantDate) : undefined,
           actualDate: data.actualDate ? dayjs(data.actualDate) : null,
-          workingHours: data.workingHours,
+          workingTime: data.workingTime,
           performedBy: data.performedBy,
           status: data.status | ProcessStatus.Planned,
           note: data.note,
@@ -134,7 +134,7 @@ export default function UpdateMachineMaintenanceProcess({
       actualDate: enableActualDate
         ? values.actualDate?.format("YYYY-MM-DD")
         : null,
-      workingHours: values.workingHours ?? null,
+      workingTime: values.workingTime ?? null,
       performedBy: values.performedBy ?? "",
       status: values.status ?? ProcessStatus.Planned,
       note: values.note ?? null,
@@ -269,7 +269,7 @@ export default function UpdateMachineMaintenanceProcess({
           <div className="col-md-6">
             <Form.Item
               label="Số giờ làm"
-              name="workingHours"
+              name="workingTime"
               rules={[{ required: true, message: "Vui lòng nhập số giờ làm" }]}
             >
               <InputNumber

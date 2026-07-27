@@ -105,7 +105,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
                 existingProcess.Status = process.Status;
-                existingProcess.WorkingHours = process.WorkingHours;
+                existingProcess.WorkingTime = process.WorkingTime;
             }
 
             // 6. Add new processes
@@ -120,7 +120,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     Status = process.Status,
                     PlantDate = process.PlantDate,
                     ActualDate = process.ActualDate,
-                    WorkingHours = process.WorkingHours
+                    WorkingTime = process.WorkingTime
                 });
             }
 

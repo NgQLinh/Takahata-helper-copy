@@ -12,8 +12,8 @@ using TAKAHATA.Infrastructure.Persistence;
 namespace TAKAHATA.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260716112424_update-db-260716-001")]
-    partial class updatedb260716001
+    [Migration("20260727035933_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,9 +199,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<int>("BitAddress")
-                        .HasColumnType("int");
-
                     b.Property<string>("Brand")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -220,9 +217,21 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("MachineStatus")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("MachineStatusChangeAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
+
+                    b.Property<int>("PartBitAddress")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PartProcessBitAddress")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusBitAddress")
+                        .HasColumnType("int");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -284,8 +293,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal>("WorkingHours")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double>("WorkingTime")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 
@@ -386,8 +395,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("SetupTime")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("SetupTime")
+                        .HasColumnType("double");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -398,11 +407,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal?>("WaitingTime")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("WaitingTime")
+                        .HasColumnType("double");
 
-                    b.Property<decimal?>("WorkingHours")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("WorkingTime")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

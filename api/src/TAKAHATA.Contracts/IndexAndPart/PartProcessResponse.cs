@@ -11,7 +11,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public long MachineId { get; set; }
         public DateOnly? PlantDate { get; set; }
         public DateOnly? ActualDate { get; set; }
-        public decimal? WorkingHours { get; set; }
+        public double? WorkingTime { get; set; }
         public ProcessStatus Status { get; set; }
         public string Note { get; set; } = string.Empty;
         public MachineResponse? Machine { get; set; }

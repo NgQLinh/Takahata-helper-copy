@@ -214,6 +214,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("MachineStatus")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("MachineStatusChangeAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -287,8 +290,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal>("WorkingHours")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double>("WorkingTime")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 
@@ -389,8 +392,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("SetupTime")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("SetupTime")
+                        .HasColumnType("double");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -401,11 +404,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal?>("WaitingTime")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("WaitingTime")
+                        .HasColumnType("double");
 
-                    b.Property<decimal?>("WorkingHours")
-                        .HasColumnType("decimal(65,30)");
+                    b.Property<double?>("WorkingTime")
+                        .HasColumnType("double");
 
                     b.HasKey("Id");
 

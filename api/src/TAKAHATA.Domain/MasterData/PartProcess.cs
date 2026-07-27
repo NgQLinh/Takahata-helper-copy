@@ -10,9 +10,9 @@ namespace TAKAHATA.Domain.MasterData
         public long MachineId { get; set; }
         public DateOnly? PlantDate { get; set; }
         public DateOnly? ActualDate { get; set; }
-        public decimal? WorkingHours { get; set; } // Được ghi tự động bằng PLC
-        public decimal? SetupTime { get; set; }
-        public decimal? WaitingTime { get; set; }
+        public double? WorkingTime { get; set; } // Được ghi tự động bằng PLC
+        public double? SetupTime { get; set; }
+        public double? WaitingTime { get; set; }
         public string Note { get; set; } = string.Empty;
         public Part? Part { get; set; }
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;

@@ -18,5 +18,9 @@ namespace TAKAHATA.Application.Common.Interface
         Task<TEntity?> DeleteByIdAsync(
             long id,
             CancellationToken cancellationToken = default);
+
+        Task<IReadOnlyCollection<TEntity>> UpdateManyAsync(
+            IEnumerable<TEntity> entities,
+            CancellationToken cancellationToken = default);
     }
 }

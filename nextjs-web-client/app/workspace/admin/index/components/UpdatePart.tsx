@@ -53,7 +53,7 @@ type PlanRow = {
   machineId?: number;
   plantDate?: Dayjs | null;
   actualDate?: Dayjs | null;
-  workingHours?: number | null;
+  workingTime?: number | null;
   status: ProcessStatus;
   note?: string;
 };
@@ -76,7 +76,7 @@ const createEmptyRow = (): PlanRow => ({
   machineId: undefined,
   plantDate: dayjs(),
   actualDate: null,
-  workingHours: null,
+  workingTime: null,
   status: ProcessStatus.Planned,
   note: "",
 });
@@ -173,7 +173,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 actualDate: process.actualDate
                   ? dayjs(process.actualDate)
                   : null,
-                workingHours: process.workingHours,
+                workingTime: process.workingTime,
                 status: process.status ?? ProcessStatus.Planned,
                 note: process.note ?? "",
               }))
@@ -294,7 +294,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         machineId: item.machineId,
         plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
         actualDate: item.actualDate?.format("YYYY-MM-DD") ?? null,
-        workingHours: item.workingHours,
+        workingTime: item.workingTime,
         status: item.status,
         note: item.note?.trim() ?? "",
       })),
@@ -386,14 +386,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     },
     {
       title: "Giờ làm thực tế",
-      dataIndex: "workingHours",
-      key: "workingHours",
+      dataIndex: "workingTime",
+      key: "workingTime",
       width: 150,
       render: (value: number | null | undefined, record) => (
         <InputNumber
           className="w-100"
           min={0}
-          onChange={(v) => handleChange(record.key, "workingHours", v)}
+          onChange={(v) => handleChange(record.key, "workingTime", v)}
           value={value}
           step={0.5}
           placeholder="Nhập số giờ làm"

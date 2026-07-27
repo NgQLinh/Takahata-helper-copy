@@ -8,6 +8,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         DateOnly PlantDate,
         DateOnly? ActualDate,
         ProcessStatus Status,
-        decimal? WorkingHours,
+        double? WorkingTime,
         string Note);
 }

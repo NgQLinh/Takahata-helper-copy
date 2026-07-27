@@ -9,7 +9,7 @@ export interface MachineMaintenanceProcess {
   description?: string | null;
   plantDate: Dayjs;
   actualDate?: Dayjs | null;
-  workingHours?: number | null;
+  workingTime?: number | null;
   status: ProcessStatus;
   performedBy?: string | null;
   note?: string | null;

@@ -10,6 +10,7 @@ namespace TAKAHATA.Domain.MasterData
         public string Type { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
+        public DateTime? MachineStatusChangeAt { get; set; }
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }
         public int PartProcessBitAddress { get; set; }

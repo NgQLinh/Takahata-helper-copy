@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Application.Common.Interface.IndexAndPart;
 using TAKAHATA.Application.Common.Interface.Influx.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Enum;
@@ -72,21 +73,59 @@ namespace TAKAHATA.Application.Services
                 scope.ServiceProvider
                      .GetRequiredService<IMachineLogRepository>();
 
+            var machineRepository =
+                scope.ServiceProvider
+                    .GetRequiredService<IMachineRepository>();
+
+            var partProcessRepository =
+                scope.ServiceProvider
+                    .GetRequiredService<IPartProcessRepository>();
+
+
+            var machineNeedUpdate = new List<Machine>();
             foreach (var machine in _machines)
             {
 #if DEBUG
-                var log = GenerateRandomLog(machine);
+                var log = GenerateRandomLog(machine, out long processId);
                 await machineLogRepository.InsertAsync(log);
 #endif
+                if (machine.MachineStatus != log.GetStatus())
+                {
+                    if (machine.MachineStatus == MachineStatus.Running && log.GetStatus() == MachineStatus.Stopped)
+                    {
+                        var runningTime = log.Time - machine.MachineStatusChangeAt;
 
+                        if (runningTime.HasValue && processId != 0)
+                        {
+                            var workingTime = runningTime.Value.TotalMinutes;
+                            var process = await partProcessRepository.GetByIdAsync(processId);
+
+                            if (process != null)
+                            {
+                                process.WorkingTime = workingTime;
+                                await partProcessRepository.UpdateAsync(process);
+                            }
+                        }
+                    }
+
+                    machine.MachineStatus = log.GetStatus();
+                    machine.UpdateAt = DateTime.Now;
+                    machine.MachineStatusChangeAt = DateTime.Now;
+                    machineNeedUpdate.Add(machine);
+                }
                 await Task.Delay(20, token);
             }
+
+            if (machineNeedUpdate.Count != 0)
+                await machineRepository.UpdateManyAsync(machineNeedUpdate, token);
         }
 
         private static readonly Random _random = new();
 
-        private MachineLog GenerateRandomLog(Machine machine)
+        private MachineLog GenerateRandomLog(Machine machine, out long processId)
         {
+            processId = _random.Next(1, 100);
+
             var log = new MachineLog
             {
                 MachineId = machine.Id,

@@ -7,7 +7,7 @@ namespace TAKAHATA.Domain.MasterData
         public long MachineId { get; set; }
         public DateOnly PlantDate { get; set; }
         public DateOnly? ActualDate { get; set; }
-        public decimal WorkingHours { get; set; }
+        public double WorkingTime { get; set; }
         public string? PerformedBy { get; set; } = string.Empty;
         public string? Note { get; set; } = string.Empty;
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
