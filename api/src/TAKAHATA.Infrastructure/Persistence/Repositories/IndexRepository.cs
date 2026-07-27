@@ -18,11 +18,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Index>> GetAsync()
-        {
-            return await _dbContext.Indexes.ToListAsync();
-        }
-
         public async Task<Index?> GetAsync(string indexCode)
         {
             return _dbContext.Indexes.FirstOrDefault(e => e.Code == indexCode);

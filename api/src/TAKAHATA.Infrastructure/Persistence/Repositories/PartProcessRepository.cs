@@ -10,6 +10,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
     {
         public PartProcessRepository(AppDbContext dbContext) : base(dbContext)
         {
+
         }
 
         public async Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(

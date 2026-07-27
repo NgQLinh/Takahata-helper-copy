@@ -162,11 +162,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<int> CountTotal()
-        {
-            return await _dbContext.Parts.CountAsync();
-        }
-
         public async Task<Part?> ApproveAsync(int id)
         {
             var part = _dbContext.Parts.FirstOrDefault(x => x.Id == id);

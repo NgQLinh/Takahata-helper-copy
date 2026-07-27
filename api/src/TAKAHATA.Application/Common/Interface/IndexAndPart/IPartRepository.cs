@@ -16,7 +16,6 @@ namespace TAKAHATA.Application.Common.Interface.IndexAndPart
             DateOnly? actualTo,
             int page,
             int pageSize);
-        Task<int> CountTotal();
         Task<Part?> ApproveAsync(int id);
         Task<IEnumerable<Part>> GetByIdsAsync(HashSet<long> partIds);
     }
