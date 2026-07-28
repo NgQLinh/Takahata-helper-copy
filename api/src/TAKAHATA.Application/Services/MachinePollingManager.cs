@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Enum;
@@ -34,16 +33,70 @@ namespace TAKAHATA.Application.Services
 
         public async Task RunAsync(CancellationToken stoppingToken)
         {
+            using var scope = _scopeFactory.CreateScope();
+
+            var machineLogRepository =
+                scope.ServiceProvider
+                     .GetRequiredService<IMachineLogRepository>();
+
+            var machineRepository =
+                scope.ServiceProvider
+                    .GetRequiredService<IMachineRepository>();
+
+            var partProcessRepository =
+                scope.ServiceProvider
+                    .GetRequiredService<IPartProcessRepository>();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (_reloadRequired)
                 {
                     await ReloadMachines();
-
                     _reloadRequired = false;
                 }
 
-                await PollMachines(stoppingToken);
+                var machineNeedUpdate = new List<Machine>();
+                foreach (var machine in _machines)
+                {
+                    // Dọc dữ lệu
+                    var log = ReadData(machine);
+
+                    // Kiểm tra sự thay đổi
+                    if (log.Status != machine.MachineStatus
+                        || log.PartId != machine.PartId
+                        || log.PartProcessId != machine.PartPorcessId)
+                    {
+                        await machineLogRepository.AddAsync(log, stoppingToken);
+
+                        if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
+                        {
+                            var runningTime = log.Time - machine.MachineStatusChangeAt;
+
+                            if (runningTime.HasValue && log.PartProcessId != 0)
+                            {
+                                var workingTime = runningTime.Value.TotalMinutes;
+                                var process = await partProcessRepository.GetByIdAsync(log.PartProcessId);
+
+                                if (process != null)
+                                {
+                                    process.WorkingTime = Math.Round(workingTime, 2);
+                                    await partProcessRepository.UpdateAsync(process, stoppingToken);
+                                }
+                            }
+                        }
+
+                        machine.PartId = log.PartId;
+                        machine.PartPorcessId = log.PartProcessId;
+                        machine.MachineStatus = log.Status;
+                        machine.UpdateAt = DateTime.Now;
+                        machine.MachineStatusChangeAt = DateTime.Now;
+                        machineNeedUpdate.Add(machine);
+                    }
+                    await Task.Delay(20, stoppingToken);
+                }
+
+                if (machineNeedUpdate.Count != 0)
+                    await machineRepository.UpdateManyAsync(machineNeedUpdate, stoppingToken);
 
                 await Task.Delay(2000, stoppingToken);
             }
@@ -63,64 +116,10 @@ namespace TAKAHATA.Application.Services
             Console.WriteLine($"Reload {_machines.Count} machines");
         }
 
-        private async Task PollMachines(CancellationToken token)
-        {
-            using var scope = _scopeFactory.CreateScope();
-
-            var machineLogRepository =
-                scope.ServiceProvider
-                     .GetRequiredService<IMachineLogRepository>();
-
-            var machineRepository =
-                scope.ServiceProvider
-                    .GetRequiredService<IMachineRepository>();
-
-            var partProcessRepository =
-                scope.ServiceProvider
-                    .GetRequiredService<IPartProcessRepository>();
-
-
-            var machineNeedUpdate = new List<Machine>();
-            foreach (var machine in _machines)
-            {
-#if DEBUG
-                var log = GenerateRandomLog(machine);
-                await machineLogRepository.AddAsync(log);
-#endif
-                if (machine.MachineStatus != log.Status)
-                {
-                    if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
-                    {
-                        var runningTime = log.Time - machine.MachineStatusChangeAt;
-
-                        if (runningTime.HasValue && log.PartProcessId != 0)
-                        {
-                            var workingTime = runningTime.Value.TotalMinutes;
-                            var process = await partProcessRepository.GetByIdAsync(log.PartProcessId);
-
-                            if (process != null)
-                            {
-                                process.WorkingTime = Math.Round(workingTime, 2);
-                                await partProcessRepository.UpdateAsync(process);
-                            }
-                        }
-                    }
-
-                    machine.MachineStatus = log.Status;
-                    machine.UpdateAt = DateTime.Now;
-                    machine.MachineStatusChangeAt = DateTime.Now;
-                    machineNeedUpdate.Add(machine);
-                }
-                await Task.Delay(20, token);
-            }
-
-            if (machineNeedUpdate.Count != 0)
-                await machineRepository.UpdateManyAsync(machineNeedUpdate, token);
-        }
 
         private static readonly Random _random = new();
 
-        private MachineLog GenerateRandomLog(Machine machine)
+        private MachineLog ReadData(Machine machine)
         {
             var log = new MachineLog
             {
