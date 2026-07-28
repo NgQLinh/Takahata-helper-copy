@@ -235,48 +235,82 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(
-            string keyword,
-            DateOnly? plantFrom,
-            DateOnly? plantTo,
-            int page,
-            int pageSize)
+       string? keyword,
+       DateOnly? plantFrom,
+       DateOnly? plantTo,
+       int page,
+       int pageSize)
         {
-            var query = _dbContext.PartProcesses
-                .AsNoTracking()
-                .AsQueryable();
-
-            // Tìm kiếm theo mã máy
-            if (!string.IsNullOrWhiteSpace(keyword))
-            {
-                keyword = keyword.Trim();
-
-                var machineIds = _dbContext.Machines
-                    .Where(m => m.Code.Contains(keyword) || m.Name.Contains(keyword))
-                    .Select(m => m.Id).Distinct();
-
-                query = query.Where(x => machineIds.Contains(x.MachineId));
-            }
-
-            if (plantFrom.HasValue)
-                query = query.Where(x => x.PlantDate >= plantFrom.Value);
-
-            if (plantTo.HasValue)
-                query = query.Where(x => x.PlantDate <= plantTo.Value);
-
             var currentPage = Math.Max(page, 1);
             var currentPageSize = Math.Clamp(pageSize, 1, 100);
 
-            var groupedQuery = query
+            keyword = keyword?.Trim();
+
+           var machineIds = _dbContext.Machines
+                .Where(x =>
+                    string.IsNullOrEmpty(keyword) ||
+                    x.Code.Contains(keyword) ||
+                    x.Name.Contains(keyword))
+                .Select(x => x.Id);
+
+            #region PartProcesses
+
+            var partQuery = _dbContext.PartProcesses
+                .AsNoTracking()
+                .Where(x => machineIds.Contains(x.MachineId));
+
+            if (plantFrom.HasValue)
+                partQuery = partQuery.Where(x => x.PlantDate >= plantFrom.Value);
+
+            if (plantTo.HasValue)
+                partQuery = partQuery.Where(x => x.PlantDate <= plantTo.Value);
+
+            var groupedPart = partQuery
                 .GroupBy(x => x.MachineId)
-                .Select(group => new
+                .Select(x => new MachineLatestSchedule
                 {
-                    MachineId = group.Key,
-                    LatestPlantDate = group.Max(x => x.PlantDate)
+                    MachineId = x.Key,
+                    LatestPlantDate = x.Max(y => y.PlantDate)
                 });
 
-            var totalItems = await groupedQuery.CountAsync();
 
-            var pagedMachineIds = await groupedQuery
+            #endregion
+
+            #region MaintenanceProcesses
+
+            var maintenanceQuery = _dbContext.MachineMaintenanceProcesses
+                .AsNoTracking()
+                .Where(x => machineIds.Contains(x.MachineId));
+
+            if (plantFrom.HasValue)
+                maintenanceQuery = maintenanceQuery.Where(x => x.PlantDate >= plantFrom.Value);
+
+            if (plantTo.HasValue)
+                maintenanceQuery = maintenanceQuery.Where(x => x.PlantDate <= plantTo.Value);
+
+            var groupedMaintenance = maintenanceQuery
+                .GroupBy(x => x.MachineId)
+                .Select(x => new MachineLatestSchedule
+                {
+                    MachineId = x.Key,
+                    LatestPlantDate = x.Max(y => y.PlantDate)
+                });
+
+            #endregion
+
+            // Gộp 2 nguồn
+            var groupedMachines = groupedPart
+                .Concat(groupedMaintenance)
+                .GroupBy(x => x.MachineId)
+                .Select(x => new
+                {
+                    MachineId = x.Key,
+                    LatestPlantDate = x.Max(y => y.LatestPlantDate)
+                });
+
+            var totalItems = await groupedMachines.CountAsync();
+
+            var pagedMachineIds = await groupedMachines
                 .OrderByDescending(x => x.LatestPlantDate)
                 .ThenBy(x => x.MachineId)
                 .Skip((currentPage - 1) * currentPageSize)
@@ -287,74 +321,86 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var machines = await _dbContext.Machines
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.Id))
-                .Include(x => x.MachineMaintenanceProcesses)
                 .ToListAsync();
 
-            var data = machines
-                .Select(x => _mapper.Map<MachineScheduleResponse>(x))
-                .ToList();
+            var partProcesses = await _dbContext.PartProcesses
+                .AsNoTracking()
+                .Where(x => pagedMachineIds.Contains(x.MachineId))
+                .Include(x => x.Part)
+                .ToListAsync();
 
-            var partProcesses = _dbContext.PartProcesses
-                .Where(p => pagedMachineIds.Contains(p.MachineId))
-                .Include(x => x.Part);
+            var maintenanceProcesses = await _dbContext.MachineMaintenanceProcesses
+                .AsNoTracking()
+                .Where(x => pagedMachineIds.Contains(x.MachineId))
+                .ToListAsync();
 
-            foreach (var item in data)
+            var partLookup = partProcesses
+                .GroupBy(x => x.MachineId)
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            var maintenanceLookup = maintenanceProcesses
+                .GroupBy(x => x.MachineId)
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            var result = new List<MachineScheduleResponse>();
+
+            foreach (var machine in machines)
             {
-                var machine = machines.FirstOrDefault(x => x.Id == item.Id);
-                if (machine == null)
-                    continue;
+                var response = _mapper.Map<MachineScheduleResponse>(machine);
 
-                foreach (var partProcess in partProcesses.Where(p => p.MachineId == machine.Id))
+                if (partLookup.TryGetValue(machine.Id, out var parts))
                 {
-                    var process = new MachineProcessResponse
+                    response.Processes.AddRange(parts.Select(part => new MachineProcessResponse
                     {
-                        Id = partProcess.Id,
-                        CreateAt = partProcess.CreateAt,
-                        CreateBy = partProcess.CreateBy,
-                        Note = partProcess.Note,
-                        PartCode = partProcess.Part != null ? partProcess.Part.Code : string.Empty,
-                        PartId = partProcess.PartId,
-                        Quantity = partProcess.Part != null ? partProcess.Part.Quantity : 0,
-                        Status = partProcess.Status,
-                        UpdateAt = partProcess.UpdateAt,
-                        UpdateBy = partProcess.UpdateBy,
-                        PlantDate = partProcess.PlantDate,
-                        ActualDate = partProcess.ActualDate,
-                        WorkingTime = partProcess.WorkingTime,
+                        Id = part.Id,
+                        CreateAt = part.CreateAt,
+                        CreateBy = part.CreateBy,
+                        UpdateAt = part.UpdateAt,
+                        UpdateBy = part.UpdateBy,
+                        PlantDate = part.PlantDate,
+                        ActualDate = part.ActualDate,
+                        WorkingTime = part.WorkingTime,
+                        Status = part.Status,
+                        Note = part.Note,
+                        PartId = part.PartId,
+                        PartCode = part.Part?.Code ?? string.Empty,
+                        Quantity = part.Part?.Quantity ?? 0,
                         Type = MachineProcessType.Manufacturing
-                    };
-
-                    item.Processes.Add(process);
+                    }));
                 }
 
-                foreach (var machineMaintenanceProcess in machine.MachineMaintenanceProcesses)
+                if (maintenanceLookup.TryGetValue(machine.Id, out var maintenances))
                 {
-                    var process = new MachineProcessResponse
+                    response.Processes.AddRange(maintenances.Select(m => new MachineProcessResponse
                     {
-                        Id = machineMaintenanceProcess.Id,
-                        CreateAt = machineMaintenanceProcess.CreateAt,
-                        CreateBy = machineMaintenanceProcess.CreateBy,
-                        Note = machineMaintenanceProcess.Note ?? string.Empty,
+                        Id = m.Id,
+                        CreateAt = m.CreateAt,
+                        CreateBy = m.CreateBy,
+                        UpdateAt = m.UpdateAt,
+                        UpdateBy = m.UpdateBy,
+                        PlantDate = m.PlantDate,
+                        ActualDate = m.ActualDate,
+                        WorkingTime = m.WorkingTime,
+                        Status = m.Status,
+                        Note = m.Note ?? string.Empty,
                         PartCode = string.Empty,
                         Quantity = 0,
-                        Status = machineMaintenanceProcess.Status,
-                        UpdateAt = machineMaintenanceProcess.UpdateAt,
-                        UpdateBy = machineMaintenanceProcess.UpdateBy,
-                        PlantDate = machineMaintenanceProcess.PlantDate,
-                        ActualDate = machineMaintenanceProcess.ActualDate,
-                        WorkingTime = machineMaintenanceProcess.WorkingTime,
                         Type = MachineProcessType.Maintenance
-                    };
-
-                    item.Processes.Add(process);
+                    }));
                 }
+
+                response.Processes = response.Processes
+                    .OrderByDescending(x => x.PlantDate)
+                    .ToList();
+
+                result.Add(response);
             }
 
             return new SearchResponse<List<MachineScheduleResponse>>(
                 currentPage,
                 currentPageSize,
                 totalItems,
-                data);
+                result);
         }
     }
 }
