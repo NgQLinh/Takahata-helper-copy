@@ -288,7 +288,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.Id))
                 .Include(x => x.MachineMaintenanceProcesses)
-
                 .ToListAsync();
 
             var data = machines
