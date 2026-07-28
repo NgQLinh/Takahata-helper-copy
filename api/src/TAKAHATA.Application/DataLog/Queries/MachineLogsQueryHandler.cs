@@ -1,9 +1,7 @@
 ﻿using ErrorOr;
 using MapsterMapper;
 using MediatR;
-using TAKAHATA.Application.Common.Interface.Equipment;
-using TAKAHATA.Application.Common.Interface.IndexAndPart;
-using TAKAHATA.Application.Common.Interface.Influx.Repositories;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Contracts.IndexAndPart;
 
@@ -33,12 +31,11 @@ namespace TAKAHATA.Application.DataLog.Queries
             CancellationToken cancellationToken)
         {
             var machines = await _machineRepository.GetAsync();
-            var machineLogs = await _machineLogRepository.GetLatestAsync(request.MachineIds);
 
-            if (machineLogs == null || machines == null)
+            if (machines == null || machines == null)
                 return [];
 
-            var partIds = machineLogs
+            var partIds = machines
                 .ToList()
                 .Select(x => x.PartId)
                 .ToHashSet();
@@ -48,20 +45,16 @@ namespace TAKAHATA.Application.DataLog.Queries
             var partDictionary = parts.ToDictionary(p => p.Id);
             var machineDictionary = machines.ToDictionary(m => m.Id);
 
-            var response = machineLogs.Select(log => new MachineLogResponse
+            var response = machines.Select(log => new MachineLogResponse
             {
-                MachineId = log.MachineId,
+                Id = log.Id,
                 PartId = log.PartId,
-                Status = log.GetStatus(),
-                Time = log.Time,
+                MachineStatus = log.MachineStatus,
+                MachineStatusChangeAt = log.MachineStatusChangeAt,
 
                 Part = partDictionary.TryGetValue(log.PartId, out var part)
                     ? _mapper.Map<PartResponse>(part)
                     : null,
-
-                Machine = machineDictionary.TryGetValue(log.MachineId, out var machine)
-                    ? _mapper.Map<MachineResponse>(machine)
-                    : null
             }).ToList();
 
             return response;

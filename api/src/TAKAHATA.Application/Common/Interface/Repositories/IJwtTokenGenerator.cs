@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using TAKAHATA.Domain.User;
 
-namespace TAKAHATA.Application.Common.Interface.JwtToken
+namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IJwtTokenGenerator
     {

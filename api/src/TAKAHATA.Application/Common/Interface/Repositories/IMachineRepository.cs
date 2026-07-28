@@ -3,7 +3,7 @@ using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Domain.MasterData;
 
-namespace TAKAHATA.Application.Common.Interface.Equipment
+namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IMachineRepository : IBaseRepository<Machine>
     {

@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Diagnostics;
-using TAKAHATA.Application.Common.Interface.Equipment;
+﻿using Microsoft.Extensions.Hosting;
 using TAKAHATA.Application.Common.Interface.Services;
 
 namespace TAKAHATA.Application.Services

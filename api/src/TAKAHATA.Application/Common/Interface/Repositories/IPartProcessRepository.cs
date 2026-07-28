@@ -2,7 +2,7 @@
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.MasterData;
 
-namespace TAKAHATA.Application.Common.Interface.IndexAndPart
+namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IPartProcessRepository : IBaseRepository<PartProcess>
     {

@@ -93,15 +93,19 @@ export function DashboardPage() {
 
   const summary = useMemo(
     () => ({
-      running: machineLogs.filter((x) => x.status === MachineStatus.Running)
+      running: machineLogs.filter(
+        (x) => x.machineStatus === MachineStatus.Running,
+      ).length,
+      paused: machineLogs.filter(
+        (x) => x.machineStatus === MachineStatus.Paused,
+      ).length,
+      stopped: machineLogs.filter(
+        (x) => x.machineStatus === MachineStatus.Stopped,
+      ).length,
+      alarm: machineLogs.filter((x) => x.machineStatus === MachineStatus.Alarm)
         .length,
-      paused: machineLogs.filter((x) => x.status === MachineStatus.Paused)
-        .length,
-      stopped: machineLogs.filter((x) => x.status === MachineStatus.Stopped)
-        .length,
-      alarm: machineLogs.filter((x) => x.status === MachineStatus.Alarm).length,
       maintenance: machineLogs.filter(
-        (x) => x.status === MachineStatus.Maintenance,
+        (x) => x.machineStatus === MachineStatus.Maintenance,
       ).length,
       total: machineLogs.length,
     }),
@@ -143,7 +147,7 @@ export function DashboardPage() {
             <div className="row g-3">
               {machineLogs.map((log) => (
                 <div
-                  key={`${log.machineId}-${String(log.time)}`}
+                  key={`${log.id}-${String(log.machineStatusChangeAt)}`}
                   className="col-lg-3 col-md-6"
                 >
                   <MachineCard machineLog={log} />
@@ -158,20 +162,20 @@ export function DashboardPage() {
 }
 
 function MachineCard({ machineLog }: { machineLog: MachineLog }) {
-  const cfg = statusConfig[machineLog.status];
+  const cfg = statusConfig[machineLog.machineStatus];
 
   return (
     <div className={`card h-100 border-start border-4 ${cfg?.border ?? ""}`}>
       <div className="card-body">
         <div className="d-flex justify-content-between">
           <div>
-            <div className="fw-bold">{machineLog.machine?.name}</div>
-            <div className="text-muted small">{machineLog.machine?.code}</div>
-            <div className="text-muted small">{machineLog.machine?.type}</div>
+            <div className="fw-bold">{machineLog?.name}</div>
+            <div className="text-muted small">{machineLog?.code}</div>
+            <div className="text-muted small">{machineLog?.type}</div>
           </div>
 
           <span className={`badge ${cfg?.badge ?? "bg-dark"}`}>
-            {cfg?.text ?? machineLog.status}
+            {cfg?.text ?? machineLog.machineStatus}
           </span>
         </div>
 
@@ -190,7 +194,7 @@ function MachineCard({ machineLog }: { machineLog: MachineLog }) {
             <tr>
               <td>Cập nhật</td>
               <td className="text-end">
-                {dayjs(machineLog.time).format("HH:mm:ss")}
+                {dayjs(machineLog.machineStatusChangeAt).format("HH:mm:ss")}
               </td>
             </tr>
           </tbody>

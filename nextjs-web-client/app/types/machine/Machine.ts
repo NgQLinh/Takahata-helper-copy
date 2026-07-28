@@ -3,16 +3,20 @@ import { MachineStatus } from "./MachineStatus";
 
 export interface Machine {
   id: number;
-  sequenceNumber: number;
   name: string;
-  type: string;
   code: string;
+  type: string;
   brand: string;
   createAt: Dayjs;
   createBy: string;
   updateAt?: Dayjs | null;
   updateBy?: string;
-  status: MachineStatus;
+  machineStatus: MachineStatus;
+  machineStatusChangeAt: Dayjs | null;
+  
+  partId: number;
+  partProcessId: number;
+
   statusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;

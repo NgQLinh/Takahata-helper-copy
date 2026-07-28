@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using TAKAHATA.Application.Common.Interface.Equipment;
-using TAKAHATA.Application.Common.Interface.IndexAndPart;
-using TAKAHATA.Application.Common.Interface.Influx.Repositories;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.DataLog;
@@ -86,19 +84,19 @@ namespace TAKAHATA.Application.Services
             foreach (var machine in _machines)
             {
 #if DEBUG
-                var log = GenerateRandomLog(machine, out long processId);
-                await machineLogRepository.InsertAsync(log);
+                var log = GenerateRandomLog(machine);
+                await machineLogRepository.AddAsync(log);
 #endif
-                if (machine.MachineStatus != log.GetStatus())
+                if (machine.MachineStatus != log.Status)
                 {
-                    if (machine.MachineStatus == MachineStatus.Running && log.GetStatus() == MachineStatus.Stopped)
+                    if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
                     {
                         var runningTime = log.Time - machine.MachineStatusChangeAt;
 
-                        if (runningTime.HasValue && processId != 0)
+                        if (runningTime.HasValue && log.PartProcessId != 0)
                         {
                             var workingTime = runningTime.Value.TotalMinutes;
-                            var process = await partProcessRepository.GetByIdAsync(processId);
+                            var process = await partProcessRepository.GetByIdAsync(log.PartProcessId);
 
                             if (process != null)
                             {
@@ -108,7 +106,7 @@ namespace TAKAHATA.Application.Services
                         }
                     }
 
-                    machine.MachineStatus = log.GetStatus();
+                    machine.MachineStatus = log.Status;
                     machine.UpdateAt = DateTime.Now;
                     machine.MachineStatusChangeAt = DateTime.Now;
                     machineNeedUpdate.Add(machine);
@@ -122,17 +120,15 @@ namespace TAKAHATA.Application.Services
 
         private static readonly Random _random = new();
 
-        private MachineLog GenerateRandomLog(Machine machine, out long processId)
+        private MachineLog GenerateRandomLog(Machine machine)
         {
-            processId = _random.Next(1, 10);
-
             var log = new MachineLog
             {
                 MachineId = machine.Id,
-                PartId = _random.Next(1, 100)
+                PartId = _random.Next(1, 100),
+                PartProcessId = _random.Next(1, 10),
+                Status = (MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length)
             };
-
-            log.SetStatus((MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length));
 
             return log;
         }

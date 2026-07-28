@@ -2,7 +2,7 @@
 using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.MasterData;

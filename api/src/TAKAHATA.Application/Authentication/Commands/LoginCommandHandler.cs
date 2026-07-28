@@ -1,7 +1,7 @@
 ﻿using ErrorOr;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using TAKAHATA.Application.Common.Interface.JwtToken;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Authentication;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.User;

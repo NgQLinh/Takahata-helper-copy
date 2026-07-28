@@ -3,7 +3,7 @@ using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.MaintenanceProcess;
 using TAKAHATA.Domain.MasterData;
 
-namespace TAKAHATA.Application.Common.Interface.MaintenanceProcess
+namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IMachineMaintenanceProcessRepository : IBaseRepository<MachineMaintenanceProcess>
     {

@@ -1,5 +1,4 @@
-﻿using InfluxDB.Client;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -7,17 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TAKAHATA.Application.Common.Interface.Equipment;
-using TAKAHATA.Application.Common.Interface.IndexAndPart;
-using TAKAHATA.Application.Common.Interface.Influx.Repositories;
-using TAKAHATA.Application.Common.Interface.Influx.Settings;
-using TAKAHATA.Application.Common.Interface.JwtToken;
-using TAKAHATA.Application.Common.Interface.MaintenanceProcess;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.User;
 using TAKAHATA.Infrastructure.Authentication;
-using TAKAHATA.Infrastructure.Influx.Repositories;
-using TAKAHATA.Infrastructure.Influx.Settings;
 using TAKAHATA.Infrastructure.Persistence;
 using TAKAHATA.Infrastructure.Persistence.Repositories;
 using TAKAHATA.Infrastructure.Services;
@@ -89,21 +81,6 @@ namespace TAKAHATA.Infrastructure
                 });
 
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-
-            // Influx config
-            services.Configure<InfluxSettings>(configuration.GetSection(InfluxSettings.SectionName));
-            services.AddSingleton<IInfluxSettings>(db =>
-                db.GetRequiredService<IOptions<InfluxSettings>>().Value
-            );
-
-            services.AddSingleton(sp =>
-            {
-                var settings = sp.GetRequiredService<IInfluxSettings>();
-
-                return new InfluxDBClient(
-                    settings.Url,
-                    settings.Token);
-            });
 
             return services;
         }

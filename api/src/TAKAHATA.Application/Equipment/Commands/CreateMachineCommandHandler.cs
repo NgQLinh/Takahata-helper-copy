@@ -2,7 +2,7 @@
 using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface;
-using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;

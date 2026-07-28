@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using TAKAHATA.Application.Common.Interface.JwtToken;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Domain.User;
 using TAKAHATA.Infrastructure.Settings;
 

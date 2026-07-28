@@ -3,7 +3,7 @@ using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.IndexAndPart;
 using Index = TAKAHATA.Domain.MasterData.Index;
 
-namespace TAKAHATA.Application.Common.Interface.IndexAndPart
+namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IIndexRepository : IBaseRepository<Index>
     {

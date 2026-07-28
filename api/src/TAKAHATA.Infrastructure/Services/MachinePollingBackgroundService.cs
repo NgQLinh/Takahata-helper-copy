@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Diagnostics;
-using TAKAHATA.Application.Common.Interface.Equipment;
+using TAKAHATA.Application.Common.Interface.Repositories;
 
 namespace TAKAHATA.Infrastructure.Services
 {

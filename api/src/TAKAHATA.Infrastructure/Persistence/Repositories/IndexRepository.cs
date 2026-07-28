@@ -1,10 +1,8 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Common;
-using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Contracts.IndexAndPart;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Index = TAKAHATA.Domain.MasterData.Index;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories

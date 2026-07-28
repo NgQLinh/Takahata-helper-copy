@@ -1,6 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
-using TAKAHATA.Application.Common.Interface.IndexAndPart;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
