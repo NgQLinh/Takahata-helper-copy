@@ -417,7 +417,13 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         key: "actions",
         fixed: "right",
         width: 180,
-        onCell: (row) => ({ rowSpan: row.rowSpan }),
+
+        onCell: (row) => ({
+          rowSpan: row.rowSpan,
+          style: {
+            verticalAlign: "middle",
+          },
+        }),
         render: (_: unknown, row: TableRow) => (
           <div className="d-flex flex-column gap-2" style={{ width: 220 }}>
             {/* Hàng trên */}
