@@ -254,39 +254,31 @@ export function KpiReportsPage() {
     <div>
       <div
         className="container-fluid py-3 d-flex flex-column"
-        style={{ height: "calc(100vh - 20px)" }}
+        style={{ height: "calc(100vh)" }}
       >
-        <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
-          <div style={{ width: 270 }}>
-            <label className="form-label mb-1">Kế hoạch</label>
-            <RangePicker
-              value={filterDateRange}
-              onChange={setFilterDateRange}
-              style={{ width: "100%" }}
-              format="DD/MM/YYYY"
-              placeholder={["Từ ngày", "Đến ngày"]}
-            />
-          </div>
-
-          <Button
-            onClick={async () => {
-              await fetchMachinesReport();
-            }}
-            type="primary"
-          >
-            Tải lại
-          </Button>
-        </div>
-
         <div className="grow overflow-auto pe-2">
           <Card className="shadow-sm border-0">
             {/* Báo cáo máy */}
             <div>
               {/* Header */}
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                  <h4 className="fw-bold mb-1">Máy</h4>
-                  <small className="text-muted">Dashboard hiệu suất máy</small>
+              <div className="d-flex flex-wrap justify-between gap-3 mb-3">
+                <div className="d-flex flex-row gap-2">
+                  <RangePicker
+                    value={filterDateRange}
+                    onChange={setFilterDateRange}
+                    style={{ width: "100%" }}
+                    format="DD/MM/YYYY"
+                    placeholder={["Từ ngày", "Đến ngày"]}
+                  />
+
+                  <Button
+                    onClick={async () => {
+                      await fetchMachinesReport();
+                    }}
+                    type="primary"
+                  >
+                    Tải lại
+                  </Button>
                 </div>
 
                 <Button>Export report</Button>
