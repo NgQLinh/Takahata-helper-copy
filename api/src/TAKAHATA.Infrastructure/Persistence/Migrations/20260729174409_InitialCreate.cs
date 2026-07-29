@@ -96,6 +96,30 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "MachineLog",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    MachineId = table.Column<long>(type: "bigint", nullable: false),
+                    PartId = table.Column<long>(type: "bigint", nullable: false),
+                    PartProcessId = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreateBy = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    UpdateBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MachineLog", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Machines",
                 columns: table => new
                 {
@@ -111,6 +135,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MachineStatus = table.Column<int>(type: "int", nullable: false),
                     MachineStatusChangeAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PartId = table.Column<long>(type: "bigint", nullable: false),
+                    PartPorcessId = table.Column<long>(type: "bigint", nullable: false),
                     StatusBitAddress = table.Column<int>(type: "int", nullable: false),
                     PartBitAddress = table.Column<int>(type: "int", nullable: false),
                     PartProcessBitAddress = table.Column<int>(type: "int", nullable: false),
@@ -291,21 +317,21 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MachineId = table.Column<long>(type: "bigint", nullable: false),
-                    PlantDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ActualDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    WorkingTime = table.Column<double>(type: "double", nullable: false),
-                    PerformedBy = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Note = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateBy = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MachineId = table.Column<long>(type: "bigint", nullable: false),
+                    PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PerformedBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Note = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -327,31 +353,28 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     PartId = table.Column<long>(type: "bigint", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false),
-                    MachineId = table.Column<long>(type: "bigint", nullable: false),
-                    PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    ActualDate = table.Column<DateOnly>(type: "date", nullable: true),
                     WorkingTime = table.Column<double>(type: "double", nullable: true),
                     SetupTime = table.Column<double>(type: "double", nullable: true),
                     WaitingTime = table.Column<double>(type: "double", nullable: true),
-                    Note = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateBy = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MachineId = table.Column<long>(type: "bigint", nullable: false),
+                    PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PerformedBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Note = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PartProcesses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PartProcesses_Machines_MachineId",
-                        column: x => x.MachineId,
-                        principalTable: "Machines",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PartProcesses_Parts_PartId",
                         column: x => x.PartId,
@@ -473,6 +496,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "MachineLog");
 
             migrationBuilder.DropTable(
                 name: "MachineMaintenanceProcesses");
