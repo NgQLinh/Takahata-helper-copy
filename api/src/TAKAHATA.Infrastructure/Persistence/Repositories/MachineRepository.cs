@@ -19,6 +19,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
+        public override async Task<Machine?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        {
+            if (_dbContext.MachineMaintenanceProcesses.Any(m => m.MachineId == id) || _dbContext.PartProcesses.Any(m => m.MachineId == id))
+                return null;
+
+            return await base.DeleteByIdAsync(id, cancellationToken);
+        }
 
         public async Task CreateDefaultMachine()
         {
@@ -235,23 +242,23 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(
-       string? keyword,
-       DateOnly? plantFrom,
-       DateOnly? plantTo,
-       int page,
-       int pageSize)
+            string? keyword,
+            DateOnly? plantFrom,
+            DateOnly? plantTo,
+            int page,
+            int pageSize)
         {
             var currentPage = Math.Max(page, 1);
             var currentPageSize = Math.Clamp(pageSize, 1, 100);
 
             keyword = keyword?.Trim();
 
-           var machineIds = _dbContext.Machines
-                .Where(x =>
-                    string.IsNullOrEmpty(keyword) ||
-                    x.Code.Contains(keyword) ||
-                    x.Name.Contains(keyword))
-                .Select(x => x.Id);
+            var machineIds = _dbContext.Machines
+                 .Where(x =>
+                     string.IsNullOrEmpty(keyword) ||
+                     x.Code.Contains(keyword) ||
+                     x.Name.Contains(keyword))
+                 .Select(x => x.Id);
 
             #region PartProcesses
 
@@ -401,5 +408,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 totalItems,
                 result);
         }
+
+
     }
 }

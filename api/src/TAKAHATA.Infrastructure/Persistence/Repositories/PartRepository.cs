@@ -19,6 +19,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
+        public override async Task<Part?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        {
+            if (_dbContext.PartProcesses.Any(p => p.PartId == id && p.Status != ProcessStatus.Planned))
+                return null;
+
+            return await base.DeleteByIdAsync(id, cancellationToken);
+        }
+
         public async Task<SearchResponse<List<PartResponse>>> SearchAsync(
             string? searchText,
             List<ProcessStatus>? statuses,

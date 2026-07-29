@@ -16,6 +16,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
+        public override async Task<Index?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        {
+            if (_dbContext.Parts.Any(p => p.IndexId == id))
+                return null;
+
+            return await base.DeleteByIdAsync(id, cancellationToken);
+        }
+
         public async Task<Index?> GetAsync(string indexCode)
         {
             return _dbContext.Indexes.FirstOrDefault(e => e.Code == indexCode);

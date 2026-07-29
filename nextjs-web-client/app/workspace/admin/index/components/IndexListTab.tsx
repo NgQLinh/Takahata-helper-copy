@@ -209,12 +209,20 @@ export default function IndexListTab({ active }: Props) {
               icon={<EditOutlined />}
               onClick={() => setEditingIndex(record)}
             >
-              Sửa
+              Cập nhật
             </Button>
-
             <Popconfirm
               title="Xóa index"
-              description="Bạn có chắc muốn xóa index? Các part bên trong index cũng sẽ bị xóa."
+              description={
+                <div style={{ lineHeight: 1.6 }}>
+                  <p style={{ margin: 0 }}>Bạn có chắc muốn xóa index?</p>
+
+                  <p style={{ margin: "8px 0 0", color: "#faad14" }}>
+                    <strong>Lưu ý:</strong> Index đã được khai báo part{" "}
+                    <strong>không thể xóa</strong>.
+                  </p>
+                </div>
+              }
               okText="Xóa"
               cancelText="Hủy"
               onConfirm={() => handleDelete(record.id)}

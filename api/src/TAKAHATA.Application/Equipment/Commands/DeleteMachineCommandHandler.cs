@@ -24,7 +24,7 @@ namespace TAKAHATA.Application.Equipment.Commands
             var machine = await _machineRepository.DeleteByIdAsync(command.Id);
 
             if (machine == null)
-                return Errors.Machine.NotFound;
+                return Errors.Machine.DeleteFalse;
 
             _polling.RequestReload();
             return machine;

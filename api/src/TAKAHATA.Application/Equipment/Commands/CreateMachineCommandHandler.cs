@@ -38,7 +38,7 @@ namespace TAKAHATA.Application.Equipment.Commands
 
             machine = await _machineRepository.AddAsync(machine);
             if (machine is null)
-                return Errors.Machine.CreateMachineFalse;
+                return Errors.Machine.CreateFalse;
 
             _polling.RequestReload();
 

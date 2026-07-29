@@ -169,7 +169,7 @@ export default function MachineListTab({ active }: Props) {
         title: "Tên máy",
         dataIndex: "name",
         fixed: "left",
-        width: 150,
+        width: 250,
         sorter: (a, b) => a.name.localeCompare(b.name),
         render: (value: string) => (
           <Space>
@@ -326,7 +326,19 @@ export default function MachineListTab({ active }: Props) {
 
             <Popconfirm
               title="Xóa máy"
-              description={`Bạn có chắc muốn xóa ${record.name}?`}
+              description={
+                <div style={{ lineHeight: 1.6 }}>
+                  <p style={{ margin: 0 }}>
+                    Bạn có chắc chắn muốn xóa máy <strong>{record.name}</strong>
+                    ?
+                  </p>
+
+                  <p style={{ margin: "8px 0 0", color: "#faad14" }}>
+                    <strong>Lưu ý:</strong> Máy đã có lịch sử bảo trì hoặc đã
+                    tham gia gia công Part sẽ <strong>không thể xóa</strong>.
+                  </p>
+                </div>
+              }
               okText="Xóa"
               cancelText="Hủy"
               onConfirm={() => handleDeleteMachine(record.id)}

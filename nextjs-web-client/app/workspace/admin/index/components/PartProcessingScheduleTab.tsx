@@ -435,10 +435,21 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               >
                 Cập nhật
               </Button>
-
               <Popconfirm
                 title="Xóa part"
-                description={`Bạn có chắc muốn xóa ${row.partName}?`}
+                description={
+                  <div style={{ lineHeight: 1.6 }}>
+                    <p style={{ margin: 0 }}>
+                      Bạn có chắc chắn muốn xóa part{" "}
+                      <strong>{row.partName}</strong>?
+                    </p>
+
+                    <p style={{ margin: "8px 0 0", color: "#faad14" }}>
+                      <strong>Lưu ý:</strong>Part đã gia công{" "}
+                      <strong>không thể xóa</strong>.
+                    </p>
+                  </div>
+                }
                 okText="Xóa"
                 cancelText="Hủy"
                 onConfirm={() => handleDelete(row.partId)}

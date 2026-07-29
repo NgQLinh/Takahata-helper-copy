@@ -46,7 +46,7 @@ namespace TAKAHATA.Application.Equipment.Commands
 
             entity = await _machineRepository.UpdateAsync(entity);
             if (entity == null)
-                return Errors.Machine.UpdateMachineFalse;
+                return Errors.Machine.UpdateFalse;
 
             _polling.RequestReload();
 
