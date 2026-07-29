@@ -36,8 +36,8 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
                  request.Statuses,
                  request.PlantFrom,
                  request.PlantTo,
-                 request.ActualFrom,
-                 request.ActualTo,
+                 request.StartFrom,
+                 request.StartTo,
                  request.Page,
                  request.PageSize);
 

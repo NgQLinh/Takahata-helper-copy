@@ -13,7 +13,7 @@ export interface MachineProcess {
   status: ProcessStatus;
   note: string;
   plantDate: string;
-  actualDate?: string | null;
+  startTime?: string | null;
   workingTime?: number | null;
   sequence: number;
   type: MachineProcessType;

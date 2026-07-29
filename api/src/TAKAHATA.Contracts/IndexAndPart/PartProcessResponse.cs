@@ -10,7 +10,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public int Sequence { get; set; }
         public long MachineId { get; set; }
         public DateOnly? PlantDate { get; set; }
-        public DateOnly? ActualDate { get; set; }
+        public DateTime? StartTime { get; set; }
         public double? WorkingTime { get; set; }
         public ProcessStatus Status { get; set; }
         public string Note { get; set; } = string.Empty;

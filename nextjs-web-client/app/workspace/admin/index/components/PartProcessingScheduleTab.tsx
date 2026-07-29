@@ -111,7 +111,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
-  const [filterActualDateRange, setFilterActualDateRange] =
+  const [filterStartDateRange, setFilterStartDateRange] =
     useState<DateRange>(null);
 
   const fetchParts = useCallback(
@@ -124,8 +124,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
           statuses: filterStatuses,
           plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
           plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-          actualFrom: filterActualDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-          actualTo: filterActualDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+          startFrom: filterStartDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+          startTo: filterStartDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
           page: currentPage,
           pageSize: currentPageSize,
         });
@@ -141,7 +141,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
       }
     },
     [
-      filterActualDateRange,
+      filterStartDateRange,
       filterPlanDateRange,
       filterStatuses,
       keyword,
@@ -207,7 +207,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
     setKeyword("");
     setFilterStatuses([]);
     setFilterPlanDateRange(emptyRange);
-    setFilterActualDateRange(emptyRange);
+    setFilterStartDateRange(emptyRange);
     setPage(1);
 
     await fetchParts();
@@ -394,7 +394,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               );
             }
 
-            if (!process.actualDate) {
+            if (!process.startTime) {
               return (
                 // <Popover content={content} title="Title" trigger="click">
                 //   <span className="empty-cell">-</span>
@@ -405,7 +405,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
 
             return (
               <span className="actual-date">
-                <CalendarOutlined /> {formatDate(process.actualDate)}
+                <CalendarOutlined /> {formatDate(process.startTime)}
                 {process.workingTime ? ` - ${process.workingTime}` : ""}
               </span>
             );

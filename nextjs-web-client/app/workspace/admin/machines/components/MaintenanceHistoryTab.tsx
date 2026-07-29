@@ -200,19 +200,18 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : "-"),
       },
       {
-        title: "Ngày thực tế",
-        dataIndex: "actualDate",
+        title: "Bắt đầu",
+        dataIndex: "startTime",
         width: 150,
-        render: (value) => (value ? dayjs(value).format("DD/MM/YYYY") : "-"),
+        render: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
       },
       {
-        title: "Giờ làm",
-        dataIndex: "workingTime",
-        width: 100,
+        title: "Kết thúc",
+        dataIndex: "endTime",
+        width: 150,
         render: (value) =>
-          value === null || value === undefined
-            ? "-"
-            : Number(value).toFixed(2),
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
       },
       {
         title: "Người thực hiện",
@@ -336,7 +335,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
               icon={<EditOutlined />}
               onClick={() => handleOpenUpdate(record.id)}
             >
-              Sửa
+              Cập nhật
             </Button>
 
             <Popconfirm

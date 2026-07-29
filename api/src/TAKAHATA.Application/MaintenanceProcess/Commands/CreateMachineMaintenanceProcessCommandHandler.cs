@@ -32,12 +32,9 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             var machineMaintenanceProcess = new MachineMaintenanceProcess
             {
                 CreateBy = _currentUserService.UserId,
-                ActualDate = request.ActualDate,
                 PlantDate = request.PlantDate,
                 MachineId = request.MachineId,
                 Note = request.Note,
-                WorkingTime = request.WorkingTime,
-                Status = request.Status,
                 PerformedBy = request.PerformedBy,
             };
 

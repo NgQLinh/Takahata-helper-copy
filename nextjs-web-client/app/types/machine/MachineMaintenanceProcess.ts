@@ -8,8 +8,8 @@ export interface MachineMaintenanceProcess {
   maintenanceType: string;
   description?: string | null;
   plantDate: Dayjs;
-  actualDate?: Dayjs | null;
-  workingTime?: number | null;
+  startTime?: Dayjs | null;
+  endTime?: Dayjs | null;
   status: ProcessStatus;
   performedBy?: string | null;
   note?: string | null;

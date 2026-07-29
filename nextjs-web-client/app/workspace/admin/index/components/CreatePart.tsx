@@ -271,24 +271,6 @@ export default function CreatePart({ open, status, onClose }: Props) {
       ),
     },
     {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      width: 190,
-      render: (value: ProcessStatus, record) => (
-        <Select
-          value={value}
-          options={statusOptions}
-          style={{ width: "100%" }}
-          optionRender={(option) => getStatusTag(option.value as ProcessStatus)}
-          labelRender={(option) => getStatusTag(option.value as ProcessStatus)}
-          onChange={(status: ProcessStatus) =>
-            handleChange(record.key, "status", status)
-          }
-        />
-      ),
-    },
-    {
       title: "Ghi chú",
       dataIndex: "note",
       key: "note",

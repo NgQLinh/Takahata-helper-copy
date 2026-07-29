@@ -11,8 +11,8 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
         List<ProcessStatus>? Statuses,
         DateOnly? PlantFrom,
         DateOnly? PlantTo,
-        DateOnly? ActualFrom,
-        DateOnly? ActualTo,
+        DateTime? StartFrom,
+        DateTime? StartTo,
         int Page,
         int PageSize) : IRequest<ErrorOr<SearchResponse<List<PartResponse>>>>;
 }

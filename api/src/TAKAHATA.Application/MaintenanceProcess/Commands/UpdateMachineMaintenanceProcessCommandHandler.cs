@@ -37,11 +37,11 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
             machineMaintenanceProcess.UpdateBy = _currentUserService.UserId;
             machineMaintenanceProcess.UpdateAt = DateTime.Now;
 
-            machineMaintenanceProcess.ActualDate = request.ActualDate;
             machineMaintenanceProcess.PlantDate = request.PlantDate;
+            machineMaintenanceProcess.StartTime = request.StartTime;
+            machineMaintenanceProcess.EndTime = request.EndTime;
             machineMaintenanceProcess.MachineId = request.MachineId;
             machineMaintenanceProcess.Note = request.Note;
-            machineMaintenanceProcess.WorkingTime = request.WorkingTime;
             machineMaintenanceProcess.Status = request.Status;
             machineMaintenanceProcess.PerformedBy = request.PerformedBy;
 

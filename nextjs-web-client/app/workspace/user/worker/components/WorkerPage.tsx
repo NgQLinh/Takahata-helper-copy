@@ -45,7 +45,7 @@ import "./WorkerPage.css";
 type ProcessingFormValues = {
   setupTime: number;
   waitingTime: number;
-  actualTime: number;
+  startTime: number;
   machineTime: number;
   processedQuantity: number;
   passedQuantity: number;
@@ -547,7 +547,7 @@ export default function WorkerPage() {
                         initialValues={{
                           setupTime: 15,
                           waitingTime: 10,
-                          actualTime: 0,
+                          startTime: 0,
                           machineTime: 0,
                           processedQuantity: 0,
                           passedQuantity: 0,

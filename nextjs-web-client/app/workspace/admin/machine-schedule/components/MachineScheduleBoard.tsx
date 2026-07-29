@@ -297,10 +297,10 @@ export function MachineScheduleBoard() {
                   <div className="d-flex flex-wrap align-items-center gap-x-3 gap-y-1 mt-2">
                     {isMaintenance ? (
                       <>
-                        {process.actualDate && (
+                        {process.startTime && (
                           <div className="small text-muted">
                             <span className="fw-medium">Thực tế:</span>{" "}
-                            {process.actualDate}
+                            {process.startTime}
                           </div>
                         )}
 

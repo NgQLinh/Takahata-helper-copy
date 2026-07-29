@@ -24,8 +24,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             List<ProcessStatus>? statuses,
             DateOnly? plantFrom,
             DateOnly? plantTo,
-            DateOnly? actualFrom,
-            DateOnly? actualTo,
+            DateTime? startFrom,
+            DateTime? startTo,
             int page,
             int pageSize)
         {
@@ -65,18 +65,18 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             }
 
             // Lọc ngày thực tế
-            if (actualFrom.HasValue)
+            if (startFrom.HasValue)
             {
                 query = query.Where(x =>
-                    x.ActualDate.HasValue &&
-                    x.ActualDate.Value >= actualFrom.Value);
+                    x.StartTime.HasValue &&
+                    x.StartTime.Value.Date >= startFrom.Value);
             }
 
-            if (actualTo.HasValue)
+            if (startTo.HasValue)
             {
                 query = query.Where(x =>
-                    x.ActualDate.HasValue &&
-                    x.ActualDate.Value <= actualTo.Value);
+                    x.StartTime.HasValue &&
+                    x.StartTime.Value.Date <= startTo.Value);
             }
 
             var currentPage = Math.Max(page, 1);

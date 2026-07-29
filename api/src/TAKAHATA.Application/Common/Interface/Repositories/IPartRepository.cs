@@ -12,8 +12,8 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
             List<ProcessStatus>? statuses,
             DateOnly? plantFrom,
             DateOnly? plantTo,
-            DateOnly? actualFrom,
-            DateOnly? actualTo,
+            DateTime? startFrom,
+            DateTime? startTo,
             int page,
             int pageSize);
         Task<Part?> ApproveAsync(int id);

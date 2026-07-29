@@ -9,9 +9,7 @@ import {
 } from "antd";
 import type { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
-import {
-  getMachinesAsync,
-} from "@/app/services/machine/MachineService";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { createMachineMaintenanceProcess } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { Machine } from "@/app/types";
@@ -24,7 +22,7 @@ type Props = {
 export type FormValues = {
   machineId: number;
   plantDate: Dayjs;
-  actualDate?: Dayjs | null;
+  startTime?: Dayjs | null;
   workingTime: number;
   performedBy?: string | null;
   note?: string | null;
@@ -49,7 +47,7 @@ export default function CreateMachineMaintenanceProcess({
 
   const selectedStatus = Form.useWatch("status", form);
 
-  const enableActualDate =
+  const enableStartTime =
     selectedStatus === ProcessStatus.InProgress ||
     selectedStatus === ProcessStatus.Completed;
 
@@ -74,10 +72,10 @@ export default function CreateMachineMaintenanceProcess({
   }, [open]);
 
   useEffect(() => {
-    if (!enableActualDate) {
-      form.setFieldValue("actualDate", undefined);
+    if (!enableStartTime) {
+      form.setFieldValue("startTime", undefined);
     }
-  }, [enableActualDate, form]);
+  }, [enableStartTime, form]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -90,12 +88,7 @@ export default function CreateMachineMaintenanceProcess({
     const request = {
       machineId: values.machineId,
       plantDate: values.plantDate?.format("YYYY-MM-DD") ?? null,
-      actualDate: enableActualDate
-        ? values.actualDate?.format("YYYY-MM-DD")
-        : null,
-      workingTime: values.workingTime ?? null,
       performedBy: values.performedBy ?? "",
-      status: values.status ?? ProcessStatus.Planned,
       note: values.note ?? null,
     };
 
@@ -135,48 +128,21 @@ export default function CreateMachineMaintenanceProcess({
         }}
       >
         <div className="row">
-          <div className="col-md-6">
-            <Form.Item
-              label="Máy"
-              name="machineId"
-              rules={[{ required: true, message: "Vui lòng chọn máy" }]}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn máy"
-                loading={loadingMachine}
-                options={machines.map((machine) => ({
-                  value: machine.id,
-                  label: `${machine.name} - ${machine.code}`,
-                }))}
-              />
-            </Form.Item>
-          </div>
-
-          <div className="col-md-6">
-            <Form.Item label="Trạng thái" name="status">
-              <Select
-                options={[
-                  {
-                    value: ProcessStatus.Planned,
-                    label: "Đã lên kế hoạch",
-                  },
-                  {
-                    value: ProcessStatus.InProgress,
-                    label: "Đang thực hiện",
-                  },
-                  {
-                    value: ProcessStatus.Completed,
-                    label: "Hoàn thành",
-                  },
-                  {
-                    value: ProcessStatus.Cancelled,
-                    label: "Đã hủy",
-                  },
-                ]}
-              />
-            </Form.Item>
-          </div>
+          <Form.Item
+            label="Máy"
+            name="machineId"
+            rules={[{ required: true, message: "Vui lòng chọn máy" }]}
+          >
+            <Select
+              showSearch
+              placeholder="Chọn máy"
+              loading={loadingMachine}
+              options={machines.map((machine) => ({
+                value: machine.id,
+                label: `${machine.name} - ${machine.code}`,
+              }))}
+            />
+          </Form.Item>
         </div>
 
         <div className="row">
@@ -189,53 +155,6 @@ export default function CreateMachineMaintenanceProcess({
               ]}
             >
               <DatePicker className="w-100" format="DD/MM/YYYY" />
-            </Form.Item>
-          </div>
-
-          <div className="col-md-6">
-            <Form.Item
-              label="Ngày thực tế"
-              name="actualDate"
-              rules={[
-                {
-                  validator: (_, value) => {
-                    if (
-                      enableActualDate &&
-                      (value === undefined || value === null)
-                    ) {
-                      return Promise.reject(
-                        new Error("Vui lòng chọn ngày thực tế"),
-                      );
-                    }
-
-                    return Promise.resolve();
-                  },
-                },
-              ]}
-            >
-              <DatePicker
-                className="w-100"
-                format="DD/MM/YYYY"
-                disabled={!enableActualDate}
-                placeholder="Chọn ngày thực tế"
-              />
-            </Form.Item>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-md-6">
-            <Form.Item
-              label="Số giờ làm"
-              name="workingTime"
-              rules={[{ required: true, message: "Vui lòng nhập số giờ làm" }]}
-            >
-              <InputNumber
-                className="w-100"
-                min={0}
-                step={0.5}
-                placeholder="Nhập số giờ làm"
-              />
             </Form.Item>
           </div>
 

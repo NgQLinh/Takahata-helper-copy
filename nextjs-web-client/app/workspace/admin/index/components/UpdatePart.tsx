@@ -52,7 +52,7 @@ type PlanRow = {
   id: number;
   machineId?: number;
   plantDate?: Dayjs | null;
-  actualDate?: Dayjs | null;
+  startTime?: Dayjs | null;
   workingTime?: number | null;
   status: ProcessStatus;
   note?: string;
@@ -75,7 +75,7 @@ const createEmptyRow = (): PlanRow => ({
   id: 0,
   machineId: undefined,
   plantDate: dayjs(),
-  actualDate: null,
+  startTime: null,
   workingTime: null,
   status: ProcessStatus.Planned,
   note: "",
@@ -170,9 +170,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 id: process.id,
                 machineId: process.machineId,
                 plantDate: process.plantDate ? dayjs(process.plantDate) : null,
-                actualDate: process.actualDate
-                  ? dayjs(process.actualDate)
-                  : null,
+                startTime: process.startTime ? dayjs(process.startTime) : null,
                 workingTime: process.workingTime,
                 status: process.status ?? ProcessStatus.Planned,
                 note: process.note ?? "",
@@ -293,7 +291,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         sequence: index + 1,
         machineId: item.machineId,
         plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
-        actualDate: item.actualDate?.format("YYYY-MM-DD") ?? null,
+        startTime: item.startTime?.format("YYYY-MM-DD") ?? null,
         workingTime: item.workingTime,
         status: item.status,
         note: item.note?.trim() ?? "",
@@ -369,8 +367,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     },
     {
       title: "Ngày thực tế",
-      dataIndex: "actualDate",
-      key: "actualDate",
+      dataIndex: "startTime",
+      key: "startTime",
       width: 170,
       render: (value: Dayjs | null | undefined, record) => (
         <DatePicker
@@ -380,7 +378,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           format="DD/MM/YYYY"
           disabled={isBusy}
           style={{ width: "100%" }}
-          onChange={(date) => handleChange(record.key, "actualDate", date)}
+          onChange={(date) => handleChange(record.key, "startTime", date)}
         />
       ),
     },

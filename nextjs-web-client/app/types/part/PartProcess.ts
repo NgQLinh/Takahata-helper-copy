@@ -7,7 +7,7 @@ export interface PartProcess {
   sequence: number;
   machineId: number;
   plantDate: string;
-  actualDate?: string | null;
+  startTime?: string | null;
   workingTime?: number | null;
   status: ProcessStatus;
   note?: string | null;

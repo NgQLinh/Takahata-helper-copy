@@ -6,8 +6,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         long Id,
         long MachineId,
         DateOnly PlantDate,
-        DateOnly? ActualDate,
         ProcessStatus Status,
-        double? WorkingTime,
         string Note);
 }

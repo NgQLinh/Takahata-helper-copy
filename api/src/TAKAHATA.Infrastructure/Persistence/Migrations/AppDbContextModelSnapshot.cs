@@ -306,15 +306,15 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateOnly?>("ActualDate")
-                        .HasColumnType("date");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreateBy")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<long>("MachineId")
                         .HasColumnType("bigint");
@@ -325,8 +325,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("PerformedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<DateOnly>("PlantDate")
+                    b.Property<DateOnly?>("PlantDate")
                         .HasColumnType("date");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -413,9 +416,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<DateOnly?>("ActualDate")
-                        .HasColumnType("date");
-
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
 
@@ -423,15 +423,20 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<long>("MachineId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<long>("PartId")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("PerformedBy")
+                        .HasColumnType("longtext");
 
                     b.Property<DateOnly?>("PlantDate")
                         .HasColumnType("date");
@@ -441,6 +446,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<double?>("SetupTime")
                         .HasColumnType("double");
+
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -454,7 +462,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<double?>("WaitingTime")
                         .HasColumnType("double");
 
-                    b.Property<double?>("WorkingTime")
+                    b.Property<double>("WorkingTime")
                         .HasColumnType("double");
 
                     b.HasKey("Id");

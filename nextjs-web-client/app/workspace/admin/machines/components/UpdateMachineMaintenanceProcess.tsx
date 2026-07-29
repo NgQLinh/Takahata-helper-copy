@@ -1,12 +1,4 @@
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Select,
-} from "antd";
+import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import type { Dayjs } from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -28,8 +20,8 @@ export type FormValues = {
   id: number;
   machineId: number;
   plantDate: Dayjs;
-  actualDate?: Dayjs | null;
-  workingTime: number | null;
+  startTime?: Dayjs | null;
+  endTime?: Dayjs | null;
   performedBy?: string | null;
   note?: string | null;
   status: ProcessStatus | ProcessStatus.Planned;
@@ -55,7 +47,7 @@ export default function UpdateMachineMaintenanceProcess({
 
   const selectedStatus = Form.useWatch("status", form);
 
-  const enableActualDate =
+  const enableInputTime =
     selectedStatus === ProcessStatus.InProgress ||
     selectedStatus === ProcessStatus.Completed;
 
@@ -84,8 +76,8 @@ export default function UpdateMachineMaintenanceProcess({
         form.setFieldsValue({
           machineId: data.machineId,
           plantDate: data.plantDate ? dayjs(data.plantDate) : undefined,
-          actualDate: data.actualDate ? dayjs(data.actualDate) : null,
-          workingTime: data.workingTime,
+          startTime: data.startTime ? dayjs(data.startTime) : null,
+          endTime: data.startTime ? dayjs(data.startTime) : null,
           performedBy: data.performedBy,
           status: data.status | ProcessStatus.Planned,
           note: data.note,
@@ -114,10 +106,10 @@ export default function UpdateMachineMaintenanceProcess({
   }, [fetchDetail, fetchMachines, id, open]);
 
   useEffect(() => {
-    if (!enableActualDate) {
-      form.setFieldValue("actualDate", undefined);
+    if (!enableInputTime) {
+      form.setFieldValue("startTime", undefined);
     }
-  }, [enableActualDate, form]);
+  }, [enableInputTime, form]);
 
   const handleCancel = () => {
     form.resetFields();
@@ -131,10 +123,8 @@ export default function UpdateMachineMaintenanceProcess({
       id: id,
       machineId: values.machineId,
       plantDate: values.plantDate?.format("YYYY-MM-DD") ?? null,
-      actualDate: enableActualDate
-        ? values.actualDate?.format("YYYY-MM-DD")
-        : null,
-      workingTime: values.workingTime ?? null,
+      startTime: values.startTime?.format("YYYY-MM-DDTHH:mm:ssZ"),
+      endTime: values.endTime?.format("YYYY-MM-DDTHH:mm:ssZ"),
       performedBy: values.performedBy ?? "",
       status: values.status ?? ProcessStatus.Planned,
       note: values.note ?? null,
@@ -204,10 +194,6 @@ export default function UpdateMachineMaintenanceProcess({
                     label: "Đã lên kế hoạch",
                   },
                   {
-                    value: ProcessStatus.InProgress,
-                    label: "Đang thực hiện",
-                  },
-                  {
                     value: ProcessStatus.Completed,
                     label: "Hoàn thành",
                   },
@@ -235,19 +221,36 @@ export default function UpdateMachineMaintenanceProcess({
           </div>
 
           <div className="col-md-6">
+            <Form.Item label="Thực hiện" name="performedBy">
+              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-6">
             <Form.Item
-              label="Ngày thực tế"
-              name="actualDate"
+              label="Bắt đầu"
+              name="startTime"
               rules={[
                 {
                   validator: (_, value) => {
                     if (
-                      enableActualDate &&
+                      enableInputTime &&
                       (value === undefined || value === null)
                     ) {
                       return Promise.reject(
-                        new Error("Vui lòng chọn ngày thực tế"),
+                        new Error("Vui lòng chọn thời gian."),
                       );
+                    } else {
+                      const startTime = form.getFieldValue("startTime");
+                      const endTime = form.getFieldValue("endTime");
+
+                      if (startTime && endTime && startTime.isAfter(endTime)) {
+                        return Promise.reject(
+                          new Error("Thời gian bắt đầu phải lớn hơn kết thúc."),
+                        );
+                      }
                     }
 
                     return Promise.resolve();
@@ -257,33 +260,56 @@ export default function UpdateMachineMaintenanceProcess({
             >
               <DatePicker
                 className="w-100"
-                format="DD/MM/YYYY"
-                disabled={!enableActualDate}
-                placeholder="Chọn ngày thực tế"
+                showTime={{
+                  format: "HH:mm",
+                }}
+                format="DD/MM/YYYY HH:mm"
+                disabled={!enableInputTime}
+                placeholder="Nhập ngày, giờ."
               />
             </Form.Item>
           </div>
-        </div>
-
-        <div className="row">
           <div className="col-md-6">
             <Form.Item
-              label="Số giờ làm"
-              name="workingTime"
-              rules={[{ required: true, message: "Vui lòng nhập số giờ làm" }]}
-            >
-              <InputNumber
-                className="w-100"
-                min={0}
-                step={0.5}
-                placeholder="Nhập số giờ làm"
-              />
-            </Form.Item>
-          </div>
+              label="Hoàn thành"
+              name="endTime"
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (
+                      enableInputTime &&
+                      (value === undefined || value === null)
+                    ) {
+                      return Promise.reject(
+                        new Error(
+                          "Vui lòng chọn thời gian hoàn thành công việc",
+                        ),
+                      );
+                    } else {
+                      const startTime = form.getFieldValue("startTime");
+                      const endTime = form.getFieldValue("endTime");
 
-          <div className="col-md-6">
-            <Form.Item label="Thực hiện" name="performedBy">
-              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
+                      if (startTime && endTime && startTime.isAfter(endTime)) {
+                        return Promise.reject(
+                          new Error("Thời gian bắt đầu phải lớn hơn kết thúc."),
+                        );
+                      }
+                    }
+
+                    return Promise.resolve();
+                  },
+                },
+              ]}
+            >
+              <DatePicker
+                className="w-100"
+                showTime={{
+                  format: "HH:mm",
+                }}
+                format="DD/MM/YYYY HH:mm"
+                disabled={!enableInputTime}
+                placeholder="Nhập ngày, giờ."
+              />
             </Form.Item>
           </div>
         </div>
