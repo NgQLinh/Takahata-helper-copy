@@ -15,7 +15,6 @@ import {
   Row,
   Select,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from "antd";
@@ -62,28 +61,6 @@ const createEmptyRow = (): PlanRow => ({
   status: ProcessStatus.Planned,
   note: "",
 });
-
-const statusOptions = [
-  { value: ProcessStatus.Planned, label: "Đã lên kế hoạch" },
-  { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
-  { value: ProcessStatus.Completed, label: "Hoàn thành" },
-  { value: ProcessStatus.Cancelled, label: "Đã hủy" },
-];
-
-const getStatusTag = (status: ProcessStatus) => {
-  switch (status) {
-    case ProcessStatus.Planned:
-      return <Tag color="blue">Đã lên kế hoạch</Tag>;
-    case ProcessStatus.InProgress:
-      return <Tag color="orange">Đang thực hiện</Tag>;
-    case ProcessStatus.Completed:
-      return <Tag color="green">Hoàn thành</Tag>;
-    case ProcessStatus.Cancelled:
-      return <Tag color="red">Đã hủy</Tag>;
-    default:
-      return <Tag>Không xác định</Tag>;
-  }
-};
 
 export default function CreatePart({ open, status, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
@@ -231,12 +208,14 @@ export default function CreatePart({ open, status, onClose }: Props) {
     {
       title: "STT",
       key: "sequence",
+      fixed: "left",
       width: 64,
       align: "center",
       render: (_, __, index) => index + 1,
     },
     {
       title: "Máy",
+      fixed: "left",
       dataIndex: "machineId",
       key: "machineId",
       width: 250,
@@ -318,7 +297,7 @@ export default function CreatePart({ open, status, onClose }: Props) {
     <Modal
       open={open}
       centered
-      width={1400}
+      width="calc(100vw - 100px)"
       title={
         <Flex vertical gap={2}>
           <Title level={4} style={{ margin: 0 }}>

@@ -30,9 +30,7 @@ const validationSchema = Yup.object({
       "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
     ),
 
-  role: Yup.string()
-    .oneOf(["ADMIN", "MANAGER", "USER"])
-    .required("Vui lòng chọn vai trò"),
+  role: Yup.string().oneOf(["ADMIN", "USER"]).required("Vui lòng chọn vai trò"),
 });
 
 export default function CreateUser({ open, onClose, onCreate }: Props) {
@@ -137,7 +135,6 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
                 onBlur={() => setFieldValue("role", values.role)}
                 options={[
                   { label: "ADMIN", value: "ADMIN" },
-                  { label: "MANAGER", value: "MANAGER" },
                   { label: "USER", value: "USER" },
                 ]}
               />

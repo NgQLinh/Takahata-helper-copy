@@ -41,7 +41,7 @@ interface Props {
 
 export default function UserListTab({ active }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
 
   const [users, setUsers] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,7 +179,6 @@ export default function UserListTab({ active }: Props) {
         width: 180,
         filters: [
           { text: "ADMIN", value: "ADMIN" },
-          { text: "MANAGER", value: "MANAGER" },
           { text: "USER", value: "USER" },
         ],
         onFilter: (value, record) => record.role?.toUpperCase() === value,
@@ -187,11 +186,7 @@ export default function UserListTab({ active }: Props) {
           const normalizedRole = role?.toUpperCase();
 
           const className =
-            normalizedRole === "ADMIN"
-              ? "role-admin"
-              : normalizedRole === "MANAGER"
-                ? "role-manager"
-                : "role-user";
+            normalizedRole === "ADMIN" ? "role-admin" : "role-user";
 
           return (
             <Tag
@@ -216,7 +211,7 @@ export default function UserListTab({ active }: Props) {
               icon={<EditOutlined />}
               onClick={() => setEditingUser(record)}
             >
-              Sửa
+              Cập nhật
             </Button>
 
             <Popconfirm
@@ -269,7 +264,7 @@ export default function UserListTab({ active }: Props) {
           className="user-table"
           pagination={{
             current: currentPage,
-            pageSize,
+            pageSize: pageSize,
             total: filteredUsers.length,
             showSizeChanger: true,
             pageSizeOptions: [10, 20, 50, 100],

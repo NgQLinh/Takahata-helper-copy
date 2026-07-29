@@ -340,9 +340,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<string>("UpdateBy")
                         .HasColumnType("longtext");
 
-                    b.Property<double>("WorkingTime")
-                        .HasColumnType("double");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PlantDate", "Id")
@@ -462,7 +459,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<double?>("WaitingTime")
                         .HasColumnType("double");
 
-                    b.Property<double>("WorkingTime")
+                    b.Property<double?>("WorkingTime")
                         .HasColumnType("double");
 
                     b.HasKey("Id");

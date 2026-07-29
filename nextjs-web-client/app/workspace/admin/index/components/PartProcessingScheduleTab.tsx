@@ -24,11 +24,8 @@ import {
 import { Part, PartProcess } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
-import "./PartProcessingScheduleTab.css";
 
 const { RangePicker } = DatePicker;
-
-const PROCESS_COUNT = 15;
 
 type RowType = "MC" | "P" | "A";
 type DateRange = [Dayjs | null, Dayjs | null] | null;
@@ -95,6 +92,7 @@ interface Props {
 }
 
 export default function PartProcessingScheduleTab({ active }: Props) {
+  const [processCount, setProcessCount] = useState<number>(14);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -134,6 +132,22 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         setTotal(data.totalItems);
         setPage(data.page ?? currentPage);
         setPageSize(data.pageSize ?? currentPageSize);
+
+        if (parts) {
+          const partWithMostProcesses = parts.length
+            ? parts.reduce((max, current) =>
+                current.processes.length > max.processes.length ? current : max,
+              )
+            : null;
+
+          if (partWithMostProcesses) {
+            setProcessCount(
+              partWithMostProcesses.processes.length < 15
+                ? 15
+                : partWithMostProcesses.processes.length + 1,
+            );
+          }
+        }
       } catch {
         toast.error("Không thể tải danh sách part");
       } finally {
@@ -141,12 +155,13 @@ export default function PartProcessingScheduleTab({ active }: Props) {
       }
     },
     [
-      filterStartDateRange,
-      filterPlanDateRange,
-      filterStatuses,
-      keyword,
       page,
       pageSize,
+      keyword,
+      filterStatuses,
+      filterPlanDateRange,
+      filterStartDateRange,
+      parts,
     ],
   );
 
@@ -227,7 +242,12 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         width: 130,
         fixed: "left",
         align: "center",
-        onCell: (row) => ({ rowSpan: row.rowSpan }),
+        onCell: (row) => ({
+          rowSpan: row.rowSpan,
+          style: {
+            verticalAlign: "middle",
+          },
+        }),
         render: (_, row) => (
           <strong className="index-code">{row.indexCode}</strong>
         ),
@@ -247,16 +267,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
           rowSpan: row.rowSpan,
         }),
         render: (_, row) => (
-          <div
-            className="part-info-card text-start"
-            style={{
-              background: "#ffffff",
-              border: "1px solid #e8e8e8",
-              borderRadius: 10,
-              padding: 14,
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-            }}
-          >
+          <Card>
             <div
               className="d-flex align-items-start justify-content-between gap-2 pb-2 mb-2"
               style={{
@@ -273,15 +284,6 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                 >
                   {row.partName || "-"}
                 </div>
-
-                {/* {row.indexCode && (
-                  <div className="small text-muted mt-1">
-                    Mã Index:{" "}
-                    <span className="fw-semibold text-dark">
-                      {row.indexCode}
-                    </span>
-                  </div>
-                )} */}
               </div>
             </div>
 
@@ -324,7 +326,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                 </span>
               </div>
             </div>
-          </div>
+          </Card>
         ),
       },
       {
@@ -339,6 +341,11 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         width: 120,
         fixed: "left",
         align: "center",
+        onCell: () => ({
+          style: {
+            verticalAlign: "middle",
+          },
+        }),
         render: (value: RowType) => {
           const className =
             value === "MC"
@@ -359,22 +366,20 @@ export default function PartProcessingScheduleTab({ active }: Props) {
           </div>
         ),
         align: "center",
-        children: Array.from({ length: PROCESS_COUNT }, (_, sequence) => ({
-          title: <span className="process-number">{sequence}</span>,
+        children: Array.from({ length: processCount }, (_, sequence) => ({
+          title: <span>{sequence}</span>,
           dataIndex: `process-${sequence}`,
           width: 100,
           align: "center" as const,
+          onCell: () => ({
+            style: {
+              verticalAlign: "middle",
+            },
+          }),
           render: (_: unknown, row: TableRow) => {
             const process = row.processes[sequence];
 
-            if (!process)
-              return (
-                // <Popover content={content} title="Title" trigger="click">
-                //   <span className="empty-cell">-</span>
-                // </Popover>
-
-                <span className="empty-cell">-</span>
-              );
+            if (!process) return <span className="empty-cell">-</span>;
 
             if (row.rowType === "MC") {
               return process.status === ProcessStatus.Completed ? (
@@ -395,18 +400,13 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             }
 
             if (!process.startTime) {
-              return (
-                // <Popover content={content} title="Title" trigger="click">
-                //   <span className="empty-cell">-</span>
-                // </Popover>
-                <span className="empty-cell">-</span>
-              );
+              return <span className="empty-cell">-</span>;
             }
 
             return (
               <span className="actual-date">
-                <CalendarOutlined /> {formatDate(process.startTime)}
-                {process.workingTime ? ` - ${process.workingTime}` : ""}
+                <CalendarOutlined />
+                {dayjs(process.startTime).format("DD/MM")}
               </span>
             );
           },
@@ -427,7 +427,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                 className="action-btn flex-fill"
                 onClick={() => handleUpdate(row.partId)}
               >
-                Sửa
+                Cập nhật
               </Button>
 
               <Popconfirm

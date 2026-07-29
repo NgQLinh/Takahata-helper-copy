@@ -53,9 +53,13 @@ type PlanRow = {
   machineId?: number;
   plantDate?: Dayjs | null;
   startTime?: Dayjs | null;
-  workingTime?: number | null;
+  endTime?: Dayjs | null;
+  workingTime: number | null;
+  setupTime: number | null;
+  waitingTime: number | null;
   status: ProcessStatus;
-  note?: string;
+  note?: string | null;
+  performedBy?: string | null;
 };
 
 type FormValues = {
@@ -76,9 +80,13 @@ const createEmptyRow = (): PlanRow => ({
   machineId: undefined,
   plantDate: dayjs(),
   startTime: null,
+  endTime: null,
   workingTime: null,
+  setupTime: null,
+  waitingTime: null,
   status: ProcessStatus.Planned,
   note: "",
+  performedBy: "",
 });
 
 const statusOptions = [
@@ -171,9 +179,13 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 machineId: process.machineId,
                 plantDate: process.plantDate ? dayjs(process.plantDate) : null,
                 startTime: process.startTime ? dayjs(process.startTime) : null,
+                endTime: process.endTime ? dayjs(process.endTime) : null,
                 workingTime: process.workingTime,
+                setupTime: process.setupTime,
+                waitingTime: process.waitingTime,
                 status: process.status ?? ProcessStatus.Planned,
                 note: process.note ?? "",
+                performedBy: process.performedBy ?? "",
               }))
             : [createEmptyRow()];
 
@@ -291,10 +303,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         sequence: index + 1,
         machineId: item.machineId,
         plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
-        startTime: item.startTime?.format("YYYY-MM-DD") ?? null,
+        startTime: item.startTime?.format("YYYY-MM-DDTHH:mm:ssZ"),
+        endTime: item.endTime?.format("YYYY-MM-DDTHH:mm:ssZ"),
         workingTime: item.workingTime,
+        setupTime: item.setupTime,
+        waitingTime: item.waitingTime,
         status: item.status,
         note: item.note?.trim() ?? "",
+        performedBy: item.performedBy,
       })),
     };
 
@@ -324,12 +340,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     {
       title: "STT",
       key: "sequence",
+      fixed: "left",
       width: 64,
       align: "center",
       render: (_, __, index) => index + 1,
     },
     {
       title: "Máy",
+      fixed: "left",
       dataIndex: "machineId",
       key: "machineId",
       width: 250,
@@ -366,16 +384,36 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Ngày thực tế",
+      title: "Người thực hiện",
+      dataIndex: "performedBy",
+      key: "performedBy",
+      width: 200,
+      render: (value: string | undefined, record) => (
+        <Input
+          value={value}
+          placeholder="Nhập ghi chú"
+          maxLength={500}
+          disabled={isBusy}
+          onChange={(event) =>
+            handleChange(record.key, "performedBy", event.target.value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Bắt đầu",
       dataIndex: "startTime",
       key: "startTime",
       width: 170,
       render: (value: Dayjs | null | undefined, record) => (
         <DatePicker
           allowClear
-          placeholder="Chưa thực hiện"
+          placeholder="Nhập thời gian."
           value={value}
-          format="DD/MM/YYYY"
+          showTime={{
+            format: "HH:mm",
+          }}
+          format="DD/MM/YYYY HH:mm"
           disabled={isBusy}
           style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "startTime", date)}
@@ -383,15 +421,67 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Giờ làm thực tế",
+      title: "Kế thúc",
+      dataIndex: "endTime",
+      key: "endTime",
+      width: 170,
+      render: (value: Dayjs | null | undefined, record) => (
+        <DatePicker
+          allowClear
+          placeholder="Nhập thời gian."
+          value={value}
+          showTime={{
+            format: "HH:mm",
+          }}
+          format="DD/MM/YYYY HH:mm"
+          disabled={isBusy}
+          style={{ width: "100%" }}
+          onChange={(date) => handleChange(record.key, "endTime", date)}
+        />
+      ),
+    },
+    {
+      title: "Máy chạy (phút)",
       dataIndex: "workingTime",
       key: "workingTime",
-      width: 150,
+      width: 125,
       render: (value: number | null | undefined, record) => (
         <InputNumber
           className="w-100"
           min={0}
           onChange={(v) => handleChange(record.key, "workingTime", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
+        />
+      ),
+    },
+    {
+      title: "Gá đặt (phút)",
+      dataIndex: "setupTime",
+      key: "setupTime",
+      width: 125,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "setupTime", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
+        />
+      ),
+    },
+    {
+      title: "Chờ (phút)",
+      dataIndex: "waitingTime",
+      key: "waitingTime",
+      width: 125,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "waitingTime", v)}
           value={value}
           step={0.5}
           placeholder="Nhập số giờ làm"
@@ -466,7 +556,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     <Modal
       open={open}
       centered
-      width={1500}
+      width="calc(100vw - 100px)"
       title={
         <Flex vertical gap={2}>
           <Title level={4} style={{ margin: 0 }}>

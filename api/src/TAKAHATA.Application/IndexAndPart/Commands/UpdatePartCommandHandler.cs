@@ -101,9 +101,16 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.Note = process.Note;
                 existingProcess.MachineId = process.MachineId;
                 existingProcess.PlantDate = process.PlantDate;
+                existingProcess.StartTime = process.StartTime;
+                existingProcess.EndTime = process.EndTime;
+                existingProcess.WorkingTime = process.WorkingTime;
+                existingProcess.SetupTime = process.SetupTime;
+                existingProcess.WaitingTime = process.WaitingTime;
+                existingProcess.Status = process.Status;
+                existingProcess.PerformedBy = process.PerformedBy;
+
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
-                existingProcess.Status = process.Status;
             }
 
             // 6. Add new processes
@@ -113,10 +120,17 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 {
                     CreateAt = DateTime.Now,
                     CreateBy = _currentUserService.UserId,
+
                     MachineId = process.MachineId,
                     Note = process.Note,
                     Status = process.Status,
-                    PlantDate = process.PlantDate
+                    PlantDate = process.PlantDate,
+                    StartTime = process.StartTime,
+                    EndTime = process.EndTime,
+                    WorkingTime = process.WorkingTime,
+                    SetupTime = process.SetupTime,
+                    WaitingTime = process.WaitingTime,
+                    PerformedBy = process.PerformedBy
                 });
             }
 

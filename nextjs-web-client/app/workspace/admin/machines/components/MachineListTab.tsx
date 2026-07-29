@@ -321,7 +321,7 @@ export default function MachineListTab({ active }: Props) {
               icon={<EditOutlined />}
               onClick={() => setEditingMachine(record)}
             >
-              Sửa
+              Cập nhật
             </Button>
 
             <Popconfirm

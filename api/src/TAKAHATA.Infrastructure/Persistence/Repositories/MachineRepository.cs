@@ -380,7 +380,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         UpdateBy = m.UpdateBy,
                         PlantDate = m.PlantDate,
                         StartTime = m.StartTime,
-                        WorkingTime = m.WorkingTime,
                         Status = m.Status,
                         Note = m.Note ?? string.Empty,
                         PartCode = string.Empty,
