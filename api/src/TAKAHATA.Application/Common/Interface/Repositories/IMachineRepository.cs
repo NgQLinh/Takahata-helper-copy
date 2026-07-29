@@ -1,6 +1,6 @@
-﻿using ErrorOr;
-using TAKAHATA.Contracts.Common;
+﻿using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
+using TAKAHATA.Contracts.Report;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.Repositories
@@ -13,5 +13,6 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<IEnumerable<Machine>> GetAsync();
         Task<SearchResponse<List<MachineResponse>>> SearchAsync(string? keyword, int? page, int? pageSize);
         Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(string keyword, DateOnly? plantFrom, DateOnly? plantTo, int page, int pageSize);
+        Task<List<MachineKPIResponse>> SearchKPIAsync(DateTime from, DateTime to);
     }
 }

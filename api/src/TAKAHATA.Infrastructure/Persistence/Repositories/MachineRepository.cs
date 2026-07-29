@@ -4,6 +4,7 @@ using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Contracts.IndexAndPart;
+using TAKAHATA.Contracts.Report;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
@@ -409,6 +410,58 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 result);
         }
 
+        public async Task<List<MachineKPIResponse>> SearchKPIAsync(DateTime from, DateTime to)
+        {
+            var machines = await _dbContext.Machines.ToListAsync();
+            if (machines == null || machines.Count == 0)
+                return [];
 
+            var machineIds = machines.Select(m => m.Id).Distinct().ToList();
+
+            var partProcesses = await _dbContext.PartProcesses
+                .Where(p => machineIds.Contains(p.MachineId) && p.StartTime != null && p.StartTime.Value.Date >= from && p.StartTime <= to)
+                .ToListAsync();
+
+            // Thêm điều kiện so sánh from - to vs StartTime - EndTime
+            var maintenanceProcesses = await _dbContext.MachineMaintenanceProcesses
+                .Where(p => machineIds.Contains(p.MachineId) && p.StartTime != null && p.StartTime.Value.Date >= from && p.StartTime <= to)
+                .ToListAsync();
+
+            var result = new List<MachineKPIResponse>();
+
+            foreach (var machine in machines)
+            {
+                var maintenanceTime = maintenanceProcesses.Where(p => p.MachineId == machine.Id).Sum(p =>
+                {
+                    if (p.StartTime.HasValue && p.EndTime.HasValue)
+                        return (p.EndTime.Value - p.StartTime.Value).TotalHours;
+
+                    return 0;
+                });
+
+                var workingTime = partProcesses.Where(p => p.MachineId == machine.Id).Sum(p =>
+                {
+                    if (p.StartTime.HasValue && p.EndTime.HasValue)
+                        return (p.EndTime.Value - p.StartTime.Value).TotalHours;
+
+                    return 0;
+                });
+
+                var kpi = new MachineKPIResponse
+                {
+                    Name = machine.Name,
+                    Code = machine.Code,
+                    Brand = machine.Brand,
+                    Type = machine.Type,
+                    MachineStatus = machine.MachineStatus,
+                    MaintenanceTime = maintenanceTime,
+                    WorkingTime = workingTime,
+                };
+
+                result.Add(kpi);
+            }
+
+            return result;
+        }
     }
 }
