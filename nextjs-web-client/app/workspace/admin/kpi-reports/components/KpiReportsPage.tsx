@@ -372,8 +372,8 @@ export function KpiReportsPage() {
 
   return (
     <div
-      className="container-fluid py-3 d-flex flex-column"
-      style={{ height: "calc(100vh)" }}
+      className="d-flex flex-column"
+      style={{ height: "calc(100vh - 20px)" }}
     >
       <div className="grow overflow-auto pe-2">
         <Card className="border-0 shadow-sm">
