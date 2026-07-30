@@ -146,9 +146,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 })
                 .ToList();
 
-
-
-
             return new SearchResponse<List<PartResponse>>(
                 currentPage,
                 currentPageSize,

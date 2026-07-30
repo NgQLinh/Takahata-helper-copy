@@ -2,7 +2,9 @@
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Contracts.Common;
 using TAKAHATA.Contracts.IndexAndPart;
+using TAKAHATA.Contracts.Report;
 using TAKAHATA.Domain.MasterData;
+using Index = TAKAHATA.Domain.MasterData.Index;
 
 namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
@@ -55,7 +57,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         ? x.Part.Index.Code ?? string.Empty
                         : string.Empty,
 
-                    Note = x.Note,
+                    Note = x.Note ?? string.Empty,
                     Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status
                 })
                 .ToListAsync();
@@ -65,6 +67,87 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 currentPageSize,
                 totalItems,
                 data);
+        }
+
+        public async Task<List<PartProcessKPIResponse>> SearchKPIAsync(DateTime from, DateTime to)
+        {
+            const int batchSize = 2000;
+
+            var query = _dbContext.PartProcesses
+                .AsNoTracking()
+                .AsQueryable();
+
+            query = query
+                .Where(p => p.StartTime != null && p.StartTime.Value.Date >= from.Date && p.StartTime.Value.Date <= to.Date);
+
+            var result = query.Join(
+                _dbContext.Parts.AsNoTracking(),
+                pp => pp.PartId,
+                p => p.Id,
+                (pp, p) => new PartProcessKPIResponse
+                {
+                    // Part
+                    PartId = p.Id,
+                    PartCode = p.Code,
+                    Quantity = p.Quantity,
+                    ProcessedQuantity = p.ProcessedQuantity,
+                    IndexId = p.IndexId,
+
+                    // PartProcess
+                    PartProcessId = pp.Id,
+                    PlantDate = pp.PlantDate,
+                    StartTime = pp.StartTime,
+                    EndTime = pp.EndTime,
+                    Status = pp.Status,
+                    SetupTime = pp.SetupTime,
+                    WaitingTime = pp.WaitingTime,
+                    WorkingTime = pp.WorkingTime,
+                    MachineId = pp.MachineId,
+                });
+
+            var partProcesses = await result.ToListAsync();
+
+            // Lấy thông tin machines
+            var machineIds = partProcesses
+                .Select(p => p.MachineId)
+                .Distinct()
+                .ToList();
+
+            var machines = await _dbContext.Machines
+                .Where(m => machineIds.Contains(m.Id))
+                .ToListAsync();
+
+            // Lấy thông tin indexes
+            var indexIds = partProcesses
+                .Select(p => p.IndexId)
+                .Distinct()
+                .ToList();
+
+            var indexes = new List<Index>();
+            foreach (var batch in indexIds.Chunk(batchSize))
+            {
+                indexes.AddRange(await _dbContext.Indexes
+                    .Where(p => batch.Contains(p.Id))
+                    .ToListAsync());
+            }
+
+            foreach (var partProcess in partProcesses)
+            {
+                var machine = machines.FirstOrDefault(m => m.Id == partProcess.MachineId);
+                if (machine != null)
+                {
+                    partProcess.MachineName = machine.Name;
+                    partProcess.MachineCode = machine.Code;
+                }
+
+                var index = indexes.FirstOrDefault(i => i.Id == partProcess.IndexId);
+                if (index != null)
+                {
+                    partProcess.IndexCode = index.Code;
+                }
+            }
+
+            return partProcesses;
         }
     }
 }

@@ -9,6 +9,8 @@ export type { MachineSchedule } from "./machine/MachineSchedule";
 export { MachineStatus } from "./machine/MachineStatus";
 export type { MachineReport } from "./report/MachineReport";
 export type { MachineKPI } from "./report/MachineKPI";
+export type { PartProcessReport } from "./report/PartProcessReport";
+export type { PartProcessKPI } from "./report/PartProcessKPI";
 
 export type { CreateMachineRequest } from "./machine/CreateMachineRequest";
 export type { DeleteMachineRequest } from "./machine/DeleteMachineRequest";

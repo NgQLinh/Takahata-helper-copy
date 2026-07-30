@@ -20,12 +20,12 @@ namespace TAKAHATA.Application.Report.Queries
         {
             var machineKpis = await _machineLogRepository.SearchKPIAsync(request.From, request.To);
 
-            var newResponse = new MachineReportResponse
+            var response = new MachineReportResponse
             {
                 MachineKPIs = machineKpis
             };
 
-            return newResponse;
+            return response;
         }
     }
 }

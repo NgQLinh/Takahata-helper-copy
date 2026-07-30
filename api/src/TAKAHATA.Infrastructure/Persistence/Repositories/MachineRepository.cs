@@ -412,11 +412,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public async Task<List<MachineKPIResponse>> SearchKPIAsync(DateTime from, DateTime to)
         {
-            var machines = await _dbContext.Machines.ToListAsync();
+            var machines = await _dbContext.Machines.AsNoTracking().ToListAsync();
             if (machines == null || machines.Count == 0)
                 return [];
 
-            var machineIds = machines.Select(m => m.Id).Distinct().ToList();
+            var machineIds = machines.Select(m => m.Id).ToList();
 
             var partProcesses = await _dbContext.PartProcesses
                 .Where(p => machineIds.Contains(p.MachineId) && p.StartTime != null && p.StartTime.Value.Date >= from && p.StartTime <= to)
