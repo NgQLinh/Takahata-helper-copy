@@ -293,6 +293,7 @@ export function KpiReportsPage() {
         dataIndex: "machineStatus",
         key: "machineStatus",
         width: 160,
+        fixed: "right",
         align: "center",
         filters: [
           { text: "Đang hoạt động", value: MachineStatus.Running },
