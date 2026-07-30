@@ -2,10 +2,12 @@
 
 import {
   AppstoreOutlined,
+  ClearOutlined,
   ClockCircleOutlined,
   DashboardOutlined,
   DownloadOutlined,
   ReloadOutlined,
+  SearchOutlined,
   ThunderboltOutlined,
   ToolOutlined,
 } from "@ant-design/icons";
@@ -29,6 +31,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -43,6 +46,9 @@ import {
   YAxis,
 } from "recharts";
 import { toast } from "react-toastify";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
+
 type RectangleProps = ComponentProps<typeof Rectangle>;
 
 import {
@@ -55,7 +61,8 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 const { RangePicker } = DatePicker;
 
 const WORKING_HOURS_PER_DAY = 8;
-const DEFAULT_PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PROCESS_PAGE_SIZE = 20;
 const CHART_COLORS = [
   "#4CAF50",
   "#2196F3",
@@ -74,6 +81,11 @@ const CARD_STYLE = {
 
 type DateRange = [Dayjs | null, Dayjs | null] | null;
 
+const getCurrentMonthRange = (): DateRange => [
+  dayjs().startOf("month"),
+  dayjs().endOf("month"),
+];
+
 type SummaryCard = {
   title: string;
   value: string;
@@ -84,33 +96,25 @@ type SummaryCard = {
 const formatHours = (value?: number | null, fractionDigits = 2) =>
   value == null ? "-" : `${value.toFixed(fractionDigits)} giờ`;
 
-const escapeCsvCell = (value: unknown) => {
-  const text = value == null ? "" : String(value);
-  return `"${text.replaceAll('"', '""')}"`;
-};
-
-const getMachineStatusLabel = (status?: MachineStatus) => {
-  switch (status) {
-    case MachineStatus.Running:
-      return "Đang hoạt động";
-    case MachineStatus.Maintenance:
-      return "Bảo trì";
-    case MachineStatus.Stopped:
-      return "Dừng";
-    default:
-      return "Không xác định";
-  }
-};
-
 export function KpiReportsPage() {
-  const [pagination, setPagination] = useState<TablePaginationConfig>({
-    current: 1,
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
-  const [filterDateRange, setFilterDateRange] = useState<DateRange>([
-    dayjs().startOf("month"),
-    dayjs().endOf("month"),
-  ]);
+  const initialLoadRef = useRef(false);
+
+  const [machinePagination, setMachinePagination] =
+    useState<TablePaginationConfig>({
+      current: 1,
+      pageSize: DEFAULT_PAGE_SIZE,
+    });
+  const [processPagination, setProcessPagination] =
+    useState<TablePaginationConfig>({
+      current: 1,
+      pageSize: DEFAULT_PROCESS_PAGE_SIZE,
+    });
+
+  const [machineDateRange, setMachineDateRange] =
+    useState<DateRange>(getCurrentMonthRange);
+  const [processDateRange, setProcessDateRange] =
+    useState<DateRange>(getCurrentMonthRange);
+
   const [machinesKPI, setMachinesKPI] = useState<MachineKPI[]>([]);
   const [loadingMachinesReport, setLoadingMachinesReport] = useState(false);
 
@@ -118,14 +122,12 @@ export function KpiReportsPage() {
   const [loadingProcessesReport, setLoadingProcessesReport] = useState(false);
 
   const totalDays = useMemo(() => {
-    const [from, to] = filterDateRange ?? [];
+    const [from, to] = machineDateRange ?? [];
 
-    if (!from || !to || to.isBefore(from, "day")) {
-      return 0;
-    }
+    if (!from || !to || to.isBefore(from, "day")) return 0;
 
     return to.diff(from, "day") + 1;
-  }, [filterDateRange]);
+  }, [machineDateRange]);
 
   const availableTimePerMachine = totalDays * WORKING_HOURS_PER_DAY;
 
@@ -147,61 +149,87 @@ export function KpiReportsPage() {
     [availableTimePerMachine, machinesKPI],
   );
 
-  const fetchMachinesReport = useCallback(async () => {
-    const [from, to] = filterDateRange ?? [];
+  const fetchMachinesReport = useCallback(
+    async (range: DateRange = machineDateRange) => {
+      const [from, to] = range ?? [];
 
-    if (!from || !to) {
-      toast.warning("Vui lòng chọn đầy đủ khoảng thời gian.");
-      return;
-    }
+      if (!from || !to) {
+        toast.warning("Vui lòng chọn đầy đủ khoảng thời gian cho bảng máy.");
+        return;
+      }
 
-    setLoadingMachinesReport(true);
+      setLoadingMachinesReport(true);
 
-    try {
-      const data = await searchMachinesReportAsync({
-        from: from.format("YYYY-MM-DD"),
-        to: to.format("YYYY-MM-DD"),
-      });
+      try {
+        const data = await searchMachinesReportAsync({
+          from: from.format("YYYY-MM-DD"),
+          to: to.format("YYYY-MM-DD"),
+        });
 
-      setMachinesKPI(data.machineKPIs ?? []);
-      setPagination((current) => ({ ...current, current: 1 }));
-    } catch (error) {
-      console.error("Failed to load machine KPI report:", error);
-      toast.error("Không thể tải báo cáo KPI máy.");
-    } finally {
-      setLoadingMachinesReport(false);
-    }
-  }, [filterDateRange]);
+        setMachinesKPI(data.machineKPIs ?? []);
+        setMachinePagination((current) => ({ ...current, current: 1 }));
+      } catch (error) {
+        console.error("Failed to load machine KPI report:", error);
+        toast.error("Không thể tải báo cáo KPI máy.");
+      } finally {
+        setLoadingMachinesReport(false);
+      }
+    },
+    [machineDateRange],
+  );
 
-  const fetchPartProcessReport = useCallback(async () => {
-    const [from, to] = filterDateRange ?? [];
+  const fetchPartProcessReport = useCallback(
+    async (range: DateRange = processDateRange) => {
+      const [from, to] = range ?? [];
 
-    if (!from || !to) {
-      toast.warning("Vui lòng chọn đầy đủ khoảng thời gian.");
-      return;
-    }
+      if (!from || !to) {
+        toast.warning(
+          "Vui lòng chọn đầy đủ khoảng thời gian cho bảng gia công.",
+        );
+        return;
+      }
 
-    try {
-      const data = await searchPartProcessReportAsync({
-        from: from.format("YYYY-MM-DD"),
-        to: to.format("YYYY-MM-DD"),
-      });
+      setLoadingProcessesReport(true);
 
-      if (data.partProcessKPIs) setPartProcessKPIs(data.partProcessKPIs);
-    } catch (error) {
-      console.error("Failed to load part process KPI report:", error);
-      toast.error("Không thể tải báo cáo KPI part process.");
-    } finally {
-      setLoadingMachinesReport(false);
-    }
-  }, [filterDateRange]);
+      try {
+        const data = await searchPartProcessReportAsync({
+          from: from.format("YYYY-MM-DD"),
+          to: to.format("YYYY-MM-DD"),
+        });
+
+        setPartProcessKPIs(data.partProcessKPIs ?? []);
+        setProcessPagination((current) => ({ ...current, current: 1 }));
+      } catch (error) {
+        console.error("Failed to load part process KPI report:", error);
+        toast.error("Không thể tải báo cáo KPI part process.");
+      } finally {
+        setLoadingProcessesReport(false);
+      }
+    },
+    [processDateRange],
+  );
+
+  const resetMachineFilters = useCallback(() => {
+    const range = getCurrentMonthRange();
+    setMachineDateRange(range);
+    void fetchMachinesReport(range);
+  }, [fetchMachinesReport]);
+
+  const resetProcessFilters = useCallback(() => {
+    const range = getCurrentMonthRange();
+    setProcessDateRange(range);
+    void fetchPartProcessReport(range);
+  }, [fetchPartProcessReport]);
 
   useEffect(() => {
-    const run = () => {
-      Promise.all([fetchMachinesReport(), fetchPartProcessReport()]);
-    };
+    if (initialLoadRef.current) return;
+    initialLoadRef.current = true;
 
-    void run();
+    const currentMonth = getCurrentMonthRange();
+    void Promise.all([
+      fetchMachinesReport(currentMonth),
+      fetchPartProcessReport(currentMonth),
+    ]);
   }, [fetchMachinesReport, fetchPartProcessReport]);
 
   const machineSummary = useMemo(() => {
@@ -340,7 +368,7 @@ export function KpiReportsPage() {
         },
       },
       {
-        title: "Hiệu xuất",
+        title: "Hiệu suất",
         dataIndex: "name",
         key: "name",
         fixed: "right",
@@ -362,83 +390,149 @@ export function KpiReportsPage() {
 
   const partProcessesColumns: ColumnsType<PartProcessKPI> = [
     {
-      title: "Part Code",
-      dataIndex: "partCode",
-      key: "partCode",
-      fixed: "left",
+      title: "Kế hoạch",
+      width: 100,
+      dataIndex: "plantDate",
+      key: "plantDate",
+      render: (date?: string | Date | Dayjs | null) =>
+        date && dayjs(date).isValid() ? dayjs(date).format("DD/MM/YYYY") : "-",
     },
     {
-      title: "Machine",
+      title: "Mã máy",
+      width: 80,
+      dataIndex: "machineCode",
+      key: "machineCode",
+    },
+    {
+      title: "Tên máy",
+      width: 180,
       dataIndex: "machineName",
       key: "machineName",
       render: (_, record) => record.machineName ?? record.machineCode ?? "-",
     },
     {
-      title: "Machine Code",
-      dataIndex: "machineCode",
-      key: "machineCode",
-    },
-    {
       title: "Index",
+      width: 80,
       dataIndex: "indexCode",
       key: "indexCode",
     },
     {
-      title: "Quantity",
+      title: "Part",
+      width: 180,
+      dataIndex: "partCode",
+      key: "partCode",
+      fixed: "left",
+    },
+    {
+      title: "Thời gian",
+      children: [
+        {
+          title: "Bắt đầu",
+          width: 150,
+          dataIndex: "startTime",
+          key: "startTime",
+          render: (date) =>
+            date && dayjs(date).isValid()
+              ? dayjs(date).format("DD/MM/YYYY HH:mm")
+              : "-",
+        },
+        {
+          title: "Kết thúc",
+          width: 150,
+          dataIndex: "endTime",
+          key: "endTime",
+          render: (date) =>
+            date && dayjs(date).isValid()
+              ? dayjs(date).format("DD/MM/YYYY HH:mm")
+              : "-",
+        },
+        {
+          title: "Tổng",
+          width: 100,
+          key: "totalTime",
+          render: (_, record) => {
+            const diffMinutes = dayjs(record.endTime).diff(
+              record.startTime,
+              "minute",
+            );
+
+            const h = Math.floor(diffMinutes / 60);
+            const m = diffMinutes % 60;
+
+            return `${h}h ${m}m`;
+          },
+        },
+      ],
+    },
+
+    {
+      title: "Thời gian (min)",
+      children: [
+        {
+          title: "Máy chạy (min)",
+          width: 120,
+          dataIndex: "workingTime",
+          key: "workingTime",
+          align: "right",
+          render: (value?: number) => value?.toFixed(2) ?? "-",
+        },
+        {
+          title: "Gá đặt (min)",
+          width: 120,
+          dataIndex: "setupTime",
+          key: "setupTime",
+          align: "right",
+          render: (value?: number) => value?.toFixed(2) ?? "-",
+        },
+        {
+          title: "Chờ (min)",
+          width: 120,
+          dataIndex: "waitingTime",
+          key: "waitingTime",
+          align: "right",
+          render: (value?: number) => value?.toFixed(2) ?? "-",
+        },
+      ],
+    },
+    {
+      title: "Số lượng",
+      width: 120,
       dataIndex: "quantity",
       key: "quantity",
       align: "right",
     },
     {
-      title: "Processed",
+      title: "Đã hoàn thành",
+      width: 120,
       dataIndex: "processedQuantity",
       key: "processedQuantity",
       align: "right",
     },
     {
-      title: "Working Time (min)",
-      dataIndex: "workingTime",
-      key: "workingTime",
-      align: "right",
-      render: (value?: number) => value?.toFixed(2) ?? "-",
-    },
-    {
-      title: "Setup Time (min)",
-      dataIndex: "setupTime",
-      key: "setupTime",
-      align: "right",
-      render: (value?: number) => value?.toFixed(2) ?? "-",
-    },
-    {
-      title: "Waiting Time (min)",
-      dataIndex: "waitingTime",
-      key: "waitingTime",
-      align: "right",
-      render: (value?: number) => value?.toFixed(2) ?? "-",
-    },
-    {
-      title: "Plan Date",
-      dataIndex: "plantDate",
-      key: "plantDate",
-      render: (date?: Dayjs) => dayjs(date).format("DD/MM/YYYY HH:mm"),
-    },
-    {
-      title: "Start Time",
-      dataIndex: "startTime",
-      key: "startTime",
-      render: (date?: Dayjs) => dayjs(date).format("DD/MM/YYYY HH:mm"),
-    },
-    {
-      title: "End Time",
-      dataIndex: "endTime",
-      key: "endTime",
-      render: (date?: Dayjs) => dayjs(date).format("DD/MM/YYYY HH:mm"),
-    },
-    {
-      title: "Status",
+      title: "Trạng thái",
+      width: 120,
       dataIndex: "status",
       key: "status",
       render: (status: ProcessStatus) => <Tag>{ProcessStatus[status]}</Tag>,
+    },
+    {
+      title: "Hiệu suất",
+      width: 80,
+      key: "efficiency",
+      fixed: "right",
+      align: "right",
+      render: (_, record) => {
+        const totalMinutes = dayjs(record.endTime).diff(
+          dayjs(record.startTime),
+          "minute",
+        );
+
+        if (totalMinutes <= 0) return "-";
+
+        const efficiency = ((record.workingTime ?? 0) / totalMinutes) * 100;
+
+        return `${efficiency.toFixed(2)}%`;
+      },
     },
   ];
 
@@ -449,26 +543,6 @@ export function KpiReportsPage() {
     >
       <div className="grow overflow-auto pe-2">
         <Card className="border-0 shadow-sm">
-          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
-            <Space wrap>
-              <RangePicker
-                value={filterDateRange}
-                onChange={(dates) => setFilterDateRange(dates)}
-                format="DD/MM/YYYY"
-                placeholder={["Từ ngày", "Đến ngày"]}
-                allowClear={false}
-              />
-              <Button
-                type="primary"
-                icon={<ReloadOutlined />}
-                loading={loadingMachinesReport}
-                onClick={() => void fetchMachinesReport()}
-              >
-                Tải lại
-              </Button>
-            </Space>
-          </div>
-
           <Row gutter={[12, 12]} align="stretch">
             <Col xs={24} lg={14}>
               <Card
@@ -579,17 +653,49 @@ export function KpiReportsPage() {
           </Row>
 
           <Card
-            className="dashboard-card mt-3"
+            className="dashboard-card mt-3 rounded-4"
+            style={CARD_STYLE}
             title={
-              <div className="d-flex flex-row justify-between">
-                <span className="fw-semibold">Danh sách KPI máy</span>
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 py-1">
+                <div>
+                  <Typography.Title level={5} className="mb-0">
+                    KPI hiệu suất máy
+                  </Typography.Title>
+                  <Typography.Text type="secondary">
+                    Theo dõi thời gian hoạt động, bảo trì và hiệu suất sử dụng
+                  </Typography.Text>
+                </div>
 
-                <Button
-                  icon={<DownloadOutlined />}
-                  disabled={machinesKPI.length === 0}
-                >
-                  Xuất báo cáo
-                </Button>
+                <Space wrap size={8}>
+                  <RangePicker
+                    value={machineDateRange}
+                    onChange={(dates) => setMachineDateRange(dates)}
+                    format="DD/MM/YYYY"
+                    placeholder={["Từ ngày", "Đến ngày"]}
+                    allowClear={false}
+                  />
+                  <Button
+                    icon={<ClearOutlined />}
+                    disabled={loadingMachinesReport}
+                    onClick={resetMachineFilters}
+                  >
+                    Tháng hiện tại
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    loading={loadingMachinesReport}
+                    onClick={() => void fetchMachinesReport()}
+                  >
+                    Tải dữ liệu
+                  </Button>
+                  <Button
+                    icon={<DownloadOutlined />}
+                    disabled={machinesKPI.length === 0}
+                  >
+                    Xuất báo cáo
+                  </Button>
+                </Space>
               </div>
             }
           >
@@ -603,8 +709,8 @@ export function KpiReportsPage() {
               scroll={{ x: 1150 }}
               locale={{ emptyText: "Không có dữ liệu KPI máy" }}
               pagination={{
-                current: pagination.current,
-                pageSize: pagination.pageSize,
+                current: machinePagination.current,
+                pageSize: machinePagination.pageSize,
                 total: machinesKPI.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
@@ -612,23 +718,55 @@ export function KpiReportsPage() {
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} / ${total} máy`,
                 onChange: (current, pageSize) =>
-                  setPagination({ current, pageSize }),
+                  setMachinePagination({ current, pageSize }),
               }}
             />
           </Card>
 
           <Card
-            className="dashboard-card mt-3"
+            className="mt-3 rounded-4"
+            style={CARD_STYLE}
             title={
-              <div className="d-flex flex-row justify-between">
-                <span className="fw-semibold">Danh sách KPI máy</span>
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 py-1">
+                <div>
+                  <Typography.Title level={5} className="mb-0">
+                    Chi tiết thời gian gia công
+                  </Typography.Title>
+                  <Typography.Text type="secondary">
+                    Theo dõi tiến độ, thời gian chạy máy, gá đặt và chờ
+                  </Typography.Text>
+                </div>
 
-                <Button
-                  icon={<DownloadOutlined />}
-                  disabled={machinesKPI.length === 0}
-                >
-                  Xuất báo cáo
-                </Button>
+                <Space wrap size={8}>
+                  <RangePicker
+                    value={processDateRange}
+                    onChange={(dates) => setProcessDateRange(dates)}
+                    format="DD/MM/YYYY"
+                    placeholder={["Từ ngày", "Đến ngày"]}
+                    allowClear={false}
+                  />
+                  <Button
+                    icon={<ClearOutlined />}
+                    disabled={loadingProcessesReport}
+                    onClick={resetProcessFilters}
+                  >
+                    Tháng hiện tại
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<ReloadOutlined />}
+                    loading={loadingProcessesReport}
+                    onClick={() => void fetchPartProcessReport()}
+                  >
+                    Tải dữ liệu
+                  </Button>
+                  <Button
+                    icon={<DownloadOutlined />}
+                    disabled={partProcessKPIs.length === 0}
+                  >
+                    Xuất báo cáo
+                  </Button>
+                </Space>
               </div>
             }
           >
@@ -639,9 +777,18 @@ export function KpiReportsPage() {
               dataSource={partProcessKPIs}
               bordered
               size="small"
+              locale={{ emptyText: "Không có dữ liệu gia công" }}
               pagination={{
-                pageSize: 20,
+                current: processPagination.current,
+                pageSize: processPagination.pageSize,
+                total: partProcessKPIs.length,
                 showSizeChanger: true,
+                showQuickJumper: true,
+                pageSizeOptions: [10, 20, 50, 100],
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} / ${total} công đoạn`,
+                onChange: (current, pageSize) =>
+                  setProcessPagination({ current, pageSize }),
               }}
               scroll={{ x: 1600 }}
             />

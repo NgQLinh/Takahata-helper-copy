@@ -370,7 +370,7 @@ export function MachineScheduleBoard() {
             />
           </div>
 
-          <Button onClick={handleResetFilters}>Xóa bộ lọc</Button>
+          <Button onClick={handleResetFilters}>Tuần hiện tại</Button>
 
           <Button
             type="primary"
