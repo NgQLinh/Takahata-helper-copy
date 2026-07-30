@@ -11,6 +11,7 @@ export type { MachineReport } from "./report/MachineReport";
 export type { MachineKPI } from "./report/MachineKPI";
 export type { PartProcessReport } from "./report/PartProcessReport";
 export type { PartProcessKPI } from "./report/PartProcessKPI";
+export type { ReportRequest } from "./report/ReportRequest";
 
 export type { CreateMachineRequest } from "./machine/CreateMachineRequest";
 export type { DeleteMachineRequest } from "./machine/DeleteMachineRequest";

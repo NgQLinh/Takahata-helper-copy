@@ -52,6 +52,8 @@ dayjs.extend(duration);
 type RectangleProps = ComponentProps<typeof Rectangle>;
 
 import {
+  downloadMachinesReportAsync,
+  downloadPartProcessReportAsync,
   searchMachinesReportAsync,
   searchPartProcessReportAsync,
 } from "@/app/services/report/ReportService";
@@ -114,6 +116,10 @@ export function KpiReportsPage() {
     useState<DateRange>(getCurrentMonthRange);
   const [processDateRange, setProcessDateRange] =
     useState<DateRange>(getCurrentMonthRange);
+
+  const [exportingMachinesReport, setExportingMachinesReport] = useState(false);
+  const [exportingProcessesReport, setExportingProcessesReport] =
+    useState(false);
 
   const [machinesKPI, setMachinesKPI] = useState<MachineKPI[]>([]);
   const [loadingMachinesReport, setLoadingMachinesReport] = useState(false);
@@ -208,6 +214,66 @@ export function KpiReportsPage() {
     },
     [processDateRange],
   );
+
+  const exportMachinesReport = useCallback(async () => {
+    const [from, to] = machineDateRange ?? [];
+
+    if (!from || !to) {
+      toast.warning("Vui lòng chọn đầy đủ khoảng thời gian.");
+      return;
+    }
+
+    if (to.isBefore(from, "day")) {
+      toast.warning("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      return;
+    }
+
+    try {
+      setExportingMachinesReport(true);
+
+      await downloadMachinesReportAsync({
+        from: from.format("YYYY-MM-DD"),
+        to: to.format("YYYY-MM-DD"),
+      });
+
+      toast.success("Xuất báo cáo KPI máy thành công.");
+    } catch (error) {
+      console.error("Failed to export machine KPI report:", error);
+      toast.error("Không thể xuất báo cáo KPI máy.");
+    } finally {
+      setExportingMachinesReport(false);
+    }
+  }, [machineDateRange]);
+
+  const exportPartProcessReport = useCallback(async () => {
+    const [from, to] = processDateRange ?? [];
+
+    if (!from || !to) {
+      toast.warning("Vui lòng chọn đầy đủ khoảng thời gian.");
+      return;
+    }
+
+    if (to.isBefore(from, "day")) {
+      toast.warning("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+      return;
+    }
+
+    try {
+      setExportingProcessesReport(true);
+
+      await downloadPartProcessReportAsync({
+        from: from.format("YYYY-MM-DD"),
+        to: to.format("YYYY-MM-DD"),
+      });
+
+      toast.success("Xuất báo cáo gia công thành công.");
+    } catch (error) {
+      console.error("Failed to export part process report:", error);
+      toast.error("Không thể xuất báo cáo gia công.");
+    } finally {
+      setExportingProcessesReport(false);
+    }
+  }, [processDateRange]);
 
   const resetMachineFilters = useCallback(() => {
     const range = getCurrentMonthRange();
@@ -381,6 +447,7 @@ export function KpiReportsPage() {
                   100
                 ).toFixed(1)
               : "0.00"}
+            %
           </Space>
         ),
       },
@@ -392,6 +459,7 @@ export function KpiReportsPage() {
     {
       title: "Kế hoạch",
       width: 100,
+      fixed: "left",
       dataIndex: "plantDate",
       key: "plantDate",
       render: (date?: string | Date | Dayjs | null) =>
@@ -400,12 +468,14 @@ export function KpiReportsPage() {
     {
       title: "Mã máy",
       width: 80,
+      fixed: "left",
       dataIndex: "machineCode",
       key: "machineCode",
     },
     {
       title: "Tên máy",
       width: 180,
+      fixed: "left",
       dataIndex: "machineName",
       key: "machineName",
       render: (_, record) => record.machineName ?? record.machineCode ?? "-",
@@ -413,6 +483,7 @@ export function KpiReportsPage() {
     {
       title: "Index",
       width: 80,
+      fixed: "left",
       dataIndex: "indexCode",
       key: "indexCode",
     },
@@ -691,7 +762,9 @@ export function KpiReportsPage() {
                   </Button>
                   <Button
                     icon={<DownloadOutlined />}
-                    disabled={machinesKPI.length === 0}
+                    loading={exportingMachinesReport}
+                    onClick={() => void exportMachinesReport()}
+                    disabled={machinesKPI.length === 0 || loadingMachinesReport}
                   >
                     Xuất báo cáo
                   </Button>
@@ -762,7 +835,11 @@ export function KpiReportsPage() {
                   </Button>
                   <Button
                     icon={<DownloadOutlined />}
-                    disabled={partProcessKPIs.length === 0}
+                    loading={exportingProcessesReport}
+                    onClick={() => void exportPartProcessReport()}
+                    disabled={
+                      partProcessKPIs.length === 0 || loadingProcessesReport
+                    }
                   >
                     Xuất báo cáo
                   </Button>
