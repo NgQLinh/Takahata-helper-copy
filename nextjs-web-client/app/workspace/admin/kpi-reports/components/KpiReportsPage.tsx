@@ -395,14 +395,6 @@ export function KpiReportsPage() {
                 Tải lại
               </Button>
             </Space>
-
-            <Button
-              icon={<DownloadOutlined />}
-              disabled={machinesKPI.length === 0}
-              onClick={handleExportCsv}
-            >
-              Xuất CSV
-            </Button>
           </div>
 
           <Row gutter={[12, 12]} align="stretch">
@@ -423,14 +415,12 @@ export function KpiReportsPage() {
                       margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      {/* <XAxis
+                      <XAxis
                         dataKey="name"
-                        interval={0}
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={(value: string) =>
-                          value.length > 14 ? `${value.slice(0, 14)}…` : value
-                        }
-                      /> */}
+                        tick={false}
+                        axisLine={false}
+                        tickLine={false}
+                      />
                       <YAxis domain={[0, 100]} unit="%" />
                       <Tooltip
                         formatter={(value) => {
@@ -518,7 +508,18 @@ export function KpiReportsPage() {
 
           <Card
             className="dashboard-card mt-3"
-            title={<span className="fw-semibold">Danh sách KPI máy</span>}
+            title={
+              <div className="d-flex flex-row justify-between">
+                <span className="fw-semibold">Danh sách KPI máy</span>
+
+                <Button
+                  icon={<DownloadOutlined />}
+                  disabled={machinesKPI.length === 0}
+                >
+                  Xuất báo cáo
+                </Button>
+              </div>
+            }
           >
             <Table<MachineKPI>
               rowKey={(record) => record.code ?? record.name}
