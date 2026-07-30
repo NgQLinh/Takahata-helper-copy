@@ -1,155 +1,190 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import {
+  AppstoreOutlined,
+  ClockCircleOutlined,
+  DashboardOutlined,
+  DownloadOutlined,
+  ReloadOutlined,
+  ThunderboltOutlined,
+  ToolOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Button,
   Card,
   Col,
   DatePicker,
+  Empty,
   Row,
   Space,
+  Table,
   Tag,
   Typography,
 } from "antd";
-import { MachineKPI, MachineStatus } from "@/app/types";
-import { toast } from "react-toastify";
-import { searchMachinesReportAsync } from "@/app/services/report/ReportService";
-import Table, { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import dayjs, { type Dayjs } from "dayjs";
 import {
-  AppstoreOutlined,
-  ClockCircleOutlined,
-  DashboardOutlined,
-  ThunderboltOutlined,
-  ToolOutlined,
-} from "@ant-design/icons";
-
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import {
-  ResponsiveContainer,
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Rectangle,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Cell,
 } from "recharts";
+import { toast } from "react-toastify";
+type RectangleProps = ComponentProps<typeof Rectangle>;
 
-const COLORS = [
+import { searchMachinesReportAsync } from "@/app/services/report/ReportService";
+import { MachineStatus, type MachineKPI } from "@/app/types";
+
+const { RangePicker } = DatePicker;
+
+const WORKING_HOURS_PER_DAY = 8;
+const DEFAULT_PAGE_SIZE = 5;
+const CHART_COLORS = [
   "#4CAF50",
   "#2196F3",
   "#FFC107",
   "#FF5722",
   "#9C27B0",
   "#00BCD4",
-];
+] as const;
 
-const { RangePicker } = DatePicker;
+const CARD_STYLE = {
+  border: "1px solid #e5e7eb",
+  boxShadow:
+    "0 10px 30px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)",
+  background: "#fff",
+} as const;
+
 type DateRange = [Dayjs | null, Dayjs | null] | null;
 
-export function KpiReportsPage() {
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 5,
-  });
+type SummaryCard = {
+  title: string;
+  value: string;
+  color: string;
+  icon: ReactNode;
+};
 
+const formatHours = (value?: number | null, fractionDigits = 2) =>
+  value == null ? "-" : `${value.toFixed(fractionDigits)} giờ`;
+
+const escapeCsvCell = (value: unknown) => {
+  const text = value == null ? "" : String(value);
+  return `"${text.replaceAll('"', '""')}"`;
+};
+
+const getMachineStatusLabel = (status?: MachineStatus) => {
+  switch (status) {
+    case MachineStatus.Running:
+      return "Đang hoạt động";
+    case MachineStatus.Maintenance:
+      return "Bảo trì";
+    case MachineStatus.Stopped:
+      return "Dừng";
+    default:
+      return "Không xác định";
+  }
+};
+
+export function KpiReportsPage() {
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    current: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
   const [filterDateRange, setFilterDateRange] = useState<DateRange>([
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
-
   const [machinesKPI, setMachinesKPI] = useState<MachineKPI[]>([]);
   const [loadingMachinesReport, setLoadingMachinesReport] = useState(false);
 
-  const totalDays =
-    filterDateRange?.[0] && filterDateRange?.[1]
-      ? filterDateRange[1].diff(filterDateRange[0], "day") + 1
-      : 0;
+  const totalDays = useMemo(() => {
+    const [from, to] = filterDateRange ?? [];
 
-  const availableTimePerMachine = totalDays * 8;
+    if (!from || !to || to.isBefore(from, "day")) {
+      return 0;
+    }
 
-  const chartData = machinesKPI.map((item) => ({
-    name: item.name,
-    utilization:
-      availableTimePerMachine > 0 && item.workingTime
-        ? Number(
-            ((item.workingTime / availableTimePerMachine) * 100).toFixed(1),
-          )
-        : 0,
-  }));
+    return to.diff(from, "day") + 1;
+  }, [filterDateRange]);
+
+  const availableTimePerMachine = totalDays * WORKING_HOURS_PER_DAY;
+
+  const chartData = useMemo(
+    () =>
+      machinesKPI.map((machine) => {
+        const utilization =
+          availableTimePerMachine > 0
+            ? ((machine.workingTime ?? 0) / availableTimePerMachine) * 100
+            : 0;
+
+        return {
+          name: machine.name || machine.code || "Chưa đặt tên",
+          utilization: Number(
+            Math.min(Math.max(utilization, 0), 100).toFixed(1),
+          ),
+        };
+      }),
+    [availableTimePerMachine, machinesKPI],
+  );
 
   const fetchMachinesReport = useCallback(async () => {
+    const [from, to] = filterDateRange ?? [];
+
+    if (!from || !to) {
+      toast.warning("Vui lòng chọn đầy đủ khoảng thời gian.");
+      return;
+    }
+
     setLoadingMachinesReport(true);
 
     try {
-      const request = {
-        from: filterDateRange?.[0]
-          ? filterDateRange[0].format("YYYY-MM-DD")
-          : null,
-        to: filterDateRange?.[1]
-          ? filterDateRange[1].format("YYYY-MM-DD")
-          : null,
-      };
+      const data = await searchMachinesReportAsync({
+        from: from.format("YYYY-MM-DD"),
+        to: to.format("YYYY-MM-DD"),
+      });
 
-      const data = await searchMachinesReportAsync(request);
-
-      console.log(data.machineKPIs);
-
-      if (data.machineKPIs) setMachinesKPI(data.machineKPIs);
+      setMachinesKPI(data.machineKPIs ?? []);
+      setPagination((current) => ({ ...current, current: 1 }));
     } catch (error) {
-      console.log(error);
-      toast.error("Không thể tải machines report.");
+      console.error("Failed to load machine KPI report:", error);
+      toast.error("Không thể tải báo cáo KPI máy.");
     } finally {
       setLoadingMachinesReport(false);
     }
   }, [filterDateRange]);
 
   useEffect(() => {
-    const run = async () => {
-      await Promise.all([fetchMachinesReport()]);
+    const run = () => {
+      void fetchMachinesReport();
     };
 
     void run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchMachinesReport]);
 
   const machineSummary = useMemo(() => {
-    if (!filterDateRange)
-      return {
-        totalAvailableTime: 0,
-        totalWorkingTime: 0,
-        totalMaintenanceTime: 0,
-        machineUtilization: 0,
-      };
-
-    if (!filterDateRange[0] || !filterDateRange[1]) {
-      return {
-        totalAvailableTime: 0,
-        totalWorkingTime: 0,
-        totalMaintenanceTime: 0,
-        machineUtilization: 0,
-      };
-    }
-
-    const totalDays = filterDateRange[1].diff(filterDateRange[0], "day") + 1;
-
-    const machineCount = machinesKPI?.length ?? 0;
-
-    const totalAvailableTime = totalDays * 8 * machineCount;
-
-    const totalWorkingTime =
-      machinesKPI?.reduce(
-        (sum, machine) => sum + (machine.workingTime ?? 0),
-        0,
-      ) ?? 0;
-
-    const totalMaintenanceTime =
-      machinesKPI?.reduce(
-        (sum, machine) => sum + (machine.maintenanceTime ?? 0),
-        0,
-      ) ?? 0;
-
+    const totalAvailableTime =
+      totalDays * WORKING_HOURS_PER_DAY * machinesKPI.length;
+    const totalWorkingTime = machinesKPI.reduce(
+      (sum, machine) => sum + (machine.workingTime ?? 0),
+      0,
+    );
+    const totalMaintenanceTime = machinesKPI.reduce(
+      (sum, machine) => sum + (machine.maintenanceTime ?? 0),
+      0,
+    );
     const machineUtilization =
       totalAvailableTime > 0
         ? (totalWorkingTime / totalAvailableTime) * 100
@@ -161,7 +196,37 @@ export function KpiReportsPage() {
       totalMaintenanceTime,
       machineUtilization,
     };
-  }, [filterDateRange, machinesKPI]);
+  }, [machinesKPI, totalDays]);
+
+  const summaryCards = useMemo<SummaryCard[]>(
+    () => [
+      {
+        title: "Hiệu suất sử dụng",
+        value: `${machineSummary.machineUtilization.toFixed(1)}%`,
+        color: "#22c55e",
+        icon: <DashboardOutlined />,
+      },
+      {
+        title: "Tổng thời gian khả dụng",
+        value: `${machineSummary.totalAvailableTime.toFixed(1)} giờ`,
+        color: "#3b82f6",
+        icon: <ClockCircleOutlined />,
+      },
+      {
+        title: "Tổng thời gian hoạt động",
+        value: `${machineSummary.totalWorkingTime.toFixed(1)} giờ`,
+        color: "#6366f1",
+        icon: <ThunderboltOutlined />,
+      },
+      {
+        title: "Tổng thời gian bảo trì",
+        value: `${machineSummary.totalMaintenanceTime.toFixed(1)} giờ`,
+        color: "#ef4444",
+        icon: <ToolOutlined />,
+      },
+    ],
+    [machineSummary],
+  );
 
   const machineKPIColumns = useMemo<ColumnsType<MachineKPI>>(
     () => [
@@ -176,12 +241,9 @@ export function KpiReportsPage() {
             <Avatar
               size={28}
               icon={<AppstoreOutlined />}
-              style={{
-                background: "#e8f1ff",
-                color: "#1677ff",
-              }}
+              style={{ background: "#e8f1ff", color: "#1677ff" }}
             />
-            <Typography.Text strong>
+            <Typography.Text strong ellipsis={{ tooltip: record.name }}>
               {record.name || record.code || "-"}
             </Typography.Text>
           </Space>
@@ -192,20 +254,21 @@ export function KpiReportsPage() {
         dataIndex: "code",
         key: "code",
         width: 140,
+        render: (value?: string) => value || "-",
       },
       {
         title: "Loại máy",
         dataIndex: "type",
         key: "type",
         width: 150,
-        render: (value: string) => value || "-",
+        render: (value?: string) => value || "-",
       },
       {
         title: "Hãng",
         dataIndex: "brand",
         key: "brand",
         width: 150,
-        render: (value: string) => value || "-",
+        render: (value?: string) => value || "-",
       },
       {
         title: "Thời gian hoạt động",
@@ -213,8 +276,8 @@ export function KpiReportsPage() {
         key: "workingTime",
         width: 180,
         align: "right",
-        render: (value: number | null) =>
-          value != null ? `${value.toFixed(2)} giờ` : "-",
+        sorter: (a, b) => (a.workingTime ?? 0) - (b.workingTime ?? 0),
+        render: (value?: number | null) => formatHours(value),
       },
       {
         title: "Thời gian bảo trì",
@@ -222,238 +285,264 @@ export function KpiReportsPage() {
         key: "maintenanceTime",
         width: 180,
         align: "right",
-        render: (value: number | null) =>
-          value != null ? `${value.toFixed(2)} giờ` : "-",
+        sorter: (a, b) => (a.maintenanceTime ?? 0) - (b.maintenanceTime ?? 0),
+        render: (value?: number | null) => formatHours(value),
       },
       {
         title: "Trạng thái",
         dataIndex: "machineStatus",
         key: "machineStatus",
-        width: 150,
+        width: 160,
         align: "center",
-        render: (status: MachineStatus) => {
-          switch (status) {
-            case MachineStatus.Running:
-              return <Tag color="success">Đang hoạt động</Tag>;
+        filters: [
+          { text: "Đang hoạt động", value: MachineStatus.Running },
+          { text: "Bảo trì", value: MachineStatus.Maintenance },
+          { text: "Dừng", value: MachineStatus.Stopped },
+        ],
+        onFilter: (value, record) => record.machineStatus === value,
+        render: (status?: MachineStatus) => {
+          const statusConfig: Partial<
+            Record<MachineStatus, { color: string; label: string }>
+          > = {
+            [MachineStatus.Running]: {
+              color: "success",
+              label: "Đang hoạt động",
+            },
+            [MachineStatus.Maintenance]: {
+              color: "warning",
+              label: "Bảo trì",
+            },
+            [MachineStatus.Stopped]: { color: "error", label: "Dừng" },
+          };
+          const config = status == null ? undefined : statusConfig[status];
 
-            case MachineStatus.Maintenance:
-              return <Tag color="warning">Bảo trì</Tag>;
-
-            case MachineStatus.Stopped:
-              return <Tag color="error">Dừng</Tag>;
-
-            default:
-              return <Tag>-</Tag>;
-          }
+          return config ? (
+            <Tag color={config.color}>{config.label}</Tag>
+          ) : (
+            <Tag>Không xác định</Tag>
+          );
         },
       },
     ],
     [],
   );
+
+  const handleExportCsv = useCallback(() => {
+    if (machinesKPI.length === 0) {
+      toast.info("Không có dữ liệu để xuất báo cáo.");
+      return;
+    }
+
+    const headers = [
+      "Tên máy",
+      "Mã máy",
+      "Loại máy",
+      "Hãng",
+      "Thời gian hoạt động (giờ)",
+      "Thời gian bảo trì (giờ)",
+      "Trạng thái",
+    ];
+    const rows = machinesKPI.map((machine) => [
+      machine.name ?? "",
+      machine.code ?? "",
+      machine.type ?? "",
+      machine.brand ?? "",
+      machine.workingTime ?? 0,
+      machine.maintenanceTime ?? 0,
+      getMachineStatusLabel(machine.machineStatus),
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map(escapeCsvCell).join(","))
+      .join("\n");
+    const blob = new Blob([`\uFEFF${csvContent}`], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const [from, to] = filterDateRange ?? [];
+
+    anchor.href = url;
+    anchor.download = `machine-kpi-${from?.format("YYYYMMDD") ?? "from"}-${to?.format("YYYYMMDD") ?? "to"}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }, [filterDateRange, machinesKPI]);
+
   return (
-    <div>
-      <div
-        className="container-fluid py-3 d-flex flex-column"
-        style={{ height: "calc(100vh)" }}
-      >
-        <div className="grow overflow-auto pe-2">
-          <Card className="shadow-sm border-0">
-            {/* Báo cáo máy */}
-            <div>
-              {/* Header */}
-              <div className="d-flex flex-wrap justify-between gap-3 mb-3">
-                <div className="d-flex flex-row gap-2">
-                  <RangePicker
-                    value={filterDateRange}
-                    onChange={setFilterDateRange}
-                    style={{ width: "100%" }}
-                    format="DD/MM/YYYY"
-                    placeholder={["Từ ngày", "Đến ngày"]}
+    <div
+      className="container-fluid py-3 d-flex flex-column"
+      style={{ height: "calc(100vh)" }}
+    >
+      <div className="grow overflow-auto pe-2">
+        <Card className="border-0 shadow-sm">
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <Space wrap>
+              <RangePicker
+                value={filterDateRange}
+                onChange={(dates) => setFilterDateRange(dates)}
+                format="DD/MM/YYYY"
+                placeholder={["Từ ngày", "Đến ngày"]}
+                allowClear={false}
+              />
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                loading={loadingMachinesReport}
+                onClick={() => void fetchMachinesReport()}
+              >
+                Tải lại
+              </Button>
+            </Space>
+
+            <Button
+              icon={<DownloadOutlined />}
+              disabled={machinesKPI.length === 0}
+              onClick={handleExportCsv}
+            >
+              Xuất CSV
+            </Button>
+          </div>
+
+          <Row gutter={[12, 12]} align="stretch">
+            <Col xs={24} lg={14}>
+              <Card
+                className="h-100 rounded-4"
+                title={
+                  <span className="fw-semibold">
+                    Hiệu suất sử dụng từng máy
+                  </span>
+                }
+                style={CARD_STYLE}
+              >
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={320}>
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      {/* <XAxis
+                        dataKey="name"
+                        interval={0}
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value: string) =>
+                          value.length > 14 ? `${value.slice(0, 14)}…` : value
+                        }
+                      /> */}
+                      <YAxis domain={[0, 100]} unit="%" />
+                      <Tooltip
+                        formatter={(value) => {
+                          const rawValue = Array.isArray(value)
+                            ? value[0]
+                            : value;
+                          const numericValue = Number(rawValue ?? 0);
+
+                          return [
+                            `${Number.isFinite(numericValue) ? numericValue.toFixed(1) : "0.0"}%`,
+                            "Hiệu suất",
+                          ];
+                        }}
+                      />
+                      <Bar
+                        dataKey="utilization"
+                        shape={(props: RectangleProps & { index?: number }) => {
+                          const index = props.index ?? 0;
+
+                          return (
+                            <Rectangle
+                              {...props}
+                              fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              radius={[8, 8, 0, 0]}
+                            />
+                          );
+                        }}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="Không có dữ liệu trong khoảng thời gian đã chọn"
                   />
+                )}
+              </Card>
+            </Col>
 
-                  <Button
-                    onClick={async () => {
-                      await fetchMachinesReport();
-                    }}
-                    type="primary"
-                  >
-                    Tải lại
-                  </Button>
-                </div>
-
-                <Button>Export report</Button>
-              </div>
-
-              {/* Biểu đồ & KPI*/}
-              <div className="row g-2">
-                {/* Chart */}
-                <div className="col-lg-7">
-                  <Card
-                    className="h-100 rounded-4"
-                    title={
-                      <span className="fw-semibold">
-                        Hiệu xuất sử dụng từng máy
-                      </span>
-                    }
-                    style={{
-                      border: "1px solid #e5e7eb",
-                      boxShadow:
-                        "0 10px 30px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)",
-                      transition: "all .3s ease",
-                      background: "#fff",
-                    }}
-                  >
-                    <div className="card-body">
-                      <ResponsiveContainer width="100%" height={320}>
-                        <BarChart
-                          data={chartData}
-                          margin={{
-                            top: 10,
-                            right: 20,
-                            left: 0,
-                            bottom: 10,
+            <Col xs={24} lg={10}>
+              <Card
+                className="h-100 rounded-4"
+                title={<span className="fw-semibold">Tổng quan</span>}
+                style={CARD_STYLE}
+              >
+                <Row gutter={[12, 12]}>
+                  {summaryCards.map((item) => (
+                    <Col xs={24} sm={12} key={item.title}>
+                      <div
+                        className="h-100 rounded-4 p-3"
+                        style={{
+                          border: "1px solid #edf2f7",
+                          borderLeft: `5px solid ${item.color}`,
+                          background: "#fff",
+                        }}
+                      >
+                        <div
+                          className="mb-3 d-flex align-items-center justify-content-center rounded-circle"
+                          style={{
+                            width: 42,
+                            height: 42,
+                            background: `${item.color}15`,
+                            color: item.color,
+                            fontSize: 18,
                           }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" />
-
-                          <XAxis dataKey="name" />
-
-                          <YAxis domain={[0, 100]} unit="%" />
-
-                          <Tooltip
-                            formatter={(value) => [`${value}%`, "Hiệu suất"]}
-                          />
-
-                          <Bar dataKey="utilization" radius={[8, 8, 0, 0]}>
-                            {chartData.map((_, index) => (
-                              <Cell
-                                key={index}
-                                fill={COLORS[index % COLORS.length]}
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* KPI */}
-                <div className="col-lg-5">
-                  <Card
-                    className="h-100 rounded-4"
-                    title={<span className="fw-semibold">Tổng quan</span>}
-                    style={{
-                      border: "1px solid #e5e7eb",
-                      boxShadow:
-                        "0 10px 30px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04)",
-                      transition: "all .3s ease",
-                      background: "#fff",
-                    }}
-                  >
-                    <Row gutter={[12, 12]}>
-                      {[
-                        {
-                          title: "Hiệu suất",
-                          value: `${machineSummary.machineUtilization.toFixed(1)}%`,
-                          color: "#22c55e",
-                          icon: <DashboardOutlined />,
-                        },
-                        {
-                          title: "Thời gian hoạt động",
-                          value: `${machineSummary.totalAvailableTime.toFixed(1)}h`,
-                          color: "#3b82f6",
-                          icon: <ClockCircleOutlined />,
-                        },
-                        {
-                          title: "Máy chạy",
-                          value: `${machineSummary.totalWorkingTime.toFixed(1)}h`,
-                          color: "#6366F1",
-                          icon: <ThunderboltOutlined />,
-                        },
-                        {
-                          title: "Bảo trì",
-                          value: `${machineSummary.totalMaintenanceTime.toFixed(1)}h`,
-                          color: "#ef4444",
-                          icon: <ToolOutlined />,
-                        },
-                      ].map((item) => (
-                        <Col span={12} key={item.title}>
-                          <div
-                            className="rounded-4 p-3 h-100"
-                            style={{
-                              border: "1px solid #edf2f7",
-                              borderLeft: `5px solid ${item.color}`,
-                              background: "#fff",
-                            }}
-                          >
-                            <div className="d-flex align-items-center mb-3">
-                              <div
-                                className="rounded-circle d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: 42,
-                                  height: 42,
-                                  background: `${item.color}15`,
-                                  color: item.color,
-                                  fontSize: 18,
-                                }}
-                              >
-                                {item.icon}
-                              </div>
-                            </div>
-
-                            <div className="text-secondary small">
-                              {item.title}
-                            </div>
-
-                            <div
-                              className="fw-bold mt-1"
-                              style={{
-                                fontSize: 28,
-                                color: item.color,
-                              }}
-                            >
-                              {item.value}
-                            </div>
-                          </div>
-                        </Col>
-                      ))}
-                    </Row>
-                  </Card>
-                </div>
-              </div>
-
-              <Card
-                className="dashboard-card mt-3"
-                title={<span className="fw-semibold">Danh sách KPI máy</span>}
-              >
-                <Table<MachineKPI>
-                  rowKey="id"
-                  columns={machineKPIColumns}
-                  dataSource={machinesKPI}
-                  loading={loadingMachinesReport}
-                  size="middle"
-                  className="dashboard-table"
-                  pagination={{
-                    current: pagination.current,
-                    pageSize: pagination.pageSize,
-                    total: machinesKPI.length,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} / ${total} máy`,
-                    onChange: (page, pageSize) => {
-                      setPagination({
-                        current: page,
-                        pageSize,
-                      });
-                    },
-                  }}
-                />
+                          {item.icon}
+                        </div>
+                        <Typography.Text type="secondary">
+                          {item.title}
+                        </Typography.Text>
+                        <div
+                          className="mt-1 fw-bold"
+                          style={{ fontSize: 24, color: item.color }}
+                        >
+                          {item.value}
+                        </div>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
               </Card>
-            </div>
+            </Col>
+          </Row>
+
+          <Card
+            className="dashboard-card mt-3"
+            title={<span className="fw-semibold">Danh sách KPI máy</span>}
+          >
+            <Table<MachineKPI>
+              rowKey={(record) => record.code ?? record.name}
+              columns={machineKPIColumns}
+              dataSource={machinesKPI}
+              loading={loadingMachinesReport}
+              size="middle"
+              className="dashboard-table"
+              scroll={{ x: 1150 }}
+              locale={{ emptyText: "Không có dữ liệu KPI máy" }}
+              pagination={{
+                current: pagination.current,
+                pageSize: pagination.pageSize,
+                total: machinesKPI.length,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                pageSizeOptions: [5, 10, 20, 50],
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} / ${total} máy`,
+                onChange: (current, pageSize) =>
+                  setPagination({ current, pageSize }),
+              }}
+            />
           </Card>
-        </div>
+        </Card>
       </div>
     </div>
   );
