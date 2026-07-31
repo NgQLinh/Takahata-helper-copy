@@ -50,7 +50,7 @@ type ProcessingFormValues = {
   processedQuantity: number;
   passedQuantity: number;
   note?: string;
-  performedBy?: string;
+  performedBy: string;
 };
 
 export default function WorkerPage() {
@@ -70,7 +70,9 @@ export default function WorkerPage() {
 
   const [processingForm] = Form.useForm<ProcessingFormValues>();
 
-  const [isRunning, setIsRunning] = useState(false);
+  const [processingAction, setProcessingAction] = useState<
+    "start" | "pause" | "complete" | null
+  >(null);
 
   // New function
   const fetchMachines = useCallback(async () => {
@@ -84,43 +86,51 @@ export default function WorkerPage() {
   }, []);
 
   const fetchManufacturingProcess = useCallback(async () => {
-    if (selectedMachine)
-      try {
-        setLoading(true);
+    if (!selectedMachine) {
+      setProcesses([]);
+      setTotal(0);
+      return;
+    }
 
-        const request = {
-          machineId: selectedMachine.id,
-        };
+    try {
+      setLoading(true);
 
-        const result = await getPartProcessByMachineAsync(request);
-        setProcesses(result.data);
-        setPage(result.page ?? page);
-        setPageSize(result.pageSize ?? pageSize);
-        setTotal(result.totalItems ?? result.data.length);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách chi tiết cần gia công:", error);
-        toast.error("Không thể tải danh sách chi tiết cần gia công.");
-      } finally {
-        setLoading(false);
-      }
+      const request = {
+        machineId: selectedMachine.id,
+      };
+
+      const result = await getPartProcessByMachineAsync(request);
+      const nextProcesses = result.data ?? [];
+
+      setProcesses(nextProcesses);
+      setPage(result.page ?? page);
+      setPageSize(result.pageSize ?? pageSize);
+      setTotal(result.totalItems ?? nextProcesses.length);
+
+      // Đồng bộ selectedProcess với dữ liệu mới từ server sau start/pause/complete.
+      setSelectedProcess((currentProcess) => {
+        if (!currentProcess) return null;
+
+        return (
+          nextProcesses.find((process) => process.id === currentProcess.id) ??
+          null
+        );
+      });
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách chi tiết cần gia công:", error);
+      toast.error("Không thể tải danh sách chi tiết cần gia công.");
+    } finally {
+      setLoading(false);
+    }
   }, [page, pageSize, selectedMachine]);
 
   useEffect(() => {
-    const run = async () => {
-      await Promise.all([fetchMachines()]);
-    };
-
-    if (!open) return;
-
-    void run();
+    void fetchMachines();
   }, [fetchMachines]);
 
   useEffect(() => {
-    const run = async () => {
-      await Promise.all([fetchManufacturingProcess()]);
-    };
-    if (selectedMachine) void run();
-  }, [fetchManufacturingProcess, selectedMachine]);
+    void fetchManufacturingProcess();
+  }, [fetchManufacturingProcess]);
 
   const filteredMachines = useMemo(() => {
     const normalizedKeyword = machineKeyword.trim().toLowerCase();
@@ -136,85 +146,154 @@ export default function WorkerPage() {
     });
   }, [machineKeyword, machines]);
 
+  const handleSelectMachine = useCallback(
+    (machine: Machine) => {
+      if (machine.id === selectedMachine?.id) return;
+
+      // Khi đổi máy, không giữ process/form của máy trước đó.
+      setSelectedMachine(machine);
+      setSelectedProcess(null);
+      setProcesses([]);
+      setPage(1);
+      setTotal(0);
+      processingForm.resetFields();
+    },
+    [processingForm, selectedMachine?.id],
+  );
+
   function handleSelectItem(record: ManufacturingProcess): void {
     setSelectedProcess(record);
     processingForm.setFieldValue("processedQuantity", record.quantity);
   }
 
+  const selectedProcessStatus = selectedProcess?.status;
+  const isActionLoading = processingAction !== null;
+
+  // Ma trận trạng thái:
+  // Planned/Paused -> được bắt đầu hoặc tiếp tục.
+  // InProgress -> được tạm dừng hoặc hoàn thành.
+  const canStartProcessing =
+    selectedProcessStatus === ProcessStatus.Planned ||
+    selectedProcessStatus === ProcessStatus.Paused;
+  const canPauseProcessing = selectedProcessStatus === ProcessStatus.InProgress;
+  const canCompleteProcessing =
+    selectedProcessStatus === ProcessStatus.InProgress;
+
+  const startButtonText = (() => {
+    switch (selectedProcessStatus) {
+      case ProcessStatus.Paused:
+        return "Tiếp tục gia công";
+      case ProcessStatus.InProgress:
+        return "Đang gia công";
+      case ProcessStatus.Completed:
+        return "Đã hoàn thành";
+      case ProcessStatus.PendingApproval:
+        return "Chờ phê duyệt";
+      case ProcessStatus.Cancelled:
+        return "Đã hủy";
+      default:
+        return "Bắt đầu gia công";
+    }
+  })();
+
   const handleStartProcessing = async () => {
-    if (!selectedProcess) return;
+    if (
+      !selectedMachine ||
+      !selectedProcess ||
+      !canStartProcessing ||
+      isActionLoading
+    ) {
+      return;
+    }
+
+    setProcessingAction("start");
 
     try {
       const request = {
-        machineId: selectedMachine?.id,
+        machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
       };
 
-      const data = await startAsync(request);
+      await startAsync(request);
       await fetchManufacturingProcess();
-      console.log(data);
     } catch (error) {
       console.error("Không thể bắt đầu gia công:", error);
       toast.error("Không thể bắt đầu gia công.");
+    } finally {
+      setProcessingAction(null);
     }
   };
 
   const handlePauseProcessing = async () => {
-    if (!selectedProcess) return;
-    setIsRunning(false);
+    if (
+      !selectedMachine ||
+      !selectedProcess ||
+      !canPauseProcessing ||
+      isActionLoading
+    ) {
+      return;
+    }
+
+    setProcessingAction("pause");
+
     try {
       const request = {
-        machineId: selectedMachine?.id,
+        machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
       };
 
-      const data = await pauseAsync(request);
+      await pauseAsync(request);
       await fetchManufacturingProcess();
-      console.log(data);
     } catch (error) {
-      console.log(error);
+      console.error("Không thể tạm dừng gia công:", error);
+      toast.error("Không thể tạm dừng gia công.");
     } finally {
-      setIsRunning(true);
+      setProcessingAction(null);
     }
   };
 
   const handleCompleteProcessing = async () => {
-    if (!selectedProcess) return;
+    if (
+      !selectedMachine ||
+      !selectedProcess ||
+      !canCompleteProcessing ||
+      isActionLoading
+    ) {
+      return;
+    }
+
+    let values: ProcessingFormValues;
 
     try {
-      const { setupTime, waitingTime, processedQuantity, performedBy } =
-        await processingForm.validateFields();
+      values = await processingForm.validateFields();
+    } catch {
+      // Form không hợp lệ: Ant Design tự hiển thị message tại field.
+      return;
+    }
 
+    setProcessingAction("complete");
+
+    try {
       const request = {
-        machineId: selectedMachine?.id,
+        machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
-        setupTime,
-        waitingTime,
-        processedQuantity,
-        performedBy,
+        setupTime: values.setupTime,
+        waitingTime: values.waitingTime,
+        processedQuantity: values.processedQuantity,
+        performedBy: values.performedBy,
       };
 
-      const data = await completeAsync(request);
-
+      await completeAsync(request);
       await fetchManufacturingProcess();
-
-      console.log(data);
+      processingForm.resetFields();
     } catch (error) {
-      // Lỗi validate của Ant Design Form
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "errorFields" in error
-      ) {
-        return;
-      }
-
-      // Các lỗi khác như API, network...
       console.error("Không thể hoàn thành gia công:", error);
       toast.error("Không thể hoàn thành gia công.");
+    } finally {
+      setProcessingAction(null);
     }
   };
 
@@ -349,7 +428,7 @@ export default function WorkerPage() {
                       className={`btn w-100 mb-2 border rounded p-3 text-start d-flex align-items-center gap-3 ${
                         isSelected ? "btn-primary" : "btn-light"
                       }`}
-                      onClick={() => setSelectedMachine(machine)}
+                      onClick={() => handleSelectMachine(machine)}
                     >
                       <Radio checked={isSelected} />
 
@@ -529,14 +608,11 @@ export default function WorkerPage() {
                       size="large"
                       block
                       icon={<PlayCircleOutlined />}
-                      disabled={
-                        !selectedProcess ||
-                        isRunning ||
-                        selectedProcess.status === ProcessStatus.PendingApproval
-                      }
+                      loading={processingAction === "start"}
+                      disabled={!canStartProcessing || isActionLoading}
                       onClick={handleStartProcessing}
                     >
-                      {isRunning ? "Đang gia công" : "Bắt đầu gia công"}
+                      {startButtonText}
                     </Button>
                   </div>
                 </Col>
@@ -634,7 +710,8 @@ export default function WorkerPage() {
                     <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top shrink-0">
                       <Button
                         icon={<PauseOutlined />}
-                        disabled={!isRunning}
+                        loading={processingAction === "pause"}
+                        disabled={!canPauseProcessing || isActionLoading}
                         onClick={handlePauseProcessing}
                       >
                         Tạm dừng
@@ -644,11 +721,8 @@ export default function WorkerPage() {
                         type="primary"
                         className="complete-button"
                         icon={<CheckCircleOutlined />}
-                        disabled={
-                          !selectedProcess ||
-                          selectedProcess.status ===
-                            ProcessStatus.PendingApproval
-                        }
+                        loading={processingAction === "complete"}
+                        disabled={!canCompleteProcessing || isActionLoading}
                         onClick={handleCompleteProcessing}
                       >
                         Hoàn thành
