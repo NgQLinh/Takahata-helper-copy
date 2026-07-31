@@ -66,7 +66,6 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 _logger.LogError($"Lỗi không hoàn thành được process: {ex.Message}");
                 return Errors.Part.CompletePartProcessFalse;
             }
-
         }
     }
 }
