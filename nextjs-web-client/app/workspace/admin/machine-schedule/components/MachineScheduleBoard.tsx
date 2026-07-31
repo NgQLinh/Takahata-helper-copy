@@ -3,16 +3,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Card, DatePicker, Input, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { SearchOutlined } from "@ant-design/icons";
+import { EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 
 import { searchMachineSchedulesAsync } from "@/app/services/machine/MachineService";
-import { MachineProcessType, MachineSchedule } from "@/app/types";
+import {
+  MachineProcess,
+  MachineProcessType,
+  MachineSchedule,
+} from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 import "./MachineScheduleBoard.css";
+import CreatePart from "../../index/components/CreatePart";
+import UpdatePart from "../../index/components/UpdatePart";
+import CreateMachineMaintenanceProcess from "../../machines/components/CreateMachineMaintenanceProcess";
+import UpdateMachineMaintenanceProcess from "../../machines/components/UpdateMachineMaintenanceProcess";
 
 const { RangePicker } = DatePicker;
 
@@ -72,6 +80,27 @@ const getStatusClassName = (status: ProcessStatus) => {
 };
 
 export function MachineScheduleBoard() {
+  const [isCreatePartOpen, setIsCreatePartOpen] = useState(false);
+  const [isUpdatePartOpen, setIsUpdatePartOpen] = useState(false);
+  const [selectedPartId, setSelectedPartId] = useState<number | null>(null);
+
+  const [isCreateMaintenanceOpen, setIsCreateMaintenanceOpen] = useState(false);
+  const [isUpdateMaintenanceOpen, setIsUpdateMaintenanceOpen] = useState(false);
+  const [selectedMaintenanceId, setSelectedMaintenanceId] = useState<
+    number | null
+  >(null);
+
+  const handleEditProcess = (process: MachineProcess) => {
+    if (process.type === MachineProcessType.Maintenance) {
+      setSelectedMaintenanceId(process.id);
+      setIsUpdateMaintenanceOpen(true);
+      return;
+    }
+
+    setSelectedPartId(process.partId);
+    setIsUpdatePartOpen(true);
+  };
+
   const [loading, setLoading] = useState(false);
   const [machines, setMachines] = useState<MachineSchedule[]>([]);
 
@@ -261,7 +290,7 @@ export function MachineScheduleBoard() {
                 >
                   {/* Header */}
                   <div className="d-flex align-items-start justify-content-between gap-2">
-                    <div className="grow overflow-hidden">
+                    <div className="flex-grow-1 overflow-hidden">
                       <div
                         className={`fw-semibold text-truncate ${
                           isMaintenance ? "text-danger" : ""
@@ -274,12 +303,30 @@ export function MachineScheduleBoard() {
                       </div>
                     </div>
 
-                    <Tag
-                      color={isMaintenance ? "red" : undefined}
-                      className="m-0 shrink-0"
-                    >
-                      {getStatusText(process.status)}
-                    </Tag>
+                    <div className="d-flex align-items-center gap-1 shrink-0">
+                      <Tag
+                        color={isMaintenance ? "red" : undefined}
+                        className="m-0"
+                      >
+                        {getStatusText(process.status)}
+                      </Tag>
+
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<EditOutlined />}
+                        aria-label={
+                          isMaintenance
+                            ? "Sửa thông tin bảo trì"
+                            : "Sửa thông tin sản xuất"
+                        }
+                        title="Sửa"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleEditProcess(process);
+                        }}
+                      />
+                    </div>
                   </div>
 
                   {/* Nội dung */}
@@ -294,7 +341,7 @@ export function MachineScheduleBoard() {
                   </div>
 
                   {/* Thông tin bổ sung */}
-                  <div className="d-flex flex-wrap align-items-center gap-x-3 gap-y-1 mt-2">
+                  <div className="d-flex flex-wrap align-items-center column-gap-3 row-gap-1 mt-2">
                     {isMaintenance ? (
                       <>
                         {process.startTime && (
@@ -370,7 +417,12 @@ export function MachineScheduleBoard() {
             />
           </div>
 
-          <Button onClick={handleResetFilters}>Tuần hiện tại</Button>
+          <Button
+            className="header-button header-button-reset"
+            onClick={handleResetFilters}
+          >
+            Tuần hiện tại
+          </Button>
 
           <Button
             type="primary"
@@ -380,8 +432,25 @@ export function MachineScheduleBoard() {
             Tìm kiếm
           </Button>
         </div>
-      </div>
 
+        <div className="d-flex align-items-end mb-3 gap-3">
+          <Button
+            className="header-button header-button-maintenance"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreateMaintenanceOpen(true)}
+          >
+            Thêm lịch bảo dưỡng
+          </Button>
+
+          <Button
+            className="header-button header-button-part"
+            icon={<PlusOutlined />}
+            onClick={() => setIsCreatePartOpen(true)}
+          >
+            Thêm part
+          </Button>
+        </div>
+      </div>
       <div style={{ flex: 1, minHeight: 0 }}>
         <Table<MachineSchedule>
           rowKey="id"
@@ -416,6 +485,43 @@ export function MachineScheduleBoard() {
           bordered
         />
       </div>
+
+      <CreatePart
+        open={isCreatePartOpen}
+        status={ProcessStatus.Planned}
+        onClose={() => {
+          setIsCreatePartOpen(false);
+          void fetchMachineSchedule();
+        }}
+      />
+
+      <UpdatePart
+        id={selectedPartId}
+        open={isUpdatePartOpen}
+        onClose={() => {
+          setIsUpdatePartOpen(false);
+          setSelectedPartId(null);
+          void fetchMachineSchedule();
+        }}
+      />
+
+      <CreateMachineMaintenanceProcess
+        open={isCreateMaintenanceOpen}
+        onClose={() => {
+          setIsCreateMaintenanceOpen(false);
+          void fetchMachineSchedule();
+        }}
+      />
+
+      <UpdateMachineMaintenanceProcess
+        id={selectedMaintenanceId}
+        open={isUpdateMaintenanceOpen}
+        onClose={() => {
+          setIsUpdateMaintenanceOpen(false);
+          setSelectedMaintenanceId(null);
+          void fetchMachineSchedule();
+        }}
+      />
     </Card>
   );
 }
