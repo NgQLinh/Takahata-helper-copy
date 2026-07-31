@@ -533,7 +533,6 @@ export default function PartProcessingScheduleTab({ active }: Props) {
 
           <div className="d-flex align-items-end mb-3">
             <Button
-              type="primary"
               icon={<PlusOutlined />}
               onClick={() => setIsCreateOpen(true)}
             >

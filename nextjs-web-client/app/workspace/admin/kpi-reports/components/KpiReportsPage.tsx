@@ -98,6 +98,25 @@ type SummaryCard = {
 const formatHours = (value?: number | null, fractionDigits = 2) =>
   value == null ? "-" : `${value.toFixed(fractionDigits)} giờ`;
 
+import type { RangePickerProps } from "antd/es/date-picker";
+
+const disabledSixMonthRange: RangePickerProps["disabledDate"] = (
+  currentDate,
+  { from },
+) => {
+  // Chưa chọn ngày đầu tiên thì không giới hạn
+  if (!from) {
+    return false;
+  }
+
+  const minDate = from.subtract(6, "month");
+  const maxDate = from.add(6, "month");
+
+  return (
+    currentDate.isBefore(minDate, "day") || currentDate.isAfter(maxDate, "day")
+  );
+};
+
 export function KpiReportsPage() {
   const initialLoadRef = useRef(false);
 
@@ -740,6 +759,7 @@ export function KpiReportsPage() {
                 <Space wrap size={8}>
                   <RangePicker
                     value={machineDateRange}
+                    disabledDate={disabledSixMonthRange}
                     onChange={(dates) => setMachineDateRange(dates)}
                     format="DD/MM/YYYY"
                     placeholder={["Từ ngày", "Đến ngày"]}
@@ -813,6 +833,7 @@ export function KpiReportsPage() {
                 <Space wrap size={8}>
                   <RangePicker
                     value={processDateRange}
+                    disabledDate={disabledSixMonthRange}
                     onChange={(dates) => setProcessDateRange(dates)}
                     format="DD/MM/YYYY"
                     placeholder={["Từ ngày", "Đến ngày"]}

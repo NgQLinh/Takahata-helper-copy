@@ -391,7 +391,6 @@ export default function MachineListTab({ active }: Props) {
           </div>
 
           <Button
-            type="primary"
             icon={<PlusOutlined />}
             onClick={() => setIsCreateMachineOpen(true)}
           >

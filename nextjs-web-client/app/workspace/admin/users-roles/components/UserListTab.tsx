@@ -245,7 +245,6 @@ export default function UserListTab({ active }: Props) {
           />
 
           <Button
-            type="primary"
             size="medium"
             icon={<PlusOutlined />}
             onClick={() => setIsCreateOpen(true)}

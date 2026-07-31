@@ -417,12 +417,7 @@ export function MachineScheduleBoard() {
             />
           </div>
 
-          <Button
-            className="header-button header-button-reset"
-            onClick={handleResetFilters}
-          >
-            Tuần hiện tại
-          </Button>
+          <Button onClick={handleResetFilters}>Tuần hiện tại</Button>
 
           <Button
             type="primary"
@@ -435,7 +430,6 @@ export function MachineScheduleBoard() {
 
         <div className="d-flex align-items-end mb-3 gap-3">
           <Button
-            className="header-button header-button-maintenance"
             icon={<PlusOutlined />}
             onClick={() => setIsCreateMaintenanceOpen(true)}
           >
@@ -443,7 +437,6 @@ export function MachineScheduleBoard() {
           </Button>
 
           <Button
-            className="header-button header-button-part"
             icon={<PlusOutlined />}
             onClick={() => setIsCreatePartOpen(true)}
           >
