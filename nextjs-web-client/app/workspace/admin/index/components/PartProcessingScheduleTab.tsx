@@ -382,11 +382,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             if (!process) return <span className="empty-cell">-</span>;
 
             if (row.rowType === "MC") {
-              return process.status === ProcessStatus.Completed ? (
-                <Tag color="success" className="process-tag">
-                  {process.machine?.code}
-                </Tag>
-              ) : (
+              return (
                 <span className="machine-name">{process.machine?.name}</span>
               );
             }

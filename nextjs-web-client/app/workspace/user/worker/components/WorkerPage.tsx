@@ -196,10 +196,23 @@ export default function WorkerPage() {
         processedQuantity,
         performedBy,
       };
+
       const data = await completeAsync(request);
+
       await fetchManufacturingProcess();
+
       console.log(data);
     } catch (error) {
+      // Lỗi validate của Ant Design Form
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "errorFields" in error
+      ) {
+        return;
+      }
+
+      // Các lỗi khác như API, network...
       console.error("Không thể hoàn thành gia công:", error);
       toast.error("Không thể hoàn thành gia công.");
     }
@@ -590,8 +603,28 @@ export default function WorkerPage() {
                             <Form.Item
                               label="Người thực hiện"
                               name="performedBy"
+                              rules={[
+                                {
+                                  required: true,
+                                  message: "Vui lòng nhập người thực hiện.",
+                                },
+                                {
+                                  whitespace: true,
+                                  message:
+                                    "Người thực hiện không được chỉ chứa khoảng trắng.",
+                                },
+                                {
+                                  max: 100,
+                                  message:
+                                    "Người thực hiện không được vượt quá 100 ký tự.",
+                                },
+                              ]}
                             >
-                              <Input min={0} className="w-100" />
+                              <Input
+                                className="w-100"
+                                placeholder="Nhập tên người thực hiện"
+                                maxLength={100}
+                              />
                             </Form.Item>
                           </Col>
                         </Row>
