@@ -29,6 +29,12 @@ namespace TAKAHATA.Domain.Common.Errors
 
             public static Error UpdatePartProcessFalse =>
                 Error.Failure(code: "UpdatePartProcessFalse.UpdateFalse", description: "Cập nhật part process không thành công.");
+
+            public static Error StartPartProcessFalse =>
+                Error.Failure(code: "PartProcessFalse.StartFalse", description: "Bắt đầu gia công không thành công.");
+
+            public static Error CompletePartProcessFalse =>
+                Error.Failure(code: "PartProcessFalse.CompleteFalse", description: "Bắt đầu gia công không thành công.");
         }
     }
 

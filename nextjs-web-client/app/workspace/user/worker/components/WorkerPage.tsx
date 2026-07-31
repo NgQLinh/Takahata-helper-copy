@@ -50,6 +50,7 @@ type ProcessingFormValues = {
   processedQuantity: number;
   passedQuantity: number;
   note?: string;
+  performedBy?: string;
 };
 
 export default function WorkerPage() {
@@ -137,6 +138,7 @@ export default function WorkerPage() {
 
   function handleSelectItem(record: ManufacturingProcess): void {
     setSelectedProcess(record);
+    processingForm.setFieldValue("processedQuantity", record.quantity);
   }
 
   const handleStartProcessing = async () => {
@@ -153,7 +155,8 @@ export default function WorkerPage() {
       await fetchManufacturingProcess();
       console.log(data);
     } catch (error) {
-      console.log(error);
+      console.error("Không thể bắt đầu gia công:", error);
+      toast.error("Không thể bắt đầu gia công.");
     }
   };
 
@@ -181,7 +184,7 @@ export default function WorkerPage() {
     if (!selectedProcess) return;
 
     try {
-      const { setupTime, waitingTime, processedQuantity } =
+      const { setupTime, waitingTime, processedQuantity, performedBy } =
         await processingForm.validateFields();
 
       const request = {
@@ -191,12 +194,14 @@ export default function WorkerPage() {
         setupTime,
         waitingTime,
         processedQuantity,
+        performedBy,
       };
       const data = await completeAsync(request);
       await fetchManufacturingProcess();
       console.log(data);
     } catch (error) {
-      console.log(error);
+      console.error("Không thể hoàn thành gia công:", error);
+      toast.error("Không thể hoàn thành gia công.");
     }
   };
 
@@ -233,20 +238,6 @@ export default function WorkerPage() {
       dataIndex: "note",
       width: 200,
       align: "center",
-    },
-    {
-      title: "Đã gia công",
-      dataIndex: "processedQuantity",
-      width: 105,
-      align: "center",
-    },
-    {
-      title: "Còn lại",
-      key: "remaining",
-      width: 90,
-      align: "center",
-      render: (_, record) =>
-        Math.max(record.quantity - record.processedQuantity, 0),
     },
     {
       title: "Trạng thái",
@@ -592,6 +583,15 @@ export default function WorkerPage() {
                               ]}
                             >
                               <InputNumber min={0} className="w-100" />
+                            </Form.Item>
+                          </Col>
+
+                          <Col xs={24} sm={12}>
+                            <Form.Item
+                              label="Người thực hiện"
+                              name="performedBy"
+                            >
+                              <Input min={0} className="w-100" />
                             </Form.Item>
                           </Col>
                         </Row>

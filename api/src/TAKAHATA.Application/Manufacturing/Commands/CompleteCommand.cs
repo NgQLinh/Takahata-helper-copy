@@ -10,7 +10,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         long ProcessId,
         double SetupTime,
         double WaitingTime,
-        int ProcessedQuantity) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
+        int ProcessedQuantity,
+        string PerformedBy) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
 }
 
 

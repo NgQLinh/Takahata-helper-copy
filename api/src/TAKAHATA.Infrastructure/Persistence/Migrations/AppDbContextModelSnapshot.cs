@@ -438,6 +438,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("PlantDate")
                         .HasColumnType("date");
 
+                    b.Property<int>("ProcessedQuantity")
+                        .HasColumnType("int");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 
