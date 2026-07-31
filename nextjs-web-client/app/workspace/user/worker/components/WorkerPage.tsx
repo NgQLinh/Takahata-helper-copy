@@ -125,11 +125,18 @@ export default function WorkerPage() {
   }, [page, pageSize, selectedMachine]);
 
   useEffect(() => {
-    void fetchMachines();
+    const run = () => {
+      void fetchMachines();
+    };
+
+    void run();
   }, [fetchMachines]);
 
   useEffect(() => {
-    void fetchManufacturingProcess();
+    const run = () => {
+      void fetchManufacturingProcess();
+    };
+    void run();
   }, [fetchManufacturingProcess]);
 
   const filteredMachines = useMemo(() => {
