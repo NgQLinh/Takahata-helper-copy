@@ -32,4 +32,8 @@
     <ProjectReference Include="..\TAKAHATA.Infrastructure\TAKAHATA.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 </Project>

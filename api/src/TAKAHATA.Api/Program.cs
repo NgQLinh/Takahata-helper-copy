@@ -1,7 +1,9 @@
 using MediatR;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
+using Serilog.Events;
 using TAKAHATA.Api;
 using TAKAHATA.Api.Middleware;
 using TAKAHATA.Application;
@@ -16,18 +18,51 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+
+    // Không ghi các log nội bộ Microsoft ở mức Information
+    .MinimumLevel.Override(
+        "Microsoft",
+        LogEventLevel.Warning)
+
+    // Nhưng vẫn cho phép HTTP Logging ghi request ở mức Information
+    .MinimumLevel.Override(
+        "Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware",
+        LogEventLevel.Information)
+
+    // Không ghi các câu SQL bình thường như Executed DbCommand
+    .MinimumLevel.Override(
+        "Microsoft.EntityFrameworkCore.Database.Command",
+        LogEventLevel.Warning)
+
     .Enrich.FromLogContext()
     .Enrich.WithThreadId()
-    .WriteTo.Console()
-    .WriteTo.File(
-        "Logs/log-.txt",
-        rollingInterval: RollingInterval.Day,
-        fileSizeLimitBytes: 10 * 1024,
-        retainedFileCountLimit: 30,
+
+    .WriteTo.Console(
         outputTemplate:
         "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
         "[CorrelationId:{CorrelationId}] " +
+        "[{SourceContext}] " +
         "{Message:lj}{NewLine}{Exception}")
+
+    .WriteTo.File(
+        "Logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+
+        // 10 MB, không phải 10 KB
+        fileSizeLimitBytes: 10 * 1024 * 1024,
+        rollOnFileSizeLimit: true,
+
+        retainedFileCountLimit: 30,
+        shared: true,
+        flushToDiskInterval: TimeSpan.FromSeconds(1),
+
+        outputTemplate:
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+        "[CorrelationId:{CorrelationId}] " +
+        "[{SourceContext}] " +
+        "{Message:lj}{NewLine}{Exception}")
+
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -76,7 +111,29 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
- 
+builder.Services.AddHttpLogging(options =>
+{
+    // Request method, path, query, headers, body,
+    // response headers, status, body và duration
+    options.LoggingFields = HttpLoggingFields.All;
+
+    // Không nên để không giới hạn
+    options.RequestBodyLogLimit = 64 * 1024;
+    options.ResponseBodyLogLimit = 64 * 1024;
+
+    // Gộp request và response thành một event
+    options.CombineLogs = true;
+
+    // Chỉ những header được thêm vào đây mới hiện giá trị.
+    // Header khác như Authorization sẽ bị redact.
+    options.RequestHeaders.Add("X-Correlation-ID");
+    options.RequestHeaders.Add("User-Agent");
+    options.RequestHeaders.Add("Content-Type");
+
+    options.ResponseHeaders.Add("X-Correlation-ID");
+    options.ResponseHeaders.Add("Content-Type");
+});
+
 
 var app = builder.Build();
 
