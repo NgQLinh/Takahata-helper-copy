@@ -30,6 +30,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         {
             try
             {
+                _logger.LogInformation($"Bắt đầu quá trình gia công");
                 var machineId = request.MachineId;
                 var machine = await _machineRepository.GetByIdAsync(machineId);
 
@@ -52,6 +53,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
 
                 if (partProcess == null)
                     return Errors.Part.UpdatePartProcessFalse;
+
+                _logger.LogInformation($"Bắt đầu gia công thành công");
 
                 return new ManufacturingProcessResponse
                 {
