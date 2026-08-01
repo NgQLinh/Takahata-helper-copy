@@ -17,7 +17,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(
-            List<long>? machineIds,
+            List<int>? machineIds,
             List<ProcessStatus>? statuses,
             DateOnly? from,
             DateOnly? to,

@@ -16,7 +16,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
-        public override async Task<Index?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        public override async Task<Index?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             if (_dbContext.Parts.Any(p => p.IndexId == id))
                 return null;
@@ -35,7 +35,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return index != null;
         }
 
-        public async Task<bool> IsExistedAsync(long id, string indexCode)
+        public async Task<bool> IsExistedAsync(int id, string indexCode)
         {
             var index = await _dbContext.Indexes.FirstOrDefaultAsync(x => x.Id != id && x.Code == indexCode);
             return index != null;

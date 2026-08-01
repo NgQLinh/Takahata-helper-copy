@@ -2,7 +2,7 @@
 {
     public class PartProcess : Process
     {
-        public long PartId { get; set; }
+        public int PartId { get; set; }
         public int Sequence { get; set; }
         public double? WorkingTime { get; set; }
         public double? SetupTime { get; set; }

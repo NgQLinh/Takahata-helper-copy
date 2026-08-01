@@ -19,7 +19,8 @@ namespace TAKAHATA.Application.Services
         private volatile bool _reloadRequired = true;
 
         public MachinePollingManager(
-            IServiceScopeFactory scopeFactory, ILogger<MachinePollingManager> logger)
+            IServiceScopeFactory scopeFactory,
+            ILogger<MachinePollingManager> logger)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
@@ -51,6 +52,10 @@ namespace TAKAHATA.Application.Services
                 scope.ServiceProvider
                     .GetRequiredService<IPartProcessRepository>();
 
+            var pLCService =
+                scope.ServiceProvider
+                .GetRequiredService<IPLCService>();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 if (_reloadRequired)
@@ -65,7 +70,7 @@ namespace TAKAHATA.Application.Services
                     foreach (var machine in _machines)
                     {
                         // Dọc dữ lệu
-                        var log = ReadData(machine);
+                        var log = await ReadData(machine, pLCService);
 
                         // Kiểm tra sự thay đổi
                         if (log.Status != machine.MachineStatus
@@ -130,17 +135,34 @@ namespace TAKAHATA.Application.Services
 
         private static readonly Random _random = new();
 
-        private MachineLog ReadData(Machine machine)
+        private async Task<MachineLog> ReadData(Machine machine, IPLCService pLCService)
         {
-            var log = new MachineLog
-            {
-                MachineId = machine.Id,
-                PartId = _random.Next(1, 100),
-                PartProcessId = _random.Next(1, 10),
-                Status = (MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length)
-            };
+            var result = await pLCService.ReadMachineData(machine);
 
-            return log;
+            if (result.IsSuccess && result.Value != null)
+            {
+                var log = new MachineLog
+                {
+                    MachineId = machine.Id,
+                    PartId = result.Value.PartId,
+                    PartProcessId = result.Value.PartProcessId,
+                    Status = (MachineStatus)result.Value.Status
+                };
+
+                return log;
+            }
+            else
+            {
+                var log = new MachineLog
+                {
+                    MachineId = machine.Id,
+                    PartId = _random.Next(1, 100),
+                    PartProcessId = _random.Next(1, 10),
+                    Status = (MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length)
+                };
+
+                return log;
+            }
         }
     }
 }

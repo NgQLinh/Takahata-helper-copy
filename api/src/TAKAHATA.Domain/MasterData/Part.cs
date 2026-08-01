@@ -4,7 +4,7 @@ namespace TAKAHATA.Domain.MasterData
 {
     public class Part : Entity
     {
-        public long IndexId { get; set; }
+        public int IndexId { get; set; }
         public string Code { get; set; } = string.Empty;
         public int Quantity { get; set; } = 1;
         public int ProcessedQuantity { get; set; }

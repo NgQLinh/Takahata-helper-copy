@@ -4,5 +4,5 @@ using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Application.Manufacturing.Commands
 {
-    public record PauseCommand(long MachineId, long PartId, long ProcessId) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
+    public record PauseCommand(int MachineId, int PartId, int ProcessId) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
 }

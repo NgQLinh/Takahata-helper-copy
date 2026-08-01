@@ -7,7 +7,7 @@ using TAKAHATA.Domain.MasterData;
 namespace TAKAHATA.Application.MaintenanceProcess.Queries
 {
     public record MachineMaintenanceProcessesQuery(
-        List<long>? MachineIds,
+        List<int>? MachineIds,
         List<ProcessStatus>? Statuses,
         DateOnly? From,
         DateOnly? To,

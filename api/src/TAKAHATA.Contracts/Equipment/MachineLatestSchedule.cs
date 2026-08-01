@@ -2,7 +2,7 @@
 {
     public class MachineLatestSchedule
     {
-        public long MachineId { get; set; }
+        public int MachineId { get; set; }
         public DateOnly? LatestPlantDate { get; set; }
     }
 

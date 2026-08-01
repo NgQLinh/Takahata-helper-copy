@@ -5,7 +5,7 @@ namespace TAKAHATA.Application.Common.Interface
     public interface IBaseRepository<TEntity>
         where TEntity : Entity
     {
-        Task<TEntity?> GetByIdAsync(long id);
+        Task<TEntity?> GetByIdAsync(int id);
 
         Task<TEntity> AddAsync(
             TEntity entity,
@@ -16,7 +16,7 @@ namespace TAKAHATA.Application.Common.Interface
             CancellationToken cancellationToken = default);
 
         Task<TEntity?> DeleteByIdAsync(
-            long id,
+            int id,
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyCollection<TEntity>> UpdateManyAsync(

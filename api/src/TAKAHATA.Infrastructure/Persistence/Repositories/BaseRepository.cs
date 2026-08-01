@@ -16,7 +16,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             DbSet = dbContext.Set<TEntity>();
         }
 
-        public virtual async Task<TEntity?> GetByIdAsync(long id)
+        public virtual async Task<TEntity?> GetByIdAsync(int id)
         {
             return await DbSet.FindAsync(id);
         }
@@ -60,7 +60,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public virtual async Task<TEntity?> DeleteByIdAsync(
-            long id,
+            int id,
             CancellationToken cancellationToken = default)
         {
             var entity = await DbSet.FindAsync(

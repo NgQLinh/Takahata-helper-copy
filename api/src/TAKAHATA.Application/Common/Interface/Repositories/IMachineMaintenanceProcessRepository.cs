@@ -8,7 +8,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
     public interface IMachineMaintenanceProcessRepository : IBaseRepository<MachineMaintenanceProcess>
     {
         Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(
-            List<long>? machineIds,
+            List<int>? machineIds,
             List<ProcessStatus>? statuses,
             DateOnly? from,
             DateOnly? to,

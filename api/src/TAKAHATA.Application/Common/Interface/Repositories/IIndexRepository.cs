@@ -9,7 +9,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
     {
         Task<Index?> GetAsync(string indexCode);
         Task<bool> IsExistedAsync(string indexCode);
-        Task<bool> IsExistedAsync(long id, string indexCode);
+        Task<bool> IsExistedAsync(int id, string indexCode);
         Task<SearchResponse<List<IndexResponse>>> SearchAsync(string? keyword, int? page, int? pageSize);
     }
 }

@@ -20,7 +20,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
-        public override async Task<Machine?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        public override async Task<Machine?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             if (_dbContext.MachineMaintenanceProcesses.Any(m => m.MachineId == id) || _dbContext.PartProcesses.Any(m => m.MachineId == id))
                 return null;
@@ -230,7 +230,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                        data);
         }
 
-        public async Task<bool> IsExistedExceptIdAsync(string name, string code, long id)
+        public async Task<bool> IsExistedExceptIdAsync(string name, string code, int id)
         {
             var machine = await _dbContext.Machines
                 .FirstOrDefaultAsync(m => (m.Name == name || m.Code == code) && m.Id != id);

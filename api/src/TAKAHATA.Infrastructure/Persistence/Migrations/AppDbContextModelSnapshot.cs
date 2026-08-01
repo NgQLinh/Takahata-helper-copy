@@ -156,11 +156,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.DataLog.MachineLog", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
@@ -169,14 +169,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("MachineId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MachineId")
+                        .HasColumnType("int");
 
-                    b.Property<long>("PartId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PartId")
+                        .HasColumnType("int");
 
-                    b.Property<long>("PartProcessId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PartProcessId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -197,11 +197,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Index", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -231,11 +231,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Machine", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Brand")
                         .IsRequired()
@@ -265,11 +265,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("PartBitAddress")
                         .HasColumnType("int");
 
-                    b.Property<long>("PartId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PartId")
+                        .HasColumnType("int");
 
-                    b.Property<long>("PartPorcessId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PartPorcessId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PartProcessBitAddress")
                         .HasColumnType("int");
@@ -300,11 +300,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.MachineMaintenanceProcess", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
@@ -316,8 +316,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long>("MachineId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MachineId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
@@ -359,11 +359,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Part", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -376,8 +376,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("IndexId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("IndexId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProcessedQuantity")
                         .HasColumnType("int");
@@ -407,11 +407,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.PartProcess", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
@@ -423,14 +423,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long>("MachineId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("MachineId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
-                    b.Property<long>("PartId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("PartId")
+                        .HasColumnType("int");
 
                     b.Property<string>("PerformedBy")
                         .HasColumnType("longtext");

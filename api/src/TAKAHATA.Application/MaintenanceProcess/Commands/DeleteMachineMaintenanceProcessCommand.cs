@@ -4,5 +4,5 @@ using TAKAHATA.Contracts.MaintenanceProcess;
 
 namespace TAKAHATA.Application.MaintenanceProcess.Commands
 {
-    public record DeleteMachineMaintenanceProcessCommand(long Id) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;
+    public record DeleteMachineMaintenanceProcessCommand(int Id) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;
 }

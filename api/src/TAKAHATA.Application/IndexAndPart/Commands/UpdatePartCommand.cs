@@ -5,7 +5,7 @@ using TAKAHATA.Contracts.IndexAndPart;
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {
     public record UpdatePartCommand(
-        long Id,
+        int Id,
         string IndexCode,
         string PartCode,
         int Quantity,

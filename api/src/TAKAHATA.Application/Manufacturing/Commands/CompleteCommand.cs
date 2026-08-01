@@ -5,9 +5,9 @@ using TAKAHATA.Contracts.IndexAndPart;
 namespace TAKAHATA.Application.Manufacturing.Commands
 {
     public record CompleteCommand(
-        long MachineId,
-        long PartId,
-        long ProcessId,
+        int MachineId,
+        int PartId,
+        int ProcessId,
         double SetupTime,
         double WaitingTime,
         int ProcessedQuantity,

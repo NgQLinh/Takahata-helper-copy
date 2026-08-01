@@ -19,7 +19,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
-        public override async Task<Part?> DeleteByIdAsync(long id, CancellationToken cancellationToken = default)
+        public override async Task<Part?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             if (_dbContext.PartProcesses.Any(p => p.PartId == id && p.Status != ProcessStatus.Planned))
                 return null;
@@ -159,7 +159,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return part != null;
         }
 
-        public override async Task<Part?> GetByIdAsync(long id)
+        public override async Task<Part?> GetByIdAsync(int id)
         {
             return await _dbContext.Parts
                 .Include(p => p.Index)
@@ -181,7 +181,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return effectedRow != 0 ? part : null;
         }
 
-        public async Task<IEnumerable<Part>> GetByIdsAsync(HashSet<long> partIds)
+        public async Task<IEnumerable<Part>> GetByIdsAsync(HashSet<int> partIds)
         {
             return await _dbContext.Parts
                 .Where(p => partIds.Contains(p.Id))

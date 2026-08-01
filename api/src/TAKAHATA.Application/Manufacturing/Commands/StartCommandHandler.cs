@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Repositories;
+using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
@@ -13,15 +14,18 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         private readonly ILogger<StartCommandHandler> _logger;
         private readonly IPartProcessRepository _partProcessRepository;
         private readonly IMachineRepository _machineRepository;
+        private readonly IPLCService _iPLCService;
 
         public StartCommandHandler(
             IPartProcessRepository partProcessRepository,
             ILogger<StartCommandHandler> logger,
-            IMachineRepository machineRepository)
+            IMachineRepository machineRepository,
+            IPLCService iPLCService)
         {
             _logger = logger;
             _partProcessRepository = partProcessRepository;
             _machineRepository = machineRepository;
+            _iPLCService = iPLCService;
         }
 
         public async Task<ErrorOr<ManufacturingProcessResponse>> Handle(
@@ -38,10 +42,16 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Machine.NotFound;
 
                 // Ghi xuống PLC
+                var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId);
 
-                var partId = request.PartId;
+                if (result.IsSuccess)
+                {
 
-                var processId = request.ProcessId;
+                }
+                else
+                {
+
+                }
 
                 var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                 if (partProcess == null)

@@ -6,8 +6,8 @@ using TAKAHATA.Domain.MasterData;
 namespace TAKAHATA.Application.MaintenanceProcess.Commands
 {
     public record UpdateMachineMaintenanceProcessCommand(
-        long Id,
-        long MachineId,
+        int Id,
+        int MachineId,
         DateOnly PlantDate,
         DateTime? StartTime,
         DateTime? EndTime,

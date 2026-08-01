@@ -4,5 +4,5 @@ using TAKAHATA.Contracts.IndexAndPart;
 
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {
-    public record DeleteIndexCommand(long Id) : IRequest<ErrorOr<IndexResponse>>;
+    public record DeleteIndexCommand(int Id) : IRequest<ErrorOr<IndexResponse>>;
 }

@@ -6,9 +6,9 @@ namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class PartProcessResponse : Response
     {
-        public long PartId { get; set; }
+        public int PartId { get; set; }
         public int Sequence { get; set; }
-        public long MachineId { get; set; }
+        public int MachineId { get; set; }
         public DateOnly? PlantDate { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }

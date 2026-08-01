@@ -1,7 +1,13 @@
-﻿namespace TAKAHATA.Application.Common.Interface.Services
+﻿using TAKAHATA.Domain.MasterData;
+using TAKAHATA.Domain.PLC;
+
+namespace TAKAHATA.Application.Common.Interface.Services
 {
     public interface IPLCService
     {
         public bool TestConnection();
+        Task<PLCResult<WriteResult>> WriteMachineData(Machine machine, int partId, int processId);
+        Task<PLCResult<ReadResult>> ReadMachineData(Machine machine);
+        Task<PLCResult<List<ReadResult>>> ReadMachinesData(List<Machine> machines);
     }
 }

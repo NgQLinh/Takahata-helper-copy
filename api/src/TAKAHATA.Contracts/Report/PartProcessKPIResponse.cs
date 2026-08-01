@@ -4,14 +4,14 @@ namespace TAKAHATA.Contracts.Report
 {
     public class PartProcessKPIResponse
     {
-        public long MachineId { get; set; }
+        public int MachineId { get; set; }
         public string? MachineName { get; set; }
         public string? MachineCode { get; set; }
-        public long IndexId { get; set; }
+        public int IndexId { get; set; }
         public string? IndexCode { get; set; }
-        public long PartId { get; set; }
+        public int PartId { get; set; }
         public string PartCode { get; set; } = string.Empty;
-        public long PartProcessId { get; set; }
+        public int PartProcessId { get; set; }
         public int Quantity { get; set; } = 1;
         public int ProcessedQuantity { get; set; }
         public double? WorkingTime { get; set; }

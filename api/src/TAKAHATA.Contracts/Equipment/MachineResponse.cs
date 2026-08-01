@@ -11,8 +11,8 @@ namespace TAKAHATA.Contracts.Equipment
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
 
-        public long PartId { get; set; }
-        public long PartProcessId { get; set; }
+        public int PartId { get; set; }
+        public int PartProcessId { get; set; }
 
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }

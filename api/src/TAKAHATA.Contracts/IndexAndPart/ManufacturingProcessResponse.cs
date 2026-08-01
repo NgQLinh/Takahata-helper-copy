@@ -6,9 +6,9 @@ namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class ManufacturingProcessResponse : Response
     {
-        public long IndexId { get; set; }
+        public int IndexId { get; set; }
         public string IndexCode { get; set; } = string.Empty;
-        public long PartId { get; set; }
+        public int PartId { get; set; }
         public string PartCode { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public ProcessStatus Status { get; set; }

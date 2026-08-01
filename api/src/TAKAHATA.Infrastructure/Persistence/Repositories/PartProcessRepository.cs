@@ -16,7 +16,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
-            long machineId,
+            int machineId,
             int? page,
             int? pageSize)
         {

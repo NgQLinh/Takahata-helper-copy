@@ -5,7 +5,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class PartResponse : Response
     {
-        public long IndexId { get; set; }
+        public int IndexId { get; set; }
         public string Code { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public int ProcessedQuantity { get; set; }

@@ -17,6 +17,6 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
             int page,
             int pageSize);
         Task<Part?> ApproveAsync(int id);
-        Task<IEnumerable<Part>> GetByIdsAsync(HashSet<long> partIds);
+        Task<IEnumerable<Part>> GetByIdsAsync(HashSet<int> partIds);
     }
 }

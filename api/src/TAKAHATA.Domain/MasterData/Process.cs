@@ -4,7 +4,7 @@ namespace TAKAHATA.Domain.MasterData
 {
     public class Process : Entity
     {
-        public long MachineId { get; set; }
+        public int MachineId { get; set; }
         public DateOnly? PlantDate { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }

@@ -5,7 +5,7 @@ using TAKAHATA.Contracts.MaintenanceProcess;
 namespace TAKAHATA.Application.MaintenanceProcess.Commands
 {
     public record CreateMachineMaintenanceProcessCommand(
-        long MachineId,
+        int MachineId,
         DateOnly PlantDate,
         string? PerformedBy,
         string? Note) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;

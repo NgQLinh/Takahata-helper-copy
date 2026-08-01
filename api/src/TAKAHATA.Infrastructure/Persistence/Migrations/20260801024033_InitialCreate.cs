@@ -78,7 +78,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "Indexes",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Code = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -99,11 +99,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "MachineLog",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    MachineId = table.Column<long>(type: "bigint", nullable: false),
-                    PartId = table.Column<long>(type: "bigint", nullable: false),
-                    PartProcessId = table.Column<long>(type: "bigint", nullable: false),
+                    MachineId = table.Column<int>(type: "int", nullable: false),
+                    PartId = table.Column<int>(type: "int", nullable: false),
+                    PartProcessId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -123,7 +123,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "Machines",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -135,8 +135,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     MachineStatus = table.Column<int>(type: "int", nullable: false),
                     MachineStatusChangeAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    PartId = table.Column<long>(type: "bigint", nullable: false),
-                    PartPorcessId = table.Column<long>(type: "bigint", nullable: false),
+                    PartId = table.Column<int>(type: "int", nullable: false),
+                    PartPorcessId = table.Column<int>(type: "int", nullable: false),
                     StatusBitAddress = table.Column<int>(type: "int", nullable: false),
                     PartBitAddress = table.Column<int>(type: "int", nullable: false),
                     PartProcessBitAddress = table.Column<int>(type: "int", nullable: false),
@@ -284,9 +284,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "Parts",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    IndexId = table.Column<long>(type: "bigint", nullable: false),
+                    IndexId = table.Column<int>(type: "int", nullable: false),
                     Code = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Quantity = table.Column<int>(type: "int", nullable: false),
@@ -315,7 +315,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "MachineMaintenanceProcesses",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
@@ -323,7 +323,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateBy = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MachineId = table.Column<long>(type: "bigint", nullable: false),
+                    MachineId = table.Column<int>(type: "int", nullable: false),
                     PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -349,20 +349,21 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 name: "PartProcesses",
                 columns: table => new
                 {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PartId = table.Column<long>(type: "bigint", nullable: false),
+                    PartId = table.Column<int>(type: "int", nullable: false),
                     Sequence = table.Column<int>(type: "int", nullable: false),
                     WorkingTime = table.Column<double>(type: "double", nullable: true),
                     SetupTime = table.Column<double>(type: "double", nullable: true),
                     WaitingTime = table.Column<double>(type: "double", nullable: true),
+                    ProcessedQuantity = table.Column<int>(type: "int", nullable: false),
                     CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreateBy = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UpdateBy = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MachineId = table.Column<long>(type: "bigint", nullable: false),
+                    MachineId = table.Column<int>(type: "int", nullable: false),
                     PlantDate = table.Column<DateOnly>(type: "date", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),

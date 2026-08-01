@@ -3,8 +3,8 @@
 namespace TAKAHATA.Contracts.IndexAndPart
 {
     public record PartProcessRequest(
-        long Id,
-        long MachineId,
+        int Id,
+        int MachineId,
         DateOnly PlantDate,
         DateTime? StartTime,
         DateTime? EndTime,

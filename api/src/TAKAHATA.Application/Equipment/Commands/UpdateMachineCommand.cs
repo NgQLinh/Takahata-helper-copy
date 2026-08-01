@@ -5,7 +5,7 @@ using TAKAHATA.Domain.MasterData;
 namespace TAKAHATA.Application.Equipment.Commands
 {
     public record UpdateMachineCommand(
-        long Id,
+        int Id,
         string Name,
         string Type,
         string Code,

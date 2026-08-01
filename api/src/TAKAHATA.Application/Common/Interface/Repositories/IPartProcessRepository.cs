@@ -8,7 +8,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
     public interface IPartProcessRepository : IBaseRepository<PartProcess>
     {
         Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
-            long machineId,
+            int machineId,
             int? page,
             int? pageSize);
         Task<List<PartProcessKPIResponse>> SearchKPIAsync(DateTime from, DateTime to);
