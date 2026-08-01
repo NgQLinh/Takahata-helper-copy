@@ -67,20 +67,27 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.AddControllers();
+
+const string CorsPolicy = "NextJsClient";
+
 // Add services to the container.
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", policy =>
+    options.AddPolicy(CorsPolicy, policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins(
+                "http://localhost",
+                "http://localhost:3000",
+                "http://192.168.1.212"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
 
-builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMappings();
@@ -181,9 +188,10 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowReactApp");
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();
+
+app.UseCors(CorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
