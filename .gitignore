@@ -450,3 +450,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Deployment artifacts
+deploy/
+next-app-deploy.zip
