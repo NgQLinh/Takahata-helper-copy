@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { config } from "@/app/config/config";
 import { ApiProblemDetails } from "@/app/types/common/ApiProblemDetails ";
 import { ApiError } from "@/app/types/common/ApiError";
+import { v4 as uuidv4 } from "uuid";
 
 export const apiClient = axios.create({
   baseURL: config.apiUrl,
@@ -38,7 +39,7 @@ const logout = () => {
 
 apiClient.interceptors.request.use(
   (request) => {
-    request.headers["X-Correlation-ID"] = crypto.randomUUID();
+    request.headers["X-Correlation-ID"] = uuidv4();
 
     const accessToken = localStorage.getItem("access_token");
 
@@ -94,7 +95,7 @@ apiClient.interceptors.response.use(
           {
             headers: {
               "Content-Type": "application/json",
-              "X-Correlation-ID": crypto.randomUUID(),
+              "X-Correlation-ID": uuidv4(),
             },
           },
         );

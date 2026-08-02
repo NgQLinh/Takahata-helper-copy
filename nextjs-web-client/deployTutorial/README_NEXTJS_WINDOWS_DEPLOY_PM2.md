@@ -870,6 +870,12 @@ cd C:\apps\next-app
 pm2 start ecosystem.config.cjs
 ```
 
+Nếu muốn dừng để cập nhật
+```powershell
+pm2 stop next-app
+```
+
+
 Lưu trạng thái mới:
 
 ```powershell

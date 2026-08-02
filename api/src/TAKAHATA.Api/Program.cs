@@ -77,16 +77,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy(CorsPolicy, policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost",
-                "http://localhost:3000",
-                "http://192.168.1.212"
-            )
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
-
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -187,6 +182,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<LoggingMiddleware>();

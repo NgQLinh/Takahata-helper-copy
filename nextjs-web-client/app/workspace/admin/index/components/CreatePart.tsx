@@ -28,6 +28,7 @@ import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import { createPartAsync } from "@/app/services/index/IndexService";
+import { v4 as uuidv4 } from "uuid";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -55,7 +56,7 @@ type FormValues = {
 };
 
 const createEmptyRow = (): PlanRow => ({
-  key: crypto.randomUUID(),
+  key: uuidv4(),
   machineId: undefined,
   plantDate: dayjs(),
   status: ProcessStatus.Planned,

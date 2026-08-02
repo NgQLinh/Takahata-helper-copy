@@ -35,6 +35,7 @@ import {
   getPartAsync,
   updatePartAsync,
 } from "@/app/services/index/IndexService";
+import { v4 as uuidv4 } from "uuid";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -75,7 +76,7 @@ type CurrentPartInfo = {
 };
 
 const createEmptyRow = (): PlanRow => ({
-  key: crypto.randomUUID(),
+  key: uuidv4(),
   id: 0,
   machineId: undefined,
   plantDate: dayjs(),
@@ -174,7 +175,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         const rows: PlanRow[] =
           data.processes?.length > 0
             ? data.processes.map((process: PartProcess) => ({
-                key: crypto.randomUUID(),
+                key: uuidv4(),
                 id: process.id,
                 machineId: process.machineId,
                 plantDate: process.plantDate ? dayjs(process.plantDate) : null,
