@@ -156,18 +156,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TAKAHATA.Domain.DataLog.MachineLog", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreateBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<int>("MachineId")
                         .HasColumnType("int");
@@ -183,12 +179,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("UpdateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("UpdateBy")
-                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

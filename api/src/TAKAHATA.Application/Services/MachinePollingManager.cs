@@ -67,6 +67,7 @@ namespace TAKAHATA.Application.Services
                 try
                 {
                     var machineNeedUpdate = new List<Machine>();
+                    var machineLogs = new List<MachineLog>();
                     foreach (var machine in _machines)
                     {
                         // Dọc dữ lệu
@@ -77,7 +78,9 @@ namespace TAKAHATA.Application.Services
                             || log.PartId != machine.PartId
                             || log.PartProcessId != machine.PartPorcessId)
                         {
-                            await machineLogRepository.AddAsync(log, stoppingToken);
+                            machineLogs.Add(log);
+
+                        
 
                             if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
                             {
@@ -108,6 +111,9 @@ namespace TAKAHATA.Application.Services
 
                     if (machineNeedUpdate.Count != 0)
                         await machineRepository.UpdateManyAsync(machineNeedUpdate, stoppingToken);
+
+                    if (machineLogs.Count != 0)
+                        await machineLogRepository.AddRangeAsync(machineLogs, stoppingToken);
                 }
                 catch (Exception ex)
                 {
