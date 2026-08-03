@@ -1,11 +1,5 @@
 # Triển khai Next.js TypeScript trên Windows qua Port 80, không dùng IIS
 
-Tài liệu này hướng dẫn đóng gói và triển khai một project **Next.js sử dụng TypeScript** lên máy Windows có địa chỉ IP:
-
-```text
-192.168.1.100
-```
-
 Ứng dụng sẽ:
 
 - Chạy Next.js Standalone bằng PM2.
@@ -13,28 +7,8 @@ Tài liệu này hướng dẫn đóng gói và triển khai một project **Nex
 - Lắng nghe trên port `80`.
 - Cho phép các máy khác trong mạng LAN truy cập bằng địa chỉ:
 
-```text
-http://192.168.1.100
-```
-
 ---
-
-## 1. Mô hình triển khai
-
-```text
-Máy người dùng trong LAN
-        |
-        | http://192.168.1.100
-        v
-Windows Firewall - TCP Port 80
-        |
-        v
-PM2 quản lý Node.js chạy Next.js Standalone
-```
-
----
-
-## 2. Yêu cầu
+## 1. Yêu cầu
 
 ### Máy build
 
@@ -45,7 +19,7 @@ PM2 quản lý Node.js chạy Next.js Standalone
 
 ### Máy Windows triển khai
 
-- IP tĩnh: `192.168.1.100`.
+- IP tĩnh: `xxx.xxx.x.xxx`.
 - Node.js LTS.
 - PM2 được cài qua npm.
 - Quyền Administrator.
@@ -66,7 +40,7 @@ ipconfig
 
 ---
 
-## 3. Cấu hình Next.js Standalone
+## 2. Cấu hình Next.js Standalone
 
 Mở file `next.config.ts` và thêm cấu hình:
 
@@ -95,74 +69,9 @@ Chế độ `standalone` giúp Next.js tạo một bản triển khai tối gi�
 
 ---
 
-## 4. Cài dependency và build project
+## 3. Tạo script đóng gói tự động
 
-Mở PowerShell hoặc Terminal tại thư mục gốc của project:
-
-```powershell
-npm ci
-npm run build
-```
-
-Nếu project chưa có file `package-lock.json`, dùng:
-
-```powershell
-npm install
-npm run build
-```
-
-Sau khi build thành công, Next.js sẽ tạo các thư mục:
-
-```text
-.next/
-├── standalone/
-├── static/
-└── ...
-```
-
----
-
-## 5. Tạo thư mục đóng gói
-
-Chạy các lệnh sau tại thư mục gốc của project:
-
-```powershell
-Remove-Item ".\deploy" -Recurse -Force -ErrorAction SilentlyContinue
-
-New-Item ".\deploy" -ItemType Directory | Out-Null
-
-Copy-Item ".\.next\standalone\*" ".\deploy" -Recurse -Force
-
-New-Item ".\deploy\.next\static" -ItemType Directory -Force | Out-Null
-
-Copy-Item ".\.next\static\*" ".\deploy\.next\static" -Recurse -Force
-```
-
-Nếu project có thư mục `public`, copy thêm:
-
-```powershell
-Copy-Item ".\public" ".\deploy\public" -Recurse -Force
-```
-
-Cấu trúc thư mục `deploy` sau khi hoàn thành:
-
-```text
-deploy/
-├── .next/
-│   └── static/
-├── node_modules/
-├── public/
-├── package.json
-└── server.js
-```
-
-Thư mục `public` có thể không tồn tại nếu project không sử dụng static asset.
-
----
-
-## 6. Tạo script đóng gói tự động
-
-Có thể tạo file:
+Tạo file:
 
 ```text
 scripts/build-deploy.ps1
@@ -175,6 +84,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $deployPath = Join-Path $projectRoot "deploy"
+$zipPath = Join-Path $projectRoot "next-app-deploy.zip"
 
 Set-Location $projectRoot
 
@@ -198,8 +108,21 @@ if (Test-Path ".\public") {
     Copy-Item ".\public" (Join-Path $deployPath "public") -Recurse -Force
 }
 
+Write-Host "Removing old ZIP file..."
+Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+
+Write-Host "Creating ZIP package..."
+Compress-Archive `
+    -Path (Join-Path $deployPath "*") `
+    -DestinationPath $zipPath `
+    -Force
+
 Write-Host "Deploy package created successfully:"
 Write-Host $deployPath
+
+Write-Host "ZIP package created successfully:"
+Write-Host $zipPath
+
 ```
 
 Chạy script:
@@ -207,71 +130,6 @@ Chạy script:
 ```powershell
 powershell.exe -ExecutionPolicy Bypass -File ".\scripts\build-deploy.ps1"
 ```
-
----
-
-## 7. Kiểm tra bản đóng gói trên máy build
-
-Di chuyển vào thư mục `deploy`:
-
-```powershell
-cd .\deploy
-```
-
-Thiết lập biến môi trường:
-
-```powershell
-$env:NODE_ENV = "production"
-$env:HOSTNAME = "0.0.0.0"
-$env:PORT = "80"
-```
-
-Khởi động server:
-
-```powershell
-node server.js
-```
-
-Truy cập trên máy hiện tại:
-
-```text
-http://localhost
-```
-
-Hoặc:
-
-```text
-http://192.168.1.100
-```
-
-`HOSTNAME=0.0.0.0` cho phép ứng dụng nhận kết nối từ các máy khác trong mạng LAN.
-
-Dừng server bằng:
-
-```text
-Ctrl + C
-```
-
----
-
-## 8. Nén bản triển khai
-
-Tại thư mục gốc project:
-
-```powershell
-Compress-Archive `
-  -Path ".\deploy\*" `
-  -DestinationPath ".\next-app-deploy.zip" `
-  -Force
-```
-
-File tạo ra:
-
-```text
-next-app-deploy.zip
-```
-
-Copy file này sang máy Windows có IP `192.168.1.100`.
 
 ---
 
@@ -283,22 +141,7 @@ Tạo thư mục:
 C:\apps\next-app
 ```
 
-Có thể chạy:
-
-```powershell
-New-Item "C:\apps\next-app" -ItemType Directory -Force
-```
-
-Giải nén:
-
-```powershell
-Expand-Archive `
-  -Path "C:\path\to\next-app-deploy.zip" `
-  -DestinationPath "C:\apps\next-app" `
-  -Force
-```
-
-Cấu trúc mong đợi:
+Giải nén vào C:\apps\next-app Cấu trúc mong đợi:
 
 ```text
 C:\apps\next-app\

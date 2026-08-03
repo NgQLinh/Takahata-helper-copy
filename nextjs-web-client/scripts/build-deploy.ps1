@@ -2,6 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $deployPath = Join-Path $projectRoot "deploy"
+$zipPath = Join-Path $projectRoot "next-app-deploy.zip"
 
 Set-Location $projectRoot
 
@@ -25,5 +26,17 @@ if (Test-Path ".\public") {
     Copy-Item ".\public" (Join-Path $deployPath "public") -Recurse -Force
 }
 
+Write-Host "Removing old ZIP file..."
+Remove-Item $zipPath -Force -ErrorAction SilentlyContinue
+
+Write-Host "Creating ZIP package..."
+Compress-Archive `
+    -Path (Join-Path $deployPath "*") `
+    -DestinationPath $zipPath `
+    -Force
+
 Write-Host "Deploy package created successfully:"
 Write-Host $deployPath
+
+Write-Host "ZIP package created successfully:"
+Write-Host $zipPath
