@@ -8,6 +8,7 @@
 - Cho phép các máy khác trong mạng LAN truy cập bằng địa chỉ:
 
 ---
+
 ## 1. Yêu cầu
 
 ### Máy build
@@ -133,7 +134,7 @@ powershell.exe -ExecutionPolicy Bypass -File ".\scripts\build-deploy.ps1"
 
 ---
 
-## 9. Giải nén trên máy Windows triển khai
+## 4. Giải nén trên máy Windows triển khai
 
 Tạo thư mục:
 
@@ -154,7 +155,7 @@ C:\apps\next-app\
 
 ---
 
-## 10. Kiểm tra port 80
+## 5. Kiểm tra port 80
 
 Mở PowerShell bằng quyền **Run as Administrator**.
 
@@ -192,7 +193,7 @@ Các ứng dụng thường chiếm port `80`:
 
 ---
 
-## 11. Tắt IIS nếu đang sử dụng port 80
+## 6. Tắt IIS nếu đang sử dụng port 80
 
 Chỉ thực hiện nếu IIS đang chạy và không còn được sử dụng.
 
@@ -216,7 +217,7 @@ Get-NetTCPConnection -LocalPort 80 -ErrorAction SilentlyContinue
 
 ---
 
-## 12. Mở port 80 trên Windows Firewall
+## 7. Mở port 80 trên Windows Firewall
 
 Mở PowerShell bằng quyền Administrator:
 
@@ -257,7 +258,7 @@ Set-NetConnectionProfile `
 
 ---
 
-## 13. Chạy thử ứng dụng trên server
+## 8. Chạy thử ứng dụng trên server
 
 Tại máy Windows triển khai:
 
@@ -286,12 +287,12 @@ Invoke-WebRequest "http://localhost" -UseBasicParsing
 Kiểm tra từ máy khác trong LAN:
 
 ```text
-http://192.168.1.100
+http://xxx.xxx.x.xxx
 ```
 
 ---
 
-## 14. Cài đặt và chạy ứng dụng bằng PM2
+## 9. Cài đặt và chạy ứng dụng bằng PM2
 
 Mở PowerShell bằng quyền **Run as Administrator** và cài PM2 toàn cục:
 
@@ -399,7 +400,7 @@ pm2 flush
 
 ---
 
-## 15. Tự động khôi phục PM2 khi Windows khởi động
+## 10. Tự động khôi phục PM2 khi Windows khởi động
 
 Trên Windows, dùng **Task Scheduler** để gọi `pm2 resurrect`. Lệnh này khôi phục danh sách tiến trình đã lưu bằng `pm2 save`.
 
@@ -429,6 +430,18 @@ set PM2_HOME=C:\Users\Administrator\.pm2
 call C:\Users\Administrator\AppData\Roaming\npm\pm2.cmd resurrect
 ```
 
+```bat
+whoami
+```
+
+Kết quả ví dụ:
+
+```bat
+DESKTOP-ABC123\annguyen
+```
+
+annguyen là tên máy
+
 Chạy thử file và kiểm tra ứng dụng được khôi phục:
 
 ```powershell
@@ -439,31 +452,50 @@ pm2 list
 Tạo Scheduled Task bằng PowerShell. Thay giá trị `$pm2User` bằng đúng tài khoản Windows đang chạy PM2:
 
 ```powershell
-$pm2User = "$env:COMPUTERNAME\Administrator"
+# Tài khoản Windows đang cài và chạy PM2
+$pm2User = "desktop-dq3kh9a\an"
 
+# Kiểm tra file start-pm2.cmd
+$cmdPath = "C:\apps\start-pm2.cmd"
+
+if (-not (Test-Path $cmdPath)) {
+    throw "Không tìm thấy file: $cmdPath"
+}
+
+# Yêu cầu nhập mật khẩu Windows của tài khoản An
+$credential = Get-Credential `
+    -UserName $pm2User `
+    -Message "Nhập mật khẩu Windows của tài khoản chạy PM2"
+
+$password = $credential.GetNetworkCredential().Password
+
+# Chạy file CMD thông qua cmd.exe
 $action = New-ScheduledTaskAction `
-  -Execute "C:\apps\start-pm2.cmd"
+    -Execute "C:\Windows\System32\cmd.exe" `
+    -Argument "/c `"$cmdPath`"" `
+    -WorkingDirectory "C:\apps"
 
+# Chạy khi Windows khởi động
 $trigger = New-ScheduledTaskTrigger -AtStartup
 
+# Cấu hình tự khởi động lại khi lỗi
 $settings = New-ScheduledTaskSettingsSet `
-  -RestartCount 10 `
-  -RestartInterval (New-TimeSpan -Minutes 1) `
-  -StartWhenAvailable `
-  -ExecutionTimeLimit ([TimeSpan]::Zero)
+    -RestartCount 10 `
+    -RestartInterval (New-TimeSpan -Minutes 1) `
+    -StartWhenAvailable `
+    -ExecutionTimeLimit ([TimeSpan]::Zero)
 
-$principal = New-ScheduledTaskPrincipal `
-  -UserId $pm2User `
-  -LogonType Password `
-  -RunLevel Highest
-
+# Đăng ký Scheduled Task
 Register-ScheduledTask `
-  -TaskName "PM2Resurrect" `
-  -Description "Restore PM2 applications after Windows startup" `
-  -Action $action `
-  -Trigger $trigger `
-  -Settings $settings `
-  -Principal $principal
+    -TaskName "PM2Resurrect" `
+    -Description "Restore PM2 applications after Windows startup" `
+    -Action $action `
+    -Trigger $trigger `
+    -Settings $settings `
+    -User $pm2User `
+    -Password $password `
+    -RunLevel Highest `
+    -Force
 ```
 
 Windows sẽ yêu cầu mật khẩu của tài khoản khi đăng ký task. Có thể tạo thủ công trong Task Scheduler với các tùy chọn:
@@ -505,7 +537,7 @@ pm2 save
 
 ---
 
-## 16. Kiểm tra dịch vụ
+## 11. Kiểm tra dịch vụ
 
 Kiểm tra tiến trình Node.js:
 
@@ -536,7 +568,7 @@ Invoke-WebRequest "http://localhost" -UseBasicParsing
 Kiểm tra từ máy khác:
 
 ```powershell
-Test-NetConnection 192.168.1.100 -Port 80
+Test-NetConnection xxx.xxx.x.xxx -Port 80
 ```
 
 Kết quả mong đợi:
@@ -547,29 +579,29 @@ TcpTestSucceeded : True
 
 ---
 
-## 17. Truy cập từ máy khác trong LAN
+## 12. Truy cập từ máy khác trong LAN
 
 Trên máy khác cùng mạng LAN, mở trình duyệt:
 
 ```text
-http://192.168.1.100
+http://xxx.xxx.x.xxx
 ```
 
 Có thể kiểm tra bằng PowerShell:
 
 ```powershell
-Test-NetConnection 192.168.1.100 -Port 80
+Test-NetConnection xxx.xxx.x.xxx -Port 80
 ```
 
 Hoặc:
 
 ```powershell
-Invoke-WebRequest "http://192.168.1.100" -UseBasicParsing
+Invoke-WebRequest "http://xxx.xxx.x.xxx" -UseBasicParsing
 ```
 
 ---
 
-## 18. Cấu hình biến môi trường
+## 13. Cấu hình biến môi trường
 
 ### Biến server-side
 
@@ -608,7 +640,7 @@ thường được nhúng vào JavaScript trong quá trình build.
 Ví dụ:
 
 ```powershell
-$env:NEXT_PUBLIC_API_URL = "http://192.168.1.100/api"
+$env:NEXT_PUBLIC_API_URL = "http://xxx.xxx.x.xxx/api"
 
 npm run build
 ```
@@ -617,7 +649,7 @@ Thay đổi `NEXT_PUBLIC_*` sau khi build có thể không làm thay đổi giá
 
 ---
 
-## 19. Project sử dụng Prisma hoặc native package
+## 14. Project sử dụng Prisma hoặc native package
 
 Nếu project sử dụng các package như:
 
@@ -646,18 +678,11 @@ npm run build
 
 ---
 
-## 20. Quy trình cập nhật phiên bản mới
+## 15. Quy trình cập nhật phiên bản mới
 
 ### Bước 1: Build bản mới
 
-Trên máy build:
-
-```powershell
-npm ci
-npm run build
-```
-
-Tạo lại thư mục `deploy` và file ZIP.
+Chạy script tạo lại thư mục `deploy` và file ZIP.
 
 ### Bước 2: Dừng phiên bản hiện tại
 
@@ -673,7 +698,6 @@ Xác nhận ứng dụng đã dừng:
 pm2 list
 Get-NetTCPConnection -LocalPort 80 -ErrorAction SilentlyContinue
 ```
-
 
 ### Bước 3: Backup bản cũ
 
@@ -714,10 +738,10 @@ pm2 start ecosystem.config.cjs
 ```
 
 Nếu muốn dừng để cập nhật
+
 ```powershell
 pm2 stop next-app
 ```
-
 
 Lưu trạng thái mới:
 
@@ -737,14 +761,13 @@ Get-NetTCPConnection -LocalPort 80 -State Listen
 
 ---
 
-## 21. Rollback phiên bản cũ
+## 16. Rollback phiên bản cũ
 
 Dừng ứng dụng:
 
 ```powershell
 pm2 stop next-app
 ```
-
 
 Đổi tên phiên bản lỗi:
 
@@ -772,14 +795,14 @@ pm2 save
 
 ---
 
-## 22. Xử lý lỗi thường gặp
+## 17. Xử lý lỗi thường gặp
 
 ### Không truy cập được từ máy khác
 
 Kiểm tra:
 
 ```powershell
-Test-NetConnection 192.168.1.100 -Port 80
+Test-NetConnection xxx.xxx.x.xxx -Port 80
 ```
 
 Kiểm tra server có lắng nghe trên `0.0.0.0` không:
@@ -884,7 +907,7 @@ Test-Path "C:\Program Files\nodejs\node.exe"
 
 ---
 
-## 23. Bộ lệnh kiểm tra nhanh
+## 18. Bộ lệnh kiểm tra nhanh
 
 ```powershell
 # Kiểm tra IP
@@ -907,7 +930,7 @@ Get-NetFirewallRule -DisplayName "Next.js LAN Port 80"
 Invoke-WebRequest "http://localhost" -UseBasicParsing
 
 # Kiểm tra kết nối từ máy LAN khác
-Test-NetConnection 192.168.1.100 -Port 80
+Test-NetConnection xxx.xxx.x.xxx -Port 80
 
 # Kiểm tra PM2
 pm2 list
@@ -922,19 +945,19 @@ pm2 logs next-app --err --lines 100
 
 ---
 
-## 24. URL sử dụng
+## 19. URL sử dụng
 
 Sau khi triển khai thành công, các máy trong mạng LAN truy cập:
 
 ```text
-http://192.168.1.100
+http://xxx.xxx.x.xxx
 ```
 
 Không cần thêm port vì ứng dụng đang chạy trên port HTTP mặc định `80`.
 
 ---
 
-## 25. Lưu ý bảo mật
+## 20. Lưu ý bảo mật
 
 Cấu hình này phù hợp cho mạng LAN nội bộ.
 
@@ -950,7 +973,7 @@ Khuyến nghị:
 
 ---
 
-## 26. Tóm tắt quy trình
+## 21. Tóm tắt quy trình
 
 ```text
 1. Thêm output: "standalone" vào next.config.ts.
@@ -962,5 +985,5 @@ Khuyến nghị:
 7. Chạy server với HOSTNAME=0.0.0.0 và PORT=80.
 8. Chạy ứng dụng bằng PM2 và chạy `pm2 save`.
 9. Tạo Scheduled Task gọi `pm2 resurrect` khi Windows khởi động.
-10. Truy cập http://192.168.1.100 từ máy khác trong LAN.
+10. Truy cập http://xxx.xxx.x.xxx từ máy khác trong LAN.
 ```
