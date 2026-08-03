@@ -80,8 +80,6 @@ namespace TAKAHATA.Application.Services
                         {
                             machineLogs.Add(log);
 
-                        
-
                             if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
                             {
                                 var runningTime = log.Time - machine.MachineStatusChangeAt;
