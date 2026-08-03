@@ -32,6 +32,7 @@ import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import {
+  deletePartAsync,
   getPartAsync,
   updatePartAsync,
 } from "@/app/services/index/IndexService";
@@ -236,6 +237,25 @@ export default function UpdatePart({ id, open, onClose }: Props) {
 
     resetForm();
     onClose();
+  };
+
+  const handleDelete = async () => {
+    if (submitting) return;
+
+    try {
+      await deletePartAsync(id || 0);
+      toast.success("Xóa part thành công.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+        return;
+      }
+
+      toast.error("Có lỗi xảy ra.");
+    } finally {
+      resetForm();
+      onClose();
+    }
   };
 
   const handleChange = <K extends keyof PlanRow>(
@@ -579,8 +599,12 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           </Text>
 
           <Flex gap={8} wrap>
+            <Button danger onClick={handleDelete}>
+              Xóa
+            </Button>
+
             <Button disabled={submitting} onClick={handleCancel}>
-              Đóng
+              Hủy
             </Button>
             <Button
               type="primary"

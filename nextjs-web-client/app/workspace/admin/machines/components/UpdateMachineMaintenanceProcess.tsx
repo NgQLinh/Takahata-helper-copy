@@ -2,6 +2,7 @@ import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
 import type { Dayjs } from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import {
+  deleteMachineMaintenanceProcessAsync,
   getMachineMaintenanceProcessAsync,
   getMachinesAsync,
   updateMachineMaintenanceProcess,
@@ -114,6 +115,19 @@ export default function UpdateMachineMaintenanceProcess({
   const handleCancel = () => {
     form.resetFields();
     onClose();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteMachineMaintenanceProcessAsync({ id: id });
+      toast.success("Xóa lịch bảo dưỡng thành công");
+    } catch (error) {
+      console.error("Xóa lịch bảo dưỡng không thành công:", error);
+      toast.error("Xóa lịch bảo dưỡng không thành công");
+    } finally {
+      form.resetFields();
+      onClose();
+    }
   };
 
   const handleSubmit = async () => {
@@ -319,6 +333,9 @@ export default function UpdateMachineMaintenanceProcess({
         </Form.Item>
 
         <div className="d-flex justify-content-end gap-2">
+          <Button danger onClick={handleDelete}>
+            Xóa
+          </Button>
           <Button onClick={handleCancel}>Hủy</Button>
 
           <Button type="primary" htmlType="submit">

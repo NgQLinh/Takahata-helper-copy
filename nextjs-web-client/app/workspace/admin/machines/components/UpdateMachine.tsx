@@ -3,7 +3,10 @@
 import { Modal, Form, Input, Select, Button } from "antd";
 import { Machine, UpdateMachineRequest } from "@/app/types";
 import { useEffect } from "react";
-import { updateMachineAsync } from "@/app/services/machine/MachineService";
+import {
+  deleteMachineAsync,
+  updateMachineAsync,
+} from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
 import { ApiError } from "@/app/types/common/ApiError";
 
@@ -62,6 +65,20 @@ export default function UpdateMachine({
   const handleCancel = () => {
     form.resetFields();
     onClose();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteMachineAsync({ id: machine.id });
+      toast.success("Xóa máy thành công");
+    } catch (error) {
+      console.error("Xóa máy không thành công:", error);
+      toast.error("Xóa máy không thành công");
+    } finally {
+      form.resetFields();
+      onClose();
+      onUpdate();
+    }
   };
 
   return (
@@ -207,6 +224,10 @@ export default function UpdateMachine({
         </div>
 
         <div className="flex justify-end gap-2">
+          <Button danger onClick={handleDelete}>
+            Xóa
+          </Button>
+
           <Button onClick={handleCancel}>Hủy</Button>
 
           <Button type="primary" htmlType="submit">
