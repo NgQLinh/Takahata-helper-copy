@@ -130,17 +130,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            <div className="d-flex justify-content-between mb-4">
-              <div className="form-check">
-                <input className="form-check-input" type="checkbox" />
-                <label className="form-check-label">Remember me</label>
-              </div>
-
-              <a href="#" className="text-decoration-none">
-                Forgot password?
-              </a>
-            </div>
-
             <button
               type="submit"
               disabled={formik.isSubmitting}
