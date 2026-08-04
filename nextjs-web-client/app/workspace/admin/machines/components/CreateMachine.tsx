@@ -134,13 +134,14 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
               required: true,
               message: "Vui lòng nhập thanh ghi trạng thái",
             },
-            {
-              whitespace: true,
-              message: "Thanh ghi trạng thái không được để trống",
-            },
           ]}
         >
-          <Input allowClear placeholder="Nhập địa chỉ thanh ghi" autoFocus />
+          <Input
+            type="number"
+            allowClear
+            placeholder="Nhập địa chỉ thanh ghi"
+            autoFocus
+          />
         </Form.Item>
 
         <div className="row">
@@ -153,15 +154,12 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
                   required: true,
                   message: "Vui lòng nhập thanh ghi part",
                 },
-                {
-                  whitespace: true,
-                  message: "Thanh ghi part không được để trống",
-                },
               ]}
             >
               <Input
+                type="number"
                 allowClear
-                placeholder="Nhập địa thanh ghi part"
+                placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
               />
             </Form.Item>
@@ -175,13 +173,10 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
                   required: true,
                   message: "Vui lòng nhập thanh ghi process",
                 },
-                {
-                  whitespace: true,
-                  message: "Thanh ghi process không được để trống",
-                },
               ]}
             >
               <Input
+                type="number"
                 allowClear
                 placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
