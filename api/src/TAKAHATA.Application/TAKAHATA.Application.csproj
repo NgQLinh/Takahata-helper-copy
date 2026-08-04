@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TAKAHATA.Contracts\TAKAHATA.Contracts.csproj" />
-    <ProjectReference Include="..\TAKAHATA.Domain\TAKAHATA.Domain.csproj" />
+    <Compile Remove="Settings\Queries\**" />
+    <EmbeddedResource Remove="Settings\Queries\**" />
+    <None Remove="Settings\Queries\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Settings\Queries\" />
+    <ProjectReference Include="..\TAKAHATA.Contracts\TAKAHATA.Contracts.csproj" />
+    <ProjectReference Include="..\TAKAHATA.Domain\TAKAHATA.Domain.csproj" />
   </ItemGroup>
 
 

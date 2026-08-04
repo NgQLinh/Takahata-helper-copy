@@ -1,4 +1,4 @@
-import { Setting } from "@/app/types";
+import { ReadMachineBitsResponse, Setting } from "@/app/types";
 import { apiClient } from "../common/apiClient";
 
 export const getSettingsAsync = async (): Promise<Setting> => {
@@ -15,5 +15,25 @@ export const updateSettingsAsync = async (
 
 export const testConnectionAsync = async (): Promise<boolean> => {
   const response = await apiClient.post<boolean>("/Settings/test-connection");
+  return response.data;
+};
+
+export const writeMachineBitsAsync = async (
+  request: unknown,
+): Promise<boolean> => {
+  const response = await apiClient.post<boolean>(
+    "/Settings/write-machine-bits",
+    request,
+  );
+  return response.data;
+};
+
+export const readMachineBitsAsync = async (
+  request: unknown,
+): Promise<ReadMachineBitsResponse> => {
+  const response = await apiClient.post<ReadMachineBitsResponse>(
+    "/Settings/read-machine-bits",
+    request,
+  );
   return response.data;
 };

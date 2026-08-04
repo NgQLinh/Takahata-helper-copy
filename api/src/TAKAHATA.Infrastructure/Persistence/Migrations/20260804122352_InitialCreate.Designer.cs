@@ -12,7 +12,7 @@ using TAKAHATA.Infrastructure.Persistence;
 namespace TAKAHATA.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260804022547_InitialCreate")]
+    [Migration("20260804122352_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -467,6 +467,39 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("PS_PartProcess_PartId");
 
                     b.ToTable("PartProcesses");
+                });
+
+            modelBuilder.Entity("TAKAHATA.Domain.MasterData.SystemConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreateBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdateAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdateBy")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemConfigs");
                 });
 
             modelBuilder.Entity("TAKAHATA.Domain.User.ApplicationUser", b =>

@@ -1,6 +1,7 @@
 ﻿using EasyModbus;
 using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Services;
+using TAKAHATA.Contracts.Settings;
 using TAKAHATA.Domain.PLC;
 using Machine = TAKAHATA.Domain.MasterData.Machine;
 
@@ -109,6 +110,45 @@ namespace TAKAHATA.Infrastructure.Services
             }
         }
 
+        public async Task<PLCResult<ReadMachineBitsResponse>> ReadMachineData(
+            int statusBitAddress,
+            int partBitAddress,
+            int partProcessBitAddress)
+        {
+            _logger.LogInformation($"{nameof(ReadMachinesData)}: Start");
+
+            var ip = _settingsService.GetIpAddress();
+            var port = _settingsService.GetPort();
+
+            _logger.LogInformation($"{nameof(ReadMachinesData)}: Connection info {ip}:{port}");
+
+            var modbusClient = new ModbusClient(ip, port);
+
+            try
+            {
+                modbusClient.Connect();
+
+
+                var status = modbusClient.ReadHoldingRegisters(statusBitAddress, 1);
+                var partId = modbusClient.ReadHoldingRegisters(partBitAddress, 1);
+                var partProcessId = modbusClient.ReadHoldingRegisters(partProcessBitAddress, 1);
+
+                return PLCResult<ReadMachineBitsResponse>.Success(new ReadMachineBitsResponse(status[0], partId[0], partProcessId[0]));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(ReadMachinesData)}: {ex.Message}");
+                return PLCResult<ReadMachineBitsResponse>.Fail(ex);
+            }
+            finally
+            {
+                if (modbusClient != null && modbusClient.Connected)
+                {
+                    modbusClient.Disconnect();
+                }
+            }
+        }
+
         public async Task<PLCResult<WriteResult>> WriteMachineData(Machine machine, int partId, int processId)
         {
             _logger.LogInformation($"{nameof(WriteMachineData)}: Start");
@@ -133,6 +173,47 @@ namespace TAKAHATA.Infrastructure.Services
                 {
                     BeforeProcessId = lastProcessId,
                 });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(WriteMachineData)}: {ex.Message}");
+                return PLCResult<WriteResult>.Fail(ex);
+            }
+            finally
+            {
+                if (modbusClient != null && modbusClient.Connected)
+                {
+                    modbusClient.Disconnect();
+                }
+            }
+        }
+
+        public async Task<PLCResult<WriteResult>> WriteMachineData(
+            int statusBitAddress,
+            int partBitAddress,
+            int partProcessBitAddress,
+            int statusValue,
+            int partValue,
+            int partProcessValue)
+        {
+            _logger.LogInformation($"{nameof(WriteMachineData)}: Start");
+
+            var ip = _settingsService.GetIpAddress();
+            var port = _settingsService.GetPort();
+
+            _logger.LogInformation($"{nameof(WriteMachineData)}: Connection info {ip}:{port}");
+
+            var modbusClient = new ModbusClient(ip, port);
+
+            try
+            {
+                modbusClient.Connect();
+
+                modbusClient.WriteSingleRegister(statusBitAddress, statusValue);
+                modbusClient.WriteSingleRegister(partBitAddress, partValue);
+                modbusClient.WriteSingleRegister(partProcessBitAddress, partProcessValue);
+
+                return PLCResult<WriteResult>.Success(new WriteResult());
             }
             catch (Exception ex)
             {

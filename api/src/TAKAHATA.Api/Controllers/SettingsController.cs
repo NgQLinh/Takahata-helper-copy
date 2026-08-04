@@ -54,5 +54,25 @@ namespace TAKAHATA.Api.Controllers
 
             return Problem();
         }
+
+        [HttpPost("write-machine-bits")]
+        public async Task<IActionResult> WriteMachineBits(WriteMachineBitsCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
+        [HttpPost("read-machine-bits")]
+        public async Task<IActionResult> ReadMachineBits(ReadMachineBitsCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
     }
 }

@@ -8,12 +8,14 @@ import {
   Form,
   Input,
   InputNumber,
+  Select,
   Space,
   Typography,
 } from "antd";
 import {
   ApiOutlined,
   GlobalOutlined,
+  ReadOutlined,
   SaveOutlined,
   WifiOutlined,
 } from "@ant-design/icons";
@@ -22,13 +24,31 @@ import { ApiError } from "@/app/types/common/ApiError";
 import {
   getSettingsAsync,
   testConnectionAsync,
+  readMachineBitsAsync,
   updateSettingsAsync,
+  writeMachineBitsAsync,
 } from "@/app/services/settings/SettingsService";
+import { Machine, MachineStatus } from "@/app/types";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+
+const { Text } = Typography;
 
 interface SettingsFormValues {
   ipAddress: string;
   port: number;
 }
+
+type WriteFormValues = {
+  status: MachineStatus;
+  part: number;
+  partProcess: number;
+};
+
+type ReadFormValues = {
+  status?: MachineStatus;
+  part?: number;
+  partProcess?: number;
+};
 
 interface Props {
   active: boolean;
@@ -44,10 +64,35 @@ const IPV4_PATTERN =
 
 export default function SettingsTab({ active }: Props) {
   const [form] = Form.useForm<SettingsFormValues>();
+  const [writeForm] = Form.useForm<WriteFormValues>();
+  const [readForm] = Form.useForm<ReadFormValues>();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testingConnection, setTestingConnection] = useState(false);
+
+  const [loadingMachines, setLoadingMachines] = useState(false);
+  const [machineSource, setMachineSource] = useState<Machine[]>([]);
+  const [selectedWriteMachine, setSelectedWriteMachine] =
+    useState<Machine | null>(null);
+  const [selectedReadMachine, setSelectedReadMachine] =
+    useState<Machine | null>(null);
+  const [submittingWrite, setSubmittingWrite] = useState(false);
+  const [submittingRead, setSubmittingRead] = useState(false);
+
+  const fetchMachineSource = useCallback(async () => {
+    setLoadingMachines(true);
+
+    try {
+      const data = await getMachinesAsync();
+      setMachineSource(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách máy:", error);
+      toast.error("Không thể tải danh sách máy");
+    } finally {
+      setLoadingMachines(false);
+    }
+  }, []);
 
   const fetchSettings = useCallback(async () => {
     setLoading(true);
@@ -72,7 +117,7 @@ export default function SettingsTab({ active }: Props) {
 
   useEffect(() => {
     const run = async () => {
-      await fetchSettings();
+      Promise.all([fetchMachineSource(), fetchSettings()]);
     };
 
     void run();
@@ -89,7 +134,7 @@ export default function SettingsTab({ active }: Props) {
 
     try {
       await updateSettingsAsync(request);
-      toast.success("Tạo Part thành công.");
+      toast.success("Lưu cài đặt thành công.");
 
       const data = await getSettingsAsync();
 
@@ -112,9 +157,9 @@ export default function SettingsTab({ active }: Props) {
     setTestingConnection(true);
     try {
       await testConnectionAsync();
-      toast.success("Success.");
+      toast.success("Kết nối thành công.");
     } catch (error) {
-      console.error("Connect failure:", error);
+      console.error("Kết nối thất bại:", error);
 
       if (error instanceof ApiError) {
         toast.error(error.getDisplayMessage());
@@ -124,6 +169,117 @@ export default function SettingsTab({ active }: Props) {
       toast.error("Connect failure.");
     } finally {
       setTestingConnection(false);
+    }
+  };
+
+  const handleWriteMachineChange = (machineId?: number) => {
+    const machine = machineSource.find((item) => item.id === machineId) ?? null;
+
+    setSelectedWriteMachine(machine);
+    writeForm.resetFields();
+  };
+
+  const handleReadMachineChange = (machineId?: number) => {
+    const machine = machineSource.find((item) => item.id === machineId) ?? null;
+
+    setSelectedReadMachine(machine);
+    readForm.resetFields();
+  };
+
+  const handleSubmitWrite = async (values: WriteFormValues) => {
+    if (!selectedWriteMachine) {
+      toast.warning("Vui lòng chọn máy");
+      return;
+    }
+
+    if (selectedWriteMachine.statusBitAddress === null) {
+      toast.error("Máy chưa cấu hình Status Bit Address");
+      return;
+    }
+
+    if (selectedWriteMachine.partBitAddress === null) {
+      toast.error("Máy chưa cấu hình Part Bit Address");
+      return;
+    }
+
+    if (selectedWriteMachine.partProcessBitAddress === null) {
+      toast.error("Máy chưa cấu hình Part Process Bit Address");
+      return;
+    }
+
+    const request = {
+      statusBitAddress: selectedWriteMachine.statusBitAddress,
+      partBitAddress: selectedWriteMachine.partBitAddress,
+      partProcessBitAddress: selectedWriteMachine.partProcessBitAddress,
+      statusValue: values.status,
+      partValue: values.part,
+      partProcessValue: values.partProcess,
+    };
+
+    try {
+      setSubmittingWrite(true);
+
+      await writeMachineBitsAsync(request);
+
+      toast.success("Gửi lệnh ghi thành công");
+    } catch (error) {
+      console.error(error);
+      toast.error("Gửi lệnh ghi thất bại");
+    } finally {
+      setSubmittingWrite(false);
+    }
+  };
+
+  const handleSubmitRead = async () => {
+    if (!selectedReadMachine) {
+      toast.warning("Vui lòng chọn máy");
+      return;
+    }
+
+    if (selectedReadMachine.statusBitAddress === null) {
+      toast.error("Máy chưa cấu hình Status Bit Address");
+      return;
+    }
+
+    if (selectedReadMachine.partBitAddress === null) {
+      toast.error("Máy chưa cấu hình Part Bit Address");
+      return;
+    }
+
+    if (selectedReadMachine.partProcessBitAddress === null) {
+      toast.error("Máy chưa cấu hình Part Process Bit Address");
+      return;
+    }
+
+    const request = {
+      statusBitAddress: selectedReadMachine.statusBitAddress,
+      partBitAddress: selectedReadMachine.partBitAddress,
+      partProcessBitAddress: selectedReadMachine.partProcessBitAddress,
+    };
+
+    try {
+      setSubmittingRead(true);
+
+      const data = await readMachineBitsAsync(request);
+
+      readForm.setFieldsValue({
+        status: data.statusValue,
+        part: data.partValue,
+        partProcess: data.partProcessValue,
+      });
+
+      toast.success("Đọc dữ liệu thành công");
+    } catch (error) {
+      console.error(error);
+
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+        return;
+      }
+
+      toast.error("Đọc dữ liệu thất bại");
+    } finally {
+      setSubmittingRead(false);
     }
   };
 
@@ -219,6 +375,234 @@ export default function SettingsTab({ active }: Props) {
           </Button>
         </div>
       </Form>
+
+      <div className="mt-4">
+        <div className="row g-3">
+          <div className="col-12 col-xl-6">
+            <Card title="Ghi dữ liệu xuống máy" className="h-100">
+              <Form
+                form={writeForm}
+                layout="vertical"
+                onFinish={handleSubmitWrite}
+                initialValues={{
+                  status: MachineStatus.None,
+                  part: 0,
+                  partProcess: 0,
+                }}
+              >
+                <Form.Item label="Máy">
+                  <Select
+                    allowClear
+                    showSearch
+                    loading={loadingMachines}
+                    placeholder="Chọn máy"
+                    value={selectedWriteMachine?.id}
+                    optionFilterProp="label"
+                    options={machineSource.map((machine) => ({
+                      value: machine.id,
+                      label: `${machine.name} - ${machine.code}`,
+                    }))}
+                    onChange={handleWriteMachineChange}
+                  />
+                </Form.Item>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(160px, 220px) 1fr",
+                    gap: 12,
+                    alignItems: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Status Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ: {selectedWriteMachine?.statusBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item
+                    name="status"
+                    style={{ marginBottom: 0 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn trạng thái",
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn trạng thái"
+                      disabled={!selectedWriteMachine}
+                      options={[
+                        { value: MachineStatus.None, label: "None" },
+                        { value: MachineStatus.Running, label: "Running" },
+                        { value: MachineStatus.Paused, label: "Paused" },
+                        { value: MachineStatus.Stopped, label: "Stopped" },
+                        { value: MachineStatus.Alarm, label: "Alarm" },
+                      ]}
+                    />
+                  </Form.Item>
+
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Part Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ: {selectedWriteMachine?.partBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item
+                    name="part"
+                    style={{ marginBottom: 0 }}
+                    rules={[{ required: true, message: "Vui lòng nhập Part" }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      precision={0}
+                      disabled={!selectedWriteMachine}
+                      placeholder="Nhập giá trị Part"
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Part Process Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ:{" "}
+                      {selectedWriteMachine?.partProcessBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item
+                    name="partProcess"
+                    style={{ marginBottom: 0 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập Part Process",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      min={0}
+                      precision={0}
+                      disabled={!selectedWriteMachine}
+                      placeholder="Nhập giá trị Part Process"
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </div>
+
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={submittingWrite}
+                  disabled={!selectedWriteMachine}
+                  block
+                >
+                  Gửi lệnh ghi
+                </Button>
+              </Form>
+            </Card>
+          </div>
+
+          <div className="col-12 col-xl-6">
+            <Card title="Đọc dữ liệu từ máy" className="h-100">
+              <Form form={readForm} layout="vertical">
+                <Form.Item label="Máy">
+                  <Select
+                    allowClear
+                    showSearch
+                    loading={loadingMachines}
+                    placeholder="Chọn máy"
+                    value={selectedReadMachine?.id}
+                    optionFilterProp="label"
+                    options={machineSource.map((machine) => ({
+                      value: machine.id,
+                      label: `${machine.name} - ${machine.code}`,
+                    }))}
+                    onChange={handleReadMachineChange}
+                  />
+                </Form.Item>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(160px, 220px) 1fr",
+                    gap: 12,
+                    alignItems: "center",
+                    marginBottom: 16,
+                  }}
+                >
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Status Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ: {selectedReadMachine?.statusBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item name="status" style={{ marginBottom: 0 }}>
+                    <Select
+                      disabled
+                      placeholder="Giá trị trạng thái"
+                      options={[
+                        { value: MachineStatus.None, label: "None" },
+                        { value: MachineStatus.Running, label: "Running" },
+                        { value: MachineStatus.Paused, label: "Paused" },
+                        { value: MachineStatus.Stopped, label: "Stopped" },
+                        { value: MachineStatus.Alarm, label: "Alarm" },
+                      ]}
+                    />
+                  </Form.Item>
+
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Part Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ: {selectedReadMachine?.partBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item name="part" style={{ marginBottom: 0 }}>
+                    <InputNumber
+                      disabled
+                      placeholder="Giá trị Part"
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+
+                  <Space orientation="vertical" size={0}>
+                    <Text strong>Part Process Bit Address</Text>
+                    <Text type="secondary">
+                      Địa chỉ:{" "}
+                      {selectedReadMachine?.partProcessBitAddress ?? "-"}
+                    </Text>
+                  </Space>
+
+                  <Form.Item name="partProcess" style={{ marginBottom: 0 }}>
+                    <InputNumber
+                      disabled
+                      placeholder="Giá trị Part Process"
+                      style={{ width: "100%" }}
+                    />
+                  </Form.Item>
+                </div>
+
+                <Button
+                  type="default"
+                  icon={<ReadOutlined />}
+                  loading={submittingRead}
+                  disabled={!selectedReadMachine}
+                  onClick={() => void handleSubmitRead()}
+                  block
+                >
+                  Đọc dữ liệu
+                </Button>
+              </Form>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

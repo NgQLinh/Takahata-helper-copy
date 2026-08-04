@@ -149,6 +149,28 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "SystemConfigs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    IpAddress = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Port = table.Column<int>(type: "int", nullable: false),
+                    CreateAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreateBy = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    UpdateAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    UpdateBy = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SystemConfigs", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -501,6 +523,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "PartProcesses");
+
+            migrationBuilder.DropTable(
+                name: "SystemConfigs");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
