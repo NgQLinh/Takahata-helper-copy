@@ -9,5 +9,6 @@
         Cancelled = 3,
         Overdue = 4,
         Paused = 5,
+        PartiallyCompleted = 6
     }
 }

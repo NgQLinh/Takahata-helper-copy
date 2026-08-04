@@ -11,6 +11,8 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public int PartId { get; set; }
         public string PartCode { get; set; } = string.Empty;
         public int Quantity { get; set; }
+
+        public int ProcessedQuantity { get; set; }
         public ProcessStatus Status { get; set; }
         public string Note { get; set; } = string.Empty;
     }

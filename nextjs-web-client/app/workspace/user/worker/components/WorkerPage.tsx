@@ -177,11 +177,13 @@ export default function WorkerPage() {
   const isActionLoading = processingAction !== null;
 
   // Ma trận trạng thái:
-  // Planned/Paused -> được bắt đầu hoặc tiếp tục.
-  // InProgress -> được tạm dừng hoặc hoàn thành.
+  // Planned -> được bắt đầu.
+  // Paused/PartiallyCompleted -> được tiếp tục.
+  // InProgress -> được tạm dừng hoặc ghi nhận hoàn thành.
   const canStartProcessing =
     selectedProcessStatus === ProcessStatus.Planned ||
-    selectedProcessStatus === ProcessStatus.Paused;
+    selectedProcessStatus === ProcessStatus.Paused ||
+    selectedProcessStatus === ProcessStatus.PartiallyCompleted;
   const canPauseProcessing = selectedProcessStatus === ProcessStatus.InProgress;
   const canCompleteProcessing =
     selectedProcessStatus === ProcessStatus.InProgress;
@@ -189,6 +191,7 @@ export default function WorkerPage() {
   const startButtonText = (() => {
     switch (selectedProcessStatus) {
       case ProcessStatus.Paused:
+      case ProcessStatus.PartiallyCompleted:
         return "Tiếp tục gia công";
       case ProcessStatus.InProgress:
         return "Đang gia công";
@@ -333,6 +336,12 @@ export default function WorkerPage() {
       align: "center",
     },
     {
+      title: "Đã hoàn thành",
+      dataIndex: "processedQuantity",
+      width: 150,
+      align: "center",
+    },
+    {
       title: "Ghi chú",
       dataIndex: "note",
       width: 200,
@@ -360,6 +369,10 @@ export default function WorkerPage() {
           [ProcessStatus.Completed]: {
             color: "success",
             text: "Hoàn thành",
+          },
+          [ProcessStatus.PartiallyCompleted]: {
+            color: "gold",
+            text: "Hoàn thành một phần",
           },
           [ProcessStatus.Cancelled]: {
             color: "error",

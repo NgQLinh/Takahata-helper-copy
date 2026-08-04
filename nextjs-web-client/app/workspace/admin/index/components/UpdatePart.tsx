@@ -96,6 +96,7 @@ const statusOptions = [
   { value: ProcessStatus.InProgress, label: "Đang thực hiện" },
   { value: ProcessStatus.Completed, label: "Hoàn thành" },
   { value: ProcessStatus.Cancelled, label: "Đã hủy" },
+  { value: ProcessStatus.PartiallyCompleted, label: "Hoàn thành một phần" },
 ];
 
 const getStatusTag = (status: ProcessStatus) => {
@@ -108,6 +109,8 @@ const getStatusTag = (status: ProcessStatus) => {
       return <Tag color="green">Hoàn thành</Tag>;
     case ProcessStatus.Cancelled:
       return <Tag color="red">Đã hủy</Tag>;
+    case ProcessStatus.PartiallyCompleted:
+      return <Tag color="gold">Hoàn thành một phần</Tag>;
     default:
       return <Tag>Không xác định</Tag>;
   }

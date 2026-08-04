@@ -80,7 +80,8 @@ namespace TAKAHATA.Application.Services
                         {
                             machineLogs.Add(log);
 
-                            if (machine.MachineStatus == MachineStatus.Running && log.Status == MachineStatus.Stopped)
+                            // Trạng thái đổi từ Running sang trạng thái khác, tính thời gian chạy
+                            if (machine.MachineStatus == MachineStatus.Running && log.Status != MachineStatus.Running)
                             {
                                 var runningTime = log.Time - machine.MachineStatusChangeAt;
 
@@ -91,7 +92,7 @@ namespace TAKAHATA.Application.Services
 
                                     if (process != null)
                                     {
-                                        process.WorkingTime = Math.Round(workingTime, 2);
+                                        process.WorkingTime += Math.Round(workingTime, 2);
                                         await partProcessRepository.UpdateAsync(process, stoppingToken);
                                     }
                                 }
@@ -160,9 +161,9 @@ namespace TAKAHATA.Application.Services
                 var log = new MachineLog
                 {
                     MachineId = machine.Id,
-                    PartId = _random.Next(1, 100),
-                    PartProcessId = _random.Next(1, 10),
-                    Status = (MachineStatus)_random.Next(Enum.GetValues<MachineStatus>().Length)
+                    PartId = 0,
+                    PartProcessId = 0,
+                    Status = MachineStatus.None
                 };
 
                 return log;

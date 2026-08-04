@@ -14,10 +14,12 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         private readonly ILogger<CompleteCommandHandler> _logger;
         private readonly IMachineRepository _machineRepository;
         private readonly IPartProcessRepository _partProcessRepository;
+        private readonly IPartRepository _partRepository;
         private readonly IPLCService _iPLCService;
 
         public CompleteCommandHandler(
             IPartProcessRepository partProcessRepository,
+            IPartRepository partRepository,
             ILogger<CompleteCommandHandler> logger,
             IMachineRepository machineRepository,
             IPLCService iPLCService)
@@ -26,6 +28,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             _logger = logger;
             _machineRepository = machineRepository;
             _iPLCService = iPLCService;
+            _partRepository = partRepository;
         }
 
         public async Task<ErrorOr<ManufacturingProcessResponse>> Handle(
@@ -48,18 +51,31 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     var partId = request.PartId;
                     var processId = request.ProcessId;
 
+                    var part = await _partRepository.GetByIdAsync(partId);
+                    if (part == null)
+                        return Errors.Part.NotFound;
+
                     var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                     if (partProcess == null)
                         return Errors.Part.NotFoundProcess;
 
-                    partProcess.Status = ProcessStatus.Completed;
+                    if (request.ProcessedQuantity + part.ProcessedQuantity >= part.Quantity)
+                        partProcess.Status = ProcessStatus.Completed;
+                    else
+                        partProcess.Status = ProcessStatus.PartiallyCompleted;
+
                     partProcess.WaitingTime = request.WaitingTime;
                     partProcess.SetupTime = request.SetupTime;
                     partProcess.EndTime = DateTime.Now;
-                    partProcess.ProcessedQuantity = request.ProcessedQuantity;
+                    partProcess.ProcessedQuantity += request.ProcessedQuantity;
                     partProcess.PerformedBy = request.PerformedBy;
-                    partProcess = await _partProcessRepository.UpdateAsync(partProcess);
 
+                    part.ProcessedQuantity += request.ProcessedQuantity;
+                    part = await _partRepository.UpdateAsync(part);
+                    if (part == null)
+                        return Errors.Part.UpdateFalse;
+
+                    partProcess = await _partProcessRepository.UpdateAsync(partProcess);
                     if (partProcess == null)
                         return Errors.Part.UpdatePartProcessFalse;
 

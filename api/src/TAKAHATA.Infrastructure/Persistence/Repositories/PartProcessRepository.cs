@@ -50,6 +50,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         ? x.Part.Quantity
                         : 0,
 
+                    ProcessedQuantity = x.ProcessedQuantity,
+
                     IndexId = x.Part != null
                         ? x.Part.IndexId
                         : 0,
