@@ -11,8 +11,8 @@ export default function LoginPage() {
 
   const formik = useFormik({
     initialValues: {
-      userName: "admin",
-      password: "123@123Aa",
+      userName: "",
+      password: "",
     },
 
     validationSchema: Yup.object({
