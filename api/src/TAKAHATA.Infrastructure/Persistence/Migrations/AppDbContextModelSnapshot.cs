@@ -154,37 +154,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TAKAHATA.Domain.DataLog.MachineLog", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("MachineId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PartId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PartProcessId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MachineLog");
-                });
-
             modelBuilder.Entity("TAKAHATA.Domain.MasterData.Index", b =>
                 {
                     b.Property<int>("Id")
@@ -258,10 +227,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("PartId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PartPorcessId")
+                    b.Property<int>("PartProcessBitAddress")
                         .HasColumnType("int");
 
-                    b.Property<int>("PartProcessBitAddress")
+                    b.Property<int>("PartProcessId")
                         .HasColumnType("int");
 
                     b.Property<int>("StatusBitAddress")

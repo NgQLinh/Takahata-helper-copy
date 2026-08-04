@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.DataLog;
 using TAKAHATA.Domain.MasterData;
+using Serilog.Context;
+using Microsoft.Extensions.Logging;
 
 namespace TAKAHATA.Application.Services
 {
@@ -40,10 +41,6 @@ namespace TAKAHATA.Application.Services
         {
             using var scope = _scopeFactory.CreateScope();
 
-            var machineLogRepository =
-                scope.ServiceProvider
-                     .GetRequiredService<IMachineLogRepository>();
-
             var machineRepository =
                 scope.ServiceProvider
                     .GetRequiredService<IMachineRepository>();
@@ -66,60 +63,131 @@ namespace TAKAHATA.Application.Services
 
                 try
                 {
-                    var machineNeedUpdate = new List<Machine>();
-                    var machineLogs = new List<MachineLog>();
-                    foreach (var machine in _machines)
+                    using (LogContext.PushProperty("MachineLog", true))
                     {
-                        // Dọc dữ lệu
-                        var log = await ReadData(machine, pLCService);
+                        var machineNeedUpdate = new List<Machine>();
 
-                        // Kiểm tra sự thay đổi
-                        if (log.Status != machine.MachineStatus
-                            || log.PartId != machine.PartId
-                            || log.PartProcessId != machine.PartPorcessId)
+                        foreach (var machine in _machines)
                         {
-                            machineLogs.Add(log);
+                            _logger.LogInformation(
+                                "{Manager} | Machine: {MachineId} | Status: {Status} | PartId: {PartId} | PartProcessId: {PartProcessId}",
+                                nameof(MachinePollingManager),
+                                machine.Id,
+                                machine.MachineStatus,
+                                machine.PartId,
+                                machine.PartProcessId);
 
-                            // Trạng thái đổi từ Running sang trạng thái khác, tính thời gian chạy
-                            if (machine.MachineStatus == MachineStatus.Running && log.Status != MachineStatus.Running)
+                            // Dọc dữ lệu
+                            var log = await ReadData(machine, pLCService);
+
+                            _logger.LogInformation(
+                                "[MachineLog] MachineId={MachineId}, Status={Status}, PartId={PartId}, PartProcessId={PartProcessId}",
+                                log.MachineId,
+                                log.Status,
+                                log.PartId,
+                                log.PartProcessId);
+
+                            // Kiểm tra sự thay đổi
+                            if (log.Status != machine.MachineStatus
+                                || log.PartId != machine.PartId
+                                || log.PartProcessId != machine.PartProcessId)
                             {
-                                var runningTime = log.Time - machine.MachineStatusChangeAt;
 
-                                if (runningTime.HasValue && log.PartProcessId != 0)
+                                _logger.LogInformation(
+                                     "[MachineLog] MachineId={MachineId}, Status={Status}, PartId={PartId}, PartProcessId={PartProcessId}",
+                                     log.MachineId,
+                                     log.Status,
+                                     log.PartId,
+                                     log.PartProcessId);
+
+                                // Trạng thái đổi từ Running sang trạng thái khác, tính thời gian chạy
+                                if (machine.MachineStatus == MachineStatus.Running && log.Status != MachineStatus.Running)
                                 {
-                                    var workingTime = runningTime.Value.TotalMinutes;
-                                    var process = await partProcessRepository.GetByIdAsync(log.PartProcessId);
+                                    var runningTime = log.Time - machine.MachineStatusChangeAt;
 
-                                    if (process != null)
+                                    _logger.LogInformation(
+                                        """
+                                            ==================== MACHINE STATUS CHANGED ====================
+                                            Machine           : {MachineName}
+                                            Status            : {OldStatus} -> {NewStatus}
+                                            PartProcessId     : Machine={MachinePartProcessId}, Log={LogPartProcessId}
+                                            ChangeAt          : {MachineStatusChangeAt:yyyy-MM-dd HH:mm:ss.fff}
+                                            CurrentLogTime    : {LogTime:yyyy-MM-dd HH:mm:ss.fff}
+                                            RunningTime       : {RunningTime}
+                                            TotalSeconds      : {TotalSeconds}
+                                            TotalMinutes      : {TotalMinutes}
+                                            ===============================================================
+                                            """,
+                                        machine.Name,
+                                        machine.MachineStatus,
+                                        log.Status,
+                                        machine.PartProcessId,
+                                        log.PartProcessId,
+                                        machine.MachineStatusChangeAt,
+                                        log.Time,
+                                        runningTime,
+                                        runningTime?.TotalSeconds,
+                                        runningTime?.TotalMinutes);
+
+                                    if (runningTime.HasValue && log.PartProcessId != 0)
                                     {
-                                        process.WorkingTime += Math.Round(workingTime, 2);
-                                        await partProcessRepository.UpdateAsync(process, stoppingToken);
+                                        var workingTime = runningTime.Value.TotalMinutes;
+                                        var process = await partProcessRepository.GetByIdAsync(log.PartProcessId);
+
+                                        if (process != null)
+                                        {
+                                            var before = process.WorkingTime ?? 0;
+                                            var added = runningTime.Value.TotalMinutes;
+
+                                            process.WorkingTime = before + added;
+
+                                            _logger.LogInformation(
+                                                """
+                                                            -------------------- UPDATE WORKING TIME --------------------
+                                                            Machine         : {MachineName}
+                                                            PartProcessId   : {PartProcessId}
+                                                            Before          : {Before}
+                                                            Added           : {Added}
+                                                            After           : {After}
+                                                            -------------------------------------------------------------
+                                                            """,
+                                                machine.Name,
+                                                process.Id,
+                                                before,
+                                                added,
+                                                process.WorkingTime);
+
+                                            await partProcessRepository.UpdateAsync(process, stoppingToken);
+                                        }
+                                        else
+                                        {
+                                            _logger.LogWarning(
+                                                "Không tìm thấy PartProcess. Id={PartProcessId}",
+                                                machine.PartProcessId);
+                                        }
                                     }
                                 }
+
+                                machine.PartId = log.PartId;
+                                machine.PartProcessId = log.PartProcessId;
+                                machine.MachineStatus = log.Status;
+                                machine.UpdateAt = DateTime.Now;
+                                machine.MachineStatusChangeAt = DateTime.Now;
+                                machineNeedUpdate.Add(machine);
                             }
-
-                            machine.PartId = log.PartId;
-                            machine.PartPorcessId = log.PartProcessId;
-                            machine.MachineStatus = log.Status;
-                            machine.UpdateAt = DateTime.Now;
-                            machine.MachineStatusChangeAt = DateTime.Now;
-                            machineNeedUpdate.Add(machine);
+                            await Task.Delay(20, stoppingToken);
                         }
-                        await Task.Delay(20, stoppingToken);
+
+                        if (machineNeedUpdate.Count != 0)
+                            await machineRepository.UpdateManyAsync(machineNeedUpdate, stoppingToken);
                     }
-
-                    if (machineNeedUpdate.Count != 0)
-                        await machineRepository.UpdateManyAsync(machineNeedUpdate, stoppingToken);
-
-                    if (machineLogs.Count != 0)
-                        await machineLogRepository.AddRangeAsync(machineLogs, stoppingToken);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError($"Gián đoạn trong quá trình quét dữ liệu: {ex.Message}");
                 }
 
-                await Task.Delay(2000, stoppingToken);
+                await Task.Delay(3000, stoppingToken);
             }
         }
 
@@ -136,9 +204,6 @@ namespace TAKAHATA.Application.Services
 
             Console.WriteLine($"Reload {_machines.Count} machines");
         }
-
-
-        private static readonly Random _random = new();
 
         private async Task<MachineLog> ReadData(Machine machine, IPLCService pLCService)
         {

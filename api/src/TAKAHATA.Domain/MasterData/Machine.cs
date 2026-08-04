@@ -9,11 +9,11 @@ namespace TAKAHATA.Domain.MasterData
         public string Code { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
-        public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
+        public MachineStatus MachineStatus { get; set; }
         public DateTime? MachineStatusChangeAt { get; set; }
 
         public int PartId { get; set; }
-        public int PartPorcessId { get; set; }
+        public int PartProcessId { get; set; }
 
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }

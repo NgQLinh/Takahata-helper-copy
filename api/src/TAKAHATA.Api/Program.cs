@@ -36,7 +36,6 @@ Log.Logger = new LoggerConfiguration()
         LogEventLevel.Warning)
 
     .Enrich.FromLogContext()
-    .Enrich.WithThreadId()
 
     .WriteTo.Console(
         outputTemplate:
@@ -45,23 +44,32 @@ Log.Logger = new LoggerConfiguration()
         "[{SourceContext}] " +
         "{Message:lj}{NewLine}{Exception}")
 
-    .WriteTo.File(
-        "Logs/log-.txt",
-        rollingInterval: RollingInterval.Day,
+    .WriteTo.Logger(lc => lc
+        .Filter.ByExcluding(e => e.Properties.ContainsKey("MachineLog"))
+        .WriteTo.File(
+            "Logs/app/log-.txt",
+            rollingInterval: RollingInterval.Day,
+            fileSizeLimitBytes: 10 * 1024 * 1024,
+            rollOnFileSizeLimit: true,
+            retainedFileCountLimit: 30,
+            shared: true,
+            flushToDiskInterval: TimeSpan.FromSeconds(1),
+            outputTemplate:
+                "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
+                "[CorrelationId:{CorrelationId}] " +
+                "[{SourceContext}] " +
+                "{Message:lj}{NewLine}{Exception}"))
 
-        // 10 MB, không phải 10 KB
-        fileSizeLimitBytes: 10 * 1024 * 1024,
-        rollOnFileSizeLimit: true,
-
-        retainedFileCountLimit: 30,
-        shared: true,
-        flushToDiskInterval: TimeSpan.FromSeconds(1),
-
-        outputTemplate:
-        "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] " +
-        "[CorrelationId:{CorrelationId}] " +
-        "[{SourceContext}] " +
-        "{Message:lj}{NewLine}{Exception}")
+    .WriteTo.Logger(lc => lc
+        .Filter.ByIncludingOnly(e => e.Properties.ContainsKey("MachineLog"))
+        .WriteTo.File(
+            "Logs/machine/machine-.log",
+            rollingInterval: RollingInterval.Day,
+            fileSizeLimitBytes: 10 * 1024 * 1024,
+            rollOnFileSizeLimit: true,
+            retainedFileCountLimit: 30,
+            shared: true,
+            flushToDiskInterval: TimeSpan.FromSeconds(1)))
 
     .CreateLogger();
 

@@ -12,7 +12,7 @@ namespace TAKAHATA.Domain.Common.Errors
             public static Error OperationFailed =>
                 Error.Failure(
                     code: "Settings.OperationFailed",
-                    description: "Ghi dữ liệu không thành công.");
+                    description: "Thao tác không thành công.");
         }
     }
 }

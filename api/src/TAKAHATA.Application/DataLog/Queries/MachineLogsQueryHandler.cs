@@ -11,18 +11,15 @@ namespace TAKAHATA.Application.DataLog.Queries
     {
         private readonly IPartRepository _partRepository;
         private readonly IMachineRepository _machineRepository;
-        private readonly IMachineLogRepository _machineLogRepository;
         private readonly IMapper _mapper;
 
         public MachineLogsQueryHandler(
             IPartRepository partRepository,
             IMachineRepository machineRepository,
-            IMachineLogRepository machineLogRepository,
             IMapper mapper)
         {
             _partRepository = partRepository;
             _machineRepository = machineRepository;
-            _machineLogRepository = machineLogRepository;
             _mapper = mapper;
         }
 

@@ -1,12 +1,9 @@
-﻿using TAKAHATA.Domain.Common;
-using TAKAHATA.Domain.Common.Enum;
+﻿using TAKAHATA.Domain.Common.Enum;
 
 namespace TAKAHATA.Domain.DataLog
 {
     public class MachineLog
     {
-        public long Id { get; set; }
-        public DateTime CreateAt { get; set; } = DateTime.Now;
         public int MachineId { get; set; }
         public int PartId { get; set; }
         public int PartProcessId { get; set; }

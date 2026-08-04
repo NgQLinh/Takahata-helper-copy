@@ -1,4 +1,6 @@
-﻿using TAKAHATA.Application.Common.Interface.Services;
+﻿using System.Net;
+using Microsoft.EntityFrameworkCore;
+using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Domain.MasterData;
 using TAKAHATA.Infrastructure.Persistence;
 
@@ -18,161 +20,82 @@ namespace TAKAHATA.Infrastructure.Services
 
         public void Create(string ipAddress, int port)
         {
-            Validate(ipAddress, port);
-
-            using var transaction = _appDbContext.Database.BeginTransaction();
-
-            try
-            {
-                var config = _appDbContext.SystemConfigs
-                    .SingleOrDefault(x => x.Id == SystemConfig.SingletonId);
-
-                if (config is null)
-                {
-                    config = new SystemConfig
-                    {
-                        Id = SystemConfig.SingletonId,
-                        IpAddress = ipAddress.Trim(),
-                        Port = port,
-                        CreateAt = DateTime.Now
-                    };
-
-                    _appDbContext.SystemConfigs.Add(config);
-                }
-                else
-                {
-                    // Nếu đã có thì Create hoạt động như Upsert,
-                    // không tạo thêm bản ghi mới.
-                    config.IpAddress = ipAddress.Trim();
-                    config.Port = port;
-                    config.UpdateAt = DateTime.Now;
-                }
-
-                RemoveDuplicateRecords();
-
-                _appDbContext.SaveChanges();
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            Save(ipAddress, port);
         }
 
         public void Update(string ipAddress, int port)
         {
-            Validate(ipAddress, port);
-
-            using var transaction = _appDbContext.Database.BeginTransaction();
-
-            try
-            {
-                var config = _appDbContext.SystemConfigs
-                    .SingleOrDefault(x => x.Id == SystemConfig.SingletonId);
-
-                if (config is null)
-                {
-                    // Tự động tạo cấu hình nếu chưa tồn tại.
-                    config = new SystemConfig
-                    {
-                        Id = SystemConfig.SingletonId,
-                        IpAddress = ipAddress.Trim(),
-                        Port = port,
-                        CreateAt = DateTime.Now
-                    };
-
-                    _appDbContext.SystemConfigs.Add(config);
-                }
-                else
-                {
-                    config.IpAddress = ipAddress.Trim();
-                    config.Port = port;
-                    config.UpdateAt = DateTime.Now;
-                }
-
-                RemoveDuplicateRecords();
-
-                _appDbContext.SaveChanges();
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+            Save(ipAddress, port);
         }
 
         public string GetIpAddress()
         {
-            var config = GetOrCreateDefaultConfig();
+            var config = GetConfig();
 
             return config.IpAddress;
         }
 
         public int GetPort()
         {
-            var config = GetOrCreateDefaultConfig();
+            var config = GetConfig();
 
             return config.Port;
         }
 
-        private SystemConfig GetOrCreateDefaultConfig()
+        private void Save(string ipAddress, int port)
+        {
+            Validate(ipAddress, port);
+
+            var normalizedIpAddress = ipAddress.Trim();
+
+            var config = _appDbContext.SystemConfigs
+                .FirstOrDefault(x => x.Id == SystemConfig.SingletonId);
+
+            if (config is null)
+            {
+                config = new SystemConfig
+                {
+                    Id = SystemConfig.SingletonId,
+                    IpAddress = normalizedIpAddress,
+                    Port = port,
+                    CreateAt = DateTime.Now
+                };
+
+                _appDbContext.SystemConfigs.Add(config);
+            }
+            else
+            {
+                config.IpAddress = normalizedIpAddress;
+                config.Port = port;
+                config.UpdateAt = DateTime.Now;
+            }
+
+            _appDbContext.SaveChanges();
+        }
+
+        private SystemConfig GetConfig()
         {
             var config = _appDbContext.SystemConfigs
-                .SingleOrDefault(x => x.Id == SystemConfig.SingletonId);
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == SystemConfig.SingletonId);
 
             if (config is not null)
             {
                 return config;
             }
 
-            using var transaction = _appDbContext.Database.BeginTransaction();
-
-            try
+            config = new SystemConfig
             {
-                // Kiểm tra lại sau khi bắt đầu transaction để hạn chế
-                // trường hợp nhiều request cùng tạo cấu hình.
-                config = _appDbContext.SystemConfigs
-                    .SingleOrDefault(x => x.Id == SystemConfig.SingletonId);
+                Id = SystemConfig.SingletonId,
+                IpAddress = DefaultIpAddress,
+                Port = DefaultPort,
+                CreateAt = DateTime.Now
+            };
 
-                if (config is null)
-                {
-                    config = new SystemConfig
-                    {
-                        Id = SystemConfig.SingletonId,
-                        IpAddress = DefaultIpAddress,
-                        Port = DefaultPort,
-                        CreateAt = DateTime.Now
-                    };
+            _appDbContext.SystemConfigs.Add(config);
+            _appDbContext.SaveChanges();
 
-                    _appDbContext.SystemConfigs.Add(config);
-                }
-
-                RemoveDuplicateRecords();
-
-                _appDbContext.SaveChanges();
-                transaction.Commit();
-
-                return config;
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
-        }
-
-        private void RemoveDuplicateRecords()
-        {
-            var duplicateConfigs = _appDbContext.SystemConfigs
-                .Where(x => x.Id != SystemConfig.SingletonId)
-                .ToList();
-
-            if (duplicateConfigs.Count > 0)
-            {
-                _appDbContext.SystemConfigs.RemoveRange(duplicateConfigs);
-            }
+            return config;
         }
 
         private static void Validate(string ipAddress, int port)
@@ -191,7 +114,7 @@ namespace TAKAHATA.Infrastructure.Services
                     "Port phải nằm trong khoảng từ 1 đến 65535.");
             }
 
-            if (!System.Net.IPAddress.TryParse(ipAddress.Trim(), out _))
+            if (!IPAddress.TryParse(ipAddress.Trim(), out _))
             {
                 throw new ArgumentException(
                     "Địa chỉ IP không đúng định dạng.",
