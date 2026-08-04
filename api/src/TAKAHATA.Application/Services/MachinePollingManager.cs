@@ -80,6 +80,9 @@ namespace TAKAHATA.Application.Services
                             // Dọc dữ lệu
                             var log = await ReadData(machine, pLCService);
 
+                            if (log == null)
+                                continue;
+
                             _logger.LogInformation(
                                 "[MachineLog] MachineId={MachineId}, Status={Status}, PartId={PartId}, PartProcessId={PartProcessId}",
                                 log.MachineId,
@@ -205,7 +208,7 @@ namespace TAKAHATA.Application.Services
             Console.WriteLine($"Reload {_machines.Count} machines");
         }
 
-        private async Task<MachineLog> ReadData(Machine machine, IPLCService pLCService)
+        private async Task<MachineLog?> ReadData(Machine machine, IPLCService pLCService)
         {
             var result = await pLCService.ReadMachineData(machine);
 
@@ -223,15 +226,7 @@ namespace TAKAHATA.Application.Services
             }
             else
             {
-                var log = new MachineLog
-                {
-                    MachineId = machine.Id,
-                    PartId = 0,
-                    PartProcessId = 0,
-                    Status = MachineStatus.None
-                };
-
-                return log;
+                return null;
             }
         }
     }
