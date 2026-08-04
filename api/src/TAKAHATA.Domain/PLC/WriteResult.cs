@@ -2,5 +2,6 @@
 {
     public class WriteResult
     {
+        public int BeforeProcessId { get; set; }
     }
 }

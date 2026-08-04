@@ -124,10 +124,15 @@ namespace TAKAHATA.Infrastructure.Services
             {
                 modbusClient.Connect();
 
+                int lastProcessId = modbusClient.ReadHoldingRegisters(machine.PartProcessBitAddress, 1)[0];
+
                 modbusClient.WriteSingleRegister(machine.PartBitAddress, partId);
                 modbusClient.WriteSingleRegister(machine.PartProcessBitAddress, processId);
 
-                return PLCResult<WriteResult>.Success(new WriteResult());
+                return PLCResult<WriteResult>.Success(new WriteResult
+                {
+                    BeforeProcessId = lastProcessId,
+                });
             }
             catch (Exception ex)
             {

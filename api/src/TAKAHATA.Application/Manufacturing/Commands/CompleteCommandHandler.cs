@@ -45,35 +45,33 @@ namespace TAKAHATA.Application.Manufacturing.Commands
 
                 if (result.IsSuccess)
                 {
+                    var partId = request.PartId;
+                    var processId = request.ProcessId;
 
+                    var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
+                    if (partProcess == null)
+                        return Errors.Part.NotFoundProcess;
+
+                    partProcess.Status = ProcessStatus.Completed;
+                    partProcess.WaitingTime = request.WaitingTime;
+                    partProcess.SetupTime = request.SetupTime;
+                    partProcess.EndTime = DateTime.Now;
+                    partProcess.ProcessedQuantity = request.ProcessedQuantity;
+                    partProcess.PerformedBy = request.PerformedBy;
+                    partProcess = await _partProcessRepository.UpdateAsync(partProcess);
+
+                    if (partProcess == null)
+                        return Errors.Part.UpdatePartProcessFalse;
+
+                    return new ManufacturingProcessResponse
+                    {
+                        Id = partProcess.Id,
+                    };
                 }
                 else
                 {
-
+                    return Errors.Part.CompletePartProcessFalse;
                 }
-
-                var partId = request.PartId;
-                var processId = request.ProcessId;
-
-                var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
-                if (partProcess == null)
-                    return Errors.Part.NotFoundProcess;
-
-                partProcess.Status = ProcessStatus.Completed;
-                partProcess.WaitingTime = request.WaitingTime;
-                partProcess.SetupTime = request.SetupTime;
-                partProcess.EndTime = DateTime.Now;
-                partProcess.ProcessedQuantity = request.ProcessedQuantity;
-                partProcess.PerformedBy = request.PerformedBy;
-                partProcess = await _partProcessRepository.UpdateAsync(partProcess);
-
-                if (partProcess == null)
-                    return Errors.Part.UpdatePartProcessFalse;
-
-                return new ManufacturingProcessResponse
-                {
-                    Id = partProcess.Id,
-                };
             }
             catch (Exception ex)
             {

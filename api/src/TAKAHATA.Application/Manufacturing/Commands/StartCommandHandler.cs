@@ -44,32 +44,41 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 // Ghi xuống PLC
                 var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId);
 
-                if (result.IsSuccess)
+                if (result.IsSuccess && result.Value != null)
                 {
+                    if (result.Value.BeforeProcessId != 0)
+                    {
+                        var beforeProcess = await _partProcessRepository.GetByIdAsync(result.Value.BeforeProcessId);
 
+                        if (beforeProcess != null)
+                        {
+                            beforeProcess.Status = ProcessStatus.Completed;
+                            beforeProcess.EndTime = DateTime.Now;
+                        }
+                    }
+
+                    var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
+                    if (partProcess == null)
+                        return Errors.Part.NotFoundProcess;
+
+                    partProcess.Status = ProcessStatus.InProgress;
+                    partProcess.StartTime = DateTime.Now;
+                    partProcess = await _partProcessRepository.UpdateAsync(partProcess);
+
+                    if (partProcess == null)
+                        return Errors.Part.UpdatePartProcessFalse;
+
+                    _logger.LogInformation($"Bắt đầu gia công thành công");
+
+                    return new ManufacturingProcessResponse
+                    {
+                        Id = partProcess.Id,
+                    };
                 }
                 else
                 {
-
+                    return Errors.Part.StartPartProcessFalse;
                 }
-
-                var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
-                if (partProcess == null)
-                    return Errors.Part.NotFoundProcess;
-
-                partProcess.Status = ProcessStatus.InProgress;
-                partProcess.StartTime = DateTime.Now;
-                partProcess = await _partProcessRepository.UpdateAsync(partProcess);
-
-                if (partProcess == null)
-                    return Errors.Part.UpdatePartProcessFalse;
-
-                _logger.LogInformation($"Bắt đầu gia công thành công");
-
-                return new ManufacturingProcessResponse
-                {
-                    Id = partProcess.Id,
-                };
             }
             catch (Exception ex)
             {
