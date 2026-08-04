@@ -51,7 +51,10 @@ namespace TAKAHATA.Application.DataLog.Queries
                 PartId = log.PartId,
                 MachineStatus = log.MachineStatus,
                 MachineStatusChangeAt = log.MachineStatusChangeAt,
-
+                Name = log.Name,
+                Brand = log.Brand,
+                Code = log.Code,
+                Type = log.Type,
                 Part = partDictionary.TryGetValue(log.PartId, out var part)
                     ? _mapper.Map<PartResponse>(part)
                     : null,

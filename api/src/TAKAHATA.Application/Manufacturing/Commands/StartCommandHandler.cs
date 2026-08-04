@@ -62,7 +62,10 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                         return Errors.Part.NotFoundProcess;
 
                     partProcess.Status = ProcessStatus.InProgress;
-                    partProcess.StartTime = DateTime.Now;
+
+                    if (partProcess.StartTime != null)
+                        partProcess.StartTime = DateTime.Now;
+
                     partProcess = await _partProcessRepository.UpdateAsync(partProcess);
 
                     if (partProcess == null)
