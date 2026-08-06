@@ -7,7 +7,6 @@ import {
   DashboardOutlined,
   AppstoreOutlined,
   ClusterOutlined,
-  CalendarOutlined,
   TeamOutlined,
   BarChartOutlined,
   BellOutlined,
@@ -21,32 +20,27 @@ import "./NavigationLayout.css";
 const navItems = [
   {
     href: "/workspace/admin/dashboard",
-    label: "Giám sát",
+    label: "Dashboard",
     icon: <DashboardOutlined />,
   },
   {
-    href: "/workspace/admin/machines",
-    label: "Máy móc",
-    icon: <ClusterOutlined />,
-  },
-  {
     href: "/workspace/admin/index",
-    label: "Quản lý Index & part",
+    label: "Index & Parts",
     icon: <AppstoreOutlined />,
   },
   {
-    href: "/workspace/admin/machine-schedule",
-    label: "Lịch máy",
-    icon: <CalendarOutlined />,
+    href: "/workspace/admin/machines",
+    label: "Machines",
+    icon: <ClusterOutlined />,
   },
   {
     href: "/workspace/admin/users-roles",
-    label: "Người dùng & cài đặt",
+    label: "Users & Settings",
     icon: <TeamOutlined />,
   },
   {
     href: "/workspace/admin/kpi-reports",
-    label: "Báo cáo",
+    label: "Reports",
     icon: <BarChartOutlined />,
   },
 ];

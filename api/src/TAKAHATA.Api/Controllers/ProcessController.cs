@@ -6,7 +6,7 @@ using TAKAHATA.Domain.Common.Constant;
 
 namespace TAKAHATA.Api.Controllers
 {
-    [Authorize(Roles = Role.User)]
+    [Authorize(Roles = $"{Role.Admin}, {Role.User}")]
     public class ProcessController : ApiController
     {
         private ISender _sender;

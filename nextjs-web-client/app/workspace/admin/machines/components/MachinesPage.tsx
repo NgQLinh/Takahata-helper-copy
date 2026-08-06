@@ -7,6 +7,7 @@ import type { TabsProps } from "antd";
 import MachineListTab from "./MachineListTab";
 import MaintenanceHistoryTab from "./MaintenanceHistoryTab";
 import { useState } from "react";
+import { MachineScheduleBoard } from "../../machine-schedule/components/MachineScheduleBoard";
 
 export function MachinesPage() {
   const [activeKey, setActiveKey] = useState("1");
@@ -17,20 +18,30 @@ export function MachinesPage() {
       label: (
         <Space>
           <AppstoreOutlined />
-          Danh sách máy
+          Lịch máy
         </Space>
       ),
-      children: <MachineListTab active={activeKey === "1"} />,
+      children: <MachineScheduleBoard active={activeKey === "1"} />,
     },
     {
       key: "2",
+      label: (
+        <Space>
+          <AppstoreOutlined />
+          Danh sách máy
+        </Space>
+      ),
+      children: <MachineListTab active={activeKey === "2"} />,
+    },
+    {
+      key: "3",
       label: (
         <Space>
           <CalendarOutlined />
           Lịch sử bảo dưỡng
         </Space>
       ),
-      children: <MaintenanceHistoryTab active={activeKey === "2"} />,
+      children: <MaintenanceHistoryTab active={activeKey === "3"} />,
     },
   ];
 

@@ -11,6 +11,7 @@ import { MachineLog } from "@/app/types/machine/MachineLog";
 import { MachineStatus } from "@/app/types/machine/MachineStatus";
 import { Machine } from "@/app/types";
 import { Button, Card, Tooltip } from "antd";
+import DetailPlant from "./DetailPlant";
 
 export const statusConfig: Record<
   MachineStatus,
@@ -82,6 +83,9 @@ export function DashboardPage() {
   const [now, setNow] = useState(dayjs());
   const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
   const [machines, setMachines] = useState<Machine[] | null>(null);
+
+  const [showPlan, setShowPlan] = useState(false);
+  const [machineLog, setMachineLog] = useState<MachineLog | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(dayjs()), 1000);
@@ -172,22 +176,41 @@ export function DashboardPage() {
                   key={`${log.id}-${String(log.machineStatusChangeAt)}`}
                   className="col-lg-3 col-md-6"
                 >
-                  <MachineCard machineLog={log} />
+                  <MachineCard
+                    machineLog={log}
+                    onViewTodayPlan={(log) => {
+                      setMachineLog(log);
+                      setShowPlan(true);
+                    }}
+                  />
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      <DetailPlant
+        open={showPlan}
+        machineId={machineLog?.id || null}
+        onClose={() => setShowPlan(false)}
+      />
     </div>
   );
 }
 
-function MachineCard({ machineLog }: { machineLog: MachineLog }) {
+function MachineCard({
+  machineLog,
+  onViewTodayPlan,
+}: {
+  machineLog: MachineLog;
+  onViewTodayPlan: (log: MachineLog) => void;
+}) {
   const cfg = statusConfig[machineLog.machineStatus];
+  const [showPlan, setShowPlan] = useState(false);
 
   const handleViewTodayPlan = (machine: MachineLog) => {
-    console.log("Xem kế hoạch máy:", machine);
+    onViewTodayPlan(machine);
   };
 
   return (

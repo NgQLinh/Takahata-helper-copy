@@ -1,0 +1,229 @@
+import { getPartProcessByMachineAsync } from "@/app/services/machine/MachineService";
+import { ManufacturingProcess } from "@/app/types";
+import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import { Button, Card, Modal, Table, Tag } from "antd";
+import { ColumnsType } from "antd/es/table";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+
+interface DetailPlantProps {
+  open: boolean;
+  machineId: number | null;
+  onClose?: () => void;
+}
+
+const statusMap: Record<
+  ProcessStatus,
+  {
+    color: string;
+    text: string;
+  }
+> = {
+  [ProcessStatus.Planned]: {
+    color: "blue",
+    text: "Đã lên kế hoạch",
+  },
+  [ProcessStatus.InProgress]: {
+    color: "processing",
+    text: "Đang thực hiện",
+  },
+  [ProcessStatus.Completed]: {
+    color: "success",
+    text: "Hoàn thành",
+  },
+  [ProcessStatus.PartiallyCompleted]: {
+    color: "gold",
+    text: "Hoàn thành một phần",
+  },
+  [ProcessStatus.Cancelled]: {
+    color: "error",
+    text: "Đã hủy",
+  },
+  [ProcessStatus.Overdue]: {
+    color: "warning",
+    text: "Quá hạn",
+  },
+  [ProcessStatus.Paused]: {
+    color: "warning",
+    text: "Tạm dừng",
+  },
+  [ProcessStatus.PendingApproval]: {
+    color: "warning",
+    text: "Chờ phê duyệt",
+  },
+};
+
+function ProcessStatusTag({ status }: { status?: ProcessStatus }) {
+  if (status === undefined || status === null) {
+    return <Tag>Không xác định</Tag>;
+  }
+
+  const current = statusMap[status] ?? {
+    color: "default",
+    text: "Không xác định",
+  };
+
+  return <Tag color={current.color}>{current.text}</Tag>;
+}
+
+export default function DetailPlant({
+  open,
+  machineId,
+  onClose,
+}: DetailPlantProps) {
+  const [loading, setLoading] = useState(false);
+  const [processes, setProcesses] = useState<ManufacturingProcess[]>([]);
+
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+  const [total, setTotal] = useState(0);
+
+  const fetchManufacturingProcess = useCallback(async () => {
+    if (!machineId) {
+      setProcesses([]);
+      setTotal(0);
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const request = {
+        machineId,
+        page,
+        pageSize,
+      };
+
+      const result = await getPartProcessByMachineAsync(request);
+      const nextProcesses = result.data ?? [];
+
+      setProcesses(nextProcesses);
+      setPage(result.page ?? page);
+      setPageSize(result.pageSize ?? pageSize);
+      setTotal(result.totalItems ?? nextProcesses.length);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách chi tiết cần gia công:", error);
+      toast.error("Không thể tải danh sách chi tiết cần gia công.");
+    } finally {
+      setLoading(false);
+    }
+  }, [machineId, page, pageSize]);
+
+  useEffect(() => {
+    const run = async () => {
+      await fetchManufacturingProcess();
+    };
+    void run();
+  }, [fetchManufacturingProcess, machineId]);
+
+  const processingColumns = useMemo<ColumnsType<ManufacturingProcess>>(
+    () => [
+      {
+        title: "#",
+        fixed: "left",
+        key: "index",
+        width: 48,
+        align: "center",
+        render: (_, __, index) => (page - 1) * pageSize + index + 1,
+      },
+      {
+        title: "Mã Index",
+        fixed: "left",
+        dataIndex: "indexCode",
+        width: 110,
+        render: (value) => value || "-",
+      },
+      {
+        title: "Tên chi tiết",
+        fixed: "left",
+        dataIndex: "partCode",
+        width: 170,
+        ellipsis: true,
+        render: (value) => value || "-",
+      },
+      {
+        title: "Số lượng",
+        dataIndex: "quantity",
+        width: 90,
+        align: "center",
+        render: (value) => value ?? 0,
+      },
+      {
+        title: "Đã hoàn thành",
+        dataIndex: "processedQuantity",
+        width: 150,
+        align: "center",
+        render: (value) => value ?? 0,
+      },
+      {
+        title: "Ghi chú",
+        dataIndex: "note",
+        width: 200,
+        ellipsis: true,
+        render: (value) => value || "-",
+      },
+      {
+        fixed: "right",
+        title: "Trạng thái",
+        dataIndex: "status",
+        width: 160,
+        align: "center",
+        render: (status: ProcessStatus) => <ProcessStatusTag status={status} />,
+      },
+    ],
+    [page, pageSize],
+  );
+
+  const today = new Date().toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  return (
+    <>
+      <Modal
+        title={
+          <div className="d-flex ">
+            <span>Chi tiết cần gia công</span>
+            <span className="text-secondary fs-6 pl-4">{today}</span>
+          </div>
+        }
+        open={open}
+        onCancel={onClose}
+        width={1000}
+        height={600}
+        centered
+        footer={null}
+        destroyOnHidden
+      >
+        <Table<ManufacturingProcess>
+          rowKey="id"
+          loading={loading}
+          size="small"
+          columns={processingColumns}
+          dataSource={processes}
+          scroll={{
+            x: "max-content",
+            y: "calc(100vh - 560px)",
+          }}
+          pagination={{
+            current: page,
+            pageSize,
+            total,
+            showSizeChanger: true,
+            pageSizeOptions: [5, 10, 20, 50, 100],
+            showTotal: (value) => `Tổng ${value} chi tiết cần gia công`,
+            onChange: (newPage, newPageSize) => {
+              const pageSizeChanged = newPageSize !== pageSize;
+
+              setPage(pageSizeChanged ? 1 : newPage);
+              setPageSize(newPageSize);
+            },
+          }}
+        />
+      </Modal>
+    </>
+  );
+}

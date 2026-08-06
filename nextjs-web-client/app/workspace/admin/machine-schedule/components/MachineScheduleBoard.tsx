@@ -79,7 +79,11 @@ const getStatusClassName = (status: ProcessStatus) => {
   }
 };
 
-export function MachineScheduleBoard() {
+interface Props {
+  active: boolean;
+}
+
+export function MachineScheduleBoard({ active }: Props) {
   const [isCreatePartOpen, setIsCreatePartOpen] = useState(false);
   const [isUpdatePartOpen, setIsUpdatePartOpen] = useState(false);
   const [selectedPartId, setSelectedPartId] = useState<number | null>(null);
@@ -151,7 +155,8 @@ export function MachineScheduleBoard() {
       await fetchMachineSchedule();
     };
     void run();
-  }, [fetchMachineSchedule]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active]);
 
   /*
    * Sinh tất cả ngày trong khoảng lọc.
