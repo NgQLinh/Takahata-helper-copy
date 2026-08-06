@@ -10,49 +10,71 @@ import {
 import { MachineLog } from "@/app/types/machine/MachineLog";
 import { MachineStatus } from "@/app/types/machine/MachineStatus";
 import { Machine } from "@/app/types";
+import { Button, Card, Tooltip } from "antd";
 
-const statusConfig: Record<
-  number,
+export const statusConfig: Record<
+  MachineStatus,
   {
     text: string;
     badge: string;
     border: string;
+    bg: string;
+    textColor: string;
+    icon: string;
   }
 > = {
   [MachineStatus.None]: {
     text: "NONE",
-    badge: "bg-dark",
+    badge: "bg-dark text-white",
     border: "border-dark",
+    bg: "bg-secondary",
+    textColor: "text-white",
+    icon: "bi-circle",
   },
 
   [MachineStatus.Running]: {
     text: "RUNNING",
-    badge: "bg-success",
+    badge: "bg-success text-white",
     border: "border-success",
+    bg: "bg-success",
+    textColor: "text-white",
+    icon: "bi-play-circle-fill",
   },
 
   [MachineStatus.Paused]: {
     text: "PAUSED",
     badge: "bg-warning text-dark",
     border: "border-warning",
+    bg: "bg-warning",
+    textColor: "text-dark",
+    icon: "bi-pause-circle-fill",
   },
 
   [MachineStatus.Stopped]: {
     text: "STOPPED",
-    badge: "bg-secondary",
+    badge: "bg-secondary text-white",
     border: "border-secondary",
+    bg: "bg-secondary",
+    textColor: "text-white",
+    icon: "bi-stop-circle-fill",
   },
 
   [MachineStatus.Alarm]: {
     text: "ALARM",
-    badge: "bg-danger",
+    badge: "bg-danger text-white",
     border: "border-danger",
+    bg: "bg-danger",
+    textColor: "text-white",
+    icon: "bi-exclamation-triangle-fill",
   },
 
   [MachineStatus.Maintenance]: {
     text: "MAINTENANCE",
-    badge: "bg-info text-dark",
-    border: "border-info",
+    badge: "bg-primary text-white",
+    border: "border-primary",
+    bg: "bg-primary",
+    textColor: "text-white",
+    icon: "bi-tools",
   },
 };
 
@@ -164,43 +186,161 @@ export function DashboardPage() {
 function MachineCard({ machineLog }: { machineLog: MachineLog }) {
   const cfg = statusConfig[machineLog.machineStatus];
 
-  return (
-    <div className={`card h-100 border-start border-4 ${cfg?.border ?? ""}`}>
-      <div className="card-body">
-        <div className="d-flex justify-content-between">
-          <div>
-            <div className="fw-bold">{machineLog?.name}</div>
-            <div className="text-muted small">{machineLog?.code}</div>
-            <div className="text-muted small">{machineLog?.type}</div>
-          </div>
+  const handleViewTodayPlan = (machine: MachineLog) => {
+    console.log("Xem kế hoạch máy:", machine);
+  };
 
-          <span className={`badge ${cfg?.badge ?? "bg-dark"}`}>
-            {cfg?.text ?? machineLog.machineStatus}
-          </span>
+  return (
+    <Card
+      className={`
+    h-full
+    overflow-hidden
+    rounded-xl
+    border
+    border-slate-200
+    border-l-[5px]
+    shadow-sm
+    transition-all duration-200
+    hover:-translate-y-0.5
+    hover:shadow-md
+    ${cfg?.border ?? "border-l-slate-400"}
+  `}
+      styles={{
+        body: {
+          padding: 0,
+          height: "100%",
+        },
+      }}
+    >
+      <div className="flex h-full flex-col">
+        {/* Hàng 1: Trạng thái máy */}
+        <div
+          className={`
+        flex min-h-19
+        items-center justify-center
+        overflow-hidden
+        px-4 py-3
+        ${cfg?.bg ?? "bg-slate-100"}
+      `}
+        >
+          <div
+            className={`
+          flex min-h-16
+          w-full
+          items-center justify-center
+          rounded-lg
+          px-4 py-3
+          text-center
+          text-xl font-extrabold
+          uppercase tracking-wider
+          shadow-sm
+          md:text-2xl
+          ${cfg?.badge ?? "bg-slate-700 text-white"}
+        `}
+          >
+            <i className={`bi ${cfg?.icon ?? "bi-circle"} me-2`} />
+
+            <span className="truncate">
+              {cfg?.text ?? machineLog?.machineStatus ?? "-"}
+            </span>
+          </div>
         </div>
 
-        <hr />
+        {/* Hàng 2: Tên máy */}
+        <div
+          className="
+        flex min-h-25
+        flex-col items-center justify-center
+        border-b border-slate-200
+        bg-white
+        px-4 py-4
+        text-center
+      "
+        >
+          <Tooltip title={machineLog?.name}>
+            <div
+              className="
+              w-full
+              truncate
+              text-2xl font-bold
+              text-slate-800
+              md:text-3xl
+            "
+            >
+              {machineLog?.name ?? "-"}
+            </div>
+          </Tooltip>
 
-        <table className="table table-sm mb-0">
-          <tbody>
-            <tr>
-              <td>Part</td>
-              <td className="text-end">{machineLog.part?.code ?? "-"}</td>
-            </tr>
-            <tr>
-              <td>Tên</td>
-              <td className="text-end">{machineLog.part?.code ?? "-"}</td>
-            </tr>
-            <tr>
-              <td>Cập nhật</td>
-              <td className="text-end">
-                {dayjs(machineLog.machineStatusChangeAt).format("HH:mm:ss")}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <div className="mt-1 text-sm font-semibold text-slate-500">
+            {machineLog?.code ?? "-"}
+          </div>
+
+          {machineLog?.type && (
+            <div className="mt-1 w-full truncate text-xs text-slate-400">
+              {machineLog.type}
+            </div>
+          )}
+        </div>
+
+        {/* Hàng 3: Part code + nút kế hoạch */}
+        <div
+          className="
+            flex min-h-23
+            items-center justify-between
+            gap-3
+            bg-slate-50
+            px-4 py-3
+          "
+        >
+          <div className="min-w-0 flex-1">
+            <div
+              className="
+                text-xs font-semibold
+                uppercase tracking-wider
+                text-slate-500
+              "
+            >
+              Part Code
+            </div>
+
+            <Tooltip title={machineLog?.part?.code}>
+              <div
+                className="
+                  mt-1
+                  w-full truncate
+                  text-xl font-bold
+                  text-slate-800
+                "
+              >
+                {machineLog?.part?.code ?? "-"}
+              </div>
+            </Tooltip>
+          </div>
+
+          <Button
+            type="primary"
+            size="small"
+            className="
+              flex!
+              shrink-0
+              items-center
+              justify-center
+              rounded-lg!
+              px-3!
+              font-semibold
+              shadow-sm
+              transition-transform duration-200
+              hover:scale-105
+            "
+            icon={<i className="bi bi-calendar3" />}
+            onClick={() => handleViewTodayPlan(machineLog)}
+          >
+            <span className="hidden md:inline">Kế hoạch hôm nay</span>
+            <span className="md:hidden">Kế hoạch</span>
+          </Button>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
