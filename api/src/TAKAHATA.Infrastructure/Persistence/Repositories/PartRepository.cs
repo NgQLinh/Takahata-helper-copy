@@ -28,7 +28,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         }
 
         public async Task<SearchResponse<List<PartResponse>>> SearchAsync(
-            string? searchText,
+            string? indexCode,
+            string? partCode,
             List<ProcessStatus>? statuses,
             DateOnly? plantFrom,
             DateOnly? plantTo,
@@ -41,10 +42,23 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            // Tìm kiếm theo mã Part
-            if (!string.IsNullOrWhiteSpace(searchText))
+            // Tìm kiếm theo index code
+            if (!string.IsNullOrWhiteSpace(indexCode))
             {
-                var keyword = searchText.Trim();
+                var indexIds = _dbContext.Indexes
+                    .Where(i => i.Code.Contains(indexCode.Trim()))
+                    .Select(i => i.Id)
+                    .Distinct()
+                    .ToList();
+
+                if (indexIds.Any())
+                    query = query.Where(x => indexIds.Contains(x.Id));
+            }
+
+            // Tìm kiếm theo mã Part
+            if (!string.IsNullOrWhiteSpace(partCode))
+            {
+                var keyword = partCode.Trim();
 
                 query = query.Where(x =>
                     x.Part != null &&

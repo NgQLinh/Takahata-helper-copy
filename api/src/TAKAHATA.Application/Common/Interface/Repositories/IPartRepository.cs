@@ -8,7 +8,8 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
     {
         Task<bool> IsExistedAsync(string partCode);
         Task<SearchResponse<List<PartResponse>>> SearchAsync(
-            string? searchText,
+            string? indexCode,
+            string? partCode,
             List<ProcessStatus>? statuses,
             DateOnly? plantFrom,
             DateOnly? plantTo,

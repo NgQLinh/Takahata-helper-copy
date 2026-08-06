@@ -103,7 +103,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(0);
 
-  const [keyword, setKeyword] = useState("");
+  const [partCode, setPartCode] = useState("");
+  const [indexCode, setIndexCode] = useState("");
   const [filterStatuses, setFilterStatuses] = useState<ProcessStatus[]>([]);
   const [filterPlanDateRange, setFilterPlanDateRange] = useState<DateRange>([
     dayjs().startOf("month"),
@@ -118,7 +119,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
 
       try {
         const data = await searchPartAsync({
-          searchText: keyword,
+          indexCode: indexCode,
+          partCode: partCode,
           statuses: filterStatuses,
           plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
           plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
@@ -157,7 +159,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
     [
       page,
       pageSize,
-      keyword,
+      indexCode,
+      partCode,
       filterStatuses,
       filterPlanDateRange,
       filterStartDateRange,
@@ -219,7 +222,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
   const handleResetFilters = async () => {
     const emptyRange: DateRange = [null, null];
 
-    setKeyword("");
+    setPartCode("");
     setFilterStatuses([]);
     setFilterPlanDateRange(emptyRange);
     setFilterStartDateRange(emptyRange);
@@ -482,7 +485,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         ),
       },
     ],
-    [handleApprove, handleDelete],
+    [handleApprove, handleDelete, processCount],
   );
 
   return (
@@ -491,12 +494,21 @@ export default function PartProcessingScheduleTab({ active }: Props) {
         <div className="d-flex justify-content-between gap-3 flex-wrap">
           <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
             <div style={{ width: 200 }}>
+              <label className="form-label mb-1">Index</label>
+              <Input
+                placeholder="Nhập Index"
+                allowClear
+                value={indexCode}
+                onChange={(event) => setIndexCode(event.target.value)}
+              />
+            </div>
+            <div style={{ width: 200 }}>
               <label className="form-label mb-1">Part Name</label>
               <Input
                 placeholder="Nhập Part Name"
                 allowClear
-                value={keyword}
-                onChange={(event) => setKeyword(event.target.value)}
+                value={partCode}
+                onChange={(event) => setPartCode(event.target.value)}
               />
             </div>
 

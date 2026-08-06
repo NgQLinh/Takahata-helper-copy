@@ -7,7 +7,8 @@ using TAKAHATA.Domain.MasterData;
 namespace TAKAHATA.Application.IndexAndPart.Queries
 {
     public record PartsQuery(
-        string? SearchText,
+        string? IndexCode,
+        string? PartCode,
         List<ProcessStatus>? Statuses,
         DateOnly? PlantFrom,
         DateOnly? PlantTo,

@@ -32,14 +32,15 @@ namespace TAKAHATA.Application.IndexAndPart.Queries
         {
 
             var response = await _partRepository.SearchAsync(
-                 request.SearchText,
-                 request.Statuses,
-                 request.PlantFrom,
-                 request.PlantTo,
-                 request.StartFrom,
-                 request.StartTo,
-                 request.Page,
-                 request.PageSize);
+                request.IndexCode,
+                request.PartCode,
+                request.Statuses,
+                request.PlantFrom,
+                request.PlantTo,
+                request.StartFrom,
+                request.StartTo,
+                request.Page,
+                request.PageSize);
 
 
             var users = _userManager.Users.ToList();
