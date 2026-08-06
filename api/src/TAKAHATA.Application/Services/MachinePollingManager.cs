@@ -83,13 +83,6 @@ namespace TAKAHATA.Application.Services
                             if (log == null)
                                 continue;
 
-                            _logger.LogInformation(
-                                "[MachineLog] MachineId={MachineId}, Status={Status}, PartId={PartId}, PartProcessId={PartProcessId}",
-                                log.MachineId,
-                                log.Status,
-                                log.PartId,
-                                log.PartProcessId);
-
                             // Kiểm tra sự thay đổi
                             if (log.Status != machine.MachineStatus
                                 || log.PartId != machine.PartId
@@ -97,11 +90,36 @@ namespace TAKAHATA.Application.Services
                             {
 
                                 _logger.LogInformation(
-                                     "[MachineLog] MachineId={MachineId}, Status={Status}, PartId={PartId}, PartProcessId={PartProcessId}",
+                                     """
+                                    ====================== MACHINE CHANGED ======================
+                                    MachineId         : {MachineId}
+                                    MachineName       : {MachineName}
+                                    LogTime           : {LogTime:yyyy-MM-dd HH:mm:ss.fff}
+
+                                    Status            : {OldStatus} -> {NewStatus} {StatusChanged}
+                                    PartId            : {OldPartId} -> {NewPartId} {PartIdChanged}
+                                    PartProcessId     : {OldPartProcessId} -> {NewPartProcessId} {PartProcessIdChanged}
+
+                                    StatusChangeAt    : {MachineStatusChangeAt:yyyy-MM-dd HH:mm:ss.fff}
+                                    ============================================================
+                                    """,
                                      log.MachineId,
+                                     machine.Name,
+                                     log.Time,
+
+                                     machine.MachineStatus,
                                      log.Status,
+                                     log.Status != machine.MachineStatus ? "[CHANGED]" : "",
+
+                                     machine.PartId,
                                      log.PartId,
-                                     log.PartProcessId);
+                                     log.PartId != machine.PartId ? "[CHANGED]" : "",
+
+                                     machine.PartProcessId,
+                                     log.PartProcessId,
+                                     log.PartProcessId != machine.PartProcessId ? "[CHANGED]" : "",
+
+                                     machine.MachineStatusChangeAt);
 
                                 // Trạng thái đổi từ Running sang trạng thái khác, tính thời gian chạy
                                 if (machine.MachineStatus == MachineStatus.Running && log.Status != MachineStatus.Running)
