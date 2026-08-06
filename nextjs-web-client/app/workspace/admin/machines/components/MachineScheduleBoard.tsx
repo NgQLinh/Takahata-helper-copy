@@ -19,8 +19,8 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import "./MachineScheduleBoard.css";
 import CreatePart from "../../index/components/CreatePart";
 import UpdatePart from "../../index/components/UpdatePart";
-import CreateMachineMaintenanceProcess from "../../machines/components/CreateMachineMaintenanceProcess";
-import UpdateMachineMaintenanceProcess from "../../machines/components/UpdateMachineMaintenanceProcess";
+import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
+import UpdateMachineMaintenanceProcess from "./UpdateMachineMaintenanceProcess";
 
 const { RangePicker } = DatePicker;
 
@@ -295,7 +295,7 @@ export function MachineScheduleBoard({ active }: Props) {
                 >
                   {/* Header */}
                   <div className="d-flex align-items-start justify-content-between gap-2">
-                    <div className="flex-grow-1 overflow-hidden">
+                    <div className="grow overflow-hidden">
                       <div
                         className={`fw-semibold text-truncate ${
                           isMaintenance ? "text-danger" : ""

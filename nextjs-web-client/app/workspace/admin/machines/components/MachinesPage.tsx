@@ -7,7 +7,7 @@ import type { TabsProps } from "antd";
 import MachineListTab from "./MachineListTab";
 import MaintenanceHistoryTab from "./MaintenanceHistoryTab";
 import { useState } from "react";
-import { MachineScheduleBoard } from "../../machine-schedule/components/MachineScheduleBoard";
+import { MachineScheduleBoard } from "./MachineScheduleBoard";
 
 export function MachinesPage() {
   const [activeKey, setActiveKey] = useState("1");
