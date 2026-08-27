@@ -1,0 +1,29 @@
+Takahata
+
+- Điền kế hoạch vào phần mềm
+	+ Theo ngày, giờ trong một tháng
+	+ Có thời gian thực tế
+	+ Mã máy theo ngày
+
+Từ kế hoạch đầu vào sẽ => file kế hoạch máy
+	+ Thống kê thời gian làm, số lượng sản phẩm
+	+ Hiệu xuất máy dự kiến, thực tế
+
+Công nhân sẽ nhập thực tế gia công
+	+ Nhập index
+	+ Nhập path name
+	+ Tín hiệu máy trả về start + stop
+	+ Nút đếm thời gian setup
+
+Giám sát
+	+ Đang chạy con hang nào
+	+ Đang chạy hay dung
+	+ Lịch trong ngày của máy
+	+ Biểu đồ hiệu xuất
+	+ ...
+
+Quản lý chi phí
+	+ Thời gian
+	+ Cost
+	+ Báo giá
+	+ ...
