@@ -8,6 +8,7 @@ namespace TAKAHATA.Domain.MasterData
         public DateOnly? PlantDate { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public double? EstimatedTime { get; set; }
         public string? PerformedBy { get; set; } = string.Empty;
         public string? Note { get; set; } = string.Empty;
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;

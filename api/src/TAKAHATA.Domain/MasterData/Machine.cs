@@ -11,6 +11,7 @@ namespace TAKAHATA.Domain.MasterData
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; }
         public DateTime? MachineStatusChangeAt { get; set; }
+        public MachineType MachineType { get; set; } = MachineType.Automatic;
 
         public int PartId { get; set; }
         public int PartProcessId { get; set; }

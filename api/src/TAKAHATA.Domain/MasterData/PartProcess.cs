@@ -7,7 +7,11 @@
         public double? WorkingTime { get; set; }
         public double? SetupTime { get; set; }
         public double? WaitingTime { get; set; }
+        public double? ProgrammingTime { get; set; }
+        public double? AssemblyTime { get; set; }
+        public double? MeasurementTime { get; set; }
         public int ProcessedQuantity { get; set; }
         public Part? Part { get; set; }
+        public string WorkerNote { get; set; } = string.Empty;
     }
 }
