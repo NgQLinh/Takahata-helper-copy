@@ -286,8 +286,6 @@ export default function MachineListTab({ active }: Props) {
               >
                 {value[0]?.toUpperCase() || "A"}
               </Avatar>
-
-              {value}
             </Space>
           ) : (
             <Text type="secondary">-</Text>

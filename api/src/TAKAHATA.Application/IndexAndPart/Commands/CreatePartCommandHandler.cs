@@ -62,6 +62,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 Quantity = request.Quantity != 0 ? request.Quantity : 1,
                 Status = request.Status,
                 Prioritize = request.Prioritize,
+                PartType = request.PartType,
                 Processes = [.. request.PartProcesses.OrderBy(x => x.PlantDate).Select((p, i) => new PartProcess
                 {
                     CreateAt = DateTime.Now,

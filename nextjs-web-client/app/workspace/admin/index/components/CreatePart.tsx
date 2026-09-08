@@ -25,7 +25,7 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine } from "@/app/types";
+import { Machine, PartType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
@@ -57,6 +57,7 @@ type FormValues = {
   PartCode: string;
   Quantity: number;
   Prioritize: boolean;
+  PartType?: PartType;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -192,6 +193,7 @@ export default function CreatePart({ open, status, onClose }: Props) {
       quantity: values.Quantity,
       status: status,
       prioritize: values.Prioritize,
+      partType: values.PartType,
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,
@@ -471,6 +473,48 @@ export default function CreatePart({ open, status, onClose }: Props) {
                   placeholder="Nhập số lượng"
                   maxLength={100}
                   autoFocus
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Loại gia công"
+                name="PartType"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn loại gia công",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Chọn loại gia công"
+                  allowClear
+                  options={[
+                    {
+                      value: PartType.NewMold,
+                      label: "New mold - Khuôn mới",
+                    },
+                    {
+                      value: PartType.NewMoldRepairMakeNew,
+                      label: "New mold repair / make new",
+                    },
+                    {
+                      value: PartType.MoldEcn,
+                      label: "Mold ECN",
+                    },
+                    {
+                      value: PartType.MoldMp,
+                      label: "Mold MP",
+                    },
+                    {
+                      value: PartType.MoldOvershort,
+                      label: "Mold Overshort",
+                    },
+                    {
+                      value: PartType.JigMoldAssyEng,
+                      label: "Jig / Mold / Assembly / Engineering",
+                    },
+                  ]}
                 />
               </Form.Item>
 

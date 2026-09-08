@@ -21,9 +21,10 @@ import {
   deletePartAsync,
   searchPartAsync,
 } from "@/app/services/index/IndexService";
-import { Part, PartProcess } from "@/app/types";
+import { Part, PartProcess, PartType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import { PartTypeLabels } from "@/app/types/part/PartTypeLabels";
 
 const { RangePicker } = DatePicker;
 
@@ -44,6 +45,7 @@ type TableRow = {
   status: ProcessStatus | null;
   processes: Record<number, PartProcess | undefined>;
   prioritize?: boolean;
+  partType: PartType;
 };
 
 const formatDate = (value?: string | null) => {
@@ -69,6 +71,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       processes: part.processes,
       status: part.status,
       prioritize: part.prioritize,
+      partType: part.partType,
     },
     {
       key: `${part.id}-P`,
@@ -78,6 +81,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowSpan: 0,
       processes: part.processes,
       status: part.status,
+      partType: part.partType,
     },
     {
       key: `${part.id}-A`,
@@ -86,6 +90,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowSpan: 0,
       processes: part.processes,
       status: part.status,
+      partType: part.partType,
     },
   ]);
 
@@ -318,6 +323,17 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               </div>
 
               <div className="d-flex justify-content-between gap-3">
+                <span className="text-muted text-nowrap">Loại gia công</span>
+
+                <span
+                  className="fw-semibold text-dark text-end text-truncate"
+                  title={row.partType ? PartTypeLabels[row.partType] : "-"}
+                >
+                  {row.partType ? PartTypeLabels[row.partType] : "-"}
+                </span>
+              </div>
+
+              {/* <div className="d-flex justify-content-between gap-3">
                 <span className="text-muted text-nowrap">Người sửa</span>
                 <span
                   className="fw-semibold text-dark text-end text-truncate"
@@ -334,7 +350,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                     ? dayjs(row.updateAt).format("DD/MM/YYYY HH:mm")
                     : "-"}
                 </span>
-              </div>
+              </div> */}
             </div>
           </Card>
         ),

@@ -1,6 +1,7 @@
 ﻿using ErrorOr;
 using MediatR;
 using TAKAHATA.Contracts.IndexAndPart;
+using TAKAHATA.Domain.Common.Enum;
 
 namespace TAKAHATA.Application.IndexAndPart.Commands
 {
@@ -10,5 +11,6 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
         string PartCode,
         int Quantity,
         bool Prioritize,
+        PartType PartType,
         List<PartProcessRequest> PartProcesses) : IRequest<ErrorOr<PartResponse>>;
 }

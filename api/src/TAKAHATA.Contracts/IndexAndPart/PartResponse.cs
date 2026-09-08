@@ -1,4 +1,5 @@
 ﻿using TAKAHATA.Contracts.Common;
+using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.IndexAndPart
@@ -12,6 +13,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public IndexResponse? Index { get; set; }
         public ProcessStatus Status { get; set; }
         public bool Prioritize { get; set; } = false;
+        public PartType PartType { get; set; }
         public ICollection<PartProcessResponse> Processes { get; set; } = [];
     }
 }

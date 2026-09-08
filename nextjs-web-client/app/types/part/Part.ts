@@ -1,6 +1,7 @@
 import { ProcessStatus } from "../common/ProcessStatus";
 import { Index } from "./Index";
 import { PartProcess } from "./PartProcess";
+import { PartType } from "./PartType";
 
 export interface Part {
   id: number;
@@ -16,4 +17,5 @@ export interface Part {
   processedQuantity: number;
   status: ProcessStatus;
   prioritize: boolean;
+  partType: PartType;
 }

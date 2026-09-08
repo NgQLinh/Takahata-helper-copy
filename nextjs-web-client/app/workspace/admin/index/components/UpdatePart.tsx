@@ -28,7 +28,7 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine, PartProcess } from "@/app/types";
+import { Machine, PartProcess, PartType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
@@ -71,6 +71,7 @@ type FormValues = {
   PartCode: string;
   Quantity: number;
   Prioritize: boolean;
+  PartType: PartType;
 };
 
 type CurrentPartInfo = {
@@ -78,6 +79,7 @@ type CurrentPartInfo = {
   partCode: string;
   quantity: number;
   prioritize: boolean;
+  partType: PartType;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -174,6 +176,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           partCode: currentPartCode,
           quantity: data.quantity,
           prioritize: data.prioritize,
+          partType: data.partType,
         });
 
         form.setFieldsValue({
@@ -181,6 +184,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           PartCode: currentPartCode,
           Quantity: data.quantity,
           Prioritize: data.prioritize,
+          PartType: data.partType,
         });
 
         const rows: PlanRow[] =
@@ -331,6 +335,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       partCode,
       quantity: values.Quantity | 1,
       prioritize: values.Prioritize,
+      partType: values.PartType,
       partProcesses: dataSource.map((item, index) => ({
         id: item.id,
         sequence: index + 1,
@@ -780,6 +785,48 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                       placeholder="Nhập số lượng"
                       maxLength={100}
                       autoFocus
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Loại gia công"
+                    name="PartType"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn loại gia công",
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn loại gia công"
+                      allowClear
+                      options={[
+                        {
+                          value: PartType.NewMold,
+                          label: "New mold - Khuôn mới",
+                        },
+                        {
+                          value: PartType.NewMoldRepairMakeNew,
+                          label: "New mold repair / make new",
+                        },
+                        {
+                          value: PartType.MoldEcn,
+                          label: "Mold ECN",
+                        },
+                        {
+                          value: PartType.MoldMp,
+                          label: "Mold MP",
+                        },
+                        {
+                          value: PartType.MoldOvershort,
+                          label: "Mold Overshort",
+                        },
+                        {
+                          value: PartType.JigMoldAssyEng,
+                          label: "Jig / Mold / Assembly / Engineering",
+                        },
+                      ]}
                     />
                   </Form.Item>
 

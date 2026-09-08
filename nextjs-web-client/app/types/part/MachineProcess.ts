@@ -1,5 +1,6 @@
 import { MachineProcessType } from "../common/MachineProcessType";
 import { ProcessStatus } from "../common/ProcessStatus";
+import { PartType } from "./PartType";
 
 export interface MachineProcess {
   id: number;
@@ -19,4 +20,5 @@ export interface MachineProcess {
   type: MachineProcessType;
   prioritize: boolean;
   estimatedTime?: number | null;
+  partType?: PartType | null;
 }

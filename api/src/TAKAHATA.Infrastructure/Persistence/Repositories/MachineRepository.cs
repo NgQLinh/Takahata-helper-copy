@@ -376,6 +376,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         Type = MachineProcessType.Manufacturing,
                         Prioritize = part.Part?.Prioritize ?? false,
                         EstimatedTime = part.EstimatedTime,
+                        PartType = part.Part?.PartType,
                     }));
                 }
 

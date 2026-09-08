@@ -1,4 +1,5 @@
 ﻿using TAKAHATA.Contracts.Common;
+using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.IndexAndPart
@@ -17,5 +18,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public MachineProcessType Type { get; set; }
         public bool Prioritize { get; set; } = false;
         public double? EstimatedTime { get; set; }
+        public PartType? PartType { get; set; }
     }
 }

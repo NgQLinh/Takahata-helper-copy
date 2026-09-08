@@ -65,6 +65,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             part.UpdateAt = DateTime.Now;
             part.Quantity = request.Quantity != 0 ? request.Quantity : 1;
             part.Prioritize = request.Prioritize;
+            part.PartType = request.PartType;
 
             var requestProcesses = request.PartProcesses ?? new List<PartProcessRequest>();
 

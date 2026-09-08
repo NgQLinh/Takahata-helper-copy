@@ -13,6 +13,7 @@ import {
   MachineProcess,
   MachineProcessType,
   MachineSchedule,
+  PartType,
 } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
@@ -21,6 +22,7 @@ import CreatePart from "../../index/components/CreatePart";
 import UpdatePart from "../../index/components/UpdatePart";
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 import UpdateMachineMaintenanceProcess from "./UpdateMachineMaintenanceProcess";
+import { PartTypeLabels } from "@/app/types/part/PartTypeLabels";
 
 const { RangePicker } = DatePicker;
 
@@ -365,19 +367,40 @@ export function MachineScheduleBoard({ active }: Props) {
                       </>
                     ) : (
                       <div className="small text-muted">
-                        <span className="fw-medium"> Số lượng:</span>{" "}
-                        {process.quantity}
-                        {process.estimatedTime != null && (
-                          <div className="small text-muted">
+                        {/* Hàng 1 */}
+                        <div className="d-flex justify-content-between align-items-center gap-3">
+                          <div>
+                            <span className="fw-medium">Số lượng:</span>{" "}
+                            {process.quantity}
+                          </div>
+
+                          <div className="text-end">
+                            {/* <span className="fw-medium">Loại gia công:</span>{" "} */}
+                            {process.partType
+                              ? PartTypeLabels[process.partType as PartType]
+                              : "-"}
+                          </div>
+                        </div>
+
+                        {/* Hàng 2 */}
+                        <div className="d-flex justify-content-between align-items-center gap-3 mt-1">
+                          <div>
                             <span className="fw-medium">
                               Thời gian ước tính:
                             </span>{" "}
-                            {process.estimatedTime} giờ{" "}
+                            {process.estimatedTime != null
+                              ? `${process.estimatedTime} giờ`
+                              : "-"}
+                          </div>
+
+                          <div>
                             {process.prioritize && (
-                              <Tag color="orange">Ưu tiên</Tag>
+                              <Tag color="orange" className="mb-0">
+                                Ưu tiên
+                              </Tag>
                             )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
                   </div>
