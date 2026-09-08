@@ -116,6 +116,7 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
                 value={values.userName}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                disabled={user.isDefaultAccount}
               />
             </Form.Item>
 
@@ -130,6 +131,7 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
                 name="fullName"
                 value={values.fullName}
                 onChange={handleChange}
+                disabled={user.isDefaultAccount}
                 onBlur={handleBlur}
               />
             </Form.Item>
@@ -156,6 +158,7 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
               help={touched.role && errors.role}
             >
               <Select
+                disabled={user.isDefaultAccount}
                 value={values.role}
                 onChange={(value) => setFieldValue("role", value)}
                 onBlur={() => setFieldValue("role", values.role)}

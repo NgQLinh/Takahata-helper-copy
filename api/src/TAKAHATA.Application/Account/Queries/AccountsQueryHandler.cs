@@ -37,7 +37,7 @@ namespace TAKAHATA.Application.Account.Queries
 
             var userIds = users.Select(x => x.Id).ToList();
             var userMachinePermissions = await _userMachinePermissionRepository.GetByUserIdsAsync(userIds);
-            var machines = await _machineRepository.GetAsync();
+            var machineList = await _machineRepository.GetAsync();
 
             foreach (var user in users)
             {
@@ -47,11 +47,12 @@ namespace TAKAHATA.Application.Account.Queries
 
                 var machineIds = userPermissions.Select(x => x.MachineId);
 
-                var mcs = machines.Where(m => machineIds.Contains(m.Id)).ToList();
+                var machines = machineList.Where(m => machineIds.Contains(m.Id)).ToList();
 
                 accounts.Add(new AcountResponse(user, roles, userPermissions)
                 {
-                    Machines = mcs
+                    Machines = machines,
+                    IsDefaultAccount = user.IsDefaultAccount
                 });
             }
 

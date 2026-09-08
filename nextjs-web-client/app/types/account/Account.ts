@@ -8,4 +8,5 @@ export type Account = {
   password: string;
   machineIds: number[];
   machines?: Machine[];
+  isDefaultAccount?: boolean;
 };
