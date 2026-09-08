@@ -13,5 +13,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         double? WaitingTime,
         string? PerformedBy,
         ProcessStatus Status,
+        double? EstimatedTime,
         string Note);
 }

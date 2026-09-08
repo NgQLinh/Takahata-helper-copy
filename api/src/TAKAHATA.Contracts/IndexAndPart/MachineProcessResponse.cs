@@ -15,5 +15,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public ProcessStatus Status { get; set; }
         public string? Note { get; set; }
         public MachineProcessType Type { get; set; }
+        public bool Prioritize { get; set; } = false;
+        public double? EstimatedTime { get; set; }
     }
 }

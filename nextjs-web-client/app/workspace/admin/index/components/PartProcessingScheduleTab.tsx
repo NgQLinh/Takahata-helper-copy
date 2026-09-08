@@ -43,6 +43,7 @@ type TableRow = {
   rowSpan: number;
   status: ProcessStatus | null;
   processes: Record<number, PartProcess | undefined>;
+  prioritize?: boolean;
 };
 
 const formatDate = (value?: string | null) => {
@@ -67,6 +68,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
       rowSpan: 3,
       processes: part.processes,
       status: part.status,
+      prioritize: part.prioritize,
     },
     {
       key: `${part.id}-P`,
@@ -222,9 +224,13 @@ export default function PartProcessingScheduleTab({ active }: Props) {
   const handleResetFilters = async () => {
     const emptyRange: DateRange = [null, null];
 
-    setPartCode("");
+    const currentMonthRange: DateRange = [
+      dayjs().startOf("month"),
+      dayjs().endOf("month"),
+    ];
+
     setFilterStatuses([]);
-    setFilterPlanDateRange(emptyRange);
+    setFilterPlanDateRange(currentMonthRange);
     setFilterStartDateRange(emptyRange);
     setPage(1);
 
@@ -285,7 +291,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                     fontSize: 15,
                   }}
                 >
-                  {row.partName || "-"}
+                  {row.partName || "-"}{" "}
+                  {row.prioritize && <Tag color="orange">Ưu tiên</Tag>}
                 </div>
               </div>
             </div>
@@ -393,7 +400,9 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             if (row.rowType === "P") {
               return (
                 <span className="plan-date">
-                  <CalendarOutlined /> {formatDate(process.plantDate)}
+                  <CalendarOutlined /> {formatDate(process.plantDate)}-
+                  {process.estimatedTime !== null ? process.estimatedTime : "-"}
+                  h
                 </span>
               );
             }
@@ -524,7 +533,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             </div>
 
             <Button onClick={() => void handleResetFilters()}>
-              Xóa bộ lọc
+              Tháng hiện tại
             </Button>
 
             <Button

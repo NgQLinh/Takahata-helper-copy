@@ -5,12 +5,14 @@ import {
   Alert,
   Button,
   Card,
+  Checkbox,
   Col,
   DatePicker,
   Flex,
   Form,
   Grid,
   Input,
+  InputNumber,
   Modal,
   Row,
   Select,
@@ -47,12 +49,14 @@ type PlanRow = {
   plantDate?: Dayjs | null;
   status: ProcessStatus;
   note?: string;
+  estimatedTime: number | null;
 };
 
 type FormValues = {
   IndexCode?: string;
   PartCode: string;
   Quantity: number;
+  Prioritize: boolean;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -61,6 +65,7 @@ const createEmptyRow = (): PlanRow => ({
   plantDate: dayjs(),
   status: ProcessStatus.Planned,
   note: "",
+  estimatedTime: null,
 });
 
 export default function CreatePart({ open, status, onClose }: Props) {
@@ -162,6 +167,17 @@ export default function CreatePart({ open, status, onClose }: Props) {
       return false;
     }
 
+    const invalidEstimatedTime = dataSource.findIndex(
+      (row) => !row.estimatedTime || row.estimatedTime <= 0,
+    );
+
+    if (invalidEstimatedTime !== -1) {
+      toast.warning(
+        `Vui lòng nhập thời gian dự kiến tại dòng ${invalidEstimatedTime + 1}.`,
+      );
+      return false;
+    }
+
     return true;
   };
 
@@ -175,12 +191,14 @@ export default function CreatePart({ open, status, onClose }: Props) {
       partCode: values.PartCode.trim(),
       quantity: values.Quantity,
       status: status,
+      prioritize: values.Prioritize,
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,
         plantDate: item.plantDate?.format("YYYY-MM-DD") ?? null,
         status: item.status,
         note: item.note?.trim() ?? "",
+        estimatedTime: item.estimatedTime ?? 0,
       })),
     };
 
@@ -247,6 +265,22 @@ export default function CreatePart({ open, status, onClose }: Props) {
           format="DD/MM/YYYY"
           style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "plantDate", date)}
+        />
+      ),
+    },
+    {
+      title: "Thời gian dự kiến (giờ)",
+      dataIndex: "estimatedTime",
+      key: "estimatedTime",
+      width: 170,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "estimatedTime", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
         />
       ),
     },
@@ -407,19 +441,19 @@ export default function CreatePart({ open, status, onClose }: Props) {
               </Form.Item>
 
               <Form.Item
-                label="Part Code"
+                label="Part Name"
                 name="PartCode"
                 rules={[
-                  { required: true, message: "Vui lòng nhập Part Code" },
+                  { required: true, message: "Vui lòng nhập Part name" },
                   {
                     whitespace: true,
-                    message: "Part Code không được để trống",
+                    message: "Part name không được để trống",
                   },
                 ]}
               >
                 <Input
                   allowClear
-                  placeholder="Nhập Part Code"
+                  placeholder="Nhập Part name"
                   maxLength={100}
                 />
               </Form.Item>
@@ -438,6 +472,14 @@ export default function CreatePart({ open, status, onClose }: Props) {
                   maxLength={100}
                   autoFocus
                 />
+              </Form.Item>
+
+              <Form.Item
+                name="Prioritize"
+                valuePropName="checked"
+                initialValue={false}
+              >
+                <Checkbox>Ưu tiên gia công</Checkbox>
               </Form.Item>
 
               <Alert

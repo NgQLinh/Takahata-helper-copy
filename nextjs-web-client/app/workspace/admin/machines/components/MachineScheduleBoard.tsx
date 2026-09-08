@@ -155,7 +155,7 @@ export function MachineScheduleBoard({ active }: Props) {
       await fetchMachineSchedule();
     };
     void run();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
   /*
@@ -217,10 +217,10 @@ export function MachineScheduleBoard({ active }: Props) {
   const handleResetFilters = () => {
     const currentWeekRange = getCurrentWeekRange();
 
-    setKeyword("");
+    // setKeyword("");
     setFilterPlanDateRange(currentWeekRange);
 
-    setSearchKeyword("");
+    // setSearchKeyword("");
     setSearchPlanDateRange(currentWeekRange);
 
     setPage(1);
@@ -365,8 +365,19 @@ export function MachineScheduleBoard({ active }: Props) {
                       </>
                     ) : (
                       <div className="small text-muted">
-                        <span className="fw-medium">Số lượng:</span>{" "}
+                        <span className="fw-medium"> Số lượng:</span>{" "}
                         {process.quantity}
+                        {process.estimatedTime != null && (
+                          <div className="small text-muted">
+                            <span className="fw-medium">
+                              Thời gian ước tính:
+                            </span>{" "}
+                            {process.estimatedTime} giờ{" "}
+                            {process.prioritize && (
+                              <Tag color="orange">Ưu tiên</Tag>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

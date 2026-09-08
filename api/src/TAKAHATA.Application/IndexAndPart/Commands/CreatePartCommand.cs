@@ -9,6 +9,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
         string IndexCode,
         string PartCode,
         int Quantity,
+        bool Prioritize,
         ProcessStatus Status,
         List<PartProcessRequest> PartProcesses) : IRequest<ErrorOr<PartResponse>>;
 }

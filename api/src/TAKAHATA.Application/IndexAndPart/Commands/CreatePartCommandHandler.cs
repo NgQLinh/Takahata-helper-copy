@@ -51,8 +51,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 return Errors.Index.NotFound;
 
             // Save part
-            if (await _partRepository.IsExistedAsync(request.PartCode))
-                return Errors.Part.DuplicatePartCode;
+            //if (await _partRepository.IsExistedAsync(request.PartCode))
+            //    return Errors.Part.DuplicatePartCode;
 
             var part = new Part
             {
@@ -61,6 +61,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 IndexId = index.Id,
                 Quantity = request.Quantity != 0 ? request.Quantity : 1,
                 Status = request.Status,
+                Prioritize = request.Prioritize,
                 Processes = [.. request.PartProcesses.OrderBy(x => x.PlantDate).Select((p, i) => new PartProcess
                 {
                     CreateAt = DateTime.Now,
@@ -70,6 +71,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     Note = p.Note,
                     PlantDate = p.PlantDate,
                     Sequence = i + 1,
+                    EstimatedTime = p.EstimatedTime
                 })]
             };
 

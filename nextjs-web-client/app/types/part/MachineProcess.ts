@@ -17,4 +17,6 @@ export interface MachineProcess {
   workingTime?: number | null;
   sequence: number;
   type: MachineProcessType;
+  prioritize: boolean;
+  estimatedTime?: number | null;
 }

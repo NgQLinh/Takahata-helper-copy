@@ -19,4 +19,5 @@ export interface PartProcess {
   machine: Machine | null;
   quantity: number;
   processedQuantity: number;
+  estimatedTime?: number | null;
 }

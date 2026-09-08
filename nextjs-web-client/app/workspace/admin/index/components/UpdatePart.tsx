@@ -5,6 +5,7 @@ import {
   Alert,
   Button,
   Card,
+  Checkbox,
   Col,
   DatePicker,
   Descriptions,
@@ -62,18 +63,21 @@ type PlanRow = {
   status: ProcessStatus;
   note?: string | null;
   performedBy?: string | null;
+  estimatedTime?: number | null;
 };
 
 type FormValues = {
   IndexCode?: string;
   PartCode: string;
   Quantity: number;
+  Prioritize: boolean;
 };
 
 type CurrentPartInfo = {
   indexCode: string;
   partCode: string;
   quantity: number;
+  prioritize: boolean;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -89,6 +93,7 @@ const createEmptyRow = (): PlanRow => ({
   status: ProcessStatus.Planned,
   note: "",
   performedBy: "",
+  estimatedTime: null,
 });
 
 const statusOptions = [
@@ -168,12 +173,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           indexCode: currentIndexCode,
           partCode: currentPartCode,
           quantity: data.quantity,
+          prioritize: data.prioritize,
         });
 
         form.setFieldsValue({
           IndexCode: currentIndexCode,
           PartCode: currentPartCode,
           Quantity: data.quantity,
+          Prioritize: data.prioritize,
         });
 
         const rows: PlanRow[] =
@@ -191,6 +198,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 status: process.status ?? ProcessStatus.Planned,
                 note: process.note ?? "",
                 performedBy: process.performedBy ?? "",
+                estimatedTime: process.estimatedTime ?? 0,
               }))
             : [createEmptyRow()];
 
@@ -322,6 +330,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       indexCode,
       partCode,
       quantity: values.Quantity | 1,
+      prioritize: values.Prioritize,
       partProcesses: dataSource.map((item, index) => ({
         id: item.id,
         sequence: index + 1,
@@ -335,6 +344,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         status: item.status,
         note: item.note?.trim() ?? "",
         performedBy: item.performedBy,
+        estimatedTime: item.estimatedTime ?? 0,
       })),
     };
 
@@ -404,6 +414,22 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           disabled={isBusy}
           style={{ width: "100%" }}
           onChange={(date) => handleChange(record.key, "plantDate", date)}
+        />
+      ),
+    },
+    {
+      title: "Thời gian dự kiến (giờ)",
+      dataIndex: "estimatedTime",
+      key: "estimatedTime",
+      width: 170,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "estimatedTime", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
         />
       ),
     },
@@ -755,6 +781,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                       maxLength={100}
                       autoFocus
                     />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="Prioritize"
+                    valuePropName="checked"
+                    initialValue={false}
+                  >
+                    <Checkbox>Ưu tiên gia công</Checkbox>
                   </Form.Item>
 
                   <Alert

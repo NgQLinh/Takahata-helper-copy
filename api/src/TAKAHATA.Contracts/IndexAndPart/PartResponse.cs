@@ -11,6 +11,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public int ProcessedQuantity { get; set; }
         public IndexResponse? Index { get; set; }
         public ProcessStatus Status { get; set; }
+        public bool Prioritize { get; set; } = false;
         public ICollection<PartProcessResponse> Processes { get; set; } = [];
     }
 }

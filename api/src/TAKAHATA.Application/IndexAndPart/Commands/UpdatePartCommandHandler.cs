@@ -55,8 +55,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             if (part == null)
                 return Errors.Part.NotFound;
 
-            if (await _partRepository.IsExistedAsync(request.PartCode) && part.Code != request.PartCode)
-                return Errors.Part.DuplicatePartCode;
+            //if (await _partRepository.IsExistedAsync(request.PartCode) && part.Code != request.PartCode)
+            //    return Errors.Part.DuplicatePartCode;
 
             // 3. Update Part
             part.Code = request.PartCode;
@@ -64,6 +64,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             part.UpdateBy = _currentUserService.UserId;
             part.UpdateAt = DateTime.Now;
             part.Quantity = request.Quantity != 0 ? request.Quantity : 1;
+            part.Prioritize = request.Prioritize;
 
             var requestProcesses = request.PartProcesses ?? new List<PartProcessRequest>();
 
@@ -111,6 +112,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
 
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
+                existingProcess.EstimatedTime = process.EstimatedTime;
             }
 
             // 6. Add new processes
@@ -130,7 +132,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     WorkingTime = process.WorkingTime,
                     SetupTime = process.SetupTime,
                     WaitingTime = process.WaitingTime,
-                    PerformedBy = process.PerformedBy
+                    PerformedBy = process.PerformedBy,
+                    EstimatedTime = process.EstimatedTime
                 });
             }
 

@@ -11,9 +11,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder
-                .HasIndex(x => x.Code)
-                .HasDatabaseName("P_Part_Code")
-                .IsUnique();
+                .HasIndex(x => x.Code);
+
+            builder
+                .Property(p => p.Code)
+                .IsRequired();
 
             builder
                 .Property(p => p.CreateAt)

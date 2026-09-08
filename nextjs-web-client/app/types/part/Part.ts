@@ -15,4 +15,5 @@ export interface Part {
   quantity: number;
   processedQuantity: number;
   status: ProcessStatus;
+  prioritize: boolean;
 }

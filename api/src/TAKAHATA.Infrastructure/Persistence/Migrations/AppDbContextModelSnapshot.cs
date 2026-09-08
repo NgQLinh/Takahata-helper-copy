@@ -368,7 +368,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
-                        .IsUnique()
                         .HasDatabaseName("P_Part_Code");
 
                     b.HasIndex("IndexId");
