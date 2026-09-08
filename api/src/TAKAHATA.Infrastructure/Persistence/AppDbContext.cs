@@ -14,6 +14,7 @@ namespace TAKAHATA.Infrastructure.Persistence
         public DbSet<PartProcess> PartProcesses { get; set; }
         public DbSet<MachineMaintenanceProcess> MachineMaintenanceProcesses { get; set; }
         public DbSet<SystemConfig> SystemConfigs { get; set; }
+        public DbSet<UserMachinePermission> UserMachinePermissions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
            : base(options)

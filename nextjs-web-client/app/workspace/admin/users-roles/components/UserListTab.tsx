@@ -112,6 +112,7 @@ export default function UserListTab({ active }: Props) {
       fullName: updatedUser.fullName,
       password: updatedUser.password,
       role: updatedUser.role,
+      machineIds: updatedUser.machineIds,
     };
 
     setEditingUser(null);
@@ -195,6 +196,28 @@ export default function UserListTab({ active }: Props) {
             >
               {normalizedRole}
             </Tag>
+          );
+        },
+      },
+      {
+        title: "Máy được phân quyền",
+        key: "machines",
+        width: 320,
+        render: (_, record) => {
+          if (record.role?.toUpperCase() === "ADMIN") {
+            return <AntText type="secondary">Toàn bộ máy</AntText>;
+          }
+
+          if (!record.machines || record.machines.length === 0) {
+            return <AntText type="secondary">Chưa được phân quyền</AntText>;
+          }
+
+          return (
+            <Space size={[4, 8]} wrap>
+              {record.machines.map((machine) => (
+                <Tag key={machine.id}>{machine.name}</Tag>
+              ))}
+            </Space>
           );
         },
       },

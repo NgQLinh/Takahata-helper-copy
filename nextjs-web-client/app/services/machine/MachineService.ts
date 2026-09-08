@@ -27,6 +27,11 @@ export const getMachinesAsync = async (): Promise<Machine[]> => {
   return response.data;
 };
 
+export const getMachinesByPermissionAsync = async (): Promise<Machine[]> => {
+  const response = await apiClient.post<Machine[]>("/Machine/query-machines-by-permission");
+  return response.data;
+};
+
 export const searchMachineSchedulesAsync = async (
   request: unknown,
 ): Promise<SearchResponse<MachineSchedule[]>> => {

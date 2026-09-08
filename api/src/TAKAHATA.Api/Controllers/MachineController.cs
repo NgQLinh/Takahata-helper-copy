@@ -61,6 +61,17 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
+        [HttpPost("query-machines-by-permission")]
+        [Authorize(Roles = $"{Role.Admin}, {Role.User}")]
+        public async Task<IActionResult> GetMachinesByPermission()
+        {
+            var result = await _sender.Send(new MachinesByPermissionQuery());
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
         [HttpPost("search")]
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> Search(MachinesQuery request)

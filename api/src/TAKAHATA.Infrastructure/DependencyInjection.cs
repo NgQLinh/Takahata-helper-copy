@@ -27,6 +27,7 @@ namespace TAKAHATA.Infrastructure
             services.AddScoped<IPartRepository, PartRepository>();
             services.AddScoped<IPartProcessRepository, PartProcessRepository>();
             services.AddScoped<IMachineMaintenanceProcessRepository, MachineMaintenanceProcessRepository>();
+            services.AddScoped<IUserMachinePermissionRepository, UserMachinePermissionRepository>();
 
             // Service
             services.AddScoped<IPLCService, PLCService>();

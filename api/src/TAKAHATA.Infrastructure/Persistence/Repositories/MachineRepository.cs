@@ -463,5 +463,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             return result;
         }
+
+        public Task<IEnumerable<Machine>> GetByIdsAsync(List<int> machineIds)
+        {
+            return _dbContext.Machines
+                .Where(m => machineIds.Contains(m.Id))
+                .AsNoTracking()
+                .ToListAsync()
+                .ContinueWith(t => t.Result.AsEnumerable());
+        }
     }
 }

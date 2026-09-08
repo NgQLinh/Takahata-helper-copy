@@ -3,4 +3,5 @@ export type CreateAccountRequest = {
   fullName: string;
   password: string;
   role: string;
+  machineIds: number[];
 };

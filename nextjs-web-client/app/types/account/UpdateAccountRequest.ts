@@ -4,4 +4,5 @@ export type UpdateAccountRequest = {
   fullName: string;
   password: string;
   role: string;
+  machineIds: number[];
 };

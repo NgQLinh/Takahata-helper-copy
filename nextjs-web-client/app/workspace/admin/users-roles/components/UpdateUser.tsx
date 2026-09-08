@@ -4,6 +4,9 @@ import { Modal, Form, Input, Select, Button } from "antd";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Account } from "@/app/types/account/Account";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { useEffect, useState } from "react";
+import { Machine } from "@/app/types";
 
 type Props = {
   open: boolean;
@@ -30,6 +33,29 @@ const validationSchema = Yup.object({
 });
 
 export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [loadingMachines, setLoadingMachines] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user) return;
+
+    const loadMachines = async () => {
+      try {
+        setLoadingMachines(true);
+
+        const result = await getMachinesAsync();
+
+        setMachines(result);
+      } catch (error) {
+        console.error("Không thể tải danh sách máy", error);
+      } finally {
+        setLoadingMachines(false);
+      }
+    };
+
+    loadMachines();
+  }, [open, user]);
+
   if (!user) return null;
 
   const handleSubmit = async (
@@ -49,6 +75,8 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
       initialValues={{
         ...user,
         password: user.password ?? "",
+        machineIds:
+          user.machineIds ?? user.machines?.map((machine) => machine.id) ?? [],
       }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -137,6 +165,36 @@ export default function UpdateUser({ open, user, onClose, onUpdate }: Props) {
                 ]}
               />
             </Form.Item>
+
+            {values.role === "USER" && (
+              <Form.Item
+                label="Máy được phân quyền"
+                validateStatus={
+                  touched.machineIds && errors.machineIds ? "error" : ""
+                }
+                help={
+                  touched.machineIds && typeof errors.machineIds === "string"
+                    ? errors.machineIds
+                    : undefined
+                }
+              >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showSearch
+                  placeholder="Chọn máy được phân quyền"
+                  loading={loadingMachines}
+                  value={values.machineIds}
+                  onChange={(machineIds: number[]) => {
+                    setFieldValue("machineIds", machineIds);
+                  }}
+                  options={machines.map((machine) => ({
+                    label: machine.name,
+                    value: machine.id,
+                  }))}
+                />
+              </Form.Item>
+            )}
 
             <div className="flex justify-end gap-2">
               <Button

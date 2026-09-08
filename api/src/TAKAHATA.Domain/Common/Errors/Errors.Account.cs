@@ -23,6 +23,9 @@ namespace TAKAHATA.Domain.Common.Errors
 
             public static Error DeleteAccountFalse =>
                 Error.Failure(code: "Account.DeleteFalse", description: "Xóa tài khoản không thành công.");
+
+            public static Error CanNotDeleteDefaultAccount =>
+                Error.Failure(code: "Account.CanNotDeleteDefaultAccount", description: "Không thể xóa tài khoản mặc định.");
         }
     }
 

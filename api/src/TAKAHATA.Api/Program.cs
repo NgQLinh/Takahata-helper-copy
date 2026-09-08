@@ -172,7 +172,8 @@ using (var scope = app.Services.CreateScope())
         "admin",
         "123@123Aa",
         "Admin",
-        Role.Admin
+        Role.Admin,
+        []
     );
     var createDefaultMachineCommand = new CreateDefaultMachineCommand(true);
     await sender.Send(registerCommand);

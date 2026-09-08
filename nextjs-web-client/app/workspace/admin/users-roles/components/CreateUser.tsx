@@ -1,9 +1,11 @@
 "use client";
 
-import { CreateAccountRequest } from "@/app/types";
+import { CreateAccountRequest, Machine } from "@/app/types";
 import { Modal, Form, Input, Select, Button } from "antd";
 import { Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
+import { getMachinesAsync } from "@/app/services/machine/MachineService";
+import { useEffect, useState } from "react";
 
 type Props = {
   open: boolean;
@@ -16,6 +18,7 @@ const initialValues: CreateAccountRequest = {
   fullName: "",
   password: "",
   role: "USER",
+  machineIds: [],
 };
 
 const validationSchema = Yup.object({
@@ -31,15 +34,45 @@ const validationSchema = Yup.object({
     ),
 
   role: Yup.string().oneOf(["ADMIN", "USER"]).required("Vui lòng chọn vai trò"),
+
+  machineIds: Yup.array()
+    .of(Yup.string())
+    .min(1, "Vui lòng chọn ít nhất một máy"),
 });
 
 export default function CreateUser({ open, onClose, onCreate }: Props) {
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [loadingMachines, setLoadingMachines] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const loadMachines = async () => {
+      try {
+        setLoadingMachines(true);
+
+        const result = await getMachinesAsync();
+
+        setMachines(result);
+      } catch (error) {
+        console.error("Không thể tải danh sách máy", error);
+      } finally {
+        setLoadingMachines(false);
+      }
+    };
+
+    loadMachines();
+  }, [open]);
+
   const handleSubmitForm = async (
     values: CreateAccountRequest,
     helpers: FormikHelpers<CreateAccountRequest>,
   ) => {
     try {
+      console.log("Create user request:", values);
+
       await onCreate(values);
+
       helpers.resetForm();
       onClose();
     } finally {
@@ -91,7 +124,6 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
               label="Họ và tên"
               validateStatus={
@@ -107,7 +139,6 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
               label="Mật khẩu"
               validateStatus={
@@ -123,7 +154,6 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
                 onBlur={handleBlur}
               />
             </Form.Item>
-
             <Form.Item
               label="Vai trò"
               validateStatus={touched.role && errors.role ? "error" : ""}
@@ -132,13 +162,47 @@ export default function CreateUser({ open, onClose, onCreate }: Props) {
               <Select
                 value={values.role}
                 onChange={(value) => setFieldValue("role", value)}
-                onBlur={() => setFieldValue("role", values.role)}
                 options={[
-                  { label: "ADMIN", value: "ADMIN" },
-                  { label: "USER", value: "USER" },
+                  {
+                    label: "ADMIN",
+                    value: "ADMIN",
+                  },
+                  {
+                    label: "USER",
+                    value: "USER",
+                  },
                 ]}
               />
             </Form.Item>
+            {values.role === "USER" && (
+              <Form.Item
+                label="Máy được phân quyền"
+                validateStatus={
+                  touched.machineIds && errors.machineIds ? "error" : ""
+                }
+                help={
+                  touched.machineIds && typeof errors.machineIds === "string"
+                    ? errors.machineIds
+                    : undefined
+                }
+              >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  showSearch
+                  placeholder="Chọn máy được phân quyền"
+                  loading={loadingMachines}
+                  value={values.machineIds}
+                  onChange={(machineIds: number[]) => {
+                    setFieldValue("machineIds", machineIds);
+                  }}
+                  options={machines.map((machine) => ({
+                    label: machine.name,
+                    value: machine.id,
+                  }))}
+                />
+              </Form.Item>
+            )}
 
             <div className="flex justify-end gap-2">
               <Button

@@ -25,7 +25,7 @@ import {
   ToolOutlined,
 } from "@ant-design/icons";
 import {
-  getMachinesAsync,
+  getMachinesByPermissionAsync,
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
@@ -77,7 +77,7 @@ export default function WorkerPage() {
   // New function
   const fetchMachines = useCallback(async () => {
     try {
-      const data = await getMachinesAsync();
+      const data = await getMachinesByPermissionAsync();
       setMachines(data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách máy:", error);
