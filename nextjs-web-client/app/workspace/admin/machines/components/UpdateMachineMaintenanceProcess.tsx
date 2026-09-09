@@ -1,4 +1,12 @@
-import { Button, DatePicker, Form, Input, Modal, Select } from "antd";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+} from "antd";
 import type { Dayjs } from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -26,6 +34,7 @@ export type FormValues = {
   performedBy?: string | null;
   note?: string | null;
   status: ProcessStatus | ProcessStatus.Planned;
+  estimatedTime: number;
 };
 
 enum ProcessStatus {
@@ -82,6 +91,7 @@ export default function UpdateMachineMaintenanceProcess({
           performedBy: data.performedBy,
           status: data.status | ProcessStatus.Planned,
           note: data.note,
+          estimatedTime: data.estimatedTime,
         });
       } catch (error) {
         console.error("Lỗi khi lấy chi kế hoạch bảo trì:", error);
@@ -142,6 +152,7 @@ export default function UpdateMachineMaintenanceProcess({
       performedBy: values.performedBy ?? "",
       status: values.status ?? ProcessStatus.Planned,
       note: values.note ?? null,
+      estimatedTime: values.estimatedTime,
     };
 
     console.log("Create payload:", request);
@@ -200,23 +211,8 @@ export default function UpdateMachineMaintenanceProcess({
           </div>
 
           <div className="col-md-6">
-            <Form.Item label="Trạng thái" name="status">
-              <Select
-                options={[
-                  {
-                    value: ProcessStatus.Planned,
-                    label: "Đã lên kế hoạch",
-                  },
-                  {
-                    value: ProcessStatus.Completed,
-                    label: "Hoàn thành",
-                  },
-                  {
-                    value: ProcessStatus.Cancelled,
-                    label: "Đã hủy",
-                  },
-                ]}
-              />
+            <Form.Item label="Thực hiện" name="performedBy">
+              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
             </Form.Item>
           </div>
         </div>
@@ -235,11 +231,39 @@ export default function UpdateMachineMaintenanceProcess({
           </div>
 
           <div className="col-md-6">
-            <Form.Item label="Thực hiện" name="performedBy">
-              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
+            <Form.Item
+              label="Thời gian dự kiến (giờ)"
+              name="estimatedTime"
+              rules={[{ required: true, message: "Vui lòng nhập số giờ làm" }]}
+            >
+              <InputNumber
+                className="w-100"
+                min={0}
+                step={0.5}
+                placeholder="Nhập số giờ làm"
+              />
             </Form.Item>
           </div>
         </div>
+
+        <Form.Item label="Trạng thái" name="status">
+          <Select
+            options={[
+              {
+                value: ProcessStatus.Planned,
+                label: "Đã lên kế hoạch",
+              },
+              {
+                value: ProcessStatus.Completed,
+                label: "Hoàn thành",
+              },
+              {
+                value: ProcessStatus.Cancelled,
+                label: "Đã hủy",
+              },
+            ]}
+          />
+        </Form.Item>
 
         <div className="row">
           <div className="col-md-6">

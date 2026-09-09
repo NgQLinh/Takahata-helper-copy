@@ -136,14 +136,19 @@ export default function MaintenanceHistoryTab({ active }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
+  const getCurrentMonthRange = (): DateRangeValue => [
+    dayjs().startOf("month"),
+    dayjs().endOf("month"),
+  ];
+
   const handleResetFilter = async () => {
     const emptyMachineIds: number[] = [];
     const emptyStatuses: ProcessStatus[] = [];
-    const emptyDateRange: DateRangeValue = [null, null];
+    const currentMonthRange = getCurrentMonthRange();
 
     setFilterMachineIds(emptyMachineIds);
     setFilterStatuses(emptyStatuses);
-    setFilterDateRange(emptyDateRange);
+    setFilterDateRange(currentMonthRange);
     setPage(1);
 
     await fetchMaintenanceProcesses();
@@ -217,6 +222,12 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         title: "Người thực hiện",
         dataIndex: "performedBy",
         width: 150,
+        render: (value) => value || "-",
+      },
+      {
+        title: "Thời gian dự kiến (giờ)",
+        dataIndex: "estimatedTime",
+        width: 180,
         render: (value) => value || "-",
       },
       {
@@ -395,7 +406,9 @@ export default function MaintenanceHistoryTab({ active }: Props) {
               />
             </div>
 
-            <Button onClick={() => void handleResetFilter()}>Xóa bộ lọc</Button>
+            <Button onClick={() => void handleResetFilter()}>
+              Tháng hiện tại
+            </Button>
 
             <Button
               type="primary"

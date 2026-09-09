@@ -13,5 +13,6 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
         DateTime? EndTime,
         string? PerformedBy,
         string? Note,
+        double? EstimatedTime,
         ProcessStatus Status = ProcessStatus.Planned) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;
 }

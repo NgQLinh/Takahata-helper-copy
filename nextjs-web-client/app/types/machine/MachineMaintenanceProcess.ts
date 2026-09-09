@@ -18,4 +18,5 @@ export interface MachineMaintenanceProcess {
   createBy: string;
   updateAt?: Dayjs | null;
   updateBy?: string;
+  estimatedTime: number;
 }

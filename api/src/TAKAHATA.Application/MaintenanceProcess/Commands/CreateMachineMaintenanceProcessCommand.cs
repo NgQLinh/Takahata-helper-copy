@@ -8,5 +8,6 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
         int MachineId,
         DateOnly PlantDate,
         string? PerformedBy,
+        double? EstimatedTime,
         string? Note) : IRequest<ErrorOr<MachineMaintenanceProcessResponse>>;
 }

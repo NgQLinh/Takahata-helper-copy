@@ -395,6 +395,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         Note = m.Note ?? string.Empty,
                         PartCode = string.Empty,
                         Quantity = 0,
+                        EstimatedTime = m.EstimatedTime,
                         Type = MachineProcessType.Maintenance
                     }));
                 }

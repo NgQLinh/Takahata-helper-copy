@@ -364,6 +364,13 @@ export function MachineScheduleBoard({ active }: Props) {
                             {process.workingTime}
                           </div>
                         )}
+
+                        <div className="small text-muted">
+                          <span className="fw-medium">Thời gian ước tính:</span>{" "}
+                          {process.estimatedTime != null
+                            ? `${process.estimatedTime} giờ`
+                            : "-"}
+                        </div>
                       </>
                     ) : (
                       <div className="small text-muted">

@@ -13,6 +13,7 @@ namespace TAKAHATA.Contracts.MaintenanceProcess
         public string? PerformedBy { get; set; } = string.Empty;
         public string? Note { get; set; } = string.Empty;
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
+        public double? EstimatedTime { get; set; }
         public MachineResponse? Machine { get; set; }
     }
 }

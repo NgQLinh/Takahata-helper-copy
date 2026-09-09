@@ -27,6 +27,7 @@ export type FormValues = {
   performedBy?: string | null;
   note?: string | null;
   status: ProcessStatus | ProcessStatus.Planned;
+  estimatedTime: number;
 };
 
 enum ProcessStatus {
@@ -90,6 +91,7 @@ export default function CreateMachineMaintenanceProcess({
       plantDate: values.plantDate?.format("YYYY-MM-DD") ?? null,
       performedBy: values.performedBy ?? "",
       note: values.note ?? null,
+      estimatedTime: values.estimatedTime,
     };
 
     console.log("Create payload:", request);
@@ -128,21 +130,29 @@ export default function CreateMachineMaintenanceProcess({
         }}
       >
         <div className="row">
-          <Form.Item
-            label="Máy"
-            name="machineId"
-            rules={[{ required: true, message: "Vui lòng chọn máy" }]}
-          >
-            <Select
-              showSearch
-              placeholder="Chọn máy"
-              loading={loadingMachine}
-              options={machines.map((machine) => ({
-                value: machine.id,
-                label: `${machine.name} - ${machine.code}`,
-              }))}
-            />
-          </Form.Item>
+          <div className="col-md-6">
+            <Form.Item
+              label="Máy"
+              name="machineId"
+              rules={[{ required: true, message: "Vui lòng chọn máy" }]}
+            >
+              <Select
+                showSearch
+                placeholder="Chọn máy"
+                loading={loadingMachine}
+                options={machines.map((machine) => ({
+                  value: machine.id,
+                  label: `${machine.name} - ${machine.code}`,
+                }))}
+              />
+            </Form.Item>
+          </div>
+
+          <div className="col-md-6">
+            <Form.Item label="Thực hiện" name="performedBy">
+              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
+            </Form.Item>
+          </div>
         </div>
 
         <div className="row">
@@ -159,8 +169,17 @@ export default function CreateMachineMaintenanceProcess({
           </div>
 
           <div className="col-md-6">
-            <Form.Item label="Thực hiện" name="performedBy">
-              <Input placeholder="Nhập tên người/đơn vị thực hiện" />
+            <Form.Item
+              label="Thời gian dự kiến (giờ)"
+              name="estimatedTime"
+              rules={[{ required: true, message: "Vui lòng nhập số giờ làm" }]}
+            >
+              <InputNumber
+                className="w-100"
+                min={0}
+                step={0.5}
+                placeholder="Nhập số giờ làm"
+              />
             </Form.Item>
           </div>
         </div>

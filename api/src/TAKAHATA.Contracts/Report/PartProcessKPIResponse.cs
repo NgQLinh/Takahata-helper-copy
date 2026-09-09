@@ -20,6 +20,7 @@ namespace TAKAHATA.Contracts.Report
         public DateOnly? PlantDate { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public double? EstimatedTime { get; set; }
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
     }
 }

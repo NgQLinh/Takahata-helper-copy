@@ -19,4 +19,5 @@ export interface PartProcessKPI {
   startTime?: Dayjs;
   endTime?: Dayjs;
   status: ProcessStatus;
+  estimatedTime?: number;
 }

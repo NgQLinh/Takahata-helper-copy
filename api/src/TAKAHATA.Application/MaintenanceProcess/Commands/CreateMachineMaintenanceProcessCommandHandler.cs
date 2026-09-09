@@ -36,6 +36,7 @@ namespace TAKAHATA.Application.MaintenanceProcess.Commands
                 MachineId = request.MachineId,
                 Note = request.Note,
                 PerformedBy = request.PerformedBy,
+                EstimatedTime = request.EstimatedTime
             };
 
             machineMaintenanceProcess = await _machineMaintenanceProcessRepository.AddAsync(machineMaintenanceProcess);

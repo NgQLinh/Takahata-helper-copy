@@ -517,6 +517,13 @@ export function KpiReportsPage() {
       title: "Thời gian",
       children: [
         {
+          title: "Ước tính (giờ)",
+          width: 150,
+          dataIndex: "estimatedTime",
+          key: "estimatedTime",
+          render: (value) => (value != null ? `${value} giờ` : "-"),
+        },
+        {
           title: "Bắt đầu",
           width: 150,
           dataIndex: "startTime",
