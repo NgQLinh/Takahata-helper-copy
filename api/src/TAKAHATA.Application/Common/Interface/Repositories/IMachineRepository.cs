@@ -13,7 +13,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<IEnumerable<Machine>> GetAsync();
         Task<SearchResponse<List<MachineResponse>>> SearchAsync(string? keyword, int? page, int? pageSize);
         Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(string keyword, DateOnly? plantFrom, DateOnly? plantTo, int page, int pageSize);
-        Task<List<MachineKPIResponse>> SearchKPIAsync(DateTime from, DateTime to);
+        Task<List<MachineKPIResponse>> SearchKPIAsync(string searchMachineKeyword, DateTime from, DateTime to);
         Task<IEnumerable<Machine>> GetByIdsAsync(List<int> machineIds);
     }
 }

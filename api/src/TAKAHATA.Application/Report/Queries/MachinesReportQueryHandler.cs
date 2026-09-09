@@ -18,7 +18,7 @@ namespace TAKAHATA.Application.Report.Queries
             MachinesReportQuery request,
             CancellationToken cancellationToken)
         {
-            var machineKpis = await _machineLogRepository.SearchKPIAsync(request.From, request.To);
+            var machineKpis = await _machineLogRepository.SearchKPIAsync(request.SearchMachineKeyword, request.From, request.To);
 
             var response = new MachineReportResponse
             {

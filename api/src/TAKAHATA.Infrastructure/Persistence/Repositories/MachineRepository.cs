@@ -414,9 +414,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 result);
         }
 
-        public async Task<List<MachineKPIResponse>> SearchKPIAsync(DateTime from, DateTime to)
+        public async Task<List<MachineKPIResponse>> SearchKPIAsync(string searchMachineKeyword, DateTime from, DateTime to)
         {
-            var machines = await _dbContext.Machines.AsNoTracking().ToListAsync();
+            var machineQuery = _dbContext.Machines.AsQueryable().AsNoTracking();
+            if (!string.IsNullOrEmpty(searchMachineKeyword))
+                machineQuery = machineQuery.Where(m => m.Code.Contains(searchMachineKeyword) || m.Name.Contains(searchMachineKeyword));
+
+            var machines = await machineQuery.ToListAsync();
             if (machines == null || machines.Count == 0)
                 return [];
 

@@ -18,6 +18,7 @@ import {
   Col,
   DatePicker,
   Empty,
+  Input,
   Row,
   Space,
   Table,
@@ -142,6 +143,8 @@ export function KpiReportsPage() {
   const [processDateRange, setProcessDateRange] =
     useState<DateRange>(getCurrentMonthRange);
 
+  const [searchMachineKeyword, setSearchMachineKeyword] = useState("");
+
   const [exportingMachinesReport, setExportingMachinesReport] = useState(false);
   const [exportingProcessesReport, setExportingProcessesReport] =
     useState(false);
@@ -193,6 +196,7 @@ export function KpiReportsPage() {
 
       try {
         const data = await searchMachinesReportAsync({
+          searchMachineKeyword,
           from: from.format("YYYY-MM-DD"),
           to: to.format("YYYY-MM-DD"),
         });
@@ -206,7 +210,7 @@ export function KpiReportsPage() {
         setLoadingMachinesReport(false);
       }
     },
-    [machineDateRange],
+    [machineDateRange, searchMachineKeyword],
   );
 
   const fetchPartProcessReport = useCallback(
@@ -779,6 +783,14 @@ export function KpiReportsPage() {
                 </div>
 
                 <Space wrap size={8}>
+                  <Input
+                    placeholder="Nhập tên hoặc mã máy"
+                    allowClear
+                    value={searchMachineKeyword}
+                    onChange={(event) =>
+                      setSearchMachineKeyword(event.target.value)
+                    }
+                  />
                   <RangePicker
                     value={machineDateRange}
                     disabledDate={disabledSixMonthRange}
