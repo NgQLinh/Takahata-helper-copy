@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, Form, Input, Select, Button } from "antd";
+import { Modal, Form, Input, Select, Button, Checkbox } from "antd";
 import { Machine, UpdateMachineRequest } from "@/app/types";
 import { useEffect } from "react";
 import {
@@ -25,6 +25,8 @@ export default function UpdateMachine({
 }: Props) {
   const [form] = Form.useForm<Machine>();
 
+  const isAutomatic = Form.useWatch("isAutomatic", form);
+
   useEffect(() => {
     if (open && machine) {
       form.setFieldsValue(machine);
@@ -40,6 +42,7 @@ export default function UpdateMachine({
       code: values.code,
       brand: values.brand,
       type: values.type,
+      isAutomatic: values.isAutomatic,
       partBitAddress: values.partBitAddress,
       partProcessBitAddress: values.partProcessBitAddress,
       statusBitAddress: values.statusBitAddress,
@@ -160,11 +163,19 @@ export default function UpdateMachine({
         </Form.Item>
 
         <Form.Item
+          name="isAutomatic"
+          valuePropName="checked"
+          initialValue={true}
+        >
+          <Checkbox>Máy tự đông (CNC)</Checkbox>
+        </Form.Item>
+
+        <Form.Item
           label="Thanh ghi trạng thái"
           name="statusBitAddress"
           rules={[
             {
-              required: true,
+              required: isAutomatic,
               message: "Vui lòng nhập thanh ghi trạng thái",
             },
           ]}
@@ -172,6 +183,7 @@ export default function UpdateMachine({
           <Input
             type="number"
             allowClear
+            disabled={!isAutomatic}
             placeholder="Nhập địa chỉ thanh ghi"
             autoFocus
           />
@@ -184,7 +196,7 @@ export default function UpdateMachine({
               name="partBitAddress"
               rules={[
                 {
-                  required: true,
+                  required: isAutomatic,
                   message: "Vui lòng nhập thanh ghi part",
                 },
               ]}
@@ -192,6 +204,7 @@ export default function UpdateMachine({
               <Input
                 type="number"
                 allowClear
+                disabled={!isAutomatic}
                 placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
               />
@@ -203,7 +216,7 @@ export default function UpdateMachine({
               name="partProcessBitAddress"
               rules={[
                 {
-                  required: true,
+                  required: isAutomatic,
                   message: "Vui lòng nhập thanh ghi process",
                 },
               ]}
@@ -211,6 +224,7 @@ export default function UpdateMachine({
               <Input
                 type="number"
                 allowClear
+                disabled={!isAutomatic}
                 placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
               />

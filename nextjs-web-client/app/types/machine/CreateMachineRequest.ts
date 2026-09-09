@@ -6,4 +6,5 @@ export interface CreateMachineRequest {
   statusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;
+  isAutomatic: boolean;
 }

@@ -211,6 +211,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("IsAutomatic")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("MachineStatus")
                         .HasColumnType("int");
 
@@ -367,8 +370,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Code")
-                        .HasDatabaseName("P_Part_Code");
+                    b.HasIndex("Code");
 
                     b.HasIndex("IndexId");
 

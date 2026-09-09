@@ -4,6 +4,7 @@ export interface UpdateMachineRequest {
   type: string;
   code: string;
   brand: string;
+  isAutomatic: boolean;
   statusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;

@@ -10,6 +10,7 @@ import {
   PlusOutlined,
   SearchOutlined,
   ToolOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -199,14 +200,24 @@ export default function MachineListTab({ active }: Props) {
         width: 170,
         filters: typeMachineFilter,
         onFilter: (value, record) => record.type === value,
-        render: (value: string) => (
-          <Tag
-            icon={<ToolOutlined />}
-            color={value === "NC Milling" ? "gold" : "green"}
-          >
-            {value}
-          </Tag>
-        ),
+        render: (value: string, record: Machine) => {
+          if (!record.isAutomatic) {
+            return (
+              <Tag icon={<UserOutlined />} color="blue">
+                Manual
+              </Tag>
+            );
+          }
+
+          return (
+            <Tag
+              icon={<ToolOutlined />}
+              color={value === "NC Milling" ? "gold" : "green"}
+            >
+              {value}
+            </Tag>
+          );
+        },
       },
       {
         title: "Thương hiệu",

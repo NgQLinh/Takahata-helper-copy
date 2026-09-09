@@ -242,6 +242,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.Machines.ToListAsync();
         }
 
+        public async Task<IEnumerable<Machine>> GetAutomaticMachineAsync()
+        {
+            return await _dbContext.Machines.Where(m => m.IsAutomatic).ToListAsync();
+        }
+
         public async Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(
             string? keyword,
             DateOnly? plantFrom,

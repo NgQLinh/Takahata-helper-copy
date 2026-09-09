@@ -3,7 +3,7 @@
 import { createMachineAsync } from "@/app/services/machine/MachineService";
 import { CreateMachineRequest } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
-import { Modal, Form, Input, Select, Button } from "antd";
+import { Modal, Form, Input, Select, Button, Checkbox } from "antd";
 import { toast } from "react-toastify";
 
 type Props = {
@@ -20,10 +20,13 @@ const initialValues: CreateMachineRequest = {
   partBitAddress: null,
   partProcessBitAddress: null,
   statusBitAddress: null,
+  isAutomatic: true,
 };
 
 export default function CreateMachine({ open, onClose, onCreate }: Props) {
   const [form] = Form.useForm<CreateMachineRequest>();
+
+  const isAutomatic = Form.useWatch("isAutomatic", form);
 
   const handleSubmit = async (values: CreateMachineRequest) => {
     await createMachineAsync(values)
@@ -127,11 +130,19 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
         </Form.Item>
 
         <Form.Item
+          name="isAutomatic"
+          valuePropName="checked"
+          initialValue={true}
+        >
+          <Checkbox>Máy tự đông (CNC)</Checkbox>
+        </Form.Item>
+
+        <Form.Item
           label="Thanh ghi trạng thái"
           name="statusBitAddress"
           rules={[
             {
-              required: true,
+              required: isAutomatic,
               message: "Vui lòng nhập thanh ghi trạng thái",
             },
           ]}
@@ -139,6 +150,7 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
           <Input
             type="number"
             allowClear
+            disabled={!isAutomatic}
             placeholder="Nhập địa chỉ thanh ghi"
             autoFocus
           />
@@ -151,7 +163,7 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
               name="partBitAddress"
               rules={[
                 {
-                  required: true,
+                  required: isAutomatic,
                   message: "Vui lòng nhập thanh ghi part",
                 },
               ]}
@@ -159,6 +171,7 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
               <Input
                 type="number"
                 allowClear
+                disabled={!isAutomatic}
                 placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
               />
@@ -170,7 +183,7 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
               name="partProcessBitAddress"
               rules={[
                 {
-                  required: true,
+                  required: isAutomatic,
                   message: "Vui lòng nhập thanh ghi process",
                 },
               ]}
@@ -178,6 +191,7 @@ export default function CreateMachine({ open, onClose, onCreate }: Props) {
               <Input
                 type="number"
                 allowClear
+                disabled={!isAutomatic}
                 placeholder="Nhập địa chỉ thanh ghi"
                 autoFocus
               />

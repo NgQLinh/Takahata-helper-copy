@@ -16,6 +16,7 @@ namespace TAKAHATA.Domain.MasterData
         public int PartId { get; set; }
         public int PartProcessId { get; set; }
 
+        public bool IsAutomatic { get; set; } = true;
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }
         public int PartProcessBitAddress { get; set; }

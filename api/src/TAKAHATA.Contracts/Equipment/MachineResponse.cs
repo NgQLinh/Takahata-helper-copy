@@ -11,6 +11,8 @@ namespace TAKAHATA.Contracts.Equipment
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
 
+        public bool IsAutomatic { get; set; }
+
         public int PartId { get; set; }
         public int PartProcessId { get; set; }
 

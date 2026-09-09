@@ -27,7 +27,7 @@ namespace TAKAHATA.Application.DataLog.Queries
             MachineLogsQuery request,
             CancellationToken cancellationToken)
         {
-            var machines = await _machineRepository.GetAsync();
+            var machines = await _machineRepository.GetAutomaticMachineAsync();
 
             if (machines == null || machines == null)
                 return [];

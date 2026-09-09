@@ -7,13 +7,14 @@ export interface Machine {
   code: string;
   type: string;
   brand: string;
+  isAutomatic: boolean;
   createAt: Dayjs;
   createBy: string;
   updateAt?: Dayjs | null;
   updateBy?: string;
   machineStatus: MachineStatus;
   machineStatusChangeAt: Dayjs | null;
-  
+
   partId: number;
   partProcessId: number;
 

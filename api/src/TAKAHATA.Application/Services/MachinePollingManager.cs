@@ -220,7 +220,7 @@ namespace TAKAHATA.Application.Services
                 scope.ServiceProvider
                      .GetRequiredService<IMachineRepository>();
 
-            var machines = await machineRepository.GetAsync();
+            var machines = await machineRepository.GetAutomaticMachineAsync();
             _machines = [.. machines];
 
             Console.WriteLine($"Reload {_machines.Count} machines");
