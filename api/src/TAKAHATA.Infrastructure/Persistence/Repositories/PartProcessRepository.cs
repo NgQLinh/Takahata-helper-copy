@@ -106,6 +106,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     WorkingTime = pp.WorkingTime,
                     MachineId = pp.MachineId,
                     EstimatedTime = pp.EstimatedTime,
+                    PartType = p.PartType,
                 });
 
             var partProcesses = await result.ToListAsync();

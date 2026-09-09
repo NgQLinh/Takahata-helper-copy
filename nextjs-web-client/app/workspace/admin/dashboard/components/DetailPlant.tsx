@@ -141,6 +141,14 @@ export default function DetailPlant({
         ellipsis: true,
         render: (value) => value || "-",
       },
+      // {
+      //   title: "Dự kiến (giờ)",
+      //   fixed: "left",
+      //   dataIndex: "estimatedTime",
+      //   width: 170,
+      //   ellipsis: true,
+      //   render: (value) => (value != null ? `${value} giờ` : "-"),
+      // },
       {
         title: "Số lượng",
         dataIndex: "quantity",

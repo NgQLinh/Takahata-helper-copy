@@ -1,4 +1,5 @@
-﻿using TAKAHATA.Domain.MasterData;
+﻿using TAKAHATA.Domain.Common.Enum;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.Report
 {
@@ -21,6 +22,7 @@ namespace TAKAHATA.Contracts.Report
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public double? EstimatedTime { get; set; }
+        public PartType PartType { get; set; }
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
     }
 }

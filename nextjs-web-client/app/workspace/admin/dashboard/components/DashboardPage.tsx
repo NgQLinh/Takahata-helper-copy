@@ -207,7 +207,6 @@ function MachineCard({
   onViewTodayPlan: (log: MachineLog) => void;
 }) {
   const cfg = statusConfig[machineLog.machineStatus];
-  const [showPlan, setShowPlan] = useState(false);
 
   const handleViewTodayPlan = (machine: MachineLog) => {
     onViewTodayPlan(machine);

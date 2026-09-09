@@ -57,7 +57,12 @@ import {
   searchMachinesReportAsync,
   searchPartProcessReportAsync,
 } from "@/app/services/report/ReportService";
-import { MachineStatus, PartProcessKPI, type MachineKPI } from "@/app/types";
+import {
+  MachineStatus,
+  PartProcessKPI,
+  PartType,
+  type MachineKPI,
+} from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 const { RangePicker } = DatePicker;
@@ -99,6 +104,7 @@ const formatHours = (value?: number | null, fractionDigits = 2) =>
   value == null ? "-" : `${value.toFixed(fractionDigits)} giờ`;
 
 import type { RangePickerProps } from "antd/es/date-picker";
+import { PartTypeLabels } from "@/app/types/part/PartTypeLabels";
 
 const disabledSixMonthRange: RangePickerProps["disabledDate"] = (
   currentDate,
@@ -611,6 +617,15 @@ export function KpiReportsPage() {
       dataIndex: "status",
       key: "status",
       render: (status: ProcessStatus) => <Tag>{ProcessStatus[status]}</Tag>,
+    },
+    {
+      title: "Loại gia công",
+      dataIndex: "partType",
+      key: "partType",
+      width: 250,
+      align: "right",
+      render: (value?: PartType | null) =>
+        PartTypeLabels[value as PartType] || "-",
     },
     {
       title: "Hiệu suất",

@@ -142,11 +142,11 @@ export default function MaintenanceHistoryTab({ active }: Props) {
   ];
 
   const handleResetFilter = async () => {
-    const emptyMachineIds: number[] = [];
+    // const emptyMachineIds: number[] = [];
     const emptyStatuses: ProcessStatus[] = [];
     const currentMonthRange = getCurrentMonthRange();
 
-    setFilterMachineIds(emptyMachineIds);
+    // setFilterMachineIds(emptyMachineIds);
     setFilterStatuses(emptyStatuses);
     setFilterDateRange(currentMonthRange);
     setPage(1);

@@ -1,5 +1,6 @@
 import { Dayjs } from "dayjs";
 import { ProcessStatus } from "../common/ProcessStatus";
+import { PartType } from "../part/PartType";
 
 export interface PartProcessKPI {
   machineId: number;
@@ -20,4 +21,5 @@ export interface PartProcessKPI {
   endTime?: Dayjs;
   status: ProcessStatus;
   estimatedTime?: number;
+  partType?: PartType;
 }
