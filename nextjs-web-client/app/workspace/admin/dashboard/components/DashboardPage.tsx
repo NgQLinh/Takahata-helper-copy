@@ -170,11 +170,11 @@ export function DashboardPage() {
 
         <div className="card-body overflow-hidden">
           <div className="overflow-auto h-100">
-            <div className="row g-3">
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3">
               {machineLogs.map((log) => (
                 <div
                   key={`${log.id}-${String(log.machineStatusChangeAt)}`}
-                  className="col-lg-3 col-md-6"
+                  className="col"
                 >
                   <MachineCard
                     machineLog={log}
