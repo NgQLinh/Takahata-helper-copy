@@ -277,8 +277,6 @@ export default function MaintenanceHistoryTab({ active }: Props) {
             >
               {value?.[0]?.toUpperCase() || "A"}
             </Avatar>
-
-            {value || "-"}
           </Space>
         ),
       },
@@ -311,8 +309,6 @@ export default function MaintenanceHistoryTab({ active }: Props) {
               >
                 {value[0]?.toUpperCase() || "A"}
               </Avatar>
-
-              {value}
             </Space>
           ) : (
             <Text type="secondary">-</Text>
