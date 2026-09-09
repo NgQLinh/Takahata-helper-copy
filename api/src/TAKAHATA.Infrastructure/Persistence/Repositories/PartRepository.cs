@@ -38,6 +38,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             int page,
             int pageSize)
         {
+
+            var currentPage = Math.Max(page, 1);
+            var currentPageSize = Math.Clamp(pageSize, 1, 100);
+
             var query = _dbContext.PartProcesses
                 .AsNoTracking()
                 .AsQueryable();
@@ -51,8 +55,28 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     .Distinct()
                     .ToList();
 
-                if (indexIds.Any())
-                    query = query.Where(x => indexIds.Contains(x.Id));
+                if (indexIds.Count != 0)
+                {
+                    var partIds = _dbContext.Parts
+                        .Where(p => indexIds.Contains(p.IndexId))
+                        .Select(i => i.Id)
+                        .Distinct()
+                        .ToList();
+
+                    if (partIds.Count != 0)
+                        query = query.Where(x => partIds.Contains(x.PartId));
+                    else
+                        return new SearchResponse<List<PartResponse>>(
+                            currentPage,
+                            currentPageSize,
+                            0,
+                            []);
+                } else
+                    return new SearchResponse<List<PartResponse>>(
+                        currentPage,
+                        currentPageSize,
+                        0,
+                        []);
             }
 
             // Tìm kiếm theo mã Part
@@ -101,8 +125,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     x.StartTime.Value.Date <= startTo.Value);
             }
 
-            var currentPage = Math.Max(page, 1);
-            var currentPageSize = Math.Clamp(pageSize, 1, 100);
 
             // Mỗi Part chỉ được tính là một item
             var groupedQuery = query

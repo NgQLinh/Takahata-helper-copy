@@ -59,6 +59,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         ? x.Part.Index.Code ?? string.Empty
                         : string.Empty,
 
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    EstimatedTime = x.EstimatedTime,
+
                     Note = x.Note ?? string.Empty,
                     Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status
                 })

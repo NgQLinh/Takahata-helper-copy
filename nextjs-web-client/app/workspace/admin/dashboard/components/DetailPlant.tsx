@@ -1,8 +1,9 @@
 import { getPartProcessByMachineAsync } from "@/app/services/machine/MachineService";
 import { ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
-import { Button, Card, Modal, Table, Tag } from "antd";
+import { Modal, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -141,14 +142,28 @@ export default function DetailPlant({
         ellipsis: true,
         render: (value) => value || "-",
       },
-      // {
-      //   title: "Dự kiến (giờ)",
-      //   fixed: "left",
-      //   dataIndex: "estimatedTime",
-      //   width: 170,
-      //   ellipsis: true,
-      //   render: (value) => (value != null ? `${value} giờ` : "-"),
-      // },
+      {
+        title: "Dự kiến (giờ)",
+        fixed: "left",
+        dataIndex: "estimatedTime",
+        width: 170,
+        ellipsis: true,
+        render: (value) => (value != null ? `${value} giờ` : "-"),
+      },
+      {
+        title: "Bắt đầu",
+        dataIndex: "startTime",
+        width: 150,
+        render: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+      },
+      {
+        title: "Kết thúc",
+        dataIndex: "endTime",
+        width: 150,
+        render: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+      },
       {
         title: "Số lượng",
         dataIndex: "quantity",
@@ -200,7 +215,7 @@ export default function DetailPlant({
         }
         open={open}
         onCancel={onClose}
-        width={1000}
+        width={1200}
         height={600}
         centered
         footer={null}

@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { ProcessStatus } from "../common/ProcessStatus";
 
 export interface ManufacturingProcess {
@@ -14,4 +15,7 @@ export interface ManufacturingProcess {
   processedQuantity: number;
   status: ProcessStatus;
   note: string;
+  startTime?: Dayjs | null;
+  endTime?: Dayjs | null;
+  estimatedTime?: number | null;
 }
