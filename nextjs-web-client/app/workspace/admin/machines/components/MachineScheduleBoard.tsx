@@ -113,7 +113,7 @@ export function MachineScheduleBoard({ active }: Props) {
   /*
    * Giá trị đang nhập trên giao diện.
    */
-  const [keyword, setKeyword] = useState("");
+  // const [keyword, setKeyword] = useState("");
   const [filterPlanDateRange, setFilterPlanDateRange] =
     useState<DateRange>(getCurrentWeekRange);
 
@@ -129,28 +129,31 @@ export function MachineScheduleBoard({ active }: Props) {
   const [pageSize, setPageSize] = useState(100);
   const [total, setTotal] = useState(0);
 
-  const fetchMachineSchedule = useCallback(async () => {
-    setLoading(true);
+  const fetchMachineSchedule = useCallback(
+    async (currentPage = page, currentPageSize = pageSize) => {
+      setLoading(true);
 
-    try {
-      const response = await searchMachineSchedulesAsync({
-        keyword: searchKeyword.trim(),
-        plantFrom: searchPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-        plantTo: searchPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
-        page,
-        pageSize,
-      });
+      try {
+        const response = await searchMachineSchedulesAsync({
+          keyword: searchKeyword.trim(),
+          plantFrom: searchPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+          plantTo: searchPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+          page: currentPage,
+          pageSize: currentPageSize,
+        });
 
-      setMachines(response.data ?? []);
-      setPage(response.page);
-      setPageSize(response.pageSize);
-      setTotal(response.totalItems);
-    } catch {
-      toast.error("Không thể tải danh sách kế hoạch");
-    } finally {
-      setLoading(false);
-    }
-  }, [searchKeyword, searchPlanDateRange, page, pageSize]);
+        setMachines(response.data ?? []);
+        setPage(response.page);
+        setPageSize(response.pageSize);
+        setTotal(response.totalItems);
+      } catch {
+        toast.error("Không thể tải danh sách kế hoạch");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchKeyword, searchPlanDateRange, page, pageSize],
+  );
 
   useEffect(() => {
     const run = async () => {
@@ -190,31 +193,6 @@ export function MachineScheduleBoard({ active }: Props) {
 
     return result;
   }, [searchPlanDateRange]);
-
-  const handleSearch = () => {
-    setSearchKeyword(keyword);
-    setSearchPlanDateRange(filterPlanDateRange);
-
-    if (page !== 1) {
-      setPage(1);
-      return;
-    }
-
-    /*
-     * Khi đang ở trang 1 và giá trị tìm kiếm không thay đổi,
-     * useEffect có thể không chạy lại, nên gọi trực tiếp.
-     */
-    if (
-      searchKeyword === keyword &&
-      searchPlanDateRange?.[0]?.isSame(
-        filterPlanDateRange?.[0] ?? null,
-        "day",
-      ) &&
-      searchPlanDateRange?.[1]?.isSame(filterPlanDateRange?.[1] ?? null, "day")
-    ) {
-      void fetchMachineSchedule();
-    }
-  };
 
   const handleResetFilters = () => {
     const currentWeekRange = getCurrentWeekRange();
@@ -444,9 +422,8 @@ export function MachineScheduleBoard({ active }: Props) {
             <Input
               placeholder="Nhập tên hoặc mã máy"
               allowClear
-              value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
-              onPressEnter={handleSearch}
+              value={searchKeyword}
+              onChange={(event) => setSearchKeyword(event.target.value)}
             />
           </div>
 
@@ -468,7 +445,10 @@ export function MachineScheduleBoard({ active }: Props) {
           <Button
             type="primary"
             icon={<SearchOutlined />}
-            onClick={handleSearch}
+            onClick={async () => {
+              setPage(1);
+              await fetchMachineSchedule(1, pageSize);
+            }}
           >
             Tìm kiếm
           </Button>
