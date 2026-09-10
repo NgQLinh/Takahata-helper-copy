@@ -75,13 +75,54 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 data);
         }
 
-        public async Task<List<PartProcessKPIResponse>> SearchKPIAsync(DateTime from, DateTime to)
+        public async Task<List<PartProcessKPIResponse>> SearchKPIAsync(
+            string? searchMachineKeyword,
+            string? searchIndexKeyword,
+            string? searchPartKeyword,
+            DateTime from,
+            DateTime to)
         {
             const int batchSize = 2000;
 
             var query = _dbContext.PartProcesses
                 .AsNoTracking()
                 .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchMachineKeyword))
+            {
+                var ms = await _dbContext.Machines
+                    .Where(m => m.Name.Contains(searchMachineKeyword) || m.Code.Contains(searchMachineKeyword))
+                    .Select(m => m.Id).ToListAsync();
+
+                if (ms != null && ms.Count != 0)
+                    query = query.Where(p => ms.Contains(p.MachineId));
+                else
+                    return [];
+            }
+
+            if (!string.IsNullOrEmpty(searchIndexKeyword))
+            {
+                var idxIds = await _dbContext.Indexes.Where(i => i.Code.Contains(searchIndexKeyword)).Select(i => i.Id).ToListAsync();
+                if (idxIds != null && idxIds.Count != 0)
+                {
+                    var partIds = await _dbContext.Parts.Where(p => idxIds.Contains(p.IndexId)).Select(p => p.Id).ToListAsync();
+                    if (partIds != null && partIds.Count != 0)
+                        query = query.Where(p => partIds.Contains(p.PartId));
+                    else
+                        return [];
+                }
+                else
+                    return [];
+            }
+
+            if (!string.IsNullOrEmpty(searchPartKeyword))
+            {
+                var partIds = await _dbContext.Parts.Where(p => p.Code.Contains(searchPartKeyword)).Select(p => p.Id).ToListAsync();
+                if (partIds != null && partIds.Count != 0)
+                    query = query.Where(p => partIds.Contains(p.PartId));
+                else
+                    return [];
+            }
 
             query = query
                 .Where(p => p.StartTime != null && p.StartTime.Value.Date >= from.Date && p.StartTime.Value.Date <= to.Date);

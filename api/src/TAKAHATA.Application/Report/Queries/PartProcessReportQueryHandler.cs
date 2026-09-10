@@ -18,7 +18,12 @@ namespace TAKAHATA.Application.Report.Queries
             PartProcessReportQuery request,
             CancellationToken cancellationToken)
         {
-            var partProcessKPIs = await _partProcessRepository.SearchKPIAsync(request.From, request.To);
+            var partProcessKPIs = await _partProcessRepository.SearchKPIAsync(
+                request.SearchMachineKeyword,
+                request.SearchIndexKeyword,
+                request.SearchPartKeyword,
+                request.From,
+                request.To);
 
             var response = new PartProcessReportResponse
             {

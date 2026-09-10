@@ -11,6 +11,11 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
             int machineId,
             int? page,
             int? pageSize);
-        Task<List<PartProcessKPIResponse>> SearchKPIAsync(DateTime from, DateTime to);
+        Task<List<PartProcessKPIResponse>> SearchKPIAsync(
+            string? searchMachineKeyword,
+            string? searchIndexKeyword,
+            string? searchPartKeyword,
+            DateTime from,
+            DateTime to);
     }
 }

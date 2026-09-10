@@ -155,6 +155,13 @@ export function KpiReportsPage() {
   const [partProcessKPIs, setPartProcessKPIs] = useState<PartProcessKPI[]>([]);
   const [loadingProcessesReport, setLoadingProcessesReport] = useState(false);
 
+  const [searchMachineOfProcessKeyword, setSearchMachineOfProcessKeyword] =
+    useState("");
+  const [searchIndexOfProcessKeyword, setSearchIndexOfProcessKeyword] =
+    useState("");
+  const [searchPartOfProcessKeyword, setSearchPartOfProcessKeyword] =
+    useState("");
+
   const totalDays = useMemo(() => {
     const [from, to] = machineDateRange ?? [];
 
@@ -228,6 +235,9 @@ export function KpiReportsPage() {
 
       try {
         const data = await searchPartProcessReportAsync({
+          searchMachineKeyword: searchMachineOfProcessKeyword,
+          searchIndexKeyword: searchIndexOfProcessKeyword,
+          searchPartKeyword: searchPartOfProcessKeyword,
           from: from.format("YYYY-MM-DD"),
           to: to.format("YYYY-MM-DD"),
         });
@@ -241,7 +251,12 @@ export function KpiReportsPage() {
         setLoadingProcessesReport(false);
       }
     },
-    [processDateRange],
+    [
+      processDateRange,
+      searchIndexOfProcessKeyword,
+      searchMachineOfProcessKeyword,
+      searchPartOfProcessKeyword,
+    ],
   );
 
   const exportMachinesReport = useCallback(async () => {
@@ -397,7 +412,7 @@ export function KpiReportsPage() {
               style={{ background: "#e8f1ff", color: "#1677ff" }}
             />
             <Typography.Text strong ellipsis={{ tooltip: record.name }}>
-              {record.name || record.code || "-"}
+              {record.code} - {record.name}
             </Typography.Text>
           </Space>
         ),
@@ -865,6 +880,31 @@ export function KpiReportsPage() {
                 </div>
 
                 <Space wrap size={8}>
+                  <Input
+                    placeholder="Nhập tên hoặc mã máy"
+                    allowClear
+                    value={searchMachineOfProcessKeyword}
+                    onChange={(event) =>
+                      setSearchMachineOfProcessKeyword(event.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="Index"
+                    allowClear
+                    value={searchIndexOfProcessKeyword}
+                    onChange={(event) =>
+                      setSearchIndexOfProcessKeyword(event.target.value)
+                    }
+                  />
+                  <Input
+                    placeholder="Part name"
+                    allowClear
+                    value={searchPartOfProcessKeyword}
+                    onChange={(event) =>
+                      setSearchPartOfProcessKeyword(event.target.value)
+                    }
+                  />
+
                   <RangePicker
                     value={processDateRange}
                     disabledDate={disabledSixMonthRange}
