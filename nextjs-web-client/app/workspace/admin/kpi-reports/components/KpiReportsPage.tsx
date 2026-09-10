@@ -69,8 +69,8 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 const { RangePicker } = DatePicker;
 
 const WORKING_HOURS_PER_DAY = 8;
-const DEFAULT_PAGE_SIZE = 10;
-const DEFAULT_PROCESS_PAGE_SIZE = 20;
+const DEFAULT_PAGE_SIZE = 500;
+const DEFAULT_PROCESS_PAGE_SIZE = 500;
 const CHART_COLORS = [
   "#4CAF50",
   "#2196F3",
@@ -856,7 +856,7 @@ export function KpiReportsPage() {
                 total: machinesKPI.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
-                pageSizeOptions: [5, 10, 20, 50],
+                pageSizeOptions: [5, 10, 20, 100, 500],
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} / ${total} máy`,
                 onChange: (current, pageSize) =>
@@ -956,7 +956,7 @@ export function KpiReportsPage() {
                 total: partProcessKPIs.length,
                 showSizeChanger: true,
                 showQuickJumper: true,
-                pageSizeOptions: [10, 20, 50, 100],
+                pageSizeOptions: [10, 20, 50, 100, 500],
                 showTotal: (total, range) =>
                   `${range[0]}-${range[1]} / ${total} công đoạn`,
                 onChange: (current, pageSize) =>
