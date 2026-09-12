@@ -24,7 +24,18 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             if (_dbContext.PartProcesses.Any(p => p.PartId == id && p.Status != ProcessStatus.Planned))
                 return null;
 
-            return await base.DeleteByIdAsync(id, cancellationToken);
+            var deletedPart = await base.DeleteByIdAsync(id, cancellationToken);
+            if (deletedPart != null)
+            {
+                var index = await _dbContext.Indexes.FirstOrDefaultAsync(i => i.Id == deletedPart.IndexId && i.Parts.Count() == 0);
+                if (index != null)
+                {
+                    _dbContext.Indexes.Remove(index);
+                    _dbContext.SaveChanges();
+                }
+            }
+
+            return deletedPart;
         }
 
         public async Task<SearchResponse<List<PartResponse>>> SearchAsync(
@@ -71,7 +82,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                             currentPageSize,
                             0,
                             []);
-                } else
+                }
+                else
                     return new SearchResponse<List<PartResponse>>(
                         currentPage,
                         currentPageSize,
