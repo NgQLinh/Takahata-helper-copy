@@ -382,19 +382,19 @@ export default function WorkerPage() {
     {
       title: "Gá đặt (phút)",
       dataIndex: "setupTime",
-      width: 90,
+      width: 120,
       align: "center",
     },
     {
       title: "Chờ (phút)",
       dataIndex: "waitingTime",
-      width: 90,
+      width: 120,
       align: "center",
     },
     {
       title: "Lập trình (phút)",
       dataIndex: "programmingTime",
-      width: 90,
+      width: 120,
       align: "center",
     },
     {

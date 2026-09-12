@@ -151,6 +151,24 @@ export default function DetailPlant({
         render: (value) => (value != null ? `${value} giờ` : "-"),
       },
       {
+        title: "Gá đặt (phút)",
+        dataIndex: "setupTime",
+        width: 120,
+        align: "center",
+      },
+      {
+        title: "Chờ (phút)",
+        dataIndex: "waitingTime",
+        width: 120,
+        align: "center",
+      },
+      {
+        title: "Lập trình (phút)",
+        dataIndex: "programmingTime",
+        width: 120,
+        align: "center",
+      },
+      {
         title: "Bắt đầu",
         dataIndex: "startTime",
         width: 150,
@@ -184,6 +202,12 @@ export default function DetailPlant({
         width: 200,
         ellipsis: true,
         render: (value) => value || "-",
+      },
+      {
+        title: "Ghi chú của người vận hành",
+        dataIndex: "workerNote",
+        width: 200,
+        align: "center",
       },
       {
         fixed: "right",
