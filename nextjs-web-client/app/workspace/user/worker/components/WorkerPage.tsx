@@ -29,7 +29,7 @@ import {
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, ManufacturingProcess } from "@/app/types";
+import { Machine, MachineType, ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 import {
@@ -51,6 +51,8 @@ type ProcessingFormValues = {
   passedQuantity: number;
   note?: string;
   performedBy: string;
+  workerNote?: string;
+  programmingTime: number;
 };
 
 export default function WorkerPage() {
@@ -59,6 +61,13 @@ export default function WorkerPage() {
   const [total, setTotal] = useState(100);
   const [loading, setLoading] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const today = new Date().toLocaleDateString("vi-VN", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 
   // New state
   const [machineKeyword, setMachineKeyword] = useState("");
@@ -96,6 +105,8 @@ export default function WorkerPage() {
       setLoading(true);
 
       const request = {
+        page,
+        pageSize,
         machineId: selectedMachine.id,
       };
 
@@ -170,7 +181,12 @@ export default function WorkerPage() {
 
   function handleSelectItem(record: ManufacturingProcess): void {
     setSelectedProcess(record);
-    processingForm.setFieldValue("processedQuantity", record.quantity);
+    processingForm.setFieldValue("processedQuantity", record.processedQuantity);
+    processingForm.setFieldValue("setupTime", record.setupTime ?? 0);
+    processingForm.setFieldValue("waitingTime", record.waitingTime ?? 0);
+    processingForm.setFieldValue("performedBy", record.performedBy ?? "");
+    processingForm.setFieldValue("workerNote", record.workerNote);
+    processingForm.setFieldValue("programmingTime", record.programmingTime);
   }
 
   const selectedProcessStatus = selectedProcess?.status;
@@ -181,12 +197,18 @@ export default function WorkerPage() {
   // Paused/PartiallyCompleted -> được tiếp tục.
   // InProgress -> được tạm dừng hoặc ghi nhận hoàn thành.
   const canStartProcessing =
-    selectedProcessStatus === ProcessStatus.Planned ||
-    selectedProcessStatus === ProcessStatus.Paused ||
-    selectedProcessStatus === ProcessStatus.PartiallyCompleted;
+    (selectedProcessStatus === ProcessStatus.Planned ||
+      selectedProcessStatus === ProcessStatus.Paused ||
+      selectedProcessStatus === ProcessStatus.PartiallyCompleted) &&
+    selectedMachine != null &&
+    selectedMachine.machineType != MachineType.Manual;
   const canPauseProcessing = selectedProcessStatus === ProcessStatus.InProgress;
   const canCompleteProcessing =
-    selectedProcessStatus === ProcessStatus.InProgress;
+    selectedProcessStatus === ProcessStatus.InProgress ||
+    (selectedMachine != null &&
+      selectedProcess != null &&
+      selectedMachine.machineType == MachineType.Manual &&
+      selectedProcessStatus !== ProcessStatus.Completed);
 
   const startButtonText = (() => {
     switch (selectedProcessStatus) {
@@ -245,6 +267,15 @@ export default function WorkerPage() {
       return;
     }
 
+    let values: ProcessingFormValues;
+
+    try {
+      values = await processingForm.validateFields();
+    } catch {
+      // Form không hợp lệ: Ant Design tự hiển thị message tại field.
+      return;
+    }
+
     setProcessingAction("pause");
 
     try {
@@ -252,6 +283,12 @@ export default function WorkerPage() {
         machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
+        setupTime: values.setupTime,
+        waitingTime: values.waitingTime,
+        processedQuantity: values.processedQuantity,
+        performedBy: values.performedBy,
+        workerNote: values.workerNote,
+        programmingTime: values.programmingTime,
       };
 
       await pauseAsync(request);
@@ -294,6 +331,8 @@ export default function WorkerPage() {
         waitingTime: values.waitingTime,
         processedQuantity: values.processedQuantity,
         performedBy: values.performedBy,
+        workerNote: values.workerNote,
+        programmingTime: values.programmingTime,
       };
 
       await completeAsync(request);
@@ -326,8 +365,37 @@ export default function WorkerPage() {
       title: "Tên chi tiết",
       fixed: "left",
       dataIndex: "partCode",
-      width: 170,
+      width: 220,
       ellipsis: true,
+      render: (partCode: string, process: ManufacturingProcess) => (
+        <div className="flex items-center gap-2">
+          <span className="truncate">{partCode}</span>
+
+          {process.prioritize && (
+            <Tag color="orange" className="mb-0">
+              Ưu tiên
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Gá đặt (phút)",
+      dataIndex: "setupTime",
+      width: 90,
+      align: "center",
+    },
+    {
+      title: "Chờ (phút)",
+      dataIndex: "waitingTime",
+      width: 90,
+      align: "center",
+    },
+    {
+      title: "Lập trình (phút)",
+      dataIndex: "programmingTime",
+      width: 90,
+      align: "center",
     },
     {
       title: "Số lượng",
@@ -344,6 +412,12 @@ export default function WorkerPage() {
     {
       title: "Ghi chú",
       dataIndex: "note",
+      width: 200,
+      align: "center",
+    },
+    {
+      title: "Ghi chú của người vận hành",
+      dataIndex: "workerNote",
       width: 200,
       align: "center",
     },
@@ -502,6 +576,7 @@ export default function WorkerPage() {
                 <div className="d-flex align-items-center gap-2">
                   <span className="section-number">2</span>
                   <span>Danh sách chi tiết cần gia công</span>
+                  <span className="text-secondary fs-6 pl-4">{today}</span>
                 </div>
 
                 <Button
@@ -523,7 +598,7 @@ export default function WorkerPage() {
                 dataSource={processes}
                 scroll={{
                   x: "max-content",
-                  y: "calc(100vh - 560px)",
+                  y: "calc(100vh - 700px)",
                 }}
                 pagination={{
                   current: page,
@@ -564,7 +639,7 @@ export default function WorkerPage() {
           {/* Thông tin gia công - chiều cao cố định 360px */}
           <Card
             className="processing-card processing-information-card shrink-0"
-            style={{ height: 360 }}
+            style={{ height: 500 }}
             styles={{
               body: {
                 height: "calc(100% - 57px)",
@@ -645,17 +720,18 @@ export default function WorkerPage() {
                         form={processingForm}
                         layout="vertical"
                         initialValues={{
-                          setupTime: 15,
-                          waitingTime: 10,
+                          setupTime: 0,
+                          waitingTime: 0,
                           startTime: 0,
                           machineTime: 0,
                           processedQuantity: 0,
                           passedQuantity: 0,
+                          programmingTime: 0,
                           note: "",
                         }}
                       >
                         <Row gutter={[12, 0]}>
-                          <Col xs={24} sm={12}>
+                          <Col xs={24} sm={8}>
                             <Form.Item
                               label="Thời gian gá đặt (phút)"
                               name="setupTime"
@@ -670,12 +746,29 @@ export default function WorkerPage() {
                             </Form.Item>
                           </Col>
 
-                          <Col xs={24} sm={12}>
+                          <Col xs={24} sm={8}>
                             <Form.Item
                               label="Thời gian chờ (phút)"
                               name="waitingTime"
                             >
                               <InputNumber min={0} className="w-100" />
+                            </Form.Item>
+                          </Col>
+
+                          <Col xs={24} sm={8}>
+                            <Form.Item
+                              label="Thời gian lập trình (phút)"
+                              name="programmingTime"
+                            >
+                              <InputNumber
+                                disabled={
+                                  selectedMachine != null &&
+                                  selectedMachine.machineType ===
+                                    MachineType.Manual
+                                }
+                                min={0}
+                                className="w-100"
+                              />
                             </Form.Item>
                           </Col>
                         </Row>
@@ -720,6 +813,20 @@ export default function WorkerPage() {
                                 className="w-100"
                                 placeholder="Nhập tên người thực hiện"
                                 maxLength={100}
+                              />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+
+                        <Row gutter={[12, 0]}>
+                          <Col xs={24} sm={24}>
+                            <Form.Item
+                              label="Ghi chú của người vận hành"
+                              name="workerNote"
+                            >
+                              <Input.TextArea
+                                rows={4}
+                                placeholder="Nhập ghi chú"
                               />
                             </Form.Item>
                           </Col>

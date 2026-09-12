@@ -461,6 +461,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.HasIndex("PartId")
                         .HasDatabaseName("PS_PartProcess_PartId");
 
+                    b.HasIndex("PlantDate")
+                        .HasDatabaseName("PS_PartProcess_PlantDate");
+
                     b.ToTable("PartProcesses");
                 });
 

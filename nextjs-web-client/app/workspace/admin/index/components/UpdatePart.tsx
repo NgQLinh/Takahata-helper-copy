@@ -19,7 +19,6 @@ import {
   Select,
   Skeleton,
   Table,
-  Tag,
   Tooltip,
   Typography,
 } from "antd";
@@ -38,6 +37,7 @@ import {
   updatePartAsync,
 } from "@/app/services/index/IndexService";
 import { v4 as uuidv4 } from "uuid";
+import { getStatusTag } from "@/app/utilities/UtilityState";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -64,6 +64,7 @@ type PlanRow = {
   note?: string | null;
   performedBy?: string | null;
   estimatedTime?: number | null;
+  workerNote?: string | null;
 };
 
 type FormValues = {
@@ -96,6 +97,7 @@ const createEmptyRow = (): PlanRow => ({
   note: "",
   performedBy: "",
   estimatedTime: null,
+  workerNote: null,
 });
 
 const statusOptions = [
@@ -105,23 +107,6 @@ const statusOptions = [
   { value: ProcessStatus.Cancelled, label: "Đã hủy" },
   { value: ProcessStatus.PartiallyCompleted, label: "Hoàn thành một phần" },
 ];
-
-const getStatusTag = (status: ProcessStatus) => {
-  switch (status) {
-    case ProcessStatus.Planned:
-      return <Tag color="blue">Đã lên kế hoạch</Tag>;
-    case ProcessStatus.InProgress:
-      return <Tag color="orange">Đang thực hiện</Tag>;
-    case ProcessStatus.Completed:
-      return <Tag color="green">Hoàn thành</Tag>;
-    case ProcessStatus.Cancelled:
-      return <Tag color="red">Đã hủy</Tag>;
-    case ProcessStatus.PartiallyCompleted:
-      return <Tag color="gold">Hoàn thành một phần</Tag>;
-    default:
-      return <Tag>Không xác định</Tag>;
-  }
-};
 
 export default function UpdatePart({ id, open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
@@ -203,6 +188,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 note: process.note ?? "",
                 performedBy: process.performedBy ?? "",
                 estimatedTime: process.estimatedTime ?? 0,
+                workerNote: process.workerNote,
               }))
             : [createEmptyRow()];
 
@@ -575,6 +561,23 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           disabled={isBusy}
           onChange={(event) =>
             handleChange(record.key, "note", event.target.value)
+          }
+        />
+      ),
+    },
+    {
+      title: "Ghi chú của người vận hành",
+      dataIndex: "workerNote",
+      key: "workerNote",
+      width: 280,
+      render: (value: string | undefined, record) => (
+        <Input
+          value={value}
+          placeholder="Nhập ghi chú"
+          maxLength={500}
+          disabled={isBusy}
+          onChange={(event) =>
+            handleChange(record.key, "workerNote", event.target.value)
           }
         />
       ),

@@ -20,4 +20,6 @@ export interface PartProcess {
   quantity: number;
   processedQuantity: number;
   estimatedTime?: number | null;
+  workerNote?: string | null;
+  programmingTime?: number | null;
 }

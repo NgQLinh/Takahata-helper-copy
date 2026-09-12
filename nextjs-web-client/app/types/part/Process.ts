@@ -18,4 +18,10 @@ export interface ManufacturingProcess {
   startTime?: Dayjs | null;
   endTime?: Dayjs | null;
   estimatedTime?: number | null;
+  setupTime?: number | null;
+  programmingTime?: number | null;
+  waitingTime?: number | null;
+  workerNote?: string | null;
+  performedBy?: string | null;
+  prioritize: boolean | false;
 }

@@ -35,6 +35,9 @@ namespace TAKAHATA.Domain.Common.Errors
 
             public static Error CompletePartProcessFalse =>
                 Error.Failure(code: "PartProcessFalse.CompleteFalse", description: "Bắt đầu gia công không thành công.");
+
+            public static Error PausePartProcessFalse =>
+                Error.Failure(code: "PartProcessFalse.PauseFalse", description: "Tạm dừng gia công không thành công.");
         }
     }
 

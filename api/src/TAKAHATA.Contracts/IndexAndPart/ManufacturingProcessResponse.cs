@@ -1,5 +1,4 @@
 ﻿using TAKAHATA.Contracts.Common;
-using TAKAHATA.Contracts.Equipment;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.IndexAndPart
@@ -17,5 +16,11 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public double? EstimatedTime { get; set; }
+        public double? SetupTime { get; set; }
+        public double? WaitingTime { get; set; }
+        public string? PerformedBy { get; set; } = string.Empty;
+        public string WorkerNote { get; set; } = string.Empty;
+        public double? ProgrammingTime { get; set; }
+        public bool Prioritize { get; set; } = false;
     }
 }

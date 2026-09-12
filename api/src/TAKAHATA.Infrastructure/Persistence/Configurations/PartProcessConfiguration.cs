@@ -11,16 +11,20 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder
-                .HasIndex(x => x.PartId)
-                .HasDatabaseName("PS_PartProcess_PartId");
-
-            builder
                 .Property(p => p.CreateAt)
                 .IsRequired();
 
             builder
+                .HasIndex(x => x.PartId)
+                .HasDatabaseName("PS_PartProcess_PartId");
+
+            builder
                 .HasIndex(x => x.MachineId)
                 .HasDatabaseName("PS_PartProcess_MachineId");
+
+            builder
+                .HasIndex(x => x.PlantDate)
+                .HasDatabaseName("PS_PartProcess_PlantDate");
         }
     }
 }

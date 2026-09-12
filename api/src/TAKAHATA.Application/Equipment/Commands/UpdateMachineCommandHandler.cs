@@ -3,6 +3,7 @@ using MediatR;
 using TAKAHATA.Application.Common.Interface;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
+using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
 
@@ -46,12 +47,15 @@ namespace TAKAHATA.Application.Equipment.Commands
                 entity.StatusBitAddress = command.StatusBitAddress ?? 0;
                 entity.PartBitAddress = command.PartBitAddress ?? 0;
                 entity.PartProcessBitAddress = command.PartProcessBitAddress ?? 0;
+                entity.MachineType = MachineType.Automatic;
+
             }
             else
             {
                 entity.PartBitAddress = 0;
                 entity.PartProcessBitAddress = 0;
                 entity.StatusBitAddress = 0;
+                entity.MachineType = MachineType.Manual;
             }
 
 

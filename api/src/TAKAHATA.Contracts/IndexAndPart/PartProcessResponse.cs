@@ -19,6 +19,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public ProcessStatus Status { get; set; }
         public string Note { get; set; } = string.Empty;
         public string? PerformedBy { get; set; } = string.Empty;
+        public string? WorkerNote { get; set; } = string.Empty;
         public MachineResponse? Machine { get; set; }
     }
 }

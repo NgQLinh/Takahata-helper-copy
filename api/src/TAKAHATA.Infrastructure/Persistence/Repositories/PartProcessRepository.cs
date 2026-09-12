@@ -30,8 +30,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var totalItems = await query.CountAsync();
 
             var data = await query
-                .OrderByDescending(x => x.CreateAt)
-                .ThenByDescending(x => x.Id)
+                .OrderByDescending(x => x.Status)
                 .Skip((currentPage - 1) * currentPageSize)
                 .Take(currentPageSize)
                 .Select(x => new ManufacturingProcessResponse
@@ -62,6 +61,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     StartTime = x.StartTime,
                     EndTime = x.EndTime,
                     EstimatedTime = x.EstimatedTime,
+                    WorkerNote = x.WorkerNote,
+                    WaitingTime = x.WaitingTime,
+                    PerformedBy = x.PerformedBy,
+                    SetupTime = x.SetupTime,
+                    ProgrammingTime = x.ProgrammingTime,
+                    Prioritize = x.Part != null ? x.Part.Prioritize : false,
 
                     Note = x.Note ?? string.Empty,
                     Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status

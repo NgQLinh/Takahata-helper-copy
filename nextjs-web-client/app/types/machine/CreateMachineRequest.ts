@@ -1,3 +1,5 @@
+import { MachineType } from "./MachineType";
+
 export interface CreateMachineRequest {
   name: string;
   type: string;

@@ -439,7 +439,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                           (process.setupTime ?? 0)) /
                         60
                       ).toFixed(2),
-                    )}h
+                    )}
+                    h
                   </>
                 )}
               </span>

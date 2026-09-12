@@ -11,9 +11,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
             builder.HasKey(x => x.Id);
 
             builder
-                .HasIndex(x => x.Code);
-
-            builder
                 .Property(p => p.Code)
                 .IsRequired();
 
@@ -26,6 +23,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Configurations
                 .WithOne(x => x.Part)
                 .HasForeignKey(x => x.PartId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder
+                .HasIndex(x => x.Code);
         }
     }
 }

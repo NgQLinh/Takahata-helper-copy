@@ -1,5 +1,6 @@
 import { Dayjs } from "dayjs";
 import { MachineStatus } from "./MachineStatus";
+import { MachineType } from "./MachineType";
 
 export interface Machine {
   id: number;
@@ -13,6 +14,7 @@ export interface Machine {
   updateAt?: Dayjs | null;
   updateBy?: string;
   machineStatus: MachineStatus;
+  machineType: MachineType;
   machineStatusChangeAt: Dayjs | null;
 
   partId: number;

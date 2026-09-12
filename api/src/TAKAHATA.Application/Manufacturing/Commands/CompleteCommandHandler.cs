@@ -69,6 +69,9 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     partProcess.EndTime = DateTime.Now;
                     partProcess.ProcessedQuantity += request.ProcessedQuantity;
                     partProcess.PerformedBy = request.PerformedBy;
+                    partProcess.WorkerNote = request.WorkerNote;
+                    if (machine.MachineType == Domain.Common.Enum.MachineType.Automatic)
+                        partProcess.ProgrammingTime = request.ProgrammingTime;
 
                     part.ProcessedQuantity += request.ProcessedQuantity;
                     part = await _partRepository.UpdateAsync(part);

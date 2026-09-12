@@ -1,7 +1,7 @@
 "use client";
 
 import { createMachineAsync } from "@/app/services/machine/MachineService";
-import { CreateMachineRequest } from "@/app/types";
+import { CreateMachineRequest, MachineType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { Modal, Form, Input, Select, Button, Checkbox } from "antd";
 import { toast } from "react-toastify";

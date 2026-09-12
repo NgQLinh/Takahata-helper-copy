@@ -4,6 +4,7 @@ using MediatR;
 using TAKAHATA.Application.Common.Interface;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
+using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
 
@@ -33,11 +34,16 @@ namespace TAKAHATA.Application.Equipment.Commands
             var machine = _mapper.Map<Machine>(command);
             machine.CreateBy = _currentUserService.UserId;
 
-            if (!command.IsAutomatic)
+            if (command.IsAutomatic)
+            {
+                machine.MachineType = MachineType.Automatic;
+            }
+            else
             {
                 machine.PartBitAddress = 0;
                 machine.PartProcessBitAddress = 0;
                 machine.StatusBitAddress = 0;
+                machine.MachineType = MachineType.Manual;
             }
 
             if (await _machineRepository.IsExistedAsync(command.Name, command.Code))
