@@ -180,6 +180,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
                     return part;
                 })
+                .OrderBy(d => d.CreateAt)
                 .ToList();
 
             return new SearchResponse<List<PartResponse>>(

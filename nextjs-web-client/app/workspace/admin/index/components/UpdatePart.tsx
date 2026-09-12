@@ -301,6 +301,17 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
+    const invalidEstimatedTime = dataSource.findIndex(
+      (row) => !row.estimatedTime || row.estimatedTime <= 0,
+    );
+
+    if (invalidEstimatedTime !== -1) {
+      toast.warning(
+        `Vui lòng nhập thời gian dự kiến tại dòng ${invalidEstimatedTime + 1}.`,
+      );
+      return false;
+    }
+
     return true;
   };
 
