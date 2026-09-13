@@ -179,10 +179,6 @@ using (var scope = app.Services.CreateScope())
     var createDefaultMachineCommand = new CreateDefaultMachineCommand(true);
     await sender.Send(registerCommand);
     await sender.Send(createDefaultMachineCommand);
-
-    // Fake dữ liệu
-    //var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    //await SampleDataSeeder.SeedAsync(dbContext);
 }
 
 // Configure the HTTP request pipeline.
