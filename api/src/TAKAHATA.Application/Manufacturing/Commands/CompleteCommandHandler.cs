@@ -46,7 +46,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 // Ghi xuống PLC
                 var result = await _iPLCService.WriteMachineData(machine, 0, 0);
 
-                if (result.IsSuccess)
+                if (result.IsSuccess || !machine.IsAutomatic)
                 {
                     var partId = request.PartId;
                     var processId = request.ProcessId;
@@ -59,7 +59,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     if (partProcess == null)
                         return Errors.Part.NotFoundProcess;
 
-                    if (request.ProcessedQuantity + part.ProcessedQuantity >= part.Quantity)
+                    if (request.ProcessedQuantity >= part.Quantity)
                         partProcess.Status = ProcessStatus.Completed;
                     else
                         partProcess.Status = ProcessStatus.PartiallyCompleted;
@@ -67,7 +67,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     partProcess.WaitingTime = request.WaitingTime;
                     partProcess.SetupTime = request.SetupTime;
                     partProcess.EndTime = DateTime.Now;
-                    partProcess.ProcessedQuantity += request.ProcessedQuantity;
+                    partProcess.ProcessedQuantity = request.ProcessedQuantity;
                     partProcess.PerformedBy = request.PerformedBy;
                     partProcess.WorkerNote = request.WorkerNote;
                     if (machine.MachineType == Domain.Common.Enum.MachineType.Automatic)

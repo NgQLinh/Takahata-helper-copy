@@ -203,7 +203,12 @@ export default function WorkerPage() {
       selectedProcessStatus === ProcessStatus.PartiallyCompleted) &&
     selectedMachine != null &&
     selectedMachine.machineType != MachineType.Manual;
-  const canPauseProcessing = selectedProcessStatus === ProcessStatus.InProgress;
+  const canPauseProcessing =
+    selectedProcessStatus === ProcessStatus.InProgress ||
+    (selectedMachine != null &&
+      selectedProcess != null &&
+      selectedMachine.machineType == MachineType.Manual &&
+      selectedProcessStatus !== ProcessStatus.Completed);
   const canCompleteProcessing =
     selectedProcessStatus === ProcessStatus.InProgress ||
     (selectedMachine != null &&

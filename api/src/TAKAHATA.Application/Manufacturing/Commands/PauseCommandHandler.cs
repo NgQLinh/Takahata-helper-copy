@@ -40,7 +40,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             // Ghi xuống PLC
             var result = await _iPLCService.WriteMachineData(machine, 0, 0);
 
-            if (result.IsSuccess)
+            if (result.IsSuccess || !machine.IsAutomatic)
             {
                 var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                 if (partProcess == null)
@@ -50,7 +50,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 partProcess.WaitingTime = request.WaitingTime;
                 partProcess.SetupTime = request.SetupTime;
                 partProcess.EndTime = DateTime.Now;
-                partProcess.ProcessedQuantity += request.ProcessedQuantity;
+                partProcess.ProcessedQuantity = request.ProcessedQuantity;
                 partProcess.PerformedBy = request.PerformedBy;
                 partProcess.WorkerNote = request.WorkerNote;
                 partProcess.ProgrammingTime = request.ProgrammingTime;

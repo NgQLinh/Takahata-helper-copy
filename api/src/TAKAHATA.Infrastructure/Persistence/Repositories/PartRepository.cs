@@ -38,6 +38,22 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return deletedPart;
         }
 
+        public override async Task<Part?> UpdateAsync(Part entity, CancellationToken cancellationToken = default)
+        {
+            var result = await base.UpdateAsync(entity, cancellationToken);
+            if (result != null)
+            {
+                var indexes = await _dbContext.Indexes.Where(i => i.Parts.Count() == 0).ToArrayAsync();
+                if (indexes != null && indexes.Count() != 0)
+                {
+                    _dbContext.Indexes.RemoveRange(indexes);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+
+            return result;
+        }
+
         public async Task<SearchResponse<List<PartResponse>>> SearchAsync(
             string? indexCode,
             string? partCode,
