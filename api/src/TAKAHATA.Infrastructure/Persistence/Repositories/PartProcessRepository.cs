@@ -63,6 +63,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     EstimatedTime = x.EstimatedTime,
                     WorkerNote = x.WorkerNote,
                     WaitingTime = x.WaitingTime,
+                    WorkingTime = x.WorkingTime,
                     PerformedBy = x.PerformedBy,
                     SetupTime = x.SetupTime,
                     ProgrammingTime = x.ProgrammingTime,

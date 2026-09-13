@@ -187,6 +187,7 @@ export default function WorkerPage() {
     processingForm.setFieldValue("performedBy", record.performedBy ?? "");
     processingForm.setFieldValue("workerNote", record.workerNote);
     processingForm.setFieldValue("programmingTime", record.programmingTime);
+    processingForm.setFieldValue("machineTime", record.waitingTime);
   }
 
   const selectedProcessStatus = selectedProcess?.status;
@@ -333,6 +334,7 @@ export default function WorkerPage() {
         performedBy: values.performedBy,
         workerNote: values.workerNote,
         programmingTime: values.programmingTime,
+        machineTime: values.machineTime,
       };
 
       await completeAsync(request);
@@ -394,6 +396,12 @@ export default function WorkerPage() {
     {
       title: "Lập trình (phút)",
       dataIndex: "programmingTime",
+      width: 120,
+      align: "center",
+    },
+    {
+      title: "Vận hành (phút)",
+      dataIndex: "workingTime",
       width: 120,
       align: "center",
     },
@@ -755,22 +763,34 @@ export default function WorkerPage() {
                             </Form.Item>
                           </Col>
 
-                          <Col xs={24} sm={8}>
-                            <Form.Item
-                              label="Thời gian lập trình (phút)"
-                              name="programmingTime"
-                            >
-                              <InputNumber
-                                disabled={
-                                  selectedMachine != null &&
-                                  selectedMachine.machineType ===
-                                    MachineType.Manual
-                                }
-                                min={0}
-                                className="w-100"
-                              />
-                            </Form.Item>
-                          </Col>
+                          {selectedMachine != null &&
+                          selectedMachine.machineType === MachineType.Manual ? (
+                            <Col xs={24} sm={8}>
+                              <Form.Item
+                                label="Thời gian vận hành (phút)"
+                                name="machineTime"
+                              >
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+                          ) : (
+                            <Col xs={24} sm={8}>
+                              <Form.Item
+                                label="Thời gian lập trình (phút)"
+                                name="programmingTime"
+                              >
+                                <InputNumber
+                                  disabled={
+                                    selectedMachine != null &&
+                                    selectedMachine.machineType ===
+                                      MachineType.Manual
+                                  }
+                                  min={0}
+                                  className="w-100"
+                                />
+                              </Form.Item>
+                            </Col>
+                          )}
                         </Row>
                         <Row gutter={[12, 0]}>
                           <Col xs={24} sm={12}>

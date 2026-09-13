@@ -72,6 +72,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     partProcess.WorkerNote = request.WorkerNote;
                     if (machine.MachineType == Domain.Common.Enum.MachineType.Automatic)
                         partProcess.ProgrammingTime = request.ProgrammingTime;
+                    else if (machine.MachineType == Domain.Common.Enum.MachineType.Manual)
+                        partProcess.WorkingTime = request.MachineTime;
 
                     part.ProcessedQuantity += request.ProcessedQuantity;
                     part = await _partRepository.UpdateAsync(part);
