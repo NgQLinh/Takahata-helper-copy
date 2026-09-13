@@ -31,7 +31,7 @@ namespace TAKAHATA.Infrastructure.Services
             if (await dbContext.Indexes.AnyAsync())
                 return;
 
-            const int totalIndexes = 2_000;
+            const int totalIndexes = 1000;
 
             var random = new Random(2026);
 
@@ -53,9 +53,9 @@ namespace TAKAHATA.Infrastructure.Services
 
         private static async Task SeedPartsAsync(AppDbContext dbContext)
         {
-            const int totalParts = 200_000;
-            const int totalIndexes = 2_000;
-            const int batchSize = 10_000;
+            const int totalParts = 50000;
+            const int totalIndexes = 1000;
+            const int batchSize = 5000;
 
             var random = new Random(202601);
 
@@ -110,12 +110,12 @@ namespace TAKAHATA.Infrastructure.Services
 
         private static async Task SeedPartProcessesAsync(AppDbContext dbContext)
         {
-            const int totalParts = 200_000;
-            const int processesPerPart = 8;
+            const int totalParts = 50000;
+            const int processesPerPart = 5;
 
             // 2,000 part mỗi batch
             // => 16,000 PartProcess / batch
-            const int partBatchSize = 2_000;
+            const int partBatchSize = 2000;
 
             var random = new Random(202602);
 
