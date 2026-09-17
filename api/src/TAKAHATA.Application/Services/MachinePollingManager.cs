@@ -160,7 +160,7 @@ namespace TAKAHATA.Application.Services
                                             var before = process.WorkingTime ?? 0;
                                             var added = runningTime.Value.TotalMinutes;
 
-                                            process.WorkingTime = before + added;
+                                            process.WorkingTime = Math.Round(before + added, 2);
 
                                             _logger.LogInformation(
                                                 """
