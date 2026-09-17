@@ -22,6 +22,8 @@ namespace TAKAHATA.Contracts.Equipment
         public int PartProcessBitAddress { get; set; }
         public int SequenceNumber { get; set; }
 
+        public bool HasScheduledMaintenance { get; set; }
+
         public DateTime? MachineStatusChangeAt { get; set; }
     }
 }

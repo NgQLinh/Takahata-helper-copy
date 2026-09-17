@@ -16,6 +16,21 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             _mapper = mapper;
         }
 
+        public async Task<List<MachineMaintenanceProcess>> GetByMachineIdsAndDateAsync(IEnumerable<int> machineIds, DateTime date)
+        {
+            var query = _dbContext.MachineMaintenanceProcesses
+                .AsNoTracking()
+                .AsQueryable();
+
+            query = query
+                .Where(mp => machineIds.Contains(mp.MachineId));
+
+            query = query
+                .Where(mp => mp.PlantDate == new DateOnly(date.Year, date.Month, date.Day));
+
+            return await query.ToListAsync();
+        }
+
         public async Task<SearchResponse<List<MachineMaintenanceProcessResponse>>> SearchAsync(
             List<int>? machineIds,
             List<ProcessStatus>? statuses,
