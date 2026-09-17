@@ -478,7 +478,7 @@ export function MachineScheduleBoard({ active }: Props) {
           dataSource={machines}
           scroll={{
             x: 220 + dates.length * 190,
-            y: "calc(100vh - 260px)",
+            y: "calc(100vh - 320px)",
           }}
           pagination={{
             current: page,
