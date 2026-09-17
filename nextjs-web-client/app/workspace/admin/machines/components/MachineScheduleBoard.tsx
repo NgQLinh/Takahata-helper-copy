@@ -122,8 +122,7 @@ export function MachineScheduleBoard({ active }: Props) {
    * Tách riêng để API chỉ chạy khi nhấn "Tìm kiếm".
    */
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [searchPlanDateRange, setSearchPlanDateRange] =
-    useState<DateRange>(getCurrentWeekRange);
+
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
@@ -136,8 +135,8 @@ export function MachineScheduleBoard({ active }: Props) {
       try {
         const response = await searchMachineSchedulesAsync({
           keyword: searchKeyword.trim(),
-          plantFrom: searchPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
-          plantTo: searchPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
+          plantFrom: filterPlanDateRange?.[0]?.format("YYYY-MM-DD") ?? null,
+          plantTo: filterPlanDateRange?.[1]?.format("YYYY-MM-DD") ?? null,
           page: currentPage,
           pageSize: currentPageSize,
         });
@@ -152,7 +151,7 @@ export function MachineScheduleBoard({ active }: Props) {
         setLoading(false);
       }
     },
-    [searchKeyword, searchPlanDateRange, page, pageSize],
+    [searchKeyword, filterPlanDateRange, page, pageSize],
   );
 
   useEffect(() => {
@@ -172,8 +171,8 @@ export function MachineScheduleBoard({ active }: Props) {
    * Timeline sẽ luôn có đủ 7 cột, kể cả ngày không có process.
    */
   const dates = useMemo(() => {
-    const fromDate = searchPlanDateRange?.[0];
-    const toDate = searchPlanDateRange?.[1];
+    const fromDate = filterPlanDateRange?.[0];
+    const toDate = filterPlanDateRange?.[1];
 
     if (!fromDate || !toDate) {
       return [];
@@ -192,16 +191,14 @@ export function MachineScheduleBoard({ active }: Props) {
     }
 
     return result;
-  }, [searchPlanDateRange]);
+  }, [filterPlanDateRange]);
 
   const handleResetFilters = () => {
     const currentWeekRange = getCurrentWeekRange();
 
     // setKeyword("");
-    setFilterPlanDateRange(currentWeekRange);
-
     // setSearchKeyword("");
-    setSearchPlanDateRange(currentWeekRange);
+    setFilterPlanDateRange(currentWeekRange);
 
     setPage(1);
   };
