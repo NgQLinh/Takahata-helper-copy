@@ -21,9 +21,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         public override async Task<Part?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
         {
-            if (_dbContext.PartProcesses.Any(p => p.PartId == id && p.Status != ProcessStatus.Planned))
-                return null;
-
             var deletedPart = await base.DeleteByIdAsync(id, cancellationToken);
             if (deletedPart != null)
             {

@@ -9,19 +9,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 {
     public class IndexRepository : BaseRepository<Index>, IIndexRepository
     {
-        private readonly IMapper _mapper;
-
-        public IndexRepository(AppDbContext dbContext, IMapper mapper) : base(dbContext)
+        public IndexRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _mapper = mapper;
-        }
-
-        public override async Task<Index?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
-        {
-            if (_dbContext.Parts.Any(p => p.IndexId == id))
-                return null;
-
-            return await base.DeleteByIdAsync(id, cancellationToken);
         }
 
         public async Task<Index?> GetAsync(string indexCode)

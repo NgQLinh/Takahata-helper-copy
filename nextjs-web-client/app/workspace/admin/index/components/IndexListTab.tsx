@@ -214,8 +214,8 @@ export default function IndexListTab({ active }: Props) {
                   <p style={{ margin: 0 }}>Bạn có chắc muốn xóa index?</p>
 
                   <p style={{ margin: "8px 0 0", color: "#faad14" }}>
-                    <strong>Lưu ý:</strong> Index đã được khai báo part{" "}
-                    <strong>không thể xóa</strong>.
+                    <strong>Lưu ý:</strong> Xóa index sẽ xóa toàn bộ part thuộc
+                    index đó.
                   </p>
                 </div>
               }

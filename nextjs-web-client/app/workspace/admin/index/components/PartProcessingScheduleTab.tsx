@@ -479,10 +479,10 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                       Bạn có chắc chắn muốn xóa part{" "}
                       <strong>{row.partName}</strong>?
                     </p>
-
+                    
                     <p style={{ margin: "8px 0 0", color: "#faad14" }}>
-                      <strong>Lưu ý:</strong>Part đã gia công{" "}
-                      <strong>không thể xóa</strong>.
+                      <strong>Lưu ý:</strong> Xóa part sẽ xóa toàn bộ dữ liệu
+                      nguyên công của part đó.
                     </p>
                   </div>
                 }
