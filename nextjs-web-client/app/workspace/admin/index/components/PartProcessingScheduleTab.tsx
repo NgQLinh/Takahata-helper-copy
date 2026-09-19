@@ -56,43 +56,51 @@ const formatDate = (value?: string | null) => {
 };
 
 const mapPartsToRows = (parts: Part[]): TableRow[] =>
-  parts.flatMap((part) => [
-    {
-      key: `${part.id}-MC`,
-      partId: part.id,
-      indexCode: part.index?.code,
-      partName: part.code,
-      createAt: part.createAt ? dayjs(part.createAt) : null,
-      createBy: part.createBy,
-      updateBy: part.updateBy,
-      updateAt: part.updateAt ? dayjs(part.updateAt) : null,
-      rowType: "MC",
-      rowSpan: 3,
-      processes: part.processes,
-      status: part.status,
-      prioritize: part.prioritize,
-      partType: part.partType,
-    },
-    {
-      key: `${part.id}-P`,
-      partId: part.id,
-      createAt: part.createAt ? dayjs(part.createAt) : null,
-      rowType: "P",
-      rowSpan: 0,
-      processes: part.processes,
-      status: part.status,
-      partType: part.partType,
-    },
-    {
-      key: `${part.id}-A`,
-      partId: part.id,
-      rowType: "A",
-      rowSpan: 0,
-      processes: part.processes,
-      status: part.status,
-      partType: part.partType,
-    },
-  ]);
+  [...parts]
+    .sort((a, b) => {
+      const timeA = a.createAt ? dayjs(a.createAt).valueOf() : 0;
+      const timeB = b.createAt ? dayjs(b.createAt).valueOf() : 0;
+
+      return timeB - timeA; // Giảm dần
+    })
+    .flatMap((part) => [
+      {
+        key: `${part.id}-MC`,
+        partId: part.id,
+        indexCode: part.index?.code,
+        partName: part.code,
+        createAt: part.createAt ? dayjs(part.createAt) : null,
+        createBy: part.createBy,
+        updateBy: part.updateBy,
+        updateAt: part.updateAt ? dayjs(part.updateAt) : null,
+        rowType: "MC",
+        rowSpan: 3,
+        processes: part.processes,
+        status: part.status,
+        prioritize: part.prioritize,
+        partType: part.partType,
+      },
+      {
+        key: `${part.id}-P`,
+        partId: part.id,
+        createAt: part.createAt ? dayjs(part.createAt) : null,
+        rowType: "P",
+        rowSpan: 0,
+        processes: part.processes,
+        status: part.status,
+        partType: part.partType,
+      },
+      {
+        key: `${part.id}-A`,
+        partId: part.id,
+        createAt: part.createAt ? dayjs(part.createAt) : null,
+        rowType: "A",
+        rowSpan: 0,
+        processes: part.processes,
+        status: part.status,
+        partType: part.partType,
+      },
+    ]);
 
 interface Props {
   active: boolean;
@@ -479,7 +487,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                       Bạn có chắc chắn muốn xóa part{" "}
                       <strong>{row.partName}</strong>?
                     </p>
-                    
+
                     <p style={{ margin: "8px 0 0", color: "#faad14" }}>
                       <strong>Lưu ý:</strong> Xóa part sẽ xóa toàn bộ dữ liệu
                       nguyên công của part đó.
