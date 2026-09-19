@@ -38,6 +38,9 @@ namespace TAKAHATA.Domain.Common.Errors
 
             public static Error PausePartProcessFalse =>
                 Error.Failure(code: "PartProcessFalse.PauseFalse", description: "Tạm dừng gia công không thành công.");
+
+            public static Error IncorrectQuantity =>
+                Error.Failure(code: "PartProcessFalse.IncorrectQuantity", description: "Số lượng không được lớn hơn số lượng đã lên kế hoạch");
         }
     }
 

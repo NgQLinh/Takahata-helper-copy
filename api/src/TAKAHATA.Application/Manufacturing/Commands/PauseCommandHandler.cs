@@ -1,10 +1,12 @@
 ﻿using ErrorOr;
 using MediatR;
+using System.IO.Ports;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
+using static TAKAHATA.Domain.Common.Errors.Errors;
 
 namespace TAKAHATA.Application.Manufacturing.Commands
 {
@@ -45,6 +47,13 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                 if (partProcess == null)
                     return Errors.Part.NotFoundProcess;
+
+                var part = await _partRepository.GetByIdAsync(request.PartId);
+                if (part == null)
+                    return Errors.Part.NotFound;
+
+                if (request.ProcessedQuantity > part.Quantity)
+                    return Errors.Part.IncorrectQuantity;
 
                 partProcess.Status = ProcessStatus.Paused;
                 partProcess.WaitingTime = request.WaitingTime;

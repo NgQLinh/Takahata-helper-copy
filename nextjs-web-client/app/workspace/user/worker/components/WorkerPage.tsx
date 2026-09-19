@@ -46,6 +46,7 @@ import {
 const { Text } = Typography;
 
 import "./WorkerPage.css";
+import { ApiError } from "@/app/types/common/ApiError";
 
 type ProcessingFormValues = {
   setupTime: number;
@@ -53,7 +54,6 @@ type ProcessingFormValues = {
   startTime: number;
   machineTime: number;
   processedQuantity: number;
-  passedQuantity: number;
   note?: string;
   performedBy: string;
   workerNote?: string;
@@ -305,8 +305,12 @@ export default function WorkerPage() {
       await pauseAsync(request);
       await fetchManufacturingProcess();
     } catch (error) {
-      console.error("Không thể tạm dừng gia công:", error);
-      toast.error("Không thể tạm dừng gia công.");
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        console.error("Không thể tạm dừng gia công:", error);
+        toast.error("Không thể tạm dừng gia công.");
+      }
     } finally {
       setProcessingAction(null);
     }
@@ -351,8 +355,13 @@ export default function WorkerPage() {
       await fetchManufacturingProcess();
       processingForm.resetFields();
     } catch (error) {
-      console.error("Không thể hoàn thành gia công:", error);
-      toast.error("Không thể hoàn thành gia công.");
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        toast.error("Cập nhật index thất bại");
+        console.error("Không thể hoàn thành gia công:", error);
+        toast.error("Không thể hoàn thành gia công.");
+      }
     } finally {
       setProcessingAction(null);
     }
@@ -751,7 +760,6 @@ export default function WorkerPage() {
                             startTime: 0,
                             machineTime: 0,
                             processedQuantity: 0,
-                            passedQuantity: 0,
                             programmingTime: 0,
                             note: "",
                           }}
@@ -821,9 +829,31 @@ export default function WorkerPage() {
                                     required: true,
                                     message: "Nhập số lượng đã gia công",
                                   },
+                                  {
+                                    validator: (_, value) => {
+                                      if (
+                                        value === undefined ||
+                                        value === null ||
+                                        !selectedProcess ||
+                                        value <= selectedProcess.quantity
+                                      ) {
+                                        return Promise.resolve();
+                                      }
+
+                                      return Promise.reject(
+                                        new Error(
+                                          `Số lượng đã gia công không được vượt quá ${selectedProcess.quantity}`,
+                                        ),
+                                      );
+                                    },
+                                  },
                                 ]}
                               >
-                                <InputNumber min={0} className="w-100" />
+                                <InputNumber
+                                  min={0}
+                                  max={selectedProcess?.quantity}
+                                  className="w-100"
+                                />
                               </Form.Item>
                             </Col>
 

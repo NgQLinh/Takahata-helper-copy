@@ -59,7 +59,10 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     if (partProcess == null)
                         return Errors.Part.NotFoundProcess;
 
-                    if (request.ProcessedQuantity >= part.Quantity)
+                    if (request.ProcessedQuantity > part.Quantity)
+                        return Errors.Part.IncorrectQuantity;
+
+                    if (request.ProcessedQuantity == part.Quantity)
                         partProcess.Status = ProcessStatus.Completed;
                     else
                         partProcess.Status = ProcessStatus.PartiallyCompleted;
