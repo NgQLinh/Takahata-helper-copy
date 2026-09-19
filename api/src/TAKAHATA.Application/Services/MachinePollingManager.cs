@@ -157,10 +157,15 @@ namespace TAKAHATA.Application.Services
 
                                         if (process != null)
                                         {
-                                            var before = process.WorkingTime ?? 0;
-                                            var added = runningTime.Value.TotalMinutes;
+                                            //var before = process.WorkingTime ?? 0;
+                                            //var added = runningTime.Value.TotalMinutes;
 
-                                            process.WorkingTime = Math.Round(before + added, 2);
+                                            //process.WorkingTime = Math.Round(before + added, 2);
+
+                                            var before = process.WorkingTime ?? 0;
+                                            var after = runningTime.Value.TotalMinutes;
+
+                                            process.WorkingTime = Math.Round(after, 2);
 
                                             _logger.LogInformation(
                                                 """
@@ -168,14 +173,14 @@ namespace TAKAHATA.Application.Services
                                                             Machine         : {MachineName}
                                                             PartProcessId   : {PartProcessId}
                                                             Before          : {Before}
-                                                            Added           : {Added}
+                                                            After           : {After}
                                                             After           : {After}
                                                             -------------------------------------------------------------
                                                             """,
                                                 machine.Name,
                                                 process.Id,
                                                 before,
-                                                added,
+                                                after,
                                                 process.WorkingTime);
 
                                             await partProcessRepository.UpdateAsync(process, stoppingToken);
