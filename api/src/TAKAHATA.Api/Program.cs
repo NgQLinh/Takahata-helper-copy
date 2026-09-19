@@ -1,3 +1,4 @@
+using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,13 @@ using TAKAHATA.Application;
 using TAKAHATA.Application.Account.Commands;
 using TAKAHATA.Application.Common.Mapping;
 using TAKAHATA.Application.Equipment.Commands;
+using TAKAHATA.Application.Services;
 using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
 using TAKAHATA.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -187,6 +188,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseHangfireDashboard("/hangfire");
+
+RecurringJob.AddOrUpdate<DailyJob>(
+    recurringJobId: "daily-job-at-1am",
+    methodCall: job => job.ExecuteAsync(),
+    cronExpression: "0 1 * * *",
+    options: new RecurringJobOptions
+    {
+        TimeZone = GetVietnamTimeZone()
+    });
+
+
 app.MapOpenApi();
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -206,3 +219,17 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static TimeZoneInfo GetVietnamTimeZone()
+{
+    // Windows thường sử dụng "SE Asia Standard Time".
+    if (OperatingSystem.IsWindows())
+    {
+        return TimeZoneInfo.FindSystemTimeZoneById(
+            "SE Asia Standard Time");
+    }
+
+    // Linux và Docker thường sử dụng IANA timezone.
+    return TimeZoneInfo.FindSystemTimeZoneById(
+        "Asia/Ho_Chi_Minh");
+}

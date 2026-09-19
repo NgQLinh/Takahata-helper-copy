@@ -14,7 +14,6 @@ export interface Part {
   updateAt?: string | null;
   updateBy?: string | null;
   quantity: number;
-  processedQuantity: number;
   status: ProcessStatus;
   prioritize: boolean;
   partType: PartType;

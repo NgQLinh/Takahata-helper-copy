@@ -485,5 +485,15 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .ToListAsync()
                 .ContinueWith(t => t.Result.AsEnumerable());
         }
+
+        public async Task<bool> IsProcessing(int machineId)
+        {
+            return await _dbContext.PartProcesses
+                .AnyAsync(pp => 
+                    pp.MachineId == machineId
+                    && pp.StartTime != null
+                    && pp.StartTime.Value.Date == DateTime.Now.Date
+                    && pp.Status == ProcessStatus.InProgress);
+        }
     }
 }

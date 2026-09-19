@@ -20,6 +20,9 @@ namespace TAKAHATA.Domain.Common.Errors
 
             public static Error NotFound =>
                 Error.NotFound(code: "Machine.NotFound", description: "Không tìm thấy máy.");
+
+            public static Error IsProcessing =>
+                Error.NotFound(code: "Machine.IsProcessing", description: "Máy đang gia công.");
         }
     }
 

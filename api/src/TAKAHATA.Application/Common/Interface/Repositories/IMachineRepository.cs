@@ -16,5 +16,6 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<SearchResponse<List<MachineScheduleResponse>>> SearchSchedule(string keyword, DateOnly? plantFrom, DateOnly? plantTo, int page, int pageSize);
         Task<List<MachineKPIResponse>> SearchKPIAsync(string searchMachineKeyword, DateTime from, DateTime to);
         Task<IEnumerable<Machine>> GetByIdsAsync(List<int> machineIds);
+        Task<bool> IsProcessing(int machineId);
     }
 }

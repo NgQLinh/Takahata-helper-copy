@@ -15,6 +15,42 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         }
 
+        public async Task HandleExtend()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            // Lấy tất cả partProceses có kế hoạch của ngày hôm trước
+            var partProceses = await _dbContext.PartProcesses
+                .Where(pp =>
+                    pp.PlantDate == today.AddDays(-1)
+                    && (pp.Status == ProcessStatus.Paused || pp.Status == ProcessStatus.PartiallyCompleted))
+                .ToListAsync();
+
+            if (partProceses == null || partProceses.Count == 0)
+                return;
+
+            foreach (var partProcess in partProceses)
+            {
+                var part = await _dbContext.Parts.FirstAsync(p => p.Id == partProcess.PartId);
+                if (part == null)
+                    continue;
+
+                if (partProcess.ProcessedQuantity < part.Quantity)
+                {
+                    partProcess.Note += $"(Kế hoạch tự động được gia hạn từ ngày {partProcess.PlantDate.ToString()} sang ngày {today.ToString()} do chưa hoàn thành)";
+                    partProcess.PlantDate = today;
+                }
+                else if (partProcess.ProcessedQuantity == part.Quantity)
+                {
+                    partProcess.Status = ProcessStatus.Completed;
+                }
+            }
+
+            _dbContext.PartProcesses.UpdateRange(partProceses);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
             int machineId,
             int? page,
@@ -173,7 +209,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     PartId = p.Id,
                     PartCode = p.Code,
                     Quantity = p.Quantity,
-                    ProcessedQuantity = p.ProcessedQuantity,
                     IndexId = p.IndexId,
 
                     // PartProcess
@@ -188,6 +223,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     MachineId = pp.MachineId,
                     EstimatedTime = pp.EstimatedTime,
                     PartType = p.PartType,
+                    ProcessedQuantity = pp.ProcessedQuantity
                 });
 
             var partProcesses = await result.ToListAsync();

@@ -261,8 +261,12 @@ export default function WorkerPage() {
       await startAsync(request);
       await fetchManufacturingProcess();
     } catch (error) {
-      console.error("Không thể bắt đầu gia công:", error);
-      toast.error("Không thể bắt đầu gia công.");
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        console.error("Không thể bắt đầu gia công:", error);
+        toast.error("Không thể bắt đầu gia công.");
+      }
     } finally {
       setProcessingAction(null);
     }

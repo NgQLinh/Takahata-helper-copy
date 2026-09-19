@@ -83,7 +83,6 @@ namespace TAKAHATA.Infrastructure.Services
                             IndexId = indexId,
                             Code = $"PART-{partNumber:D7}",
                             Quantity = quantity,
-                            ProcessedQuantity = random.Next(0, quantity + 1),
                             Status = RandomProcessStatus(random),
                             Prioritize = random.NextDouble() < 0.1,
                             PartType = RandomPartType(random),

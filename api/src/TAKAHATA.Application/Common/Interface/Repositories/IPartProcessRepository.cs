@@ -7,6 +7,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IPartProcessRepository : IBaseRepository<PartProcess>
     {
+        Task HandleExtend();
         Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
             int machineId,
             int? page,

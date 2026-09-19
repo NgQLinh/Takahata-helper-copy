@@ -1,12 +1,10 @@
 ﻿using ErrorOr;
 using MediatR;
-using System.IO.Ports;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.IndexAndPart;
 using TAKAHATA.Domain.Common.Errors;
 using TAKAHATA.Domain.MasterData;
-using static TAKAHATA.Domain.Common.Errors.Errors;
 
 namespace TAKAHATA.Application.Manufacturing.Commands
 {

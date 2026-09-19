@@ -41,6 +41,9 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 if (machine == null)
                     return Errors.Machine.NotFound;
 
+                if (await _machineRepository.IsProcessing(machineId))
+                    return Errors.Machine.IsProcessing;
+
                 // Ghi xuống PLC
                 var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId);
 
