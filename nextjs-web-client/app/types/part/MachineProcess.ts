@@ -21,4 +21,5 @@ export interface MachineProcess {
   prioritize: boolean;
   estimatedTime?: number | null;
   partType?: PartType | null;
+  isOverdue: boolean | null;
 }

@@ -37,7 +37,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
                 if (partProcess.ProcessedQuantity < part.Quantity)
                 {
-                    partProcess.Note += $"(Kế hoạch tự động được gia hạn từ ngày {partProcess.PlantDate.ToString()} sang ngày {today.ToString()} do chưa hoàn thành)";
+                    partProcess.IsOverdue = true;
                     partProcess.PlantDate = today;
                 }
                 else if (partProcess.ProcessedQuantity == part.Quantity)

@@ -19,5 +19,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public bool Prioritize { get; set; } = false;
         public double? EstimatedTime { get; set; }
         public PartType? PartType { get; set; }
+
+        public bool IsOverdue { get; set; }
     }
 }

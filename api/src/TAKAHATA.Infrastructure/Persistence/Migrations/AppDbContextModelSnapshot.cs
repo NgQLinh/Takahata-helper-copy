@@ -398,6 +398,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<double?>("EstimatedTime")
                         .HasColumnType("double");
 
+                    b.Property<bool>("IsOverdue")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("MachineId")
                         .HasColumnType("int");
 
@@ -421,9 +424,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
 
                     b.Property<double?>("ProgrammingTime")
                         .HasColumnType("double");
-
-                    b.Property<int?>("ReferenceId")
-                        .HasColumnType("int");
 
                     b.Property<int>("Sequence")
                         .HasColumnType("int");

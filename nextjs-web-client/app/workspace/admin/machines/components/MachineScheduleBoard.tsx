@@ -56,6 +56,9 @@ const getStatusText = (status: ProcessStatus) => {
     case ProcessStatus.Overdue:
       return "OVERDUE";
 
+    case ProcessStatus.PartiallyCompleted:
+      return "PARTIALLY COMPLETED";
+
     default:
       return "UNKNOWN";
   }
@@ -122,7 +125,6 @@ export function MachineScheduleBoard({ active }: Props) {
    * Tách riêng để API chỉ chạy khi nhấn "Tìm kiếm".
    */
   const [searchKeyword, setSearchKeyword] = useState("");
-
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
@@ -383,6 +385,12 @@ export function MachineScheduleBoard({ active }: Props) {
                             )}
                           </div>
                         </div>
+
+                        {process.isOverdue && (
+                          <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700 shadow-sm">
+                            <span>Đã được gia hạn</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

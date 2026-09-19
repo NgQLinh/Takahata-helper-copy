@@ -13,5 +13,6 @@
         public int ProcessedQuantity { get; set; }
         public Part? Part { get; set; }
         public string WorkerNote { get; set; } = string.Empty;
+        public bool IsOverdue { get; set; } = false;
     }
 }

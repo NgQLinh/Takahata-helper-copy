@@ -363,25 +363,26 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
                 if (partLookup.TryGetValue(machine.Id, out var parts))
                 {
-                    response.Processes.AddRange(parts.Select(part => new MachineProcessResponse
+                    response.Processes.AddRange(parts.Select(partProcess => new MachineProcessResponse
                     {
-                        Id = part.Id,
-                        CreateAt = part.CreateAt,
-                        CreateBy = part.CreateBy,
-                        UpdateAt = part.UpdateAt,
-                        UpdateBy = part.UpdateBy,
-                        PlantDate = part.PlantDate,
-                        StartTime = part.StartTime,
-                        WorkingTime = part.WorkingTime,
-                        Status = part.Status,
-                        Note = part.Note,
-                        PartId = part.PartId,
-                        PartCode = part.Part?.Code ?? string.Empty,
-                        Quantity = part.Part?.Quantity ?? 0,
+                        Id = partProcess.Id,
+                        CreateAt = partProcess.CreateAt,
+                        CreateBy = partProcess.CreateBy,
+                        UpdateAt = partProcess.UpdateAt,
+                        UpdateBy = partProcess.UpdateBy,
+                        PlantDate = partProcess.PlantDate,
+                        StartTime = partProcess.StartTime,
+                        WorkingTime = partProcess.WorkingTime,
+                        Status = partProcess.Status,
+                        Note = partProcess.Note,
+                        PartId = partProcess.PartId,
+                        PartCode = partProcess.Part?.Code ?? string.Empty,
+                        Quantity = partProcess.Part?.Quantity ?? 0,
                         Type = MachineProcessType.Manufacturing,
-                        Prioritize = part.Part?.Prioritize ?? false,
-                        EstimatedTime = part.EstimatedTime,
-                        PartType = part.Part?.PartType,
+                        Prioritize = partProcess.Part?.Prioritize ?? false,
+                        EstimatedTime = partProcess.EstimatedTime,
+                        PartType = partProcess.Part?.PartType,
+                        IsOverdue = partProcess.IsOverdue,
                     }));
                 }
 
@@ -489,7 +490,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         public async Task<bool> IsProcessing(int machineId)
         {
             return await _dbContext.PartProcesses
-                .AnyAsync(pp => 
+                .AnyAsync(pp =>
                     pp.MachineId == machineId
                     && pp.StartTime != null
                     && pp.StartTime.Value.Date == DateTime.Now.Date
