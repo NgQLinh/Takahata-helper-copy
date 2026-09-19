@@ -151,19 +151,19 @@ export default function DetailPlant({
         render: (value) => (value != null ? `${value} giờ` : "-"),
       },
       {
-        title: "Gá đặt (phút)",
+        title: "Gá đặt (giờ)",
         dataIndex: "setupTime",
         width: 120,
         align: "center",
       },
       {
-        title: "Chờ (phút)",
+        title: "Chờ (giờ)",
         dataIndex: "waitingTime",
         width: 120,
         align: "center",
       },
       {
-        title: "Lập trình (phút)",
+        title: "Lập trình (giờ)",
         dataIndex: "programmingTime",
         width: 120,
         align: "center",

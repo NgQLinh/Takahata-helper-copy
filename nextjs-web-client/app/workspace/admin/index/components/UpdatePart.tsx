@@ -493,7 +493,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Máy chạy (phút)",
+      title: "Máy chạy (giờ)",
       dataIndex: "workingTime",
       key: "workingTime",
       width: 125,
@@ -509,7 +509,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Gá đặt (phút)",
+      title: "Gá đặt (giờ)",
       dataIndex: "setupTime",
       key: "setupTime",
       width: 125,
@@ -525,7 +525,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Chờ (phút)",
+      title: "Chờ (giờ)",
       dataIndex: "waitingTime",
       key: "waitingTime",
       width: 125,

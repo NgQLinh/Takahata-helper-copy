@@ -588,10 +588,10 @@ export function KpiReportsPage() {
     },
 
     {
-      title: "Thời gian (min)",
+      title: "Thời gian (giờ)",
       children: [
         {
-          title: "Máy chạy (min)",
+          title: "Máy chạy (giờ)",
           width: 120,
           dataIndex: "workingTime",
           key: "workingTime",
@@ -599,7 +599,7 @@ export function KpiReportsPage() {
           render: (value?: number) => value?.toFixed(2) ?? "-",
         },
         {
-          title: "Gá đặt (min)",
+          title: "Gá đặt (giờ)",
           width: 120,
           dataIndex: "setupTime",
           key: "setupTime",
@@ -607,7 +607,7 @@ export function KpiReportsPage() {
           render: (value?: number) => value?.toFixed(2) ?? "-",
         },
         {
-          title: "Chờ (min)",
+          title: "Chờ (giờ)",
           width: 120,
           dataIndex: "waitingTime",
           key: "waitingTime",

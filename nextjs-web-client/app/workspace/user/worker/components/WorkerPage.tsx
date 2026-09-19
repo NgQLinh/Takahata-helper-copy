@@ -401,25 +401,25 @@ export default function WorkerPage() {
       ),
     },
     {
-      title: "Gá đặt (phút)",
+      title: "Gá đặt (giờ)",
       dataIndex: "setupTime",
       width: 120,
       align: "center",
     },
     {
-      title: "Chờ (phút)",
+      title: "Chờ (giờ)",
       dataIndex: "waitingTime",
       width: 120,
       align: "center",
     },
     {
-      title: "Lập trình (phút)",
+      title: "Lập trình (giờ)",
       dataIndex: "programmingTime",
       width: 120,
       align: "center",
     },
     {
-      title: "Vận hành (phút)",
+      title: "Vận hành (giờ)",
       dataIndex: "workingTime",
       width: 120,
       align: "center",
@@ -767,7 +767,7 @@ export default function WorkerPage() {
                           <Row gutter={[12, 0]}>
                             <Col xs={24} sm={8}>
                               <Form.Item
-                                label="Thời gian gá đặt (phút)"
+                                label="Thời gian gá đặt (giờ)"
                                 name="setupTime"
                                 rules={[
                                   {
@@ -782,7 +782,7 @@ export default function WorkerPage() {
 
                             <Col xs={24} sm={8}>
                               <Form.Item
-                                label="Thời gian chờ (phút)"
+                                label="Thời gian chờ (giờ)"
                                 name="waitingTime"
                               >
                                 <InputNumber min={0} className="w-100" />
@@ -794,7 +794,7 @@ export default function WorkerPage() {
                               MachineType.Manual ? (
                               <Col xs={24} sm={8}>
                                 <Form.Item
-                                  label="Thời gian vận hành (phút)"
+                                  label="Thời gian vận hành (giờ)"
                                   name="machineTime"
                                 >
                                   <InputNumber min={0} className="w-100" />
@@ -803,7 +803,7 @@ export default function WorkerPage() {
                             ) : (
                               <Col xs={24} sm={8}>
                                 <Form.Item
-                                  label="Thời gian lập trình (phút)"
+                                  label="Thời gian lập trình (giờ)"
                                   name="programmingTime"
                                 >
                                   <InputNumber
