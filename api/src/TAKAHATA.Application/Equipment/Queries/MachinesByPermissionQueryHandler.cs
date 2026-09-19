@@ -44,7 +44,7 @@ namespace TAKAHATA.Application.Equipment.Queries
 
             var machines = await _machineRepository.GetByIdsAsync(machineIds);
 
-            //var maintenanceProceses = await _machineMaintenanceProcessRepository.GetByMachineIdsAndDateAsync(machineIds, DateTime.Now);
+            var maintenanceProceses = await _machineMaintenanceProcessRepository.GetByMachineIdsAndDateAsync(machineIds, DateTime.Now);
 
             var users = _userManager.Users.ToList();
 
@@ -54,10 +54,8 @@ namespace TAKAHATA.Application.Equipment.Queries
                     var item = _mapper.Map<MachineResponse>(r);
                     item.SequenceNumber = index + 1;
 
-                    //if (maintenanceProceses.Any(mp => mp.MachineId == r.Id))
-                    //{
-                    //    item.HasScheduledMaintenance = true;
-                    //}
+                    if (maintenanceProceses.Any(mp => mp.MachineId == r.Id))
+                        item.HasScheduledMaintenance = true;
 
                     var createdUser = users.FirstOrDefault(u => u.Id == item.CreateBy);
                     if (createdUser != null)

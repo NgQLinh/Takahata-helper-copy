@@ -29,7 +29,12 @@ import {
   getPartProcessByMachineAsync,
 } from "@/app/services/machine/MachineService";
 import { toast } from "react-toastify";
-import { Machine, MachineType, ManufacturingProcess } from "@/app/types";
+import {
+  Machine,
+  MachineType,
+  ManufacturingProcess,
+  ManufacturingProcessType,
+} from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 import {
@@ -555,6 +560,12 @@ export default function WorkerPage() {
                         >
                           {machine.name}
                         </span>
+
+                        {machine.hasScheduledMaintenance && (
+                          <div className="d-inline-block border border-danger rounded px-2 py-1 text-danger bg-danger-subtle fw-semibold">
+                            Có lịch bảo trì
+                          </div>
+                        )}
                       </div>
                     </button>
                   );
@@ -650,241 +661,245 @@ export default function WorkerPage() {
           </Card>
 
           {/* Thông tin gia công - chiều cao cố định 360px */}
-          <Card
-            className="processing-card processing-information-card shrink-0"
-            style={{ height: 500 }}
-            styles={{
-              body: {
-                height: "calc(100% - 57px)",
-                padding: 12,
-                overflow: "hidden",
-              },
-            }}
-            title={
-              <div className="d-flex align-items-center gap-2">
-                <span className="section-number">3</span>
-                <span>Thông tin gia công</span>
-              </div>
-            }
-          >
-            <div className="d-flex flex-column h-100 overflow-hidden">
-              <Row gutter={[16, 16]} className="grow overflow-hidden">
-                {/* Cột trái: Thông tin gia công */}
-                <Col xs={24} lg={8} className="h-100">
-                  <div className="d-flex flex-column h-100 border rounded p-3 bg-light">
-                    <div className="grow overflow-auto">
-                      <div className="mb-3">
-                        <Text type="secondary" className="d-block mb-1">
-                          Máy
-                        </Text>
+          {selectedProcess?.processType ==
+          ManufacturingProcessType.MaintenanceProcesses ? null : (
+            <Card
+              className="processing-card processing-information-card shrink-0"
+              style={{ height: 500 }}
+              styles={{
+                body: {
+                  height: "calc(100% - 57px)",
+                  padding: 12,
+                  overflow: "hidden",
+                },
+              }}
+              title={
+                <div className="d-flex align-items-center gap-2">
+                  <span className="section-number">3</span>
+                  <span>Thông tin gia công</span>
+                </div>
+              }
+            >
+              <div className="d-flex flex-column h-100 overflow-hidden">
+                <Row gutter={[16, 16]} className="grow overflow-hidden">
+                  {/* Cột trái: Thông tin gia công */}
+                  <Col xs={24} lg={8} className="h-100">
+                    <div className="d-flex flex-column h-100 border rounded p-3 bg-light">
+                      <div className="grow overflow-auto">
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Máy
+                          </Text>
 
-                        <Text strong ellipsis={{ tooltip: true }}>
-                          {selectedMachine
-                            ? `${selectedMachine.code} - ${selectedMachine.name}`
-                            : "Chưa chọn máy"}
-                        </Text>
-                      </div>
+                          <Text strong ellipsis={{ tooltip: true }}>
+                            {selectedMachine
+                              ? `${selectedMachine.code} - ${selectedMachine.name}`
+                              : "Chưa chọn máy"}
+                          </Text>
+                        </div>
 
-                      <div className="mb-3">
-                        <Text type="secondary" className="d-block mb-1">
-                          Chi tiết
-                        </Text>
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Chi tiết
+                          </Text>
 
-                        <Text strong ellipsis={{ tooltip: true }}>
-                          {selectedProcess
-                            ? `${selectedProcess.indexCode} - ${selectedProcess.partCode}`
-                            : "Chưa chọn chi tiết"}
-                        </Text>
-                      </div>
+                          <Text strong ellipsis={{ tooltip: true }}>
+                            {selectedProcess
+                              ? `${selectedProcess.indexCode} - ${selectedProcess.partCode}`
+                              : "Chưa chọn chi tiết"}
+                          </Text>
+                        </div>
 
-                      <div className="mb-3">
-                        <Text type="secondary" className="d-block mb-1">
-                          Tiến độ gia công
-                        </Text>
+                        <div className="mb-3">
+                          <Text type="secondary" className="d-block mb-1">
+                            Tiến độ gia công
+                          </Text>
 
-                        {/* <Progress
+                          {/* <Progress
                             percent={completedPercent}
                             status={
                               completedPercent === 100 ? "success" : "active"
                             }
                           /> */}
+                        </div>
                       </div>
-                    </div>
 
-                    <Button
-                      type="primary"
-                      size="large"
-                      block
-                      icon={<PlayCircleOutlined />}
-                      loading={processingAction === "start"}
-                      disabled={!canStartProcessing || isActionLoading}
-                      onClick={handleStartProcessing}
-                    >
-                      {startButtonText}
-                    </Button>
-                  </div>
-                </Col>
-
-                {/* Cột phải: Form nhập thông tin */}
-                <Col xs={24} lg={16} className="h-100">
-                  <div className="d-flex flex-column h-100 border rounded p-3 overflow-hidden">
-                    <div className="grow overflow-y-auto overflow-x-hidden px-1">
-                      <Form<ProcessingFormValues>
-                        form={processingForm}
-                        layout="vertical"
-                        initialValues={{
-                          setupTime: 0,
-                          waitingTime: 0,
-                          startTime: 0,
-                          machineTime: 0,
-                          processedQuantity: 0,
-                          passedQuantity: 0,
-                          programmingTime: 0,
-                          note: "",
-                        }}
+                      <Button
+                        type="primary"
+                        size="large"
+                        block
+                        icon={<PlayCircleOutlined />}
+                        loading={processingAction === "start"}
+                        disabled={!canStartProcessing || isActionLoading}
+                        onClick={handleStartProcessing}
                       >
-                        <Row gutter={[12, 0]}>
-                          <Col xs={24} sm={8}>
-                            <Form.Item
-                              label="Thời gian gá đặt (phút)"
-                              name="setupTime"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Nhập thời gian gá đặt",
-                                },
-                              ]}
-                            >
-                              <InputNumber min={0} className="w-100" />
-                            </Form.Item>
-                          </Col>
+                        {startButtonText}
+                      </Button>
+                    </div>
+                  </Col>
 
-                          <Col xs={24} sm={8}>
-                            <Form.Item
-                              label="Thời gian chờ (phút)"
-                              name="waitingTime"
-                            >
-                              <InputNumber min={0} className="w-100" />
-                            </Form.Item>
-                          </Col>
-
-                          {selectedMachine != null &&
-                          selectedMachine.machineType === MachineType.Manual ? (
+                  {/* Cột phải: Form nhập thông tin */}
+                  <Col xs={24} lg={16} className="h-100">
+                    <div className="d-flex flex-column h-100 border rounded p-3 overflow-hidden">
+                      <div className="grow overflow-y-auto overflow-x-hidden px-1">
+                        <Form<ProcessingFormValues>
+                          form={processingForm}
+                          layout="vertical"
+                          initialValues={{
+                            setupTime: 0,
+                            waitingTime: 0,
+                            startTime: 0,
+                            machineTime: 0,
+                            processedQuantity: 0,
+                            passedQuantity: 0,
+                            programmingTime: 0,
+                            note: "",
+                          }}
+                        >
+                          <Row gutter={[12, 0]}>
                             <Col xs={24} sm={8}>
                               <Form.Item
-                                label="Thời gian vận hành (phút)"
-                                name="machineTime"
+                                label="Thời gian gá đặt (phút)"
+                                name="setupTime"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Nhập thời gian gá đặt",
+                                  },
+                                ]}
                               >
                                 <InputNumber min={0} className="w-100" />
                               </Form.Item>
                             </Col>
-                          ) : (
+
                             <Col xs={24} sm={8}>
                               <Form.Item
-                                label="Thời gian lập trình (phút)"
-                                name="programmingTime"
+                                label="Thời gian chờ (phút)"
+                                name="waitingTime"
                               >
-                                <InputNumber
-                                  disabled={
-                                    selectedMachine != null &&
-                                    selectedMachine.machineType ===
-                                      MachineType.Manual
-                                  }
-                                  min={0}
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+
+                            {selectedMachine != null &&
+                            selectedMachine.machineType ===
+                              MachineType.Manual ? (
+                              <Col xs={24} sm={8}>
+                                <Form.Item
+                                  label="Thời gian vận hành (phút)"
+                                  name="machineTime"
+                                >
+                                  <InputNumber min={0} className="w-100" />
+                                </Form.Item>
+                              </Col>
+                            ) : (
+                              <Col xs={24} sm={8}>
+                                <Form.Item
+                                  label="Thời gian lập trình (phút)"
+                                  name="programmingTime"
+                                >
+                                  <InputNumber
+                                    disabled={
+                                      selectedMachine != null &&
+                                      selectedMachine.machineType ===
+                                        MachineType.Manual
+                                    }
+                                    min={0}
+                                    className="w-100"
+                                  />
+                                </Form.Item>
+                              </Col>
+                            )}
+                          </Row>
+                          <Row gutter={[12, 0]}>
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                label="Số lượng đã gia công"
+                                name="processedQuantity"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Nhập số lượng đã gia công",
+                                  },
+                                ]}
+                              >
+                                <InputNumber min={0} className="w-100" />
+                              </Form.Item>
+                            </Col>
+
+                            <Col xs={24} sm={12}>
+                              <Form.Item
+                                label="Người thực hiện"
+                                name="performedBy"
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Vui lòng nhập người thực hiện.",
+                                  },
+                                  {
+                                    whitespace: true,
+                                    message:
+                                      "Người thực hiện không được chỉ chứa khoảng trắng.",
+                                  },
+                                  {
+                                    max: 100,
+                                    message:
+                                      "Người thực hiện không được vượt quá 100 ký tự.",
+                                  },
+                                ]}
+                              >
+                                <Input
                                   className="w-100"
+                                  placeholder="Nhập tên người thực hiện"
+                                  maxLength={100}
                                 />
                               </Form.Item>
                             </Col>
-                          )}
-                        </Row>
-                        <Row gutter={[12, 0]}>
-                          <Col xs={24} sm={12}>
-                            <Form.Item
-                              label="Số lượng đã gia công"
-                              name="processedQuantity"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Nhập số lượng đã gia công",
-                                },
-                              ]}
-                            >
-                              <InputNumber min={0} className="w-100" />
-                            </Form.Item>
-                          </Col>
+                          </Row>
 
-                          <Col xs={24} sm={12}>
-                            <Form.Item
-                              label="Người thực hiện"
-                              name="performedBy"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng nhập người thực hiện.",
-                                },
-                                {
-                                  whitespace: true,
-                                  message:
-                                    "Người thực hiện không được chỉ chứa khoảng trắng.",
-                                },
-                                {
-                                  max: 100,
-                                  message:
-                                    "Người thực hiện không được vượt quá 100 ký tự.",
-                                },
-                              ]}
-                            >
-                              <Input
-                                className="w-100"
-                                placeholder="Nhập tên người thực hiện"
-                                maxLength={100}
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
+                          <Row gutter={[12, 0]}>
+                            <Col xs={24} sm={24}>
+                              <Form.Item
+                                label="Ghi chú của người vận hành"
+                                name="workerNote"
+                              >
+                                <Input.TextArea
+                                  rows={4}
+                                  placeholder="Nhập ghi chú"
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </Form>
+                      </div>
 
-                        <Row gutter={[12, 0]}>
-                          <Col xs={24} sm={24}>
-                            <Form.Item
-                              label="Ghi chú của người vận hành"
-                              name="workerNote"
-                            >
-                              <Input.TextArea
-                                rows={4}
-                                placeholder="Nhập ghi chú"
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form>
+                      <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top shrink-0">
+                        <Button
+                          icon={<PauseOutlined />}
+                          loading={processingAction === "pause"}
+                          disabled={!canPauseProcessing || isActionLoading}
+                          onClick={handlePauseProcessing}
+                        >
+                          Tạm dừng
+                        </Button>
+
+                        <Button
+                          type="primary"
+                          className="complete-button"
+                          icon={<CheckCircleOutlined />}
+                          loading={processingAction === "complete"}
+                          disabled={!canCompleteProcessing || isActionLoading}
+                          onClick={handleCompleteProcessing}
+                        >
+                          Hoàn thành
+                        </Button>
+                      </div>
                     </div>
-
-                    <div className="d-flex justify-content-end align-items-center gap-2 pt-3 mt-2 border-top shrink-0">
-                      <Button
-                        icon={<PauseOutlined />}
-                        loading={processingAction === "pause"}
-                        disabled={!canPauseProcessing || isActionLoading}
-                        onClick={handlePauseProcessing}
-                      >
-                        Tạm dừng
-                      </Button>
-
-                      <Button
-                        type="primary"
-                        className="complete-button"
-                        icon={<CheckCircleOutlined />}
-                        loading={processingAction === "complete"}
-                        disabled={!canCompleteProcessing || isActionLoading}
-                        onClick={handleCompleteProcessing}
-                      >
-                        Hoàn thành
-                      </Button>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </div>
-          </Card>
+                  </Col>
+                </Row>
+              </div>
+            </Card>
+          )}
         </div>
       </section>
 

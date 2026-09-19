@@ -23,4 +23,6 @@ export interface Machine {
   statusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;
+
+  hasScheduledMaintenance: boolean | null;
 }

@@ -1,3 +1,5 @@
+import { ManufacturingProcessType } from "./part/ManufacturingProcessType";
+
 export type { SearchResponse } from "./common/SearchResponse";
 
 export type { LoginRequest } from "./auth/LoginRequest";
@@ -32,3 +34,4 @@ export { MachineProcessType } from "./common/MachineProcessType";
 export type { ManufacturingProcess as ManufacturingProcess } from "./part/Process";
 export type { MachineMaintenanceProcess } from "./machine/MachineMaintenanceProcess";
 export { PartType } from "./part/PartType";
+export {ManufacturingProcessType} from "./part/ManufacturingProcessType"

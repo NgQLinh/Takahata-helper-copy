@@ -23,13 +23,15 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var currentPage = Math.Max(page ?? 1, 1);
             var currentPageSize = Math.Clamp(pageSize ?? 10, 1, 100);
 
-            var query = _dbContext.PartProcesses
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            var partProcesses = _dbContext.PartProcesses
                 .AsNoTracking()
-                .Where(x => x.MachineId == machineId);
+                .Where(x => x.MachineId == machineId && x.PlantDate == today);
 
-            var totalItems = await query.CountAsync();
+            var totalItems = await partProcesses.CountAsync();
 
-            var data = await query
+            var data = await partProcesses
                 .OrderByDescending(x => x.Status)
                 .Skip((currentPage - 1) * currentPageSize)
                 .Take(currentPageSize)
@@ -70,9 +72,37 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     Prioritize = x.Part != null ? x.Part.Prioritize : false,
 
                     Note = x.Note ?? string.Empty,
-                    Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status
+                    Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status,
+                    ProcessType = ManufacturingProcessType.PartProcess,
                 })
                 .ToListAsync();
+
+            var maintenanceProcesses = await _dbContext.MachineMaintenanceProcesses
+                .AsNoTracking()
+                .Where(x => x.MachineId == machineId && x.PlantDate == today)
+                .ToListAsync();
+
+            foreach (var x in maintenanceProcesses)
+            {
+                data.Add(new ManufacturingProcessResponse
+                {
+                    Id = x.Id,
+                    CreateAt = x.CreateAt,
+                    CreateBy = x.CreateBy,
+                    UpdateAt = x.UpdateAt,
+                    UpdateBy = x.UpdateBy,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime,
+                    EstimatedTime = x.EstimatedTime,
+                    PerformedBy = x.PerformedBy,
+                    Prioritize = true,
+
+                    Note = x.Note ?? string.Empty,
+                    Status = x.Status,
+                    PartCode = "Bảo trì",
+                    ProcessType = ManufacturingProcessType.MaintenanceProcesses,
+                });
+            }
 
             return new SearchResponse<List<ManufacturingProcessResponse>>(
                 currentPage,

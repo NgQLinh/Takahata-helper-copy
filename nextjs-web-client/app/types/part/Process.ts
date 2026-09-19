@@ -1,5 +1,6 @@
 import { Dayjs } from "dayjs";
 import { ProcessStatus } from "../common/ProcessStatus";
+import { ManufacturingProcessType } from "./ManufacturingProcessType";
 
 export interface ManufacturingProcess {
   id: number;
@@ -24,4 +25,5 @@ export interface ManufacturingProcess {
   workerNote?: string | null;
   performedBy?: string | null;
   prioritize: boolean | false;
+  processType?: ManufacturingProcessType | null;
 }

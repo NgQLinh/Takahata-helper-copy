@@ -23,5 +23,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string WorkerNote { get; set; } = string.Empty;
         public double? ProgrammingTime { get; set; }
         public bool Prioritize { get; set; } = false;
+        public ManufacturingProcessType ProcessType { get; set; }
     }
 }

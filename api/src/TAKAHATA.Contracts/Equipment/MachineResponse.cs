@@ -1,5 +1,6 @@
 ﻿using TAKAHATA.Contracts.Common;
 using TAKAHATA.Domain.Common.Enum;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Contracts.Equipment
 {
