@@ -114,6 +114,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.UpdateBy = _currentUserService.UserId;
                 existingProcess.UpdateAt = DateTime.Now;
                 existingProcess.EstimatedTime = process.EstimatedTime;
+                existingProcess.ProgrammingTime = process.ProgrammingTime;
             }
 
             // 6. Add new processes
@@ -134,7 +135,8 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     SetupTime = process.SetupTime,
                     WaitingTime = process.WaitingTime,
                     PerformedBy = process.PerformedBy,
-                    EstimatedTime = process.EstimatedTime
+                    EstimatedTime = process.EstimatedTime,
+                    ProgrammingTime = process.ProgrammingTime,
                 });
             }
 

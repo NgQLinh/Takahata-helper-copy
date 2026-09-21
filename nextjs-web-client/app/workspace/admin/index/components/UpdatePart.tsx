@@ -65,6 +65,7 @@ type PlanRow = {
   performedBy?: string | null;
   estimatedTime?: number | null;
   workerNote?: string | null;
+  programmingTime?: number | null;
 };
 
 type FormValues = {
@@ -106,6 +107,7 @@ const statusOptions = [
   { value: ProcessStatus.Completed, label: "Hoàn thành" },
   { value: ProcessStatus.Cancelled, label: "Đã hủy" },
   { value: ProcessStatus.PartiallyCompleted, label: "Hoàn thành một phần" },
+  { value: ProcessStatus.Paused, label: "Tạm dừng" },
 ];
 
 export default function UpdatePart({ id, open, onClose }: Props) {
@@ -189,6 +191,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 performedBy: process.performedBy ?? "",
                 estimatedTime: process.estimatedTime ?? 0,
                 workerNote: process.workerNote,
+                programmingTime: process.programmingTime,
               }))
             : [createEmptyRow()];
 
@@ -347,6 +350,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         note: item.note?.trim() ?? "",
         performedBy: item.performedBy,
         estimatedTime: item.estimatedTime ?? 0,
+        programmingTime: item.programmingTime ?? 0,
       })),
     };
 
@@ -534,6 +538,22 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           className="w-100"
           min={0}
           onChange={(v) => handleChange(record.key, "waitingTime", v)}
+          value={value}
+          step={0.5}
+          placeholder="Nhập số giờ làm"
+        />
+      ),
+    },
+    {
+      title: "Lập trình (giờ)",
+      dataIndex: "programmingTime",
+      key: "programmingTime",
+      width: 125,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "programmingTime", v)}
           value={value}
           step={0.5}
           placeholder="Nhập số giờ làm"

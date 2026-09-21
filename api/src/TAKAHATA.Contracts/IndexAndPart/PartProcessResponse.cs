@@ -20,6 +20,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string Note { get; set; } = string.Empty;
         public string? PerformedBy { get; set; } = string.Empty;
         public string? WorkerNote { get; set; } = string.Empty;
+        public double? ProgrammingTime { get; set; }
         public MachineResponse? Machine { get; set; }
     }
 }

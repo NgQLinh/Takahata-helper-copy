@@ -13,6 +13,8 @@ export const getStatusTag = (status: ProcessStatus) => {
       return <Tag color="red">Đã hủy</Tag>;
     case ProcessStatus.PartiallyCompleted:
       return <Tag color="gold">Hoàn thành một phần</Tag>;
+    case ProcessStatus.Paused:
+      return <Tag color="gold">Tạm dừng</Tag>;
     default:
       return <Tag>Không xác định</Tag>;
   }
