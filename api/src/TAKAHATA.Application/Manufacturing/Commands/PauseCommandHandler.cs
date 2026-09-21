@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.IndexAndPart;
@@ -15,27 +16,56 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         private readonly IPLCService _iPLCService;
         private readonly IPartRepository _partRepository;
 
+        private readonly ILogger<PauseCommandHandler> _logger;
+
         public PauseCommandHandler(
             IPartProcessRepository partProcessRepository,
             IMachineRepository machineRepository,
             IPLCService iPLCService,
-            IPartRepository partRepository)
+            IPartRepository partRepository,
+            ILogger<PauseCommandHandler> logger)
         {
             _partProcessRepository = partProcessRepository;
             _machineRepository = machineRepository;
             _iPLCService = iPLCService;
             _partRepository = partRepository;
+            _logger = logger;
         }
 
         public async Task<ErrorOr<ManufacturingProcessResponse>> Handle(
             PauseCommand request,
             CancellationToken cancellationToken)
         {
+            _logger.LogInformation(
+                """
+                Bắt đầu tạm dừng quá trình gia công:
+                MachineId={MachineId},
+                PartId={PartId},
+                ProcessId={ProcessId},
+                SetupTime={SetupTime},
+                WaitingTime={WaitingTime},
+                ProgrammingTime={ProgrammingTime},
+                MachineTime={MachineTime}
+                """,
+                request.MachineId,
+                request.PartId,
+                request.ProcessId,
+                request.SetupTime,
+                request.WaitingTime,
+                request.ProgrammingTime,
+                request.MachineTime);
+
             var machineId = request.MachineId;
             var machine = await _machineRepository.GetByIdAsync(machineId);
 
             if (machine == null)
+            {
+                _logger.LogWarning(
+                    "Không tìm thấy máy. MachineId={MachineId}",
+                    machineId);
+
                 return Errors.Machine.NotFound;
+            }
 
             // Ghi xuống PLC
             var result = await _iPLCService.WriteMachineData(machine, 0, 0);
@@ -44,56 +74,193 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             {
                 var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                 if (partProcess == null)
+                {
+                    _logger.LogWarning(
+                        "Không tìm thấy công đoạn. ProcessId={ProcessId}",
+                        request.ProcessId);
+
                     return Errors.Part.NotFoundProcess;
+                }
 
                 var part = await _partRepository.GetByIdAsync(request.PartId);
                 if (part == null)
+                {
+                    _logger.LogWarning(
+                        "Không tìm thấy Part. PartId={PartId}",
+                        request.PartId);
+
                     return Errors.Part.NotFound;
+                }
 
                 if (request.ProcessedQuantity > part.Quantity)
+                {
+                    _logger.LogWarning(
+                        """
+                        Số lượng gia công không hợp lệ.
+                        ProcessedQuantity={ProcessedQuantity},
+                        PartQuantity={PartQuantity}
+                        """,
+                        request.ProcessedQuantity,
+                        part.Quantity);
+
                     return Errors.Part.IncorrectQuantity;
+                }
 
                 partProcess.Status = ProcessStatus.Paused;
-                // Cộng dồn thời gian
-                if (partProcess.WaitingTime.HasValue)
-                    partProcess.WaitingTime += request.WaitingTime;
-                else
-                    partProcess.WaitingTime = request.WaitingTime;
 
-                if (partProcess.SetupTime.HasValue)
-                    partProcess.SetupTime += request.SetupTime;
-                else
-                    partProcess.SetupTime = request.SetupTime;
+                _logger.LogInformation(
+                    """
+                    Thời gian trước khi cộng dồn:
+                    WaitingTime={WaitingTime},
+                    SetupTime={SetupTime},
+                    ProgrammingTime={ProgrammingTime},
+                    WorkingTime={WorkingTime}
+                    """,
+                    partProcess.WaitingTime,
+                    partProcess.SetupTime,
+                    partProcess.ProgrammingTime,
+                    partProcess.WorkingTime);
+
+                // Cộng dồn thời gian và làm tròn 2 chữ số.
+                var oldWaitingTime = partProcess.WaitingTime;
+                partProcess.WaitingTime = Math.Round(
+                    partProcess.WaitingTime.GetValueOrDefault()
+                        + request.WaitingTime,
+                    2,
+                    MidpointRounding.AwayFromZero);
+
+                _logger.LogInformation(
+                    "WaitingTime: {OldValue} + {AddedValue} = {NewValue}",
+                    oldWaitingTime,
+                    request.WaitingTime,
+                    partProcess.WaitingTime);
+
+                var oldSetupTime = partProcess.SetupTime;
+                partProcess.SetupTime = Math.Round(
+                    partProcess.SetupTime.GetValueOrDefault()
+                        + request.SetupTime,
+                    2,
+                    MidpointRounding.AwayFromZero);
+
+                _logger.LogInformation(
+                    "SetupTime: {OldValue} + {AddedValue} = {NewValue}",
+                    oldSetupTime,
+                    request.SetupTime,
+                    partProcess.SetupTime);
 
                 partProcess.EndTime = DateTime.Now;
 
-                // Nếu số lượng > kế hoạch tự động set bằng
+                // Nếu số lượng > kế hoạch tự động set bằng.
                 partProcess.ProcessedQuantity += request.ProcessedQuantity;
+
                 if (partProcess.ProcessedQuantity > part.Quantity)
                     partProcess.ProcessedQuantity = part.Quantity;
 
                 partProcess.PerformedBy = request.PerformedBy;
+
                 if (!string.IsNullOrEmpty(request.WorkerNote))
                     partProcess.WorkerNote = request.WorkerNote;
 
                 if (machine.IsAutomatic)
                 {
-                    if (partProcess.ProgrammingTime.HasValue)
-                        partProcess.ProgrammingTime += request.ProgrammingTime;
+                    if (request.ProgrammingTime.HasValue)
+                    {
+                        var oldProgrammingTime = partProcess.ProgrammingTime;
+
+                        partProcess.ProgrammingTime = Math.Round(
+                            partProcess.ProgrammingTime.GetValueOrDefault()
+                                + request.ProgrammingTime.Value,
+                            2,
+                            MidpointRounding.AwayFromZero);
+
+                        _logger.LogInformation(
+                            "ProgrammingTime: {OldValue} + {AddedValue} = {NewValue}",
+                            oldProgrammingTime,
+                            request.ProgrammingTime.Value,
+                            partProcess.ProgrammingTime);
+                    }
                     else
-                        partProcess.ProgrammingTime = request.ProgrammingTime;
+                    {
+                        _logger.LogWarning(
+                            """
+                            ProgrammingTime không có giá trị.
+                            MachineId={MachineId}, ProcessId={ProcessId}
+                            """,
+                            request.MachineId,
+                            request.ProcessId);
+                    }
                 }
                 else
                 {
-                    if (partProcess.WorkingTime.HasValue)
-                        partProcess.WorkingTime += request.MachineTime;
+                    if (request.MachineTime.HasValue)
+                    {
+                        var oldWorkingTime = partProcess.WorkingTime;
+
+                        partProcess.WorkingTime = Math.Round(
+                            partProcess.WorkingTime.GetValueOrDefault()
+                                + request.MachineTime.Value,
+                            2,
+                            MidpointRounding.AwayFromZero);
+
+                        _logger.LogInformation(
+                            "WorkingTime: {OldValue} + {AddedValue} = {NewValue}",
+                            oldWorkingTime,
+                            request.MachineTime.Value,
+                            partProcess.WorkingTime);
+                    }
                     else
-                        partProcess.WorkingTime = request.MachineTime;
+                    {
+                        _logger.LogWarning(
+                            """
+                            MachineTime không có giá trị.
+                            MachineId={MachineId}, ProcessId={ProcessId}
+                            """,
+                            request.MachineId,
+                            request.ProcessId);
+                    }
                 }
 
-                partProcess = await _partProcessRepository.UpdateAsync(partProcess);
+                _logger.LogInformation(
+                    """
+                    Dữ liệu trước khi cập nhật:
+                    WaitingTime={WaitingTime},
+                    SetupTime={SetupTime},
+                    ProgrammingTime={ProgrammingTime},
+                    WorkingTime={WorkingTime},
+                    ProcessedQuantity={ProcessedQuantity}
+                    """,
+                    partProcess.WaitingTime,
+                    partProcess.SetupTime,
+                    partProcess.ProgrammingTime,
+                    partProcess.WorkingTime,
+                    partProcess.ProcessedQuantity);
+
+                partProcess =
+                    await _partProcessRepository.UpdateAsync(partProcess);
+
                 if (partProcess == null)
+                {
+                    _logger.LogError(
+                        "Cập nhật công đoạn thất bại. ProcessId={ProcessId}",
+                        request.ProcessId);
+
                     return Errors.Part.UpdatePartProcessFalse;
+                }
+
+                _logger.LogInformation(
+                    """
+                    Tạm dừng quá trình gia công thành công.
+                    ProcessId={ProcessId},
+                    WaitingTime={WaitingTime},
+                    SetupTime={SetupTime},
+                    ProgrammingTime={ProgrammingTime},
+                    WorkingTime={WorkingTime}
+                    """,
+                    partProcess.Id,
+                    partProcess.WaitingTime,
+                    partProcess.SetupTime,
+                    partProcess.ProgrammingTime,
+                    partProcess.WorkingTime);
 
                 return new ManufacturingProcessResponse
                 {
@@ -102,6 +269,14 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             }
             else
             {
+                _logger.LogError(
+                    """
+                    Không thể tạm dừng quá trình gia công do ghi PLC thất bại.
+                    MachineId={MachineId}, ProcessId={ProcessId}
+                    """,
+                    request.MachineId,
+                    request.ProcessId);
+
                 return Errors.Part.PausePartProcessFalse;
             }
         }
