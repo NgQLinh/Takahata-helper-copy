@@ -330,7 +330,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       id,
       indexCode,
       partCode,
-      quantity: values.Quantity | 1,
+      quantity: values.Quantity,
       prioritize: values.Prioritize,
       partType: values.PartType,
       partProcesses: dataSource.map((item, index) => ({
