@@ -62,10 +62,6 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     if (request.ProcessedQuantity > part.Quantity)
                         return Errors.Part.IncorrectQuantity;
 
-                    if (request.ProcessedQuantity == part.Quantity)
-                        partProcess.Status = ProcessStatus.Completed;
-                    else
-                        partProcess.Status = ProcessStatus.PartiallyCompleted;
 
                     // Cộng dồn thời gian
                     if (partProcess.WaitingTime.HasValue)
@@ -84,6 +80,11 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     partProcess.ProcessedQuantity += request.ProcessedQuantity;
                     if (partProcess.ProcessedQuantity > part.Quantity)
                         partProcess.ProcessedQuantity = part.Quantity;
+
+                    if (partProcess.ProcessedQuantity == part.Quantity)
+                        partProcess.Status = ProcessStatus.Completed;
+                    else
+                        partProcess.Status = ProcessStatus.PartiallyCompleted;
 
                     partProcess.PerformedBy = request.PerformedBy;
                     if (!string.IsNullOrEmpty(request.WorkerNote))
