@@ -14,7 +14,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         double? MachineTime,
         int ProcessedQuantity,
         string PerformedBy,
-        string WorkerNote) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
+        string? WorkerNote) : IRequest<ErrorOr<ManufacturingProcessResponse>>;
 }
 
 

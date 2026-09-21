@@ -220,9 +220,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("MachineStatusChangeAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("MachineType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(255)");

@@ -54,13 +54,42 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Part.IncorrectQuantity;
 
                 partProcess.Status = ProcessStatus.Paused;
-                partProcess.WaitingTime = request.WaitingTime;
-                partProcess.SetupTime = request.SetupTime;
+                // Cộng dồn thời gian
+                if (partProcess.WaitingTime.HasValue)
+                    partProcess.WaitingTime += request.WaitingTime;
+                else
+                    partProcess.WaitingTime = request.WaitingTime;
+
+                if (partProcess.SetupTime.HasValue)
+                    partProcess.SetupTime += request.SetupTime;
+                else
+                    partProcess.SetupTime = request.SetupTime;
+
                 partProcess.EndTime = DateTime.Now;
-                partProcess.ProcessedQuantity = request.ProcessedQuantity;
+
+                // Nếu số lượng > kế hoạch tự động set bằng
+                partProcess.ProcessedQuantity += request.ProcessedQuantity;
+                if (partProcess.ProcessedQuantity > part.Quantity)
+                    partProcess.ProcessedQuantity = part.Quantity;
+
                 partProcess.PerformedBy = request.PerformedBy;
-                partProcess.WorkerNote = request.WorkerNote;
-                partProcess.ProgrammingTime = request.ProgrammingTime;
+                if (!string.IsNullOrEmpty(request.WorkerNote))
+                    partProcess.WorkerNote = request.WorkerNote;
+
+                if (machine.IsAutomatic)
+                {
+                    if (partProcess.ProgrammingTime.HasValue)
+                        partProcess.ProgrammingTime += request.ProgrammingTime;
+                    else
+                        partProcess.ProgrammingTime = request.ProgrammingTime;
+                }
+                else
+                {
+                    if (partProcess.WorkingTime.HasValue)
+                        partProcess.WorkingTime += request.MachineTime;
+                    else
+                        partProcess.WorkingTime = request.MachineTime;
+                }
 
                 partProcess = await _partProcessRepository.UpdateAsync(partProcess);
                 if (partProcess == null)

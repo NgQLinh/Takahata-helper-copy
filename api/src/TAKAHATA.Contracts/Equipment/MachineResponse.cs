@@ -11,7 +11,6 @@ namespace TAKAHATA.Contracts.Equipment
         public string Type { get; set; } = string.Empty;
         public string Brand { get; set; } = string.Empty;
         public MachineStatus MachineStatus { get; set; } = MachineStatus.Running;
-        public MachineType MachineType { get; set; } = MachineType.Automatic;
 
         public bool IsAutomatic { get; set; }
 

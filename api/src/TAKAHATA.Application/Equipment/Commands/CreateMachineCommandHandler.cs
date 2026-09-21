@@ -34,17 +34,14 @@ namespace TAKAHATA.Application.Equipment.Commands
             var machine = _mapper.Map<Machine>(command);
             machine.CreateBy = _currentUserService.UserId;
 
-            if (command.IsAutomatic)
-            {
-                machine.MachineType = MachineType.Automatic;
-            }
-            else
+            if (!command.IsAutomatic)
             {
                 machine.PartBitAddress = 0;
                 machine.PartProcessBitAddress = 0;
                 machine.StatusBitAddress = 0;
-                machine.MachineType = MachineType.Manual;
             }
+
+            machine.IsAutomatic = command.IsAutomatic;
 
             if (await _machineRepository.IsExistedAsync(command.Name, command.Code))
                 return Errors.Machine.DuplicateMachine;

@@ -1,5 +1,3 @@
-import { ManufacturingProcessType } from "./part/ManufacturingProcessType";
-
 export type { SearchResponse } from "./common/SearchResponse";
 
 export type { LoginRequest } from "./auth/LoginRequest";
@@ -9,7 +7,6 @@ export { createLoginRequest } from "./auth/LoginRequest";
 export type { Machine } from "./machine/Machine";
 export type { MachineSchedule } from "./machine/MachineSchedule";
 export { MachineStatus } from "./machine/MachineStatus";
-export { MachineType } from "./machine/MachineType";
 export type { MachineReport } from "./report/MachineReport";
 export type { MachineKPI } from "./report/MachineKPI";
 export type { PartProcessReport } from "./report/PartProcessReport";

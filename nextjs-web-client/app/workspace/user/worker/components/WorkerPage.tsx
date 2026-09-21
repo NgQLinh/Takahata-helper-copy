@@ -31,7 +31,6 @@ import {
 import { toast } from "react-toastify";
 import {
   Machine,
-  MachineType,
   ManufacturingProcess,
   ManufacturingProcessType,
 } from "@/app/types";
@@ -186,13 +185,13 @@ export default function WorkerPage() {
 
   function handleSelectItem(record: ManufacturingProcess): void {
     setSelectedProcess(record);
-    processingForm.setFieldValue("processedQuantity", record.processedQuantity);
-    processingForm.setFieldValue("setupTime", record.setupTime ?? 0);
-    processingForm.setFieldValue("waitingTime", record.waitingTime ?? 0);
-    processingForm.setFieldValue("performedBy", record.performedBy ?? "");
-    processingForm.setFieldValue("workerNote", record.workerNote);
-    processingForm.setFieldValue("programmingTime", record.programmingTime);
-    processingForm.setFieldValue("machineTime", record.waitingTime);
+    // processingForm.setFieldValue("processedQuantity", record.processedQuantity);
+    // processingForm.setFieldValue("setupTime", record.setupTime ?? 0);
+    // processingForm.setFieldValue("waitingTime", record.waitingTime ?? 0);
+    // processingForm.setFieldValue("performedBy", record.performedBy ?? "");
+    // processingForm.setFieldValue("workerNote", record.workerNote);
+    // processingForm.setFieldValue("programmingTime", record.programmingTime);
+    // processingForm.setFieldValue("machineTime", record.waitingTime);
   }
 
   const selectedProcessStatus = selectedProcess?.status;
@@ -207,18 +206,18 @@ export default function WorkerPage() {
       selectedProcessStatus === ProcessStatus.Paused ||
       selectedProcessStatus === ProcessStatus.PartiallyCompleted) &&
     selectedMachine != null &&
-    selectedMachine.machineType != MachineType.Manual;
+    selectedMachine.isAutomatic;
   const canPauseProcessing =
     selectedProcessStatus === ProcessStatus.InProgress ||
     (selectedMachine != null &&
       selectedProcess != null &&
-      selectedMachine.machineType == MachineType.Manual &&
+      !selectedMachine.isAutomatic &&
       selectedProcessStatus !== ProcessStatus.Completed);
   const canCompleteProcessing =
     selectedProcessStatus === ProcessStatus.InProgress ||
     (selectedMachine != null &&
       selectedProcess != null &&
-      selectedMachine.machineType == MachineType.Manual &&
+      !selectedMachine.isAutomatic &&
       selectedProcessStatus !== ProcessStatus.Completed);
 
   const startButtonText = (() => {
@@ -290,7 +289,6 @@ export default function WorkerPage() {
       // Form không hợp lệ: Ant Design tự hiển thị message tại field.
       return;
     }
-
     setProcessingAction("pause");
 
     try {
@@ -304,6 +302,7 @@ export default function WorkerPage() {
         performedBy: values.performedBy,
         workerNote: values.workerNote,
         programmingTime: values.programmingTime,
+        machineTime: values.machineTime,
       };
 
       await pauseAsync(request);
@@ -317,6 +316,7 @@ export default function WorkerPage() {
       }
     } finally {
       setProcessingAction(null);
+      processingForm.resetFields();
     }
   };
 
@@ -368,6 +368,7 @@ export default function WorkerPage() {
       }
     } finally {
       setProcessingAction(null);
+      processingForm.resetFields();
     }
   };
 
@@ -794,8 +795,7 @@ export default function WorkerPage() {
                             </Col>
 
                             {selectedMachine != null &&
-                            selectedMachine.machineType ===
-                              MachineType.Manual ? (
+                            !selectedMachine.isAutomatic ? (
                               <Col xs={24} sm={8}>
                                 <Form.Item
                                   label="Thời gian vận hành (giờ)"
@@ -813,8 +813,7 @@ export default function WorkerPage() {
                                   <InputNumber
                                     disabled={
                                       selectedMachine != null &&
-                                      selectedMachine.machineType ===
-                                        MachineType.Manual
+                                      !selectedMachine.isAutomatic
                                     }
                                     min={0}
                                     className="w-100"

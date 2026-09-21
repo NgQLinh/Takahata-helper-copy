@@ -158,9 +158,9 @@ namespace TAKAHATA.Application.Services
                                         if (process != null)
                                         {
                                             var before = process.WorkingTime ?? 0;
-                                            var after = Math.Round(runningTime.Value.TotalHours, 2);
+                                            var after = runningTime != null ? Math.Round(runningTime.Value.TotalHours, 2) : 0;
 
-                                            process.WorkingTime = after;
+                                            process.WorkingTime = after + before;
 
                                             _logger.LogInformation(
                                                 """

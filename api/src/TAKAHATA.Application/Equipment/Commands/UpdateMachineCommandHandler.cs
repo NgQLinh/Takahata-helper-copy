@@ -42,20 +42,18 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity.UpdateBy = _currentUserService.UserId;
             entity.UpdateAt = DateTime.Now;
             entity.IsAutomatic = command.IsAutomatic;
+
             if (command.IsAutomatic)
             {
                 entity.StatusBitAddress = command.StatusBitAddress ?? 0;
                 entity.PartBitAddress = command.PartBitAddress ?? 0;
                 entity.PartProcessBitAddress = command.PartProcessBitAddress ?? 0;
-                entity.MachineType = MachineType.Automatic;
-
             }
             else
             {
                 entity.PartBitAddress = 0;
                 entity.PartProcessBitAddress = 0;
                 entity.StatusBitAddress = 0;
-                entity.MachineType = MachineType.Manual;
             }
 
 
