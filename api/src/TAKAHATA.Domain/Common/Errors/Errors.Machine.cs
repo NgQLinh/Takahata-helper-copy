@@ -22,7 +22,10 @@ namespace TAKAHATA.Domain.Common.Errors
                 Error.NotFound(code: "Machine.NotFound", description: "Không tìm thấy máy.");
 
             public static Error IsProcessing =>
-                Error.NotFound(code: "Machine.IsProcessing", description: "Máy đang gia công.");
+                Error.NotFound(code: "Machine.IsProcessing", description: "Máy đang gia công chi tiết khác vui lòng kiểm tra lại.");
+
+            public static Error IsProcessingPLC =>
+                Error.NotFound(code: "Machine.IsProcessingPLC", description: "Máy đang gia công vui lòng dừng máy trước khi thao tác.");
         }
     }
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.Settings;
+using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.PLC;
 using Machine = TAKAHATA.Domain.MasterData.Machine;
 
@@ -18,6 +19,42 @@ namespace TAKAHATA.Infrastructure.Services
         {
             _settingsService = settingsService;
             _logger = logger;
+        }
+
+        public async Task<PLCResult<bool>> IsProcessing(Machine machine)
+        {
+            _logger.LogInformation($"{nameof(IsProcessing)}: Start");
+
+            var ip = _settingsService.GetIpAddress();
+            var port = _settingsService.GetPort();
+
+            _logger.LogInformation($"{nameof(IsProcessing)}: Connection info {ip}:{port}");
+
+            var modbusClient = new ModbusClient(ip, port);
+
+            try
+            {
+                modbusClient.Connect();
+
+                var status = modbusClient.ReadHoldingRegisters(machine.StatusBitAddress, 1);
+
+                if (status[0] == (int)MachineStatus.Running)
+                    return PLCResult<bool>.Success(true);
+                else
+                    return PLCResult<bool>.Success(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(ReadMachineData)}: {ex.Message}");
+                return PLCResult<bool>.Fail(ex);
+            }
+            finally
+            {
+                if (modbusClient != null && modbusClient.Connected)
+                {
+                    modbusClient.Disconnect();
+                }
+            }
         }
 
         public async Task<PLCResult<ReadResult>> ReadMachineData(Machine machine)

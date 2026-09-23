@@ -23,5 +23,7 @@ namespace TAKAHATA.Application.Common.Interface.Services
             int statusBitAddress,
             int partBitAddress,
             int partProcessBitAddress);
+
+        Task<PLCResult<bool>> IsProcessing(Machine machine);
     }
 }

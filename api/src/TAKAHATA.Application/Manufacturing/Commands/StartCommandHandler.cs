@@ -41,6 +41,12 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 if (machine == null)
                     return Errors.Machine.NotFound;
 
+                // Trạng thái dưới PLC vẫn đang running thì không được bắt đầu
+                var checkResult = await _iPLCService.IsProcessing(machine);
+                if (!checkResult.IsSuccess || checkResult.Value)
+                    return Errors.Machine.IsProcessingPLC;
+
+                // Trạng thái trong DB chưa thay đổi
                 if (await _machineRepository.IsProcessing(machineId))
                     return Errors.Machine.IsProcessing;
 
