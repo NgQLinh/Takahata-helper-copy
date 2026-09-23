@@ -131,6 +131,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       machines.map((machine) => ({
         label: `${machine.name} - ${machine.code}`,
         value: machine.id,
+        code: machine.code,
       })),
     [machines],
   );
@@ -393,7 +394,12 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       width: 250,
       render: (value: number | undefined, record) => (
         <Select
-          showSearch
+          showSearch={{
+            filterOption: (input, option) =>
+              String(option?.code ?? "")
+                .toLocaleLowerCase()
+                .includes(input.trim().toLocaleLowerCase()),
+          }}
           allowClear
           placeholder="Chọn máy"
           loading={loadingMachine}
