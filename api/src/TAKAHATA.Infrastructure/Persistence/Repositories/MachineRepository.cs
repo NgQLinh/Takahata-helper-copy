@@ -340,6 +340,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.MachineId))
                 .Include(x => x.Part)
+                .ThenInclude(p => p.Index)
                 .ToListAsync();
 
             var maintenanceProcesses = await _dbContext.MachineMaintenanceProcesses
@@ -361,28 +362,29 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             {
                 var response = _mapper.Map<MachineScheduleResponse>(machine);
 
-                if (partLookup.TryGetValue(machine.Id, out var parts))
+                if (partLookup.TryGetValue(machine.Id, out var partProcess))
                 {
-                    response.Processes.AddRange(parts.Select(partProcess => new MachineProcessResponse
+                    response.Processes.AddRange(partProcess.Select(process => new MachineProcessResponse
                     {
-                        Id = partProcess.Id,
-                        CreateAt = partProcess.CreateAt,
-                        CreateBy = partProcess.CreateBy,
-                        UpdateAt = partProcess.UpdateAt,
-                        UpdateBy = partProcess.UpdateBy,
-                        PlantDate = partProcess.PlantDate,
-                        StartTime = partProcess.StartTime,
-                        WorkingTime = partProcess.WorkingTime,
-                        Status = partProcess.Status,
-                        Note = partProcess.Note,
-                        PartId = partProcess.PartId,
-                        PartCode = partProcess.Part?.Code ?? string.Empty,
-                        Quantity = partProcess.Part?.Quantity ?? 0,
+                        Id = process.Id,
+                        CreateAt = process.CreateAt,
+                        CreateBy = process.CreateBy,
+                        UpdateAt = process.UpdateAt,
+                        UpdateBy = process.UpdateBy,
+                        PlantDate = process.PlantDate,
+                        StartTime = process.StartTime,
+                        WorkingTime = process.WorkingTime,
+                        Status = process.Status,
+                        Note = process.Note,
+                        PartId = process.PartId,
+                        PartCode = process.Part?.Code ?? string.Empty,
+                        Quantity = process.Part?.Quantity ?? 0,
                         Type = MachineProcessType.Manufacturing,
-                        Prioritize = partProcess.Part?.Prioritize ?? false,
-                        EstimatedTime = partProcess.EstimatedTime,
-                        PartType = partProcess.Part?.PartType,
-                        IsOverdue = partProcess.IsOverdue,
+                        Prioritize = process.Part?.Prioritize ?? false,
+                        EstimatedTime = process.EstimatedTime,
+                        PartType = process.Part?.PartType,
+                        IsOverdue = process.IsOverdue,
+                        IndexCode = process?.Part?.Index?.Code ?? string.Empty
                     }));
                 }
 

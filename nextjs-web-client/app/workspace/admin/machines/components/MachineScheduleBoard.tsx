@@ -283,7 +283,7 @@ export function MachineScheduleBoard({ active }: Props) {
                       >
                         {isMaintenance
                           ? "🔧 Bảo trì"
-                          : `📦 ${process.partCode}`}
+                          : `📦 ${process.indexCode} - ${process.partCode}`}
                       </div>
                     </div>
 

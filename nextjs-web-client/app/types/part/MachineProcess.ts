@@ -22,4 +22,5 @@ export interface MachineProcess {
   estimatedTime?: number | null;
   partType?: PartType | null;
   isOverdue: boolean | null;
+  indexCode: string | null;
 }

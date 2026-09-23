@@ -6,6 +6,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
 {
     public class MachineProcessResponse : Response
     {
+        public string IndexCode { get; set; } = string.Empty;
         public int PartId { get; set; }
         public string PartCode { get; set; } = string.Empty;
         public DateOnly? PlantDate { get; set; }
