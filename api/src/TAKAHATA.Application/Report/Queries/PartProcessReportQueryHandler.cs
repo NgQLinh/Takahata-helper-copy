@@ -25,6 +25,12 @@ namespace TAKAHATA.Application.Report.Queries
                 request.From,
                 request.To);
 
+            if (partProcessKPIs != null)
+                partProcessKPIs = partProcessKPIs
+                    .OrderBy(pp => pp.MachineId)
+                    .ThenBy(pp => pp.PartId)
+                    .ToList();
+
             var response = new PartProcessReportResponse
             {
                 PartProcessKPIs = partProcessKPIs,
