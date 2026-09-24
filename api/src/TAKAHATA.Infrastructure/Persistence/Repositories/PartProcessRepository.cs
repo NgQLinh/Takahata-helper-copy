@@ -15,6 +15,22 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         }
 
+        public async Task<bool> UpdateWorkingTimeAsync(
+            int id,
+            double? workingTime,
+            CancellationToken cancellationToken = default)
+        {
+            var affectedRows = await _dbContext.PartProcesses
+                .Where(x => x.Id == id)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(
+                        x => x.WorkingTime,
+                        workingTime),
+                    cancellationToken);
+
+            return affectedRows > 0;
+        }
+
         public async Task HandleExtend()
         {
             var today = DateOnly.FromDateTime(DateTime.Now);

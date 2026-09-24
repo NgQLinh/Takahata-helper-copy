@@ -160,7 +160,7 @@ namespace TAKAHATA.Application.Services
                                             var before = process.WorkingTime ?? 0;
                                             var after = runningTime != null ? Math.Round(runningTime.Value.TotalHours, 2) : 0;
 
-                                            process.WorkingTime = after + before;
+                                            var current = after + before;
 
                                             _logger.LogInformation(
                                                 """
@@ -176,9 +176,24 @@ namespace TAKAHATA.Application.Services
                                                 process.Id,
                                                 before,
                                                 after,
-                                                process.WorkingTime);
+                                                current);
 
-                                            await partProcessRepository.UpdateAsync(process, stoppingToken);
+                                            _logger.LogInformation(
+                                                 """
+                                                    Giá trị trước khi cộng dồn:
+                                                    WaitingTime={WaitingTime},
+                                                    SetupTime={SetupTime},
+                                                    ProgrammingTime={ProgrammingTime},
+                                                    WorkingTime={WorkingTime},
+                                                    ProcessedQuantity={ProcessedProcessedQuantity}
+                                                    """,
+                                                 process.WaitingTime,
+                                                 process.SetupTime,
+                                                 process.ProgrammingTime,
+                                                 process.WorkingTime,
+                                                 process.ProcessedQuantity);
+
+                                            await partProcessRepository.UpdateWorkingTimeAsync(process.Id, current, stoppingToken);
                                         }
                                         else
                                         {

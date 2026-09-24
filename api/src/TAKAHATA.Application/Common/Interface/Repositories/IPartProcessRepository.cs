@@ -18,5 +18,10 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
             string? searchPartKeyword,
             DateTime from,
             DateTime to);
+
+        Task<bool> UpdateWorkingTimeAsync(
+            int id,
+            double? workingTime,
+            CancellationToken cancellationToken = default);
     }
 }
