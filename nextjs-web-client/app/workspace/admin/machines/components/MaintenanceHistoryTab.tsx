@@ -373,8 +373,13 @@ export default function MaintenanceHistoryTab({ active }: Props) {
 
               <Select
                 mode="multiple"
+                showSearch={{
+                  filterOption: (input, option) =>
+                    String(option?.code ?? "")
+                      .toLocaleLowerCase()
+                      .includes(input.trim().toLocaleLowerCase()),
+                }}
                 allowClear
-                showSearch
                 loading={loadingMachines}
                 placeholder="Chọn máy"
                 style={{ width: "100%" }}
@@ -384,6 +389,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
                 options={machineSource.map((machine) => ({
                   value: machine.id,
                   label: `${machine.name} - ${machine.code}`,
+                  code: machine.code,
                 }))}
               />
             </div>

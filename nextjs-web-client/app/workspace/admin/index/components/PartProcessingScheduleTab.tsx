@@ -1,6 +1,15 @@
 "use client";
 
-import { Button, Card, DatePicker, Input, Popconfirm, Table, Tag } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Input,
+  Pagination,
+  Popconfirm,
+  Table,
+  Tag,
+} from "antd";
 import {
   CalendarOutlined,
   CheckOutlined,
@@ -533,6 +542,12 @@ export default function PartProcessingScheduleTab({ active }: Props) {
     [handleApprove, handleDelete, processCount],
   );
 
+  function handlePageChange(page: number, pageSize: number): void {
+    setPage(page);
+    setPageSize(pageSize);
+    void fetchParts(page, pageSize);
+  }
+
   return (
     <>
       <Card>
@@ -594,31 +609,32 @@ export default function PartProcessingScheduleTab({ active }: Props) {
           </div>
         </div>
 
-        <Table<TableRow>
-          bordered
-          size="small"
-          loading={loading}
-          columns={columns}
-          dataSource={dataSource}
-          tableLayout="fixed"
-          rowKey="key"
-          scroll={{
-            x: "max-content",
-            y: "calc(100vh - 360px)",
-          }}
-          pagination={{
-            current: page,
-            pageSize,
-            total,
-            showSizeChanger: true,
-            showTotal: (value) => `Tổng ${value} part`,
-            onChange: (current, size) => {
-              setPage(current);
-              setPageSize(size);
-              void fetchParts(current, size);
-            },
-          }}
-        />
+        <>
+          <Table<TableRow>
+            bordered
+            size="small"
+            loading={loading}
+            columns={columns}
+            dataSource={dataSource}
+            tableLayout="fixed"
+            rowKey="key"
+            scroll={{
+              x: "max-content",
+              y: "calc(100vh - 360px)",
+            }}
+            pagination={false}
+          />
+
+          <Pagination
+            current={page}
+            pageSize={pageSize}
+            total={total}
+            showSizeChanger
+            showTotal={(value) => `Tổng ${value} part`}
+            onChange={handlePageChange}
+            style={{ marginTop: 16, textAlign: "right" }}
+          />
+        </>
       </Card>
 
       <CreatePart

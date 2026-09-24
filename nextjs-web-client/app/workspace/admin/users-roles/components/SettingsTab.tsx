@@ -398,13 +398,19 @@ export default function SettingsTab({ active }: Props) {
                     <Form.Item label="Máy">
                       <Select
                         allowClear
-                        showSearch
+                        showSearch={{
+                          filterOption: (input, option) =>
+                            String(option?.code ?? "")
+                              .toLocaleLowerCase()
+                              .includes(input.trim().toLocaleLowerCase()),
+                        }}
                         loading={loadingMachines}
                         placeholder="Chọn máy"
                         value={selectedWriteMachine?.id}
                         options={machineSource.map((machine) => ({
                           value: machine.id,
                           label: `${machine.name} - ${machine.code}`,
+                          code: machine.code,
                         }))}
                         onChange={handleWriteMachineChange}
                       />
@@ -520,13 +526,19 @@ export default function SettingsTab({ active }: Props) {
                     <Form.Item label="Máy">
                       <Select
                         allowClear
-                        showSearch
+                        showSearch={{
+                          filterOption: (input, option) =>
+                            String(option?.code ?? "")
+                              .toLocaleLowerCase()
+                              .includes(input.trim().toLocaleLowerCase()),
+                        }}
                         loading={loadingMachines}
                         placeholder="Chọn máy"
                         value={selectedReadMachine?.id}
                         options={machineSource.map((machine) => ({
                           value: machine.id,
                           label: `${machine.name} - ${machine.code}`,
+                          code: machine.code,
                         }))}
                         onChange={handleReadMachineChange}
                       />

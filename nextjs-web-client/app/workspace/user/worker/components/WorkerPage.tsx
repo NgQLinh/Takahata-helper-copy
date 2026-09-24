@@ -178,9 +178,9 @@ export default function WorkerPage() {
       setProcesses([]);
       setPage(1);
       setTotal(0);
-      processingForm.resetFields();
+      // processingForm.resetFields();
     },
-    [processingForm, selectedMachine?.id],
+    [selectedMachine?.id],
   );
 
   function handleSelectItem(record: ManufacturingProcess): void {

@@ -483,7 +483,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       ),
     },
     {
-      title: "Kế thúc",
+      title: "Kết thúc",
       dataIndex: "endTime",
       key: "endTime",
       width: 170,
