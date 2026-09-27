@@ -716,7 +716,7 @@ export default function WorkerPage() {
                           <Text type="secondary" className="d-block mb-1">
                             Chi tiết{" "}
                             {selectedProcess?.isOverdue && (
-                              <span className="text-danger">(Quá gia hạn)</span>
+                              <span className="text-danger">(Quá hạn)</span>
                             )}
                           </Text>
 
