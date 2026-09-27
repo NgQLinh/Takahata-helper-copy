@@ -625,15 +625,23 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             pagination={false}
           />
 
-          <Pagination
-            current={page}
-            pageSize={pageSize}
-            total={total}
-            showSizeChanger
-            showTotal={(value) => `Tổng ${value} part`}
-            onChange={handlePageChange}
-            style={{ marginTop: 16, textAlign: "right" }}
-          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: 16,
+            }}
+          >
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              total={total}
+              showSizeChanger
+              showTotal={(value) => `Tổng ${value} part`}
+              onChange={handlePageChange}
+              style={{ marginTop: 16, textAlign: "right" }}
+            />
+          </div>
         </>
       </Card>
 
