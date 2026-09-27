@@ -41,10 +41,18 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 if (machine == null)
                     return Errors.Machine.NotFound;
 
-                // Trạng thái dưới PLC vẫn đang running thì không được bắt đầu
-                var checkResult = await _iPLCService.IsProcessing(machine);
-                if (!checkResult.IsSuccess || checkResult.Value)
-                    return Errors.Machine.IsProcessingPLC;
+                if (machine.IsAutomatic)
+                {
+                    var checkResult = await _iPLCService.IsProcessing(machine);
+
+                    // Đọc trạng thái không thành công
+                    if (!checkResult.IsSuccess)
+                        return Errors.Machine.TimeOut;
+
+                    // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
+                    if (checkResult.Value)
+                        return Errors.Machine.IsProcessingPLC;
+                }
 
                 // Trạng thái trong DB chưa thay đổi
                 if (await _machineRepository.IsProcessing(machineId))
@@ -53,19 +61,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 // Ghi xuống PLC
                 var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId);
 
-                if (result.IsSuccess && result.Value != null)
+                if (result.IsSuccess || !machine.IsAutomatic)
                 {
-                    if (result.Value.BeforeProcessId != 0)
-                    {
-                        var beforeProcess = await _partProcessRepository.GetByIdAsync(result.Value.BeforeProcessId);
-
-                        if (beforeProcess != null)
-                        {
-                            beforeProcess.Status = ProcessStatus.Completed;
-                            beforeProcess.EndTime = DateTime.Now;
-                        }
-                    }
-
                     var partProcess = await _partProcessRepository.GetByIdAsync(request.ProcessId);
                     if (partProcess == null)
                         return Errors.Part.NotFoundProcess;

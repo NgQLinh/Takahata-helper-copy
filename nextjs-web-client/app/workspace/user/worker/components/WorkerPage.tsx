@@ -202,24 +202,25 @@ export default function WorkerPage() {
   // Paused/PartiallyCompleted -> được tiếp tục.
   // InProgress -> được tạm dừng hoặc ghi nhận hoàn thành.
   const canStartProcessing =
-    (selectedProcessStatus === ProcessStatus.Planned ||
-      selectedProcessStatus === ProcessStatus.Paused ||
-      selectedProcessStatus === ProcessStatus.PartiallyCompleted) &&
-    selectedMachine != null &&
-    selectedMachine.isAutomatic;
-  const canPauseProcessing =
-    selectedProcessStatus === ProcessStatus.InProgress ||
-    (selectedMachine != null &&
-      selectedProcess != null &&
-      !selectedMachine.isAutomatic &&
-      selectedProcessStatus !== ProcessStatus.Completed);
+    selectedProcessStatus === ProcessStatus.Planned ||
+    selectedProcessStatus === ProcessStatus.Paused ||
+    selectedProcessStatus === ProcessStatus.PartiallyCompleted;
+  //   &&
+  // selectedMachine != null &&
+  // selectedMachine.isAutomatic;
+  const canPauseProcessing = selectedProcessStatus === ProcessStatus.InProgress;
+  // ||
+  // (selectedMachine != null &&
+  //   selectedProcess != null &&
+  //   !selectedMachine.isAutomatic &&
+  //   selectedProcessStatus !== ProcessStatus.Completed)
   const canCompleteProcessing =
-    selectedProcessStatus === ProcessStatus.InProgress ||
-    (selectedMachine != null &&
-      selectedProcess != null &&
-      !selectedMachine.isAutomatic &&
-      selectedProcessStatus !== ProcessStatus.Completed);
-
+    selectedProcessStatus === ProcessStatus.InProgress;
+  // ||
+  // (selectedMachine != null &&
+  //   selectedProcess != null &&
+  //   !selectedMachine.isAutomatic &&
+  //   selectedProcessStatus !== ProcessStatus.Completed)
   const startButtonText = (() => {
     switch (selectedProcessStatus) {
       case ProcessStatus.Paused:

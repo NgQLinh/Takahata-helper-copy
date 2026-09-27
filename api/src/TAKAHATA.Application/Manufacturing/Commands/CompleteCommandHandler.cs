@@ -72,15 +72,18 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Machine.NotFound;
                 }
 
-                var checkResult = await _iPLCService.IsProcessing(machine);
+                if(machine.IsAutomatic)
+                {
+                    var checkResult = await _iPLCService.IsProcessing(machine);
 
-                // Đọc trạng thái không thành công
-                if (!checkResult.IsSuccess)
-                    return Errors.Machine.TimeOut;
+                    // Đọc trạng thái không thành công
+                    if (!checkResult.IsSuccess)
+                        return Errors.Machine.TimeOut;
 
-                // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
-                if (checkResult.Value)
-                    return Errors.Machine.IsProcessingPLC;
+                    // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
+                    if (checkResult.Value)
+                        return Errors.Machine.IsProcessingPLC;
+                }
 
                 _logger.LogInformation(
                     """

@@ -13,7 +13,6 @@ import {
   MachineProcess,
   MachineProcessType,
   MachineSchedule,
-  PartProcess,
   PartType,
 } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
@@ -67,7 +66,11 @@ const getStatusText = (status: ProcessStatus) => {
 
 const getStatusClassName = (process: MachineProcess) => {
   if (process.isOverdue) {
-    return "timeline-card bg-danger-subtle text-danger-emphasis border-danger";
+    if (process.referenceId) {
+      return "timeline-card bg-danger-subtle text-danger-emphasis border-danger";
+    } else {
+      return "timeline-card bg-danger-subtle text-danger-emphasis border-danger opacity-50";
+    }
   }
 
   switch (process.status) {
@@ -359,7 +362,7 @@ export function MachineScheduleBoard({ active }: Props) {
                         {/* Hàng 1 */}
                         <div className="d-flex justify-content-between align-items-center gap-3">
                           <div>
-                            <span className="fw-medium">Số lượng: </span> 
+                            <span className="fw-medium">Số lượng: </span>
                             {process.processedQuantity}/{process.quantity}
                           </div>
 
