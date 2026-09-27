@@ -13,6 +13,7 @@ import {
   MachineProcess,
   MachineProcessType,
   MachineSchedule,
+  PartProcess,
   PartType,
 } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
@@ -64,8 +65,12 @@ const getStatusText = (status: ProcessStatus) => {
   }
 };
 
-const getStatusClassName = (status: ProcessStatus) => {
-  switch (status) {
+const getStatusClassName = (process: MachineProcess) => {
+  if (process.isOverdue) {
+    return "timeline-card bg-danger-subtle text-danger-emphasis border-danger";
+  }
+
+  switch (process.status) {
     case ProcessStatus.Completed:
       return "timeline-card timeline-card-done";
 
@@ -265,7 +270,7 @@ export function MachineScheduleBoard({ active }: Props) {
                   className={`rounded-3 border p-2 ${
                     isMaintenance
                       ? "border-danger-subtle bg-danger-subtle"
-                      : getStatusClassName(process.status)
+                      : getStatusClassName(process)
                   }`}
                   style={{
                     minWidth: 220,
@@ -354,8 +359,8 @@ export function MachineScheduleBoard({ active }: Props) {
                         {/* Hàng 1 */}
                         <div className="d-flex justify-content-between align-items-center gap-3">
                           <div>
-                            <span className="fw-medium">Số lượng:</span>{" "}
-                            {process.quantity}
+                            <span className="fw-medium">Số lượng: </span> 
+                            {process.processedQuantity}/{process.quantity}
                           </div>
 
                           <div className="text-end">
@@ -388,7 +393,11 @@ export function MachineScheduleBoard({ active }: Props) {
 
                         {process.isOverdue && (
                           <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700 shadow-sm">
-                            <span>Đã được gia hạn</span>
+                            {process.referenceId ? (
+                              <span>Đã được gia hạn</span>
+                            ) : (
+                              <span>Quá gia hạn</span>
+                            )}
                           </div>
                         )}
                       </div>

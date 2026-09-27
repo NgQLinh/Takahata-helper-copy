@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
@@ -67,9 +68,14 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 return Errors.Machine.NotFound;
             }
 
-            // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
             var checkResult = await _iPLCService.IsProcessing(machine);
-            if (!checkResult.IsSuccess || checkResult.Value)
+
+            // Đọc trạng thái không thành công
+            if (!checkResult.IsSuccess)
+                return Errors.Machine.TimeOut;
+
+            // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
+            if (checkResult.Value)
                 return Errors.Machine.IsProcessingPLC;
 
             // Ghi xuống PLC
@@ -97,7 +103,16 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Part.NotFound;
                 }
 
-                if (request.ProcessedQuantity > part.Quantity)
+                var processedQuantity = 0;
+
+                if (partProcess.ReferenceId == null)
+                    processedQuantity = partProcess.ProcessedQuantity;
+                else
+                {
+                    processedQuantity = await _partProcessRepository.GetProcessedQuantityByReferenceId(partProcess.ReferenceId);
+                }
+
+                if (processedQuantity + request.ProcessedQuantity > part.Quantity)
                 {
                     _logger.LogWarning(
                         """
@@ -105,7 +120,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                         ProcessedQuantity={ProcessedQuantity},
                         PartQuantity={PartQuantity}
                         """,
-                        request.ProcessedQuantity,
+                        processedQuantity + request.ProcessedQuantity,
                         part.Quantity);
 
                     return Errors.Part.IncorrectQuantity;

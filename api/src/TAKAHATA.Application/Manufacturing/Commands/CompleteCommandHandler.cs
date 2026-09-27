@@ -72,9 +72,14 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Machine.NotFound;
                 }
 
-                // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
                 var checkResult = await _iPLCService.IsProcessing(machine);
-                if (!checkResult.IsSuccess || checkResult.Value)
+
+                // Đọc trạng thái không thành công
+                if (!checkResult.IsSuccess)
+                    return Errors.Machine.TimeOut;
+
+                // Trạng thái dưới PLC vẫn đang running thì không được tạm dừng
+                if (checkResult.Value)
                     return Errors.Machine.IsProcessingPLC;
 
                 _logger.LogInformation(
@@ -193,26 +198,34 @@ namespace TAKAHATA.Application.Manufacturing.Commands
 
                     partProcess.EndTime = DateTime.Now;
 
+                    // Kiểm tra xem số lượng người dùng gửi có hợp lệ không
+                    var processedQuantity = 0;
+
+                    if (partProcess.ReferenceId == null)
+                        processedQuantity = partProcess.ProcessedQuantity;
+                    else
+                    {
+                        processedQuantity = await _partProcessRepository.GetProcessedQuantityByReferenceId(partProcess.ReferenceId);
+                    }
+
+                    if (processedQuantity + request.ProcessedQuantity > part.Quantity)
+                    {
+                        _logger.LogWarning(
+                            """
+                            Số lượng gia công không hợp lệ.
+                            ProcessedQuantity={ProcessedQuantity},
+                            PartQuantity={PartQuantity}
+                            """,
+                            processedQuantity + request.ProcessedQuantity,
+                            part.Quantity);
+
+                        return Errors.Part.IncorrectQuantity;
+                    }
+
                     // Nếu số lượng lớn hơn kế hoạch thì tự động đặt bằng kế hoạch.
                     var oldProcessedQuantity = partProcess.ProcessedQuantity;
 
                     partProcess.ProcessedQuantity += request.ProcessedQuantity;
-
-                    if (partProcess.ProcessedQuantity > part.Quantity)
-                    {
-                        _logger.LogWarning(
-                            """
-                            Số lượng sau cộng dồn vượt quá kế hoạch:
-                            CalculatedQuantity={CalculatedQuantity},
-                            PartQuantity={PartQuantity}.
-                            Giá trị sẽ được đặt bằng số lượng kế hoạch.
-                            """,
-                            partProcess.ProcessedQuantity,
-                            part.Quantity);
-
-                        partProcess.ProcessedQuantity =
-                            part.Quantity;
-                    }
 
                     _logger.LogInformation(
                         """
@@ -223,7 +236,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                         request.ProcessedQuantity,
                         partProcess.ProcessedQuantity);
 
-                    if (partProcess.ProcessedQuantity == part.Quantity)
+                    if (processedQuantity + request.ProcessedQuantity == part.Quantity)
                         partProcess.Status = ProcessStatus.Completed;
                     else
                         partProcess.Status = ProcessStatus.PartiallyCompleted;

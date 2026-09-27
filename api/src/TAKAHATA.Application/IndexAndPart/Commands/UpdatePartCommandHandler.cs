@@ -115,6 +115,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                 existingProcess.UpdateAt = DateTime.Now;
                 existingProcess.EstimatedTime = process.EstimatedTime;
                 existingProcess.ProgrammingTime = process.ProgrammingTime;
+                existingProcess.ProcessedQuantity = process.ProcessedQuantity;
             }
 
             // 6. Add new processes
@@ -137,6 +138,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     PerformedBy = process.PerformedBy,
                     EstimatedTime = process.EstimatedTime,
                     ProgrammingTime = process.ProgrammingTime,
+                    ProcessedQuantity = process.ProcessedQuantity,
                 });
             }
 

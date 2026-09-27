@@ -9,7 +9,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public int IndexId { get; set; }
         public string Code { get; set; } = string.Empty;
         public int Quantity { get; set; }
-        public int ProcessedQuantity { get; set; }
         public IndexResponse? Index { get; set; }
         public ProcessStatus Status { get; set; }
         public bool Prioritize { get; set; } = false;

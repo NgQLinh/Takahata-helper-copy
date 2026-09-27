@@ -384,7 +384,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         EstimatedTime = process.EstimatedTime,
                         PartType = process.Part?.PartType,
                         IsOverdue = process.IsOverdue,
-                        IndexCode = process?.Part?.Index?.Code ?? string.Empty
+                        IndexCode = process?.Part?.Index?.Code ?? string.Empty,
+                        ReferenceId = process?.ReferenceId,
+                        ProcessedQuantity = process?.ProcessedQuantity ?? 0,
                     }));
                 }
 

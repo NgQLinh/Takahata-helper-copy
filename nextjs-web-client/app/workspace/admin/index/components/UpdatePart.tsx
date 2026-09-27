@@ -66,6 +66,7 @@ type PlanRow = {
   estimatedTime?: number | null;
   workerNote?: string | null;
   programmingTime?: number | null;
+  processedQuantity: number | null;
 };
 
 type FormValues = {
@@ -99,6 +100,7 @@ const createEmptyRow = (): PlanRow => ({
   performedBy: "",
   estimatedTime: null,
   workerNote: null,
+  processedQuantity: 0,
 });
 
 const statusOptions = [
@@ -193,6 +195,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 estimatedTime: process.estimatedTime ?? 0,
                 workerNote: process.workerNote,
                 programmingTime: process.programmingTime,
+                processedQuantity: process.processedQuantity,
               }))
             : [createEmptyRow()];
 
@@ -352,6 +355,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         performedBy: item.performedBy,
         estimatedTime: item.estimatedTime ?? 0,
         programmingTime: item.programmingTime ?? 0,
+        processedQuantity: item.processedQuantity,
       })),
     };
 
@@ -563,6 +567,22 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           value={value}
           step={0.5}
           placeholder="Nhập số giờ làm"
+        />
+      ),
+    },
+    {
+      title: "Số lượng đã hoàn thành",
+      dataIndex: "processedQuantity",
+      key: "processedQuantity",
+      width: 200,
+      render: (value: number | null | undefined, record) => (
+        <InputNumber
+          className="w-100"
+          min={0}
+          onChange={(v) => handleChange(record.key, "processedQuantity", v)}
+          value={value}
+          step={1}
+          placeholder="Nhập số lượng"
         />
       ),
     },

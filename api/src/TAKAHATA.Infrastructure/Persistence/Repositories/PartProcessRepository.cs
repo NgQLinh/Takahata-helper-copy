@@ -35,36 +35,97 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
 
-            // Lấy tất cả partProceses có kế hoạch của ngày hôm trước
-            var partProceses = await _dbContext.PartProcesses
-                .Where(pp =>
-                    pp.PlantDate == today.AddDays(-1)
-                    && (pp.Status == ProcessStatus.Paused || pp.Status == ProcessStatus.PartiallyCompleted))
-                .ToListAsync();
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-            if (partProceses == null || partProceses.Count == 0)
-                return;
-
-            foreach (var partProcess in partProceses)
+            try
             {
-                var part = await _dbContext.Parts.FirstAsync(p => p.Id == partProcess.PartId);
-                if (part == null)
-                    continue;
+                var partProcesses = await _dbContext.PartProcesses
+                    .Where(pp =>
+                        pp.PlantDate == today.AddDays(-1) &&
+                        (pp.Status == ProcessStatus.Paused ||
+                         pp.Status == ProcessStatus.PartiallyCompleted))
+                    .ToListAsync();
 
-                if (partProcess.ProcessedQuantity < part.Quantity)
+                if (partProcesses.Count == 0)
+                    return;
+
+                var overdueProcesses = new List<PartProcess>();
+
+                foreach (var partProcess in partProcesses)
                 {
-                    partProcess.IsOverdue = true;
-                    partProcess.PlantDate = today;
+                    var part = await _dbContext.Parts
+                        .Include(p => p.Processes)
+                        .FirstOrDefaultAsync(p => p.Id == partProcess.PartId);
+
+                    if (part == null)
+                        continue;
+
+                    var processedQuantity = 0;
+
+                    if (partProcess.ReferenceId == null)
+                        processedQuantity = partProcess.ProcessedQuantity;
+                    else
+                    {
+                        processedQuantity = _dbContext.PartProcesses
+                            .Where(pp => pp.Id == partProcess.ReferenceId || pp.ReferenceId == partProcess.ReferenceId)
+                            .Sum(pp => pp.ProcessedQuantity);
+                    }
+
+                    if (processedQuantity < part.Quantity)
+                    {
+                        if (await _dbContext.PartProcesses.AnyAsync(pp =>
+                             pp.PlantDate == today
+                             &&
+                                ((partProcess.ReferenceId != null && pp.ReferenceId == partProcess.ReferenceId)
+                                || pp.ReferenceId == partProcess.Id)))
+                            continue;
+
+                        partProcess.IsOverdue = true;
+
+                        overdueProcesses.Add(new PartProcess
+                        {
+                            CreateAt = DateTime.Now,
+                            CreateBy = partProcess.CreateBy,
+                            UpdateAt = null,
+                            UpdateBy = null,
+                            MachineId = partProcess.MachineId,
+                            PlantDate = today,
+                            StartTime = null,
+                            EndTime = null,
+                            EstimatedTime = partProcess.EstimatedTime,
+                            PerformedBy = null,
+                            Note = partProcess.Note,
+                            Status = partProcess.Status,
+                            PartId = partProcess.PartId,
+                            Sequence = part.Processes.Count,
+                            WorkingTime = null,
+                            SetupTime = null,
+                            WaitingTime = null,
+                            ProgrammingTime = 0,
+                            AssemblyTime = null,
+                            MeasurementTime = null,
+                            ProcessedQuantity = 0,
+                            WorkerNote = string.Empty,
+                            IsOverdue = true,
+                            ReferenceId = partProcess.ReferenceId.HasValue ? partProcess.ReferenceId : partProcess.Id
+                        });
+                    }
+                    else if (processedQuantity == part.Quantity)
+                    {
+                        partProcess.Status = ProcessStatus.Completed;
+                    }
                 }
-                else if (partProcess.ProcessedQuantity == part.Quantity)
-                {
-                    partProcess.Status = ProcessStatus.Completed;
-                }
+
+                await _dbContext.PartProcesses.AddRangeAsync(overdueProcesses);
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
             }
-
-            _dbContext.PartProcesses.UpdateRange(partProceses);
-
-            await _dbContext.SaveChangesAsync();
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
@@ -104,6 +165,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         : 0,
 
                     ProcessedQuantity = x.ProcessedQuantity,
+                    TotalProcessedQuantity = x.ReferenceId == null ? x.ProcessedQuantity : _dbContext.PartProcesses.Where(pp => pp.Id == x.ReferenceId || pp.ReferenceId == x.ReferenceId).Sum(pp => pp.ProcessedQuantity),
 
                     IndexId = x.Part != null
                         ? x.Part.IndexId
@@ -126,6 +188,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     Note = x.Note ?? string.Empty,
                     Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status,
                     ProcessType = ManufacturingProcessType.PartProcess,
+                    IsOverdue = x.IsOverdue,
                 })
                 .ToListAsync();
 
@@ -287,6 +350,16 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             }
 
             return partProcesses;
+        }
+
+        public async Task<int> GetProcessedQuantityByReferenceId(int? referenceId)
+        {
+            if (!referenceId.HasValue)
+                return 0;
+
+            return _dbContext.PartProcesses
+                   .Where(pp => pp.Id == referenceId || pp.ReferenceId == referenceId)
+                   .Sum(pp => pp.ProcessedQuantity);
         }
     }
 }

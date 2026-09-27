@@ -23,4 +23,6 @@ export interface MachineProcess {
   partType?: PartType | null;
   isOverdue: boolean | null;
   indexCode: string | null;
+  referenceId: number | null;
+  processedQuantity: number | null;
 }

@@ -422,6 +422,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<double?>("ProgrammingTime")
                         .HasColumnType("double");
 
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Sequence")
                         .HasColumnType("int");
 

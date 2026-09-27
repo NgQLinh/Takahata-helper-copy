@@ -307,6 +307,7 @@ export default function WorkerPage() {
 
       await pauseAsync(request);
       await fetchManufacturingProcess();
+      processingForm.resetFields();
     } catch (error) {
       if (error instanceof ApiError) {
         toast.error(error.getDisplayMessage());
@@ -316,7 +317,6 @@ export default function WorkerPage() {
       }
     } finally {
       setProcessingAction(null);
-      processingForm.resetFields();
     }
   };
 
@@ -368,7 +368,6 @@ export default function WorkerPage() {
       }
     } finally {
       setProcessingAction(null);
-      processingForm.resetFields();
     }
   };
 
@@ -714,7 +713,10 @@ export default function WorkerPage() {
 
                         <div className="mb-3">
                           <Text type="secondary" className="d-block mb-1">
-                            Chi tiết
+                            Chi tiết{" "}
+                            {selectedProcess?.isOverdue && (
+                              <span className="text-danger">(Quá gia hạn)</span>
+                            )}
                           </Text>
 
                           <Text strong ellipsis={{ tooltip: true }}>
@@ -726,16 +728,33 @@ export default function WorkerPage() {
 
                         <div className="mb-3">
                           <Text type="secondary" className="d-block mb-1">
-                            Tiến độ gia công
+                            Tiến độ gia công:{" "}
+                            {selectedProcess?.totalProcessedQuantity} /{" "}
+                            {selectedProcess?.quantity}
                           </Text>
-
-                          {/* <Progress
-                            percent={completedPercent}
-                            status={
-                              completedPercent === 100 ? "success" : "active"
-                            }
-                          /> */}
                         </div>
+
+                        {selectedProcess && (
+                          <div
+                            className="alert alert-warning py-2 px-3 mb-3"
+                            role="alert"
+                          >
+                            <strong>
+                              Lưu ý:{" "}
+                              {selectedProcess.isOverdue
+                                ? `Công việc đã được gia hạn. Trước đó đã gia công ${selectedProcess.totalProcessedQuantity}.`
+                                : null}{" "}
+                            </strong>{" "}
+                            Số lượng gia công nhập vào không được vượt quá{" "}
+                            <strong>
+                              {Math.max(
+                                0,
+                                selectedProcess.quantity -
+                                  (selectedProcess.totalProcessedQuantity ?? 0),
+                              )}
+                            </strong>{" "}
+                          </div>
+                        )}
                       </div>
 
                       <Button

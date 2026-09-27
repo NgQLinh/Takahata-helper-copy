@@ -14,6 +14,7 @@ export interface ManufacturingProcess {
   partCode: string;
   quantity: number;
   processedQuantity: number;
+  totalProcessedQuantity: number;
   status: ProcessStatus;
   note: string;
   startTime?: Dayjs | null;
@@ -26,4 +27,5 @@ export interface ManufacturingProcess {
   performedBy?: string | null;
   prioritize: boolean | false;
   processType?: ManufacturingProcessType | null;
+  isOverdue?: boolean | null;
 }

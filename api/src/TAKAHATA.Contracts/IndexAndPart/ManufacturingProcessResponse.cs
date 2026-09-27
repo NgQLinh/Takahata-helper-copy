@@ -11,6 +11,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string PartCode { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public int ProcessedQuantity { get; set; }
+        public int TotalProcessedQuantity { get; set; }
         public ProcessStatus Status { get; set; }
         public string Note { get; set; } = string.Empty;
         public DateTime? StartTime { get; set; }
@@ -23,6 +24,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string WorkerNote { get; set; } = string.Empty;
         public double? ProgrammingTime { get; set; }
         public bool Prioritize { get; set; } = false;
+        public bool IsOverdue { get; set; } = false;
         public ManufacturingProcessType ProcessType { get; set; }
     }
 }
