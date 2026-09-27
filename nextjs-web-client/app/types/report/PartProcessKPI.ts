@@ -16,6 +16,8 @@ export interface PartProcessKPI {
   workingTime?: number;
   setupTime?: number;
   waitingTime?: number;
+  programmingTime?: number;
+  totalTime?: number;
   plantDate?: Dayjs;
   startTime?: Dayjs;
   endTime?: Dayjs;

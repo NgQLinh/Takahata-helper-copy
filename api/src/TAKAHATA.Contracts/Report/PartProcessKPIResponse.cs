@@ -18,6 +18,8 @@ namespace TAKAHATA.Contracts.Report
         public double? WorkingTime { get; set; }
         public double? SetupTime { get; set; }
         public double? WaitingTime { get; set; }
+        public double? ProgrammingTime { get; set; }
+        public double? TotalTime { get; set; }
         public DateOnly? PlantDate { get; set; }
         public DateTime? StartTime { get; set; }
         public DateTime? EndTime { get; set; }

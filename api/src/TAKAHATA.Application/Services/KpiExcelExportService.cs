@@ -79,7 +79,7 @@ namespace TAKAHATA.Application.Services
         {
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Part Process KPI");
-            const int lastColumn = 16;
+            const int lastColumn = 18;
 
             CreateTitle(
                 worksheet,
@@ -90,23 +90,25 @@ namespace TAKAHATA.Application.Services
 
             var headers = new[]
             {
-            "STT",
-            "Ngày kế hoạch",
-            "Mã máy",
-            "Tên máy",
-            "Index",
-            "Part",
-            "Bắt đầu",
-            "Kết thúc",
-            "Tổng (phút)",
-            "Máy chạy (phút)",
-            "Gá đặt (phút)",
-            "Chờ (phút)",
-            "Số lượng",
-            "Đã hoàn thành",
-            "Trạng thái",
-            "Hiệu suất (%)"
-        };
+                "STT",
+                "Ngày kế hoạch",
+                "Mã máy",
+                "Tên máy",
+                "Index",
+                "Part",
+                "Ước tính (giờ)",
+                "Bắt đầu",
+                "Kết thúc",
+                "Máy chạy (Giờ)",
+                "Gá đặt (Giờ)",
+                "Chờ (Giờ)",
+                "Lập trình (Giờ)",
+                "Tổng (Giờ)",
+                "Số lượng",
+                "Đã hoàn thành",
+                "Trạng thái",
+                "Hiệu suất (%)"
+            };
 
             WriteHeaders(worksheet, headers);
 
@@ -135,25 +137,27 @@ namespace TAKAHATA.Application.Services
                 worksheet.Cell(row, 4).Value = item.MachineName ?? item.MachineCode ?? string.Empty;
                 worksheet.Cell(row, 5).Value = item.IndexCode ?? string.Empty;
                 worksheet.Cell(row, 6).Value = item.PartCode;
+                worksheet.Cell(row, 7).Value = item.EstimatedTime ?? 0;
 
                 if (item.StartTime.HasValue)
                 {
-                    worksheet.Cell(row, 7).Value = item.StartTime.Value;
+                    worksheet.Cell(row, 8).Value = item.StartTime.Value;
                 }
 
                 if (item.EndTime.HasValue)
                 {
-                    worksheet.Cell(row, 8).Value = item.EndTime.Value;
+                    worksheet.Cell(row, 9).Value = item.EndTime.Value;
                 }
 
-                worksheet.Cell(row, 9).Value = totalMinutes;
                 worksheet.Cell(row, 10).Value = item.WorkingTime ?? 0;
                 worksheet.Cell(row, 11).Value = item.SetupTime ?? 0;
                 worksheet.Cell(row, 12).Value = item.WaitingTime ?? 0;
-                worksheet.Cell(row, 13).Value = item.Quantity;
-                worksheet.Cell(row, 14).Value = item.ProcessedQuantity;
-                worksheet.Cell(row, 15).Value = item.Status.ToString();
-                worksheet.Cell(row, 16).Value = efficiency;
+                worksheet.Cell(row, 13).Value = item.ProgrammingTime ?? 0;
+                worksheet.Cell(row, 14).Value = item.TotalTime ?? 0;
+                worksheet.Cell(row, 15).Value = item.Quantity;
+                worksheet.Cell(row, 16).Value = item.ProcessedQuantity;
+                worksheet.Cell(row, 17).Value = item.Status.ToString();
+                worksheet.Cell(row, 18).Value = efficiency;
                 row++;
             }
 
@@ -161,11 +165,15 @@ namespace TAKAHATA.Application.Services
             {
                 worksheet.Range(HeaderRow + 1, 2, row - 1, 2)
                     .Style.DateFormat.Format = "dd/MM/yyyy";
-                worksheet.Range(HeaderRow + 1, 7, row - 1, 8)
+
+                worksheet.Range(HeaderRow + 1, 8, row - 1, 9)
                     .Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
-                worksheet.Range(HeaderRow + 1, 9, row - 1, 12)
+
+
+                worksheet.Range(HeaderRow + 1, 10, row - 1, 14)
                     .Style.NumberFormat.Format = "0.00";
-                worksheet.Range(HeaderRow + 1, 16, row - 1, 16)
+
+                worksheet.Range(HeaderRow + 1, 18, row - 1, 19)
                     .Style.NumberFormat.Format = "0.00";
             }
 
