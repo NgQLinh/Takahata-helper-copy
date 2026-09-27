@@ -396,11 +396,7 @@ export function MachineScheduleBoard({ active }: Props) {
 
                         {process.isOverdue && (
                           <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700 shadow-sm">
-                            {process.referenceId ? (
-                              <span>Đã được gia hạn</span>
-                            ) : (
-                              <span>Quá gia hạn</span>
-                            )}
+                            <span>Quá gia hạn</span>
                           </div>
                         )}
                       </div>

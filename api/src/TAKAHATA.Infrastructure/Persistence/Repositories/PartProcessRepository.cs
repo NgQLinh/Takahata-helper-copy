@@ -95,7 +95,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                             EstimatedTime = partProcess.EstimatedTime,
                             PerformedBy = null,
                             Note = partProcess.Note,
-                            Status = partProcess.Status,
+                            Status = ProcessStatus.InProgress,
                             PartId = partProcess.PartId,
                             Sequence = part.Processes.Count,
                             WorkingTime = null,

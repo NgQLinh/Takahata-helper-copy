@@ -656,9 +656,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
             fixed: "right" as const,
             render: (_: unknown, record: PlanRow) =>
               record.isOverdue ? (
-                <span className="fw-semibold text-danger">
-                  {record.referenceId ? "Đã được gia hạn" : "Quá gia hạn"}
-                </span>
+                <span className="fw-semibold text-danger">Quá gia hạn</span>
               ) : null,
           },
         ]
