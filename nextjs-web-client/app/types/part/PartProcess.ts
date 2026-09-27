@@ -22,4 +22,6 @@ export interface PartProcess {
   estimatedTime?: number | null;
   workerNote?: string | null;
   programmingTime?: number | null;
+  isOverdue?: boolean | null;
+  referenceId?: number | null;
 }

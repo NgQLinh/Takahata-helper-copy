@@ -743,7 +743,7 @@ export default function WorkerPage() {
                             <strong>
                               Lưu ý:{" "}
                               {selectedProcess.isOverdue
-                                ? `Công việc đã được gia hạn. Trước đó đã gia công ${selectedProcess.totalProcessedQuantity}.`
+                                ? `Công việc đã được gia hạn. Tống số đã gia công ${selectedProcess.totalProcessedQuantity}.`
                                 : null}{" "}
                             </strong>{" "}
                             Số lượng gia công nhập vào không được vượt quá{" "}

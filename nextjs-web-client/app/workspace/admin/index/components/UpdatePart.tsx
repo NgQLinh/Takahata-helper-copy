@@ -67,6 +67,8 @@ type PlanRow = {
   workerNote?: string | null;
   programmingTime?: number | null;
   processedQuantity: number | null;
+  isOverdue?: boolean | null;
+  referenceId?: number | null;
 };
 
 type FormValues = {
@@ -101,6 +103,8 @@ const createEmptyRow = (): PlanRow => ({
   estimatedTime: null,
   workerNote: null,
   processedQuantity: 0,
+  isOverdue: null,
+  referenceId: null,
 });
 
 const statusOptions = [
@@ -123,6 +127,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
   const [currentPartInfo, setCurrentPartInfo] =
     useState<CurrentPartInfo | null>(null);
+
+  const showOverdueColumn = dataSource.some((row) => row.isOverdue);
 
   const isDesktop = Boolean(screens.xl);
   const tableScrollY = isDesktop ? "calc(100dvh - 390px)" : 360;
@@ -196,6 +202,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                 workerNote: process.workerNote,
                 programmingTime: process.programmingTime,
                 processedQuantity: process.processedQuantity,
+                isOverdue: process.isOverdue,
+                referenceId: process.referenceId,
               }))
             : [createEmptyRow()];
 
@@ -639,6 +647,22 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         />
       ),
     },
+    ...(showOverdueColumn
+      ? [
+          {
+            key: "overdueStatus",
+            width: 130,
+            align: "center" as const,
+            fixed: "right" as const,
+            render: (_: unknown, record: PlanRow) =>
+              record.isOverdue ? (
+                <span className="fw-semibold text-danger">
+                  {record.referenceId ? "Đã được gia hạn" : "Quá gia hạn"}
+                </span>
+              ) : null,
+          },
+        ]
+      : []),
     {
       title: "",
       key: "action",

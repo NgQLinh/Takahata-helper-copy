@@ -22,6 +22,8 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string? WorkerNote { get; set; } = string.Empty;
         public double? ProgrammingTime { get; set; }
         public int ProcessedQuantity { get; set; }
+        public bool IsOverdue { get; set; } = false;
+        public int? ReferenceId { get; set; }
         public MachineResponse? Machine { get; set; }
     }
 }
