@@ -380,7 +380,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                         request.MachineId,
                         request.ProcessId);
 
-                    return Errors.Part.CompletePartProcessFalse;
+                    return Errors.Machine.IsProcessingPLC;
                 }
             }
             catch (Exception ex)

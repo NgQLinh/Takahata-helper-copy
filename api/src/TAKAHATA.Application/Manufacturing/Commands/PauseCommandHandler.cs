@@ -300,7 +300,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     request.MachineId,
                     request.ProcessId);
 
-                return Errors.Part.PausePartProcessFalse;
+                return Errors.Machine.IsProcessingPLC;
             }
         }
     }

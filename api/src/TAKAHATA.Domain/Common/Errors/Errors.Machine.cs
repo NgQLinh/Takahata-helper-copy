@@ -28,7 +28,7 @@ namespace TAKAHATA.Domain.Common.Errors
                 Error.NotFound(code: "Machine.IsProcessingPLC", description: "Máy đang gia công vui lòng dừng máy trước khi thao tác.");
 
             public static Error TimeOut =>
-                Error.NotFound(code: "Machine.TimeOut", description: "Mất kết nối với PLC/Máy.");
+                Error.NotFound(code: "Machine.TimeOut", description: "Không thể kết nối với PLC/Máy.");
         }
     }
 

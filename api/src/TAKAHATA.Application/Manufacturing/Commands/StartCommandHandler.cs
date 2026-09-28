@@ -86,7 +86,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 }
                 else
                 {
-                    return Errors.Part.StartPartProcessFalse;
+                    return Errors.Machine.IsProcessingPLC;
                 }
             }
             catch (Exception ex)
