@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using TAKAHATA.Application.Common.Interface.Repositories;
 
 namespace TAKAHATA.Application.Services
 {
@@ -14,9 +17,12 @@ namespace TAKAHATA.Application.Services
         private readonly ILogger<PlcTcpListenerService> _logger;
         private long _connectionId;
 
-        public PlcTcpListenerService(ILogger<PlcTcpListenerService> logger)
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+
+        public PlcTcpListenerService(ILogger<PlcTcpListenerService> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -169,23 +175,52 @@ namespace TAKAHATA.Application.Services
                         }
 
                         string text = Encoding.ASCII.GetString(buffer, 0, count);
-                        string hex = Convert.ToHexString(buffer.AsSpan(0, count));
 
                         _logger.LogInformation(
                             """
                             Nhận dữ liệu PLC: {Remote}
                             Số byte: {Count}
                             TEXT: {Text}
-                            HEX: {Hex}
                             """,
                             remote,
                             count,
-                            text,
-                            hex);
+                            text);
 
-                        // Xử lý dữ liệu tại đây.
-                        // TCP có thể chia nhỏ hoặc gộp các bản tin.
-                        // Cần ghép/tách bản tin trước khi xử lý nghiệp vụ.
+
+                        // Format 1000|1|120|300|0.5
+                        if (string.IsNullOrEmpty(text))
+                        {
+                            var input = text.Replace(" ", "");
+
+                            string[] parts = input.Split('|');
+
+                            if (parts.Length != 5)
+                            {
+                                Console.WriteLine("Chuỗi phải chứa đúng 5 giá trị.");
+                                return;
+                            }
+
+                            if (!int.TryParse(parts[0], out int statusBitAddress)
+                                && !int.TryParse(parts[1], out int status)
+                                && !int.TryParse(parts[2], out int partId)
+                                && !int.TryParse(parts[3], out int processId)
+                                &&
+                                !double.TryParse(
+                                    parts[4],
+                                    NumberStyles.Float,
+                                    CultureInfo.InvariantCulture,
+                                    out double workingTime))
+                            {
+                                await using var scope = _serviceScopeFactory.CreateAsyncScope();
+
+                                var machineRepository = scope.ServiceProvider.GetRequiredService<IUnitOfWorkRepository>();
+
+                                await machineRepository.UpdateDataAsync(statusBitAddress, status, partId, processId, workingTime);
+
+                                return;
+                            }
+
+                        }
                     }
                 }
                 catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

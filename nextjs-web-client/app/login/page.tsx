@@ -5,6 +5,8 @@ import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 import { loginAsync } from "../services/auth/LoginService";
 import { LoginRequest } from "../types";
+import { ApiError } from "../types/common/ApiError";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,38 +42,13 @@ export default function LoginPage() {
           router.push("/workspace/admin/dashboard");
         else if (res.roles.includes("USER"))
           router.push("/workspace/user/worker");
-      } catch (error: unknown) {
-        console.error("Login error:", error);
+      } catch (error) {
+        console.error("Lỗi khi đăng nhập:", error);
 
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "response" in error
-        ) {
-          const axiosError = error as {
-            response?: {
-              data?: {
-                error?: string;
-                error_description?: string;
-              };
-            };
-          };
-
-          const err = axiosError.response?.data;
-
-          if (err?.error === "invalid_grant") {
-            setErrors({
-              password: "Sai tài khoản hoặc mật khẩu",
-            });
-          } else {
-            setErrors({
-              password: err?.error_description || "Đăng nhập thất bại",
-            });
-          }
+        if (error instanceof ApiError) {
+          toast.error(error.getDisplayMessage());
         } else {
-          setErrors({
-            password: "Không thể kết nối server",
-          });
+          toast.error("Có lỗi xảy ra khi đăng nhập.");
         }
       } finally {
         setSubmitting(false);
