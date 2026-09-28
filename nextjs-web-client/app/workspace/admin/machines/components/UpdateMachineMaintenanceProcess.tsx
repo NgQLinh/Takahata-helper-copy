@@ -87,7 +87,7 @@ export default function UpdateMachineMaintenanceProcess({
           machineId: data.machineId,
           plantDate: data.plantDate ? dayjs(data.plantDate) : undefined,
           startTime: data.startTime ? dayjs(data.startTime) : null,
-          endTime: data.startTime ? dayjs(data.startTime) : null,
+          endTime: data.endTime ? dayjs(data.endTime) : null,
           performedBy: data.performedBy,
           status: data.status | ProcessStatus.Planned,
           note: data.note,
@@ -199,12 +199,18 @@ export default function UpdateMachineMaintenanceProcess({
               rules={[{ required: true, message: "Vui lòng chọn máy" }]}
             >
               <Select
-                showSearch
+                showSearch={{
+                  filterOption: (input, option) =>
+                    String(option?.code ?? "")
+                      .toLocaleLowerCase()
+                      .includes(input.trim().toLocaleLowerCase()),
+                }}
                 placeholder="Chọn máy"
                 loading={loadingMachine}
                 options={machines.map((machine) => ({
                   value: machine.id,
                   label: `${machine.name} - ${machine.code}`,
+                  code: machine.code,
                 }))}
               />
             </Form.Item>

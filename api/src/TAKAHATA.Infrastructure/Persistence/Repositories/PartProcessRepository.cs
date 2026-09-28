@@ -361,5 +361,18 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                    .Where(pp => pp.Id == referenceId || pp.ReferenceId == referenceId)
                    .Sum(pp => pp.ProcessedQuantity);
         }
+
+        public async Task<List<int>> GetPrioritizeMachineIdsByMachineIdsAndDateAsync(List<int> machineIds, DateTime date)
+        {
+            var dateOnly = DateOnly.FromDateTime(date);
+            var query = _dbContext.PartProcesses.AsNoTracking().AsQueryable();
+
+            query = query.Where(pp => pp.PlantDate != null && pp.PlantDate.Value == dateOnly && pp.Part != null && pp.Part.Prioritize);
+
+            if (machineIds.Count != 0)
+                query = query.Where(pp => machineIds.Contains(pp.MachineId));
+
+            return await query.Select(pp => pp.MachineId).ToListAsync();
+        }
     }
 }

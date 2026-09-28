@@ -23,7 +23,7 @@ namespace TAKAHATA.Contracts.Equipment
         public int SequenceNumber { get; set; }
 
         public bool HasScheduledMaintenance { get; set; }
-
+        public int Prioritize { get; set; } = 0;
         public DateTime? MachineStatusChangeAt { get; set; }
     }
 }

@@ -886,27 +886,27 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                       options={[
                         {
                           value: PartType.NewMold,
-                          label: "New mold - Khuôn mới",
+                          label: "KHUÔN MỚI",
                         },
                         {
                           value: PartType.NewMoldRepairMakeNew,
-                          label: "New mold repair / make new",
+                          label: "LÀM MỚI, SỬA KHUÔN MỚI SAU T0",
                         },
                         {
                           value: PartType.MoldEcn,
-                          label: "Mold ECN",
+                          label: "KHUÔN THAY ĐỔI THIẾT KẾ",
                         },
                         {
                           value: PartType.MoldMp,
-                          label: "Mold MP",
+                          label: "KHUÔN ĐANG SẢN XUẤT",
                         },
                         {
                           value: PartType.MoldOvershort,
-                          label: "Mold Overshort",
+                          label: "KHUÔN VƯỢT QUÁ SỐ SHORT QUY ĐỊNH",
                         },
                         {
                           value: PartType.JigMoldAssyEng,
-                          label: "Jig / Mold / Assembly / Engineering",
+                          label: "ĐỒ GÁ MOLD, ASSY. ENG",
                         },
                       ]}
                     />

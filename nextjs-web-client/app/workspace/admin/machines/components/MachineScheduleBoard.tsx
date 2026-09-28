@@ -23,6 +23,7 @@ import UpdatePart from "../../index/components/UpdatePart";
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 import UpdateMachineMaintenanceProcess from "./UpdateMachineMaintenanceProcess";
 import { PartTypeLabels } from "@/app/types/part/PartTypeLabels";
+import { getStatusText } from "@/app/utilities/UtilityState";
 
 const { RangePicker } = DatePicker;
 
@@ -37,31 +38,6 @@ const getCurrentWeekRange = (): DateRange => [
 
 const formatDate = (date: string) => {
   return dayjs(date).format("DD/MM");
-};
-
-const getStatusText = (status: ProcessStatus) => {
-  switch (status) {
-    case ProcessStatus.Planned:
-      return "PLANNED";
-
-    case ProcessStatus.InProgress:
-      return "IN PROGRESS";
-
-    case ProcessStatus.Completed:
-      return "DONE";
-
-    case ProcessStatus.Cancelled:
-      return "CANCELLED";
-
-    case ProcessStatus.Overdue:
-      return "OVERDUE";
-
-    case ProcessStatus.PartiallyCompleted:
-      return "PARTIALLY COMPLETED";
-
-    default:
-      return "UNKNOWN";
-  }
 };
 
 const getStatusClassName = (process: MachineProcess) => {
@@ -219,7 +195,7 @@ export function MachineScheduleBoard({ active }: Props) {
       dataIndex: "name",
       key: "machine",
       fixed: "left",
-      width: 220,
+      width: 250,
       render: (_, machine) => (
         <div className="machine-information">
           <div className="fw-bold">{machine.name}</div>
@@ -246,7 +222,7 @@ export function MachineScheduleBoard({ active }: Props) {
         </div>
       ),
       key: date,
-      width: 300,
+      width: 350,
       align: "center",
       render: (_: unknown, machine: MachineSchedule) => {
         const processes = machine.processes.filter((process) => {
@@ -291,7 +267,7 @@ export function MachineScheduleBoard({ active }: Props) {
                       >
                         {isMaintenance
                           ? "🔧 Bảo trì"
-                          : `📦 ${process.indexCode} - ${process.partCode}`}
+                          : `(${process.id})📦 ${process.indexCode} - ${process.partCode}`}
                       </div>
                     </div>
 
@@ -338,15 +314,15 @@ export function MachineScheduleBoard({ active }: Props) {
                       <>
                         {process.startTime && (
                           <div className="small text-muted">
-                            <span className="fw-medium">Thực tế:</span>{" "}
+                            <span className="fw-medium">Bắt đầu:</span>{" "}
                             {process.startTime}
                           </div>
                         )}
 
-                        {process.workingTime != null && (
+                        {process.endTime != null && (
                           <div className="small text-muted">
-                            <span className="fw-medium">Giờ máy:</span>{" "}
-                            {process.workingTime}
+                            <span className="fw-medium">Kết thúc:</span>{" "}
+                            {process.endTime}
                           </div>
                         )}
 
@@ -396,7 +372,11 @@ export function MachineScheduleBoard({ active }: Props) {
 
                         {process.isOverdue && (
                           <div className="inline-flex items-center gap-2 rounded-full border border-orange-300 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700 shadow-sm">
-                            <span>Quá hạn</span>
+                            {process.referenceId ? (
+                              <span>Được gia hạn({process.referenceId})</span>
+                            ) : (
+                              <span>Quá hạn</span>
+                            )}
                           </div>
                         )}
                       </div>

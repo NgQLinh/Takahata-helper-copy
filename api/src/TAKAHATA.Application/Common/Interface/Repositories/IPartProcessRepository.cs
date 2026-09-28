@@ -7,6 +7,8 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IPartProcessRepository : IBaseRepository<PartProcess>
     {
+        Task<List<int>> GetPrioritizeMachineIdsByMachineIdsAndDateAsync(List<int> machineIds, DateTime date);
+
         Task<int> GetProcessedQuantityByReferenceId(int? referenceId);
 
         Task HandleExtend();

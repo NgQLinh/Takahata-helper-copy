@@ -137,12 +137,18 @@ export default function CreateMachineMaintenanceProcess({
               rules={[{ required: true, message: "Vui lòng chọn máy" }]}
             >
               <Select
-                showSearch
+                showSearch={{
+                  filterOption: (input, option) =>
+                    String(option?.code ?? "")
+                      .toLocaleLowerCase()
+                      .includes(input.trim().toLocaleLowerCase()),
+                }}
                 placeholder="Chọn máy"
                 loading={loadingMachine}
                 options={machines.map((machine) => ({
                   value: machine.id,
                   label: `${machine.name} - ${machine.code}`,
+                  code: machine.code,
                 }))}
               />
             </Form.Item>

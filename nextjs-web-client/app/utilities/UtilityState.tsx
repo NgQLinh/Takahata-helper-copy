@@ -19,3 +19,25 @@ export const getStatusTag = (status: ProcessStatus) => {
       return <Tag>Không xác định</Tag>;
   }
 };
+
+export const getStatusText = (status: ProcessStatus) => {
+  switch (status) {
+    case ProcessStatus.Planned:
+      return "Đã lên kế hoạch";
+
+    case ProcessStatus.InProgress:
+      return "Đang thực hiện";
+
+    case ProcessStatus.Completed:
+      return "Hoàn thành";
+
+    case ProcessStatus.Cancelled:
+      return "Đã hủy";
+
+    case ProcessStatus.PartiallyCompleted:
+      return "Hoàn thành một phần";
+
+    default:
+      return "Không xác định";
+  }
+};

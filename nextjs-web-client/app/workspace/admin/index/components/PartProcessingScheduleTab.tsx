@@ -448,7 +448,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               <span className="actual-date">
                 <CalendarOutlined />
                 {dayjs(process.startTime).format("DD/MM")}-
-                {process.workingTime ?? 0}
+                {process.workingTime ?? 0}h
                 {/* {(process.workingTime != null || process.setupTime != null) && (
                   <>
                     {Number(

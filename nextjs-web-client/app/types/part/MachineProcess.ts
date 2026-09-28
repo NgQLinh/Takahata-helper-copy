@@ -15,6 +15,7 @@ export interface MachineProcess {
   note: string;
   plantDate: string;
   startTime?: string | null;
+  endTime?: string | null;
   workingTime?: number | null;
   sequence: number;
   type: MachineProcessType;
