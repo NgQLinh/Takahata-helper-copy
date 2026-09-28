@@ -15,7 +15,6 @@ using TAKAHATA.Application.Services;
 using TAKAHATA.Domain.Common.Constant;
 using TAKAHATA.Infrastructure;
 using TAKAHATA.Infrastructure.Persistence;
-using TAKAHATA.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

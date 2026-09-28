@@ -21,6 +21,12 @@ namespace TAKAHATA.Application.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            using var logScope = _logger.BeginScope(
+                new Dictionary<string, object>
+                {
+                    ["MachineLog"] = true
+                });
+
             // Đảm bảo phần khởi động listener chạy nền.
             await Task.Yield();
 

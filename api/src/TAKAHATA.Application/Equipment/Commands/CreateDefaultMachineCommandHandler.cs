@@ -1,7 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
 using TAKAHATA.Application.Common.Interface.Repositories;
-using TAKAHATA.Application.Common.Interface.Services;
 
 namespace TAKAHATA.Application.Equipment.Commands
 {
