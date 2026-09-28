@@ -18,10 +18,8 @@ namespace TAKAHATA.Application
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-            services.AddSingleton<IMachinePollingManager, MachinePollingManager>();
             services.AddSingleton<IKpiExcelExportService, KpiExcelExportService>();
-
-            services.AddHostedService<MachinePollingBackgroundService>();
+            services.AddHostedService<PlcTcpListenerService>();
 
             return services;
         }

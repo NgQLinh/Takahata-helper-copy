@@ -9,15 +9,11 @@ namespace TAKAHATA.Application.Equipment.Commands
 {
     public class DeleteMachineCommandHandler : IRequestHandler<DeleteMachineCommand, ErrorOr<Machine>>
     {
-        private readonly IMachinePollingManager _polling;
         private readonly IMachineRepository _machineRepository;
 
-        public DeleteMachineCommandHandler(
-            IMachineRepository machineRepository,
-            IMachinePollingManager polling)
+        public DeleteMachineCommandHandler(IMachineRepository machineRepository)
         {
             _machineRepository = machineRepository;
-            _polling = polling;
         }
         public async Task<ErrorOr<Machine>> Handle(DeleteMachineCommand command, CancellationToken cancellationToken)
         {
@@ -26,7 +22,6 @@ namespace TAKAHATA.Application.Equipment.Commands
             if (machine == null)
                 return Errors.Machine.DeleteFalse;
 
-            _polling.RequestReload();
             return machine;
         }
     }

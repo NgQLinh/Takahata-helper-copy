@@ -15,18 +15,15 @@ namespace TAKAHATA.Application.Equipment.Commands
         private readonly IMapper _mapper;
         private readonly IMachineRepository _machineRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IMachinePollingManager _polling;
 
         public CreateMachineCommandHandler(
             IMachineRepository machineRepository,
             IMapper mapper,
-            ICurrentUserService currentUserService,
-            IMachinePollingManager polling)
+            ICurrentUserService currentUserService)
         {
             _machineRepository = machineRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
-            _polling = polling;
         }
 
         public async Task<ErrorOr<Machine>> Handle(CreateMachineCommand command, CancellationToken cancellationToken)
@@ -49,8 +46,6 @@ namespace TAKAHATA.Application.Equipment.Commands
             machine = await _machineRepository.AddAsync(machine);
             if (machine is null)
                 return Errors.Machine.CreateFalse;
-
-            _polling.RequestReload();
 
             return machine;
         }

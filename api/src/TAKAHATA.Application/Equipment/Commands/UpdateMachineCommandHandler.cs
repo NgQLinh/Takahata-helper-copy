@@ -11,18 +11,15 @@ namespace TAKAHATA.Application.Equipment.Commands
 {
     public class UpdateMachineCommandHandler : IRequestHandler<UpdateMachineCommand, ErrorOr<Machine>>
     {
-        private readonly IMachinePollingManager _polling;
         private readonly IMachineRepository _machineRepository;
         private readonly ICurrentUserService _currentUserService;
 
         public UpdateMachineCommandHandler(
             IMachineRepository machineRepository,
-            ICurrentUserService currentUserService,
-            IMachinePollingManager polling)
+            ICurrentUserService currentUserService)
         {
             _machineRepository = machineRepository;
             _currentUserService = currentUserService;
-            _polling = polling;
         }
 
         public async Task<ErrorOr<Machine>> Handle(UpdateMachineCommand command, CancellationToken cancellationToken)
@@ -60,8 +57,6 @@ namespace TAKAHATA.Application.Equipment.Commands
             entity = await _machineRepository.UpdateAsync(entity);
             if (entity == null)
                 return Errors.Machine.UpdateFalse;
-
-            _polling.RequestReload();
 
             return entity;
         }
