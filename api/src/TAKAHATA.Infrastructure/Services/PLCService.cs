@@ -285,9 +285,9 @@ namespace TAKAHATA.Infrastructure.Services
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-
+                _logger.LogError($"{nameof(TestConnection)}: {ex.Message}");
                 return false;
             }
         }
