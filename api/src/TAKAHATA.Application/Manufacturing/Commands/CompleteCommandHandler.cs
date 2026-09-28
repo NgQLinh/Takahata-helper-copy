@@ -100,7 +100,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 var result = await _iPLCService.WriteMachineData(
                     machine,
                     0,
-                    0);
+                    0,
+                    3);
 
                 _logger.LogInformation(
                     """

@@ -6,6 +6,7 @@ export interface UpdateMachineRequest {
   brand: string;
   isAutomatic: boolean;
   statusBitAddress: number | null;
+  processStatusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;
 }

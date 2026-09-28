@@ -18,6 +18,7 @@ namespace TAKAHATA.Contracts.Equipment
         public int PartProcessId { get; set; }
 
         public int StatusBitAddress { get; set; }
+        public int ProcessStatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }
         public int PartProcessBitAddress { get; set; }
         public int SequenceNumber { get; set; }

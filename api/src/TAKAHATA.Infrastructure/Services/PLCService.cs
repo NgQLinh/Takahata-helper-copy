@@ -186,7 +186,7 @@ namespace TAKAHATA.Infrastructure.Services
             }
         }
 
-        public async Task<PLCResult<WriteResult>> WriteMachineData(Machine machine, int partId, int processId)
+        public async Task<PLCResult<WriteResult>> WriteMachineData(Machine machine, int partId, int processId, int status)
         {
             _logger.LogInformation($"{nameof(WriteMachineData)}: Start");
 
@@ -205,6 +205,7 @@ namespace TAKAHATA.Infrastructure.Services
 
                 modbusClient.WriteSingleRegister(machine.PartBitAddress, partId);
                 modbusClient.WriteSingleRegister(machine.PartProcessBitAddress, processId);
+                modbusClient.WriteSingleRegister(machine.ProcessStatusBitAddress, status);
 
                 return PLCResult<WriteResult>.Success(new WriteResult
                 {

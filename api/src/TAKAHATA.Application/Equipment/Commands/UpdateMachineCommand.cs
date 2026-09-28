@@ -12,6 +12,7 @@ namespace TAKAHATA.Application.Equipment.Commands
         string Brand,
         bool IsAutomatic,
         int? StatusBitAddress,
+        int? ProcessStatusBitAddress,
         int? PartBitAddress,
         int? PartProcessBitAddress) : IRequest<ErrorOr<Machine>>;
 }

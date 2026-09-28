@@ -399,6 +399,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       render: (_, __, index) => index + 1,
     },
     {
+      title: "Id",
+      key: "id",
+      fixed: "left",
+      dataIndex: "id",
+      width: 64,
+      align: "center",
+    },
+    {
       title: "Máy",
       fixed: "left",
       dataIndex: "machineId",
@@ -656,7 +664,13 @@ export default function UpdatePart({ id, open, onClose }: Props) {
             fixed: "right" as const,
             render: (_: unknown, record: PlanRow) =>
               record.isOverdue ? (
-                <span className="fw-semibold text-danger">Quá gia hạn</span>
+                record.referenceId ? (
+                  <span className="fw-semibold text-danger">
+                    ({record.referenceId}) Được gia hạn
+                  </span>
+                ) : (
+                  <span className="fw-semibold text-danger">Quá gia hạn</span>
+                )
               ) : null,
           },
         ]

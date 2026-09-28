@@ -59,7 +59,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Machine.IsProcessing;
 
                 // Ghi xuống PLC
-                var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId);
+                var result = await _iPLCService.WriteMachineData(machine, request.PartId, request.ProcessId, 0);
 
                 if (result.IsSuccess || !machine.IsAutomatic)
                 {

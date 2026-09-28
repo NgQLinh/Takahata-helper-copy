@@ -227,9 +227,15 @@ export default function MachineListTab({ active }: Props) {
         onFilter: (value, record) => record.brand === value,
       },
       {
-        title: "Thanh ghi trạng thái",
+        title: "Thanh ghi trạng thái máy",
         dataIndex: "statusBitAddress",
-        width: 150,
+        width: 180,
+        onFilter: (value, record) => record.statusBitAddress === value,
+      },
+      {
+        title: "Thanh ghi trạng thái gửi lệnh",
+        dataIndex: "processStatusBitAddress",
+        width: 220,
         onFilter: (value, record) => record.statusBitAddress === value,
       },
       {

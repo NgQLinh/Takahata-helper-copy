@@ -43,6 +43,7 @@ namespace TAKAHATA.Application.Equipment.Commands
                 entity.StatusBitAddress = command.StatusBitAddress ?? 0;
                 entity.PartBitAddress = command.PartBitAddress ?? 0;
                 entity.PartProcessBitAddress = command.PartProcessBitAddress ?? 0;
+                entity.ProcessStatusBitAddress = command.ProcessStatusBitAddress ?? 0;
             }
             else
             {

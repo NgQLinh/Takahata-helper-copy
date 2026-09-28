@@ -46,6 +46,7 @@ export default function UpdateMachine({
       partBitAddress: values.partBitAddress,
       partProcessBitAddress: values.partProcessBitAddress,
       statusBitAddress: values.statusBitAddress,
+      processStatusBitAddress: values.processStatusBitAddress,
     };
 
     await updateMachineAsync(request)
@@ -170,24 +171,48 @@ export default function UpdateMachine({
           <Checkbox>Máy tự đông (CNC)</Checkbox>
         </Form.Item>
 
-        <Form.Item
-          label="Thanh ghi trạng thái"
-          name="statusBitAddress"
-          rules={[
-            {
-              required: isAutomatic,
-              message: "Vui lòng nhập thanh ghi trạng thái",
-            },
-          ]}
-        >
-          <Input
-            type="number"
-            allowClear
-            disabled={!isAutomatic}
-            placeholder="Nhập địa chỉ thanh ghi"
-            autoFocus
-          />
-        </Form.Item>
+        <div className="row">
+          <div className="col-6">
+            <Form.Item
+              label="Thanh ghi trạng thái máy"
+              name="statusBitAddress"
+              rules={[
+                {
+                  required: isAutomatic,
+                  message: "Vui lòng nhập thanh ghi trạng thái",
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                allowClear
+                disabled={!isAutomatic}
+                placeholder="Nhập địa chỉ thanh ghi"
+                autoFocus
+              />
+            </Form.Item>
+          </div>
+          <div className="col-6">
+            <Form.Item
+              label="Thanh ghi trạng thái gửi lệnh"
+              name="processStatusBitAddress"
+              rules={[
+                {
+                  required: isAutomatic,
+                  message: "Vui lòng nhập thanh ghi trạng thái",
+                },
+              ]}
+            >
+              <Input
+                type="number"
+                allowClear
+                disabled={!isAutomatic}
+                placeholder="Nhập địa chỉ thanh ghi"
+                autoFocus
+              />
+            </Form.Item>
+          </div>
+        </div>
 
         <div className="row">
           <div className="col-6">

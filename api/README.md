@@ -8,7 +8,7 @@ dotnet tool install --global dotnet-ef
 
 ```bash
 dotnet ef migrations add InitialCreate --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
-dotnet ef migrations add update-db-260927-002 --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
+dotnet ef migrations add update-db-260928-001 --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/ --output-dir Persistence/Migrations
 
 
 dotnet ef database update --project ./src/TAKAHATA.Infrastructure/ --startup-project ./src/TAKAHATA.Api/

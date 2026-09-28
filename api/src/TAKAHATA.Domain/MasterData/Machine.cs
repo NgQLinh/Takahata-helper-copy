@@ -19,6 +19,7 @@ namespace TAKAHATA.Domain.MasterData
         public int StatusBitAddress { get; set; }
         public int PartBitAddress { get; set; }
         public int PartProcessBitAddress { get; set; }
+        public int ProcessStatusBitAddress { get; set; }
         public List<MachineMaintenanceProcess> MachineMaintenanceProcesses { get; set; } = [];
     }
 }

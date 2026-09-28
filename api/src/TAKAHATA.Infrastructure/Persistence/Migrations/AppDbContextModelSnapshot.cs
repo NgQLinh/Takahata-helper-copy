@@ -236,6 +236,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("PartProcessId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ProcessStatusBitAddress")
+                        .HasColumnType("int");
+
                     b.Property<int>("StatusBitAddress")
                         .HasColumnType("int");
 

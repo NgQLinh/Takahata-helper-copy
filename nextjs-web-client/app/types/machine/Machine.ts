@@ -19,6 +19,7 @@ export interface Machine {
   partProcessId: number;
 
   statusBitAddress: number | null;
+  processStatusBitAddress: number | null;
   partBitAddress: number | null;
   partProcessBitAddress: number | null;
 
