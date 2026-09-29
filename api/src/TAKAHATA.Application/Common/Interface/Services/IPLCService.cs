@@ -15,14 +15,17 @@ namespace TAKAHATA.Application.Common.Interface.Services
             int statusBitAddress,
             int partBitAddress,
             int partProcessBitAddress,
+            int processStatusBitAddress,
             int statusValue,
             int partValue,
-            int partProcessValue);
+            int partProcessValue,
+            int processStatusValue);
 
         Task<PLCResult<ReadMachineBitsResponse>> ReadMachineData(
             int statusBitAddress,
             int partBitAddress,
-            int partProcessBitAddress);
+            int partProcessBitAddress,
+            int processStatusBitAddress);
 
         Task<PLCResult<bool>> IsProcessing(Machine machine);
     }

@@ -150,7 +150,8 @@ namespace TAKAHATA.Infrastructure.Services
         public async Task<PLCResult<ReadMachineBitsResponse>> ReadMachineData(
             int statusBitAddress,
             int partBitAddress,
-            int partProcessBitAddress)
+            int partProcessBitAddress,
+            int processStatusBitAddress)
         {
             _logger.LogInformation($"{nameof(ReadMachinesData)}: Start");
 
@@ -165,12 +166,12 @@ namespace TAKAHATA.Infrastructure.Services
             {
                 modbusClient.Connect();
 
-
                 var status = modbusClient.ReadHoldingRegisters(statusBitAddress, 1);
                 var partId = modbusClient.ReadHoldingRegisters(partBitAddress, 1);
                 var partProcessId = modbusClient.ReadHoldingRegisters(partProcessBitAddress, 1);
+                var processStatus = modbusClient.ReadHoldingRegisters(processStatusBitAddress, 1);
 
-                return PLCResult<ReadMachineBitsResponse>.Success(new ReadMachineBitsResponse(status[0], partId[0], partProcessId[0]));
+                return PLCResult<ReadMachineBitsResponse>.Success(new ReadMachineBitsResponse(status[0], partId[0], partProcessId[0], processStatus[0]));
             }
             catch (Exception ex)
             {
@@ -230,9 +231,11 @@ namespace TAKAHATA.Infrastructure.Services
             int statusBitAddress,
             int partBitAddress,
             int partProcessBitAddress,
+            int processStatusBitAddress,
             int statusValue,
             int partValue,
-            int partProcessValue)
+            int partProcessValue,
+            int processStatusValue)
         {
             _logger.LogInformation($"{nameof(WriteMachineData)}: Start");
 
@@ -250,6 +253,7 @@ namespace TAKAHATA.Infrastructure.Services
                 modbusClient.WriteSingleRegister(statusBitAddress, statusValue);
                 modbusClient.WriteSingleRegister(partBitAddress, partValue);
                 modbusClient.WriteSingleRegister(partProcessBitAddress, partProcessValue);
+                modbusClient.WriteSingleRegister(processStatusBitAddress, processStatusValue);
 
                 return PLCResult<WriteResult>.Success(new WriteResult());
             }

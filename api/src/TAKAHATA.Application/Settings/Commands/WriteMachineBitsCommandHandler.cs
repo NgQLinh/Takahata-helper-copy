@@ -20,9 +20,11 @@ namespace TAKAHATA.Application.Settings.Commands
                    request.StatusBitAddress,
                    request.PartBitAddress,
                    request.PartProcessBitAddress,
+                   request.ProcessStatusBitAddress,
                    (int)request.StatusValue,
                    request.PartValue,
-                   request.PartProcessValue);
+                   request.PartProcessValue,
+                   request.ProcessStatusValue);
 
             if (result.IsSuccess)
                 return true;

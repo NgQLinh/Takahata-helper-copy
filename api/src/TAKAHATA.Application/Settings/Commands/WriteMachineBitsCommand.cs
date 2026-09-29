@@ -8,7 +8,9 @@ namespace TAKAHATA.Application.Settings.Commands
         int StatusBitAddress,
         int PartBitAddress,
         int PartProcessBitAddress,
+        int ProcessStatusBitAddress,
         MachineStatus StatusValue,
         int PartValue,
-        int PartProcessValue) : IRequest<ErrorOr<bool>>;
+        int PartProcessValue,
+        int ProcessStatusValue) : IRequest<ErrorOr<bool>>;
 }

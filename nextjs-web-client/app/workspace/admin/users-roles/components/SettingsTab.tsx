@@ -42,12 +42,14 @@ type WriteFormValues = {
   status: MachineStatus;
   part: number;
   partProcess: number;
+  processStatus: number;
 };
 
 type ReadFormValues = {
   status?: MachineStatus;
   part?: number;
   partProcess?: number;
+  processStatus?: number;
 };
 
 interface Props {
@@ -211,9 +213,11 @@ export default function SettingsTab({ active }: Props) {
       statusBitAddress: selectedWriteMachine.statusBitAddress,
       partBitAddress: selectedWriteMachine.partBitAddress,
       partProcessBitAddress: selectedWriteMachine.partProcessBitAddress,
+      processStatusBitAddress: selectedWriteMachine.processStatusBitAddress,
       statusValue: values.status,
       partValue: values.part,
       partProcessValue: values.partProcess,
+      processStatusValue: values.processStatus,
     };
 
     try {
@@ -255,6 +259,7 @@ export default function SettingsTab({ active }: Props) {
       statusBitAddress: selectedReadMachine.statusBitAddress,
       partBitAddress: selectedReadMachine.partBitAddress,
       partProcessBitAddress: selectedReadMachine.partProcessBitAddress,
+      processStatusBitAddress: selectedReadMachine.processStatusBitAddress,
     };
 
     try {
@@ -266,6 +271,7 @@ export default function SettingsTab({ active }: Props) {
         status: data.statusValue,
         part: data.partValue,
         partProcess: data.partProcessValue,
+        processStatus: data.partProcessValue,
       });
 
       toast.success("Đọc dữ liệu thành công");
@@ -393,6 +399,7 @@ export default function SettingsTab({ active }: Props) {
                       status: MachineStatus.None,
                       part: 0,
                       partProcess: 0,
+                      processStatus: 0,
                     }}
                   >
                     <Form.Item label="Máy">
@@ -426,7 +433,7 @@ export default function SettingsTab({ active }: Props) {
                       }}
                     >
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Status Bit Address</Text>
+                        <Text strong>Thanh ghi trạng thái</Text>
                         <Text type="secondary">
                           Địa chỉ:{" "}
                           {selectedWriteMachine?.statusBitAddress ?? "-"}
@@ -457,7 +464,7 @@ export default function SettingsTab({ active }: Props) {
                       </Form.Item>
 
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Part Bit Address</Text>
+                        <Text strong>Thanh ghi part</Text>
                         <Text type="secondary">
                           Địa chỉ: {selectedWriteMachine?.partBitAddress ?? "-"}
                         </Text>
@@ -480,7 +487,7 @@ export default function SettingsTab({ active }: Props) {
                       </Form.Item>
 
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Part Process Bit Address</Text>
+                        <Text strong>Thanh ghi Part Process</Text>
                         <Text type="secondary">
                           Địa chỉ:{" "}
                           {selectedWriteMachine?.partProcessBitAddress ?? "-"}
@@ -494,6 +501,33 @@ export default function SettingsTab({ active }: Props) {
                           {
                             required: true,
                             message: "Vui lòng nhập Part Process",
+                          },
+                        ]}
+                      >
+                        <InputNumber
+                          min={0}
+                          precision={0}
+                          disabled={!selectedWriteMachine}
+                          placeholder="Nhập giá trị Part Process"
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+
+                      <Space orientation="vertical" size={0}>
+                        <Text strong>Thanh ghi trạng thái gửi lệnh</Text>
+                        <Text type="secondary">
+                          Địa chỉ:{" "}
+                          {selectedWriteMachine?.processStatusBitAddress ?? "-"}
+                        </Text>
+                      </Space>
+
+                      <Form.Item
+                        name="processStatus"
+                        style={{ marginBottom: 0 }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập giá trị",
                           },
                         ]}
                       >
@@ -554,7 +588,7 @@ export default function SettingsTab({ active }: Props) {
                       }}
                     >
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Status Bit Address</Text>
+                        <Text strong>Thanh ghi trạng thái</Text>
                         <Text type="secondary">
                           Địa chỉ:{" "}
                           {selectedReadMachine?.statusBitAddress ?? "-"}
@@ -576,7 +610,7 @@ export default function SettingsTab({ active }: Props) {
                       </Form.Item>
 
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Part Bit Address</Text>
+                        <Text strong>Thanh ghi part</Text>
                         <Text type="secondary">
                           Địa chỉ: {selectedReadMachine?.partBitAddress ?? "-"}
                         </Text>
@@ -591,7 +625,7 @@ export default function SettingsTab({ active }: Props) {
                       </Form.Item>
 
                       <Space orientation="vertical" size={0}>
-                        <Text strong>Part Process Bit Address</Text>
+                        <Text strong>Thanh ghi Part Process</Text>
                         <Text type="secondary">
                           Địa chỉ:{" "}
                           {selectedReadMachine?.partProcessBitAddress ?? "-"}
@@ -602,6 +636,25 @@ export default function SettingsTab({ active }: Props) {
                         <InputNumber
                           disabled
                           placeholder="Giá trị Part Process"
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+
+                      <Space orientation="vertical" size={0}>
+                        <Text strong>Thanh ghi trạng thái gửi lệnh</Text>
+                        <Text type="secondary">
+                          Địa chỉ:{" "}
+                          {selectedReadMachine?.processStatusBitAddress ?? "-"}
+                        </Text>
+                      </Space>
+
+                      <Form.Item
+                        name="processStatus"
+                        style={{ marginBottom: 0 }}
+                      >
+                        <InputNumber
+                          disabled
+                          placeholder="Giá trị"
                           style={{ width: "100%" }}
                         />
                       </Form.Item>

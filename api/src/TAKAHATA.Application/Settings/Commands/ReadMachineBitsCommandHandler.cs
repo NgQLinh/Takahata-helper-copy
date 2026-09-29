@@ -20,7 +20,8 @@ namespace TAKAHATA.Application.Settings.Commands
             var result = await _pLCService.ReadMachineData(
                 request.StatusBitAddress,
                 request.PartBitAddress,
-                request.PartProcessBitAddress);
+                request.PartProcessBitAddress,
+                request.ProcessStatusBitAddress);
 
             if (result.IsSuccess && result.Value != null)
                 return result.Value;
