@@ -271,7 +271,7 @@ export default function SettingsTab({ active }: Props) {
         status: data.statusValue,
         part: data.partValue,
         partProcess: data.partProcessValue,
-        processStatus: data.partProcessValue,
+        processStatus: data.processStatusValue,
       });
 
       toast.success("Đọc dữ liệu thành công");
