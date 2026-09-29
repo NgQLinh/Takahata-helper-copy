@@ -188,7 +188,7 @@ namespace TAKAHATA.Application.Services
 
 
                         // Format 1000|1|120|300|0.5
-                        if (string.IsNullOrEmpty(text))
+                        if (!string.IsNullOrEmpty(text))
                         {
                             var input = text.Replace(" ", "");
 
@@ -200,12 +200,12 @@ namespace TAKAHATA.Application.Services
                                 return;
                             }
 
-                            if (!int.TryParse(parts[0], out int statusBitAddress)
-                                && !int.TryParse(parts[1], out int status)
-                                && !int.TryParse(parts[2], out int partId)
-                                && !int.TryParse(parts[3], out int processId)
+                            if (int.TryParse(parts[0], out int statusBitAddress)
+                                && int.TryParse(parts[1], out int status)
+                                && int.TryParse(parts[2], out int partId)
+                                && int.TryParse(parts[3], out int processId)
                                 &&
-                                !double.TryParse(
+                                double.TryParse(
                                     parts[4],
                                     NumberStyles.Float,
                                     CultureInfo.InvariantCulture,
