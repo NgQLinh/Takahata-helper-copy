@@ -13,12 +13,12 @@ namespace TAKAHATA.Application.Services
 {
     public sealed class PlcTcpListenerService : BackgroundService
     {
-        private int _port;
+        private const int MaxMessageLength = 1024;
         private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
+        private readonly int _port;
         private readonly ILogger<PlcTcpListenerService> _logger;
-        private long _connectionId;
-
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private long _connectionId;
 
         public PlcTcpListenerService(
             ILogger<PlcTcpListenerService> logger,
@@ -27,7 +27,6 @@ namespace TAKAHATA.Application.Services
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
-
             _port = configuration.GetValue<int>("PortSettings:Port", 4090);
         }
 
@@ -39,7 +38,6 @@ namespace TAKAHATA.Application.Services
                     ["MachineLog"] = true
                 });
 
-            // Đảm bảo phần khởi động listener chạy nền.
             await Task.Yield();
 
             while (!stoppingToken.IsCancellationRequested)
@@ -78,8 +76,9 @@ namespace TAKAHATA.Application.Services
 
         private async Task RunListenerAsync(CancellationToken stoppingToken)
         {
-            // Mỗi lượt chạy có token và danh sách kết nối riêng.
-            using var sessionCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            using var sessionCts =
+                CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+
             var connections = new ConcurrentDictionary<long, Task>();
             var listener = new TcpListener(IPAddress.Any, _port);
 
@@ -87,28 +86,25 @@ namespace TAKAHATA.Application.Services
             {
                 listener.Start();
 
-                _logger.LogInformation("PLC TCP Server đang lắng nghe tại 0.0.0.0:{Port}", _port);
+                _logger.LogInformation(
+                    "PLC TCP Server đang lắng nghe tại 0.0.0.0:{Port}",
+                    _port);
 
                 while (!sessionCts.IsCancellationRequested)
                 {
-                    var client = await listener.AcceptTcpClientAsync(sessionCts.Token);
+                    TcpClient client =
+                        await listener.AcceptTcpClientAsync(sessionCts.Token);
 
                     long id = Interlocked.Increment(ref _connectionId);
-
-                    var task = ReceiveAsync(client, sessionCts.Token);
+                    Task task = ReceiveAsync(client, sessionCts.Token);
 
                     connections[id] = task;
-
-                    // Theo dõi và dọn task khi kết nối kết thúc.
                     _ = ObserveConnectionAsync(id, task, connections);
                 }
             }
             finally
             {
-                // Ngừng nhận kết nối mới.
                 listener.Stop();
-
-                // Hủy ReadAsync của tất cả kết nối trong lượt chạy này.
                 sessionCts.Cancel();
 
                 try
@@ -118,14 +114,18 @@ namespace TAKAHATA.Application.Services
                 catch (OperationCanceledException)
                     when (sessionCts.IsCancellationRequested)
                 {
-                    // Hủy khi dừng hoặc khởi động lại listener.
+                    // Service đang dừng.
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Lỗi khi dọn các kết nối PLC");
+                    _logger.LogWarning(
+                        ex,
+                        "Lỗi khi dọn các kết nối PLC");
                 }
 
-                _logger.LogInformation("Đã đóng lượt lắng nghe TCP port {Port}", _port);
+                _logger.LogInformation(
+                    "Đã đóng lượt lắng nghe TCP port {Port}",
+                    _port);
             }
         }
 
@@ -140,7 +140,6 @@ namespace TAKAHATA.Application.Services
             }
             catch (Exception ex)
             {
-                // Quan sát lỗi để không bỏ sót exception của task nền.
                 _logger.LogError(
                     ex,
                     "Tác vụ kết nối PLC {ConnectionId} gặp lỗi",
@@ -162,78 +161,88 @@ namespace TAKAHATA.Application.Services
             {
                 try
                 {
-                    remote = client.Client.RemoteEndPoint?.ToString() ?? "Unknown";
+                    remote = client.Client.RemoteEndPoint?.ToString()
+                        ?? "Unknown";
 
-                    _logger.LogInformation("PLC đã kết nối: {Remote}", remote);
+                    _logger.LogInformation(
+                        "PLC đã kết nối: {Remote}",
+                        remote);
 
                     using NetworkStream stream = client.GetStream();
 
                     byte[] buffer = new byte[4096];
+                    var message = new StringBuilder();
 
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        int count = await stream.ReadAsync(buffer.AsMemory(), cancellationToken);
+                        int count = await stream.ReadAsync(
+                            buffer.AsMemory(),
+                            cancellationToken);
 
                         if (count == 0)
                         {
-                            _logger.LogInformation("PLC chủ động đóng kết nối: {Remote}", remote);
+                            _logger.LogInformation(
+                                "PLC chủ động đóng kết nối: {Remote}",
+                                remote);
+
+                            if (message.Length > 0)
+                            {
+                                _logger.LogWarning(
+                                    "PLC {Remote} đóng kết nối khi còn bản tin " +
+                                    "chưa kết thúc bằng \\n: {Message}",
+                                    remote,
+                                    message.ToString());
+                            }
+
                             break;
                         }
 
-                        string text = Encoding.ASCII.GetString(buffer, 0, count);
-
-                        _logger.LogInformation(
-                            """
-                            Nhận dữ liệu PLC: {Remote}
-                            Số byte: {Count}
-                            TEXT: {Text}
-                            """,
-                            remote,
-                            count,
-                            text);
-
-
-                        // Format 1000|1|120|300|0.5
-                        if (!string.IsNullOrEmpty(text))
+                        for (int i = 0; i < count; i++)
                         {
-                            var input = text.Replace(" ", "");
+                            byte value = buffer[i];
 
-                            string[] parts = input.Split('|');
-
-                            if (parts.Length != 5)
+                            if (value == (byte)'\n')
                             {
-                                Console.WriteLine("Chuỗi phải chứa đúng 5 giá trị.");
+                                // TrimEnd hỗ trợ cả \n và \r\n.
+                                string completeMessage =
+                                    message.ToString().TrimEnd('\r');
+
+                                message.Clear();
+
+                                if (completeMessage.Length > 0)
+                                {
+                                    await ProcessMessageAsync(
+                                        completeMessage,
+                                        remote,
+                                        cancellationToken);
+                                }
+
+                                continue;
+                            }
+
+                            if (message.Length >= MaxMessageLength)
+                            {
+                                _logger.LogWarning(
+                                    "Bản tin từ PLC {Remote} vượt quá " +
+                                    "{MaxLength} ký tự. Đóng kết nối.",
+                                    remote,
+                                    MaxMessageLength);
+
                                 return;
                             }
 
-                            if (int.TryParse(parts[0], out int statusBitAddress)
-                                && int.TryParse(parts[1], out int status)
-                                && int.TryParse(parts[2], out int partId)
-                                && int.TryParse(parts[3], out int processId)
-                                &&
-                                double.TryParse(
-                                    parts[4],
-                                    NumberStyles.Float,
-                                    CultureInfo.InvariantCulture,
-                                    out double workingTime))
-                            {
-                                await using var scope = _serviceScopeFactory.CreateAsyncScope();
-
-                                var machineRepository = scope.ServiceProvider.GetRequiredService<IUnitOfWorkRepository>();
-
-                                await machineRepository.UpdateDataAsync(statusBitAddress, status, partId, processId, workingTime);
-
-                                return;
-                            }
-
+                            // Giao thức hiện tại dùng ký tự ASCII.
+                            message.Append((char)value);
                         }
                     }
                 }
-                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                catch (OperationCanceledException)
+                    when (cancellationToken.IsCancellationRequested)
                 {
-                    // Dừng ứng dụng hoặc khởi động lại listener.
+                    // Ứng dụng đang dừng.
                 }
-                catch (Exception ex) when (cancellationToken.IsCancellationRequested)
+                catch (Exception ex)
+                    when (cancellationToken.IsCancellationRequested)
                 {
                     _logger.LogDebug(
                         ex,
@@ -244,8 +253,8 @@ namespace TAKAHATA.Application.Services
                 {
                     _logger.LogWarning(
                         ex,
-                        "Lỗi nhận dữ liệu PLC {Remote}. " +
-                        "Đóng kết nối này; server tiếp tục lắng nghe",
+                        "Lỗi nhận dữ liệu PLC {Remote}. Đóng kết nối này; " +
+                        "server tiếp tục lắng nghe.",
                         remote);
                 }
                 finally
@@ -254,6 +263,73 @@ namespace TAKAHATA.Application.Services
                         "Kết thúc kết nối PLC: {Remote}",
                         remote);
                 }
+            }
+        }
+
+        private async Task ProcessMessageAsync(
+            string message,
+            string remote,
+            CancellationToken cancellationToken)
+        {
+            _logger.LogInformation(
+                "Nhận bản tin PLC từ {Remote}: {Message}",
+                remote,
+                message);
+
+            string[] parts = message.Split('|');
+
+            if (parts.Length != 5
+                || !int.TryParse(parts[0].Trim(), out int statusBitAddress)
+                || !int.TryParse(parts[1].Trim(), out int status)
+                || !int.TryParse(parts[2].Trim(), out int partId)
+                || !int.TryParse(parts[3].Trim(), out int processId)
+                || !double.TryParse(
+                    parts[4].Trim(),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out double workingTime)
+                || !double.IsFinite(workingTime)
+                || workingTime < 0)
+            {
+                _logger.LogWarning(
+                    "Bản tin PLC không hợp lệ từ {Remote}: {Message}. " +
+                    "Bỏ qua bản tin.",
+                    remote,
+                    message);
+
+                return;
+            }
+
+            try
+            {
+                await using var scope =
+                    _serviceScopeFactory.CreateAsyncScope();
+
+                var repository = scope.ServiceProvider
+                    .GetRequiredService<IUnitOfWorkRepository>();
+
+                await repository.UpdateDataAsync(
+                    statusBitAddress,
+                    status,
+                    partId,
+                    processId,
+                    workingTime);
+            }
+            catch (OperationCanceledException)
+                when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Cập nhật dữ liệu PLC thất bại. Remote: {Remote}, " +
+                    "bản tin: {Message}",
+                    remote,
+                    message);
+
+                // Giữ kết nối để PLC có thể gửi bản tin tiếp theo.
             }
         }
     }
