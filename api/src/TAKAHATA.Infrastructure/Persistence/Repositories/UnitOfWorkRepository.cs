@@ -77,7 +77,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         .Where(pp => pp.Id == processId)
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(
-                                pp => pp.WaitingTime,
+                                pp => pp.WorkingTime,
                                 pp => Math.Round((pp.WorkingTime ?? 0d) + workingTime, 2)));
 
                     await transaction.CommitAsync();
