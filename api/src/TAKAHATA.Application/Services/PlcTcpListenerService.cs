@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -12,17 +13,22 @@ namespace TAKAHATA.Application.Services
 {
     public sealed class PlcTcpListenerService : BackgroundService
     {
-        private const int Port = 4090;
+        private int _port;
         private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
         private readonly ILogger<PlcTcpListenerService> _logger;
         private long _connectionId;
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public PlcTcpListenerService(ILogger<PlcTcpListenerService> logger, IServiceScopeFactory serviceScopeFactory)
+        public PlcTcpListenerService(
+            ILogger<PlcTcpListenerService> logger,
+            IServiceScopeFactory serviceScopeFactory,
+            IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+
+            _port = configuration.GetValue<int>("PortSettings:Port", 4090);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -75,13 +81,13 @@ namespace TAKAHATA.Application.Services
             // Mỗi lượt chạy có token và danh sách kết nối riêng.
             using var sessionCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
             var connections = new ConcurrentDictionary<long, Task>();
-            var listener = new TcpListener(IPAddress.Any, Port);
+            var listener = new TcpListener(IPAddress.Any, _port);
 
             try
             {
                 listener.Start();
 
-                _logger.LogInformation("PLC TCP Server đang lắng nghe tại 0.0.0.0:{Port}", Port);
+                _logger.LogInformation("PLC TCP Server đang lắng nghe tại 0.0.0.0:{Port}", _port);
 
                 while (!sessionCts.IsCancellationRequested)
                 {
@@ -119,7 +125,7 @@ namespace TAKAHATA.Application.Services
                     _logger.LogWarning(ex, "Lỗi khi dọn các kết nối PLC");
                 }
 
-                _logger.LogInformation("Đã đóng lượt lắng nghe TCP port {Port}", Port);
+                _logger.LogInformation("Đã đóng lượt lắng nghe TCP port {Port}", _port);
             }
         }
 
