@@ -15,6 +15,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         ProcessStatus Status,
         double? EstimatedTime,
         double? ProgrammingTime,
-        int ProcessedQuantity,
-        string Note);
+        int? ProcessedQuantity,
+        string? Note);
 }
