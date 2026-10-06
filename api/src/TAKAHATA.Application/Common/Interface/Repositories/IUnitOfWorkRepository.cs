@@ -7,6 +7,8 @@
                int status,
                int partId,
                int processId,
-               double workingTime);
+               double workingTime,
+               double waitingTime,
+               double setupTime);
     }
 }

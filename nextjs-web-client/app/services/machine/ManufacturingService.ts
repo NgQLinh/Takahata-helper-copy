@@ -30,3 +30,13 @@ export const completeAsync = async (
   );
   return response.data;
 };
+
+export const beginSettingUpAsync = async (
+  request: unknown,
+): Promise<ManufacturingProcess> => {
+  const response = await apiClient.post<ManufacturingProcess>(
+    "/Manufacturing/begin-setting-up",
+    request,
+  );
+  return response.data;
+};

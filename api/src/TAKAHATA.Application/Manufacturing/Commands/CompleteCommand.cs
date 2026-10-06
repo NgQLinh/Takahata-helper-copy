@@ -8,8 +8,6 @@ namespace TAKAHATA.Application.Manufacturing.Commands
         int MachineId,
         int PartId,
         int ProcessId,
-        double SetupTime,
-        double WaitingTime,
         double? ProgrammingTime,
         double? MachineTime,
         int ProcessedQuantity,

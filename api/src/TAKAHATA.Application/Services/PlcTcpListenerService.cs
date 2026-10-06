@@ -192,15 +192,15 @@ namespace TAKAHATA.Application.Services
                             count,
                             text);
 
-
-                        // Format 1000|1|120|300|0.5
+                        // Thanh ghi status | trạng thái máy | mã Part | mã Process | Machine Running | Machine Waiting | Machine Setup
+                        // Format 1100 | 1 | 23 | 159 | 0.50 | 1.00 | 0.03
                         if (!string.IsNullOrEmpty(text))
                         {
                             var input = text.Replace(" ", "");
 
                             string[] parts = input.Split('|');
 
-                            if (parts.Length != 5)
+                            if (parts.Length != 7)
                             {
                                 Console.WriteLine("Chuỗi phải chứa đúng 5 giá trị.");
                                 return;
@@ -215,13 +215,32 @@ namespace TAKAHATA.Application.Services
                                     parts[4],
                                     NumberStyles.Float,
                                     CultureInfo.InvariantCulture,
-                                    out double workingTime))
+                                    out double workingTime)
+                                &&
+                                double.TryParse(
+                                    parts[5],
+                                    NumberStyles.Float,
+                                    CultureInfo.InvariantCulture,
+                                    out double waitingTime)
+                                &&
+                                double.TryParse(
+                                    parts[6],
+                                    NumberStyles.Float,
+                                    CultureInfo.InvariantCulture,
+                                    out double setupTime))
                             {
                                 await using var scope = _serviceScopeFactory.CreateAsyncScope();
 
                                 var machineRepository = scope.ServiceProvider.GetRequiredService<IUnitOfWorkRepository>();
 
-                                await machineRepository.UpdateDataAsync(statusBitAddress, status, partId, processId, workingTime);
+                                await machineRepository.UpdateDataAsync(
+                                    statusBitAddress,
+                                    status,
+                                    partId,
+                                    processId,
+                                    workingTime,
+                                    waitingTime,
+                                    setupTime);
 
                                 continue;
                             }

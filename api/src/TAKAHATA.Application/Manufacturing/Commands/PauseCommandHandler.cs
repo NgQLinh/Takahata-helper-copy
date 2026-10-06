@@ -43,16 +43,12 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 MachineId={MachineId},
                 PartId={PartId},
                 ProcessId={ProcessId},
-                SetupTime={SetupTime},
-                WaitingTime={WaitingTime},
                 ProgrammingTime={ProgrammingTime},
                 MachineTime={MachineTime}
                 """,
                 request.MachineId,
                 request.PartId,
                 request.ProcessId,
-                request.SetupTime,
-                request.WaitingTime,
                 request.ProgrammingTime,
                 request.MachineTime);
 
@@ -143,33 +139,6 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     partProcess.SetupTime,
                     partProcess.ProgrammingTime,
                     partProcess.WorkingTime);
-
-                // Cộng dồn thời gian và làm tròn 2 chữ số.
-                var oldWaitingTime = partProcess.WaitingTime;
-                partProcess.WaitingTime = Math.Round(
-                    partProcess.WaitingTime.GetValueOrDefault()
-                        + request.WaitingTime,
-                    2,
-                    MidpointRounding.AwayFromZero);
-
-                _logger.LogInformation(
-                    "WaitingTime: {OldValue} + {AddedValue} = {NewValue}",
-                    oldWaitingTime,
-                    request.WaitingTime,
-                    partProcess.WaitingTime);
-
-                var oldSetupTime = partProcess.SetupTime;
-                partProcess.SetupTime = Math.Round(
-                    partProcess.SetupTime.GetValueOrDefault()
-                        + request.SetupTime,
-                    2,
-                    MidpointRounding.AwayFromZero);
-
-                _logger.LogInformation(
-                    "SetupTime: {OldValue} + {AddedValue} = {NewValue}",
-                    oldSetupTime,
-                    request.SetupTime,
-                    partProcess.SetupTime);
 
                 partProcess.EndTime = DateTime.Now;
 

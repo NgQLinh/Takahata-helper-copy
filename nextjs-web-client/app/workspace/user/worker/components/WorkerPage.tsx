@@ -37,6 +37,7 @@ import {
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 import {
+  beginSettingUpAsync,
   completeAsync,
   pauseAsync,
   startAsync,
@@ -48,8 +49,6 @@ import "./WorkerPage.css";
 import { ApiError } from "@/app/types/common/ApiError";
 
 type ProcessingFormValues = {
-  setupTime: number;
-  waitingTime: number;
   startTime: number;
   machineTime: number;
   processedQuantity: number;
@@ -185,13 +184,6 @@ export default function WorkerPage() {
 
   function handleSelectItem(record: ManufacturingProcess): void {
     setSelectedProcess(record);
-    // processingForm.setFieldValue("processedQuantity", record.processedQuantity);
-    // processingForm.setFieldValue("setupTime", record.setupTime ?? 0);
-    // processingForm.setFieldValue("waitingTime", record.waitingTime ?? 0);
-    // processingForm.setFieldValue("performedBy", record.performedBy ?? "");
-    // processingForm.setFieldValue("workerNote", record.workerNote);
-    // processingForm.setFieldValue("programmingTime", record.programmingTime);
-    // processingForm.setFieldValue("machineTime", record.waitingTime);
   }
 
   const selectedProcessStatus = selectedProcess?.status;
@@ -238,6 +230,35 @@ export default function WorkerPage() {
         return "Bắt đầu gia công";
     }
   })();
+
+  const handleBeginSettingUp = async () => {
+    if (
+      !selectedMachine ||
+      !selectedProcess ||
+      !canStartProcessing ||
+      isActionLoading
+    ) {
+      return;
+    }
+
+    try {
+      const request = {
+        machineId: selectedMachine.id,
+        processId: selectedProcess.id,
+        partId: selectedProcess.partId,
+      };
+
+      await beginSettingUpAsync(request);
+      toast.success("Bắt đầu gá đặt thành công.");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        console.error("Không thể bắt đầu gá đặt:", error);
+        toast.error("Không thể bắt đầu gá đặt.");
+      }
+    }
+  };
 
   const handleStartProcessing = async () => {
     if (
@@ -297,8 +318,6 @@ export default function WorkerPage() {
         machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
-        setupTime: values.setupTime,
-        waitingTime: values.waitingTime,
         processedQuantity: values.processedQuantity,
         performedBy: values.performedBy,
         workerNote: values.workerNote,
@@ -347,8 +366,6 @@ export default function WorkerPage() {
         machineId: selectedMachine.id,
         processId: selectedProcess.id,
         partId: selectedProcess.partId,
-        setupTime: values.setupTime,
-        waitingTime: values.waitingTime,
         processedQuantity: values.processedQuantity,
         performedBy: values.performedBy,
         workerNote: values.workerNote,
@@ -762,6 +779,18 @@ export default function WorkerPage() {
                         type="primary"
                         size="large"
                         block
+                        className="mb-2 bg-success border-success"
+                        loading={processingAction === "start"}
+                        disabled={!canStartProcessing || isActionLoading}
+                        onClick={handleBeginSettingUp}
+                      >
+                        Bắt đầu gá đặt
+                      </Button>
+
+                      <Button
+                        type="primary"
+                        size="large"
+                        block
                         icon={<PlayCircleOutlined />}
                         loading={processingAction === "start"}
                         disabled={!canStartProcessing || isActionLoading}
@@ -780,8 +809,6 @@ export default function WorkerPage() {
                           form={processingForm}
                           layout="vertical"
                           initialValues={{
-                            setupTime: 0,
-                            waitingTime: 0,
                             startTime: 0,
                             machineTime: 0,
                             processedQuantity: 0,
@@ -792,58 +819,34 @@ export default function WorkerPage() {
                           <Row gutter={[12, 0]}>
                             <Col xs={24} sm={8}>
                               <Form.Item
-                                label="Thời gian gá đặt (giờ)"
-                                name="setupTime"
+                                label="Người thực hiện"
+                                name="performedBy"
                                 rules={[
                                   {
                                     required: true,
-                                    message: "Nhập thời gian gá đặt",
+                                    message: "Vui lòng nhập người thực hiện.",
+                                  },
+                                  {
+                                    whitespace: true,
+                                    message:
+                                      "Người thực hiện không được chỉ chứa khoảng trắng.",
+                                  },
+                                  {
+                                    max: 100,
+                                    message:
+                                      "Người thực hiện không được vượt quá 100 ký tự.",
                                   },
                                 ]}
                               >
-                                <InputNumber min={0} className="w-100" />
+                                <Input
+                                  className="w-100"
+                                  placeholder="Nhập tên người thực hiện"
+                                  maxLength={100}
+                                />
                               </Form.Item>
                             </Col>
 
                             <Col xs={24} sm={8}>
-                              <Form.Item
-                                label="Thời gian chờ (giờ)"
-                                name="waitingTime"
-                              >
-                                <InputNumber min={0} className="w-100" />
-                              </Form.Item>
-                            </Col>
-
-                            {selectedMachine != null &&
-                            !selectedMachine.isAutomatic ? (
-                              <Col xs={24} sm={8}>
-                                <Form.Item
-                                  label="Thời gian vận hành (giờ)"
-                                  name="machineTime"
-                                >
-                                  <InputNumber min={0} className="w-100" />
-                                </Form.Item>
-                              </Col>
-                            ) : (
-                              <Col xs={24} sm={8}>
-                                <Form.Item
-                                  label="Thời gian lập trình (giờ)"
-                                  name="programmingTime"
-                                >
-                                  <InputNumber
-                                    disabled={
-                                      selectedMachine != null &&
-                                      !selectedMachine.isAutomatic
-                                    }
-                                    min={0}
-                                    className="w-100"
-                                  />
-                                </Form.Item>
-                              </Col>
-                            )}
-                          </Row>
-                          <Row gutter={[12, 0]}>
-                            <Col xs={24} sm={12}>
                               <Form.Item
                                 label="Số lượng đã gia công"
                                 name="processedQuantity"
@@ -880,34 +883,33 @@ export default function WorkerPage() {
                               </Form.Item>
                             </Col>
 
-                            <Col xs={24} sm={12}>
-                              <Form.Item
-                                label="Người thực hiện"
-                                name="performedBy"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Vui lòng nhập người thực hiện.",
-                                  },
-                                  {
-                                    whitespace: true,
-                                    message:
-                                      "Người thực hiện không được chỉ chứa khoảng trắng.",
-                                  },
-                                  {
-                                    max: 100,
-                                    message:
-                                      "Người thực hiện không được vượt quá 100 ký tự.",
-                                  },
-                                ]}
-                              >
-                                <Input
-                                  className="w-100"
-                                  placeholder="Nhập tên người thực hiện"
-                                  maxLength={100}
-                                />
-                              </Form.Item>
-                            </Col>
+                            {selectedMachine != null &&
+                            !selectedMachine.isAutomatic ? (
+                              <Col xs={24} sm={8}>
+                                <Form.Item
+                                  label="Thời gian vận hành (giờ)"
+                                  name="machineTime"
+                                >
+                                  <InputNumber min={0} className="w-100" />
+                                </Form.Item>
+                              </Col>
+                            ) : (
+                              <Col xs={24} sm={8}>
+                                <Form.Item
+                                  label="Thời gian lập trình (giờ)"
+                                  name="programmingTime"
+                                >
+                                  <InputNumber
+                                    disabled={
+                                      selectedMachine != null &&
+                                      !selectedMachine.isAutomatic
+                                    }
+                                    min={0}
+                                    className="w-100"
+                                  />
+                                </Form.Item>
+                              </Col>
+                            )}
                           </Row>
 
                           <Row gutter={[12, 0]}>

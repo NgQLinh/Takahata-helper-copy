@@ -51,5 +51,16 @@ namespace TAKAHATA.Api.Controllers
                 r => Ok(r),
                 e => Problem(e));
         }
+
+        [HttpPost("begin-setting-up")]
+        [Authorize(Roles = $"{Role.Admin}, {Role.User}")]
+        public async Task<IActionResult> BeginSettingUp(BeginSettingUpCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
     }
 }

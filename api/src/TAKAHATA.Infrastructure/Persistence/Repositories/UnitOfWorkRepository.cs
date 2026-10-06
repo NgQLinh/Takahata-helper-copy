@@ -21,7 +21,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             int status,
             int partId,
             int processId,
-            double workingTime)
+            double workingTime,
+            double waitingTime,
+            double setupTime)
         {
             using var logScope = _logger.BeginScope(new Dictionary<string, object> { ["MachineLog"] = true });
 
@@ -66,7 +68,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 }
             }
 
-            // 2. Cập nhật thời gian độc lập, kể cả khi cập nhật máy thất bại
+            // 2. Cập nhật thời gian máy chạy
             if (processId != 0 && workingTime != 0)
             {
                 try
@@ -94,6 +96,72 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         "Cập nhật thời gian thất bại. " +
                         "ProcessId={ProcessId}, WorkingTime={WorkingTime}",
                         processId, workingTime);
+
+                    errors.Add(ex);
+                }
+            }
+
+            // 3. Cập nhật thời gian chờ
+            if (processId != 0 && waitingTime != 0)
+            {
+                try
+                {
+                    await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                    var affectedRows = await _dbContext.PartProcesses
+                        .Where(pp => pp.Id == processId)
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(
+                                pp => pp.WaitingTime,
+                                pp => Math.Round((pp.WaitingTime ?? 0d) + waitingTime, 2)));
+
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation(
+                        "Cập nhật thời gian thành công. " +
+                        "ProcessId={ProcessId}, WaitingTime={WaitingTime}, Rows={Rows}",
+                        processId, waitingTime, affectedRows);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Cập nhật thời gian thất bại. " +
+                        "ProcessId={ProcessId}, WaitingTime={WaitingTime}",
+                        processId, waitingTime);
+
+                    errors.Add(ex);
+                }
+            }
+
+            // 4. Cập nhật thời gian gá đặt
+            if (processId != 0 && setupTime != 0)
+            {
+                try
+                {
+                    await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                    var affectedRows = await _dbContext.PartProcesses
+                        .Where(pp => pp.Id == processId)
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(
+                                pp => pp.SetupTime,
+                                pp => Math.Round((pp.SetupTime ?? 0d) + setupTime, 2)));
+
+                    await transaction.CommitAsync();
+
+                    _logger.LogInformation(
+                        "Cập nhật thời gian thành công. " +
+                        "ProcessId={ProcessId}, SetupTime={SetupTime}, Rows={Rows}",
+                        processId, setupTime, affectedRows);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Cập nhật thời gian thất bại. " +
+                        "ProcessId={ProcessId}, SetupTime={SetupTime}",
+                        processId, setupTime);
 
                     errors.Add(ex);
                 }
