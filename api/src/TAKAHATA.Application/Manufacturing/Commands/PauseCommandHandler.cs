@@ -78,7 +78,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             }
 
             // Ghi xuống PLC
-            var result = await _iPLCService.WriteMachineData(machine, 0, 0, 2);
+            //var result = await _iPLCService.WriteMachineData(machine, 0, 0, 2);
+            var result = await _iPLCService.WriteMachineStatus(machine, 2);
 
             if (result.IsSuccess || !machine.IsAutomatic)
             {

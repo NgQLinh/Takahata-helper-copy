@@ -227,6 +227,44 @@ namespace TAKAHATA.Infrastructure.Services
             }
         }
 
+        public async Task<PLCResult<WriteResult>> WriteMachineStatus(Machine machine, int status)
+        {
+            _logger.LogInformation($"{nameof(WriteMachineStatus)}: Start");
+
+            var ip = _settingsService.GetIpAddress();
+            var port = _settingsService.GetPort();
+
+            _logger.LogInformation($"{nameof(WriteMachineStatus)}: Connection info {ip}:{port}");
+
+            var modbusClient = new ModbusClient(ip, port);
+
+            try
+            {
+                modbusClient.Connect();
+
+                int lastProcessId = modbusClient.ReadHoldingRegisters(machine.PartProcessBitAddress, 1)[0];
+
+                modbusClient.WriteSingleRegister(machine.ProcessStatusBitAddress, status);
+
+                return PLCResult<WriteResult>.Success(new WriteResult
+                {
+                    BeforeProcessId = lastProcessId,
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"{nameof(WriteMachineStatus)}: {ex.Message}");
+                return PLCResult<WriteResult>.Fail(ex);
+            }
+            finally
+            {
+                if (modbusClient != null && modbusClient.Connected)
+                {
+                    modbusClient.Disconnect();
+                }
+            }
+        }
+
         public async Task<PLCResult<WriteResult>> WriteMachineData(
             int statusBitAddress,
             int partBitAddress,

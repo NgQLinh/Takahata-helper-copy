@@ -68,7 +68,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     return Errors.Machine.NotFound;
                 }
 
-                if(machine.IsAutomatic)
+                if (machine.IsAutomatic)
                 {
                     var checkResult = await _iPLCService.IsProcessing(machine);
 
@@ -93,11 +93,8 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     machine.IsAutomatic);
 
                 // Ghi xuống PLC
-                var result = await _iPLCService.WriteMachineData(
-                    machine,
-                    0,
-                    0,
-                    3);
+                //var result = await _iPLCService.WriteMachineData(machine, 0, 0, 3);
+                var result = await _iPLCService.WriteMachineStatus(machine, 3);
 
                 _logger.LogInformation(
                     """
