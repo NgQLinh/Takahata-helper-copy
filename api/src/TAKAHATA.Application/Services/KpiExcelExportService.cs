@@ -297,7 +297,7 @@ namespace TAKAHATA.Application.Services
                     ? (item.WorkingTime ?? 0) / totalHours
                     : 0;
 
-                SetNumber(worksheet.Cell(row, 19), efficiency);
+                SetNumber(worksheet.Cell(row, 15), efficiency);
                 worksheet.Cell(row, 19).Style.NumberFormat.Format = "0.00%";
 
 
