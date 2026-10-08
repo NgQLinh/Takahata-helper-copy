@@ -36,6 +36,7 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 
 import CreateMachineMaintenanceProcess from "./CreateMachineMaintenanceProcess";
 import UpdateMachineMaintenanceProcess from "./UpdateMachineMaintenanceProcess";
+import { getStatusTag } from "@/app/utilities/UtilityState";
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -235,25 +236,7 @@ export default function MaintenanceHistoryTab({ active }: Props) {
         dataIndex: "status",
         width: 150,
         render: (status: ProcessStatus) => {
-          switch (status) {
-            case ProcessStatus.Planned:
-              return <Tag color="blue">Đã lên kế hoạch</Tag>;
-
-            case ProcessStatus.InProgress:
-              return <Tag color="processing">Đang thực hiện</Tag>;
-
-            case ProcessStatus.Completed:
-              return <Tag color="success">Hoàn thành</Tag>;
-
-            case ProcessStatus.Cancelled:
-              return <Tag color="default">Đã hủy</Tag>;
-
-            case ProcessStatus.Overdue:
-              return <Tag color="error">Quá hạn</Tag>;
-
-            default:
-              return <Tag>Không xác định</Tag>;
-          }
+          return getStatusTag(status);
         },
       },
       {

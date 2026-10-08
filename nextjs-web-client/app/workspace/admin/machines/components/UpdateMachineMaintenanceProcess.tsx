@@ -119,6 +119,7 @@ export default function UpdateMachineMaintenanceProcess({
   useEffect(() => {
     if (!enableInputTime) {
       form.setFieldValue("startTime", undefined);
+      form.setFieldValue("endTime", undefined);
     }
   }, [enableInputTime, form]);
 
