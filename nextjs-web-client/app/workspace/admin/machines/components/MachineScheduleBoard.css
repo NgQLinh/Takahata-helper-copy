@@ -10,9 +10,9 @@
   justify-content: center;
   border: 1px dashed #d9d9d9;
   border-radius: 6px;
-  color: #8c8c8c;
+  color: #FFFF;
   font-size: 12px;
-  background: #fafafa;
+  background: #949494;
 }
 
 .timeline-card {
@@ -26,12 +26,12 @@
 }
 
 .timeline-card-planned {
-  background: #e6f4ff;
+  background: #F7F29B;
   border-color: #91caff;
 }
 
 .timeline-card-in-progress {
-  background: #fff7e6;
+  background: #198754;
   border-color: #ffd591;
 }
 

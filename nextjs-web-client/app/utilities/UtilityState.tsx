@@ -22,6 +22,9 @@ export const getStatusTag = (status: ProcessStatus) => {
 
 export const getStatusText = (status: ProcessStatus) => {
   switch (status) {
+    case ProcessStatus.PendingApproval:
+      return "Chờ phê duyệt";
+
     case ProcessStatus.Planned:
       return "Đã lên kế hoạch";
 
@@ -33,6 +36,12 @@ export const getStatusText = (status: ProcessStatus) => {
 
     case ProcessStatus.Cancelled:
       return "Đã hủy";
+
+    case ProcessStatus.Overdue:
+      return "Quá hạn";
+
+    case ProcessStatus.Paused:
+      return "Tạm dừng";
 
     case ProcessStatus.PartiallyCompleted:
       return "Hoàn thành một phần";
