@@ -159,12 +159,12 @@ namespace TAKAHATA.Application.Services
             worksheet.Range("H4:J4").Clear(XLClearOptions.Contents);
             worksheet.Range("H4:J4").Merge();
 
-            worksheet.Cell("H4").Value = machines.Count switch
-            {
-                0 => string.Empty,
-                1 => machines[0],
-                _ => "ALL MACHINES"
-            };
+            //worksheet.Cell("H4").Value = machines.Count switch
+            //{
+            //    0 => string.Empty,
+            //    1 => machines[0],
+            //    _ => "ALL MACHINES"
+            //};
 
             // Điều chỉnh tên cột để khớp ý nghĩa dữ liệu DTO.
             worksheet.Cell("L7").Value = "PROGRAMMING";
@@ -284,6 +284,22 @@ namespace TAKAHATA.Application.Services
                 SetNumber(worksheet.Cell(row, 11), item.SetupTime);
                 SetNumber(worksheet.Cell(row, 12), item.ProgrammingTime);
                 SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
+                SetNumber(worksheet.Cell(row, 16), item.WaitingTime);
+
+                // Hiệu suất
+                var totalHours = item.StartTime.HasValue && item.EndTime.HasValue
+                    ? Math.Max(
+                        (item.EndTime.Value - item.StartTime.Value).TotalHours,
+                        0)
+                    : 0;
+
+                var efficiency = totalHours > 0
+                    ? (item.WorkingTime ?? 0) / totalHours
+                    : 0;
+
+                SetNumber(worksheet.Cell(row, 19), efficiency);
+                worksheet.Cell(row, 19).Style.NumberFormat.Format = "0.00%";
+
 
                 // N: P.I.C — DTO chưa có người thực hiện.
                 // O, P: Chưa có số giờ khả dụng để tính tỷ lệ, để trống.

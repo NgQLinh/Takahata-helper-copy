@@ -653,16 +653,22 @@ export function KpiReportsPage() {
       fixed: "right",
       align: "right",
       render: (_, record) => {
-        const totalMinutes = dayjs(record.endTime).diff(
-          dayjs(record.startTime),
-          "minute",
-        );
+        let totalHours = 0;
 
-        if (totalMinutes <= 0) return "-";
+        if (record.startTime && record.endTime) {
+          const start = dayjs(record.startTime);
+          const end = dayjs(record.endTime);
 
-        const efficiency = ((record.workingTime ?? 0) / totalMinutes) * 100;
+          if (start.isValid() && end.isValid()) {
+            // true: giữ phần giờ lẻ, tương đương C# TotalHours.
+            totalHours = Math.max(end.diff(start, "hour", true), 0);
+          }
+        }
 
-        return `${efficiency.toFixed(2)}%`;
+        const efficiency =
+          totalHours > 0 ? (record.workingTime ?? 0) / totalHours : 0;
+
+        return `${(efficiency * 100).toFixed(2)}%`;
       },
     },
   ];
