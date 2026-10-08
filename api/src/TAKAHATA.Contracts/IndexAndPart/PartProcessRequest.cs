@@ -16,5 +16,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
         double? EstimatedTime,
         double? ProgrammingTime,
         int? ProcessedQuantity,
-        string? Note);
+        string? Note,
+        string? WorkerNote);
 }

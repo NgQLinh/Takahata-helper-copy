@@ -101,6 +101,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     return Errors.Part.NotFoundProcess;
 
                 existingProcess.Note = process.Note;
+                existingProcess.WorkerNote = process.WorkerNote ?? string.Empty;
                 existingProcess.MachineId = process.MachineId;
                 existingProcess.PlantDate = process.PlantDate;
                 existingProcess.StartTime = process.StartTime;
@@ -128,6 +129,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
 
                     MachineId = process.MachineId,
                     Note = process.Note,
+                    WorkerNote = process.WorkerNote ?? string.Empty,
                     Status = process.Status,
                     PlantDate = process.PlantDate,
                     StartTime = process.StartTime,

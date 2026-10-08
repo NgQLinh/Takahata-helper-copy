@@ -360,6 +360,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         waitingTime: item.waitingTime,
         status: item.status,
         note: item.note?.trim() ?? "",
+        workerNote: item.workerNote?.trim() ?? "",
         performedBy: item.performedBy,
         estimatedTime: item.estimatedTime ?? 0,
         programmingTime: item.programmingTime ?? 0,

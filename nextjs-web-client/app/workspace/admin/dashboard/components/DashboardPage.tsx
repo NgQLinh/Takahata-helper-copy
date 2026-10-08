@@ -52,7 +52,7 @@ export const statusConfig: Record<
   },
 
   [MachineStatus.Stopped]: {
-    text: "STOPPED",
+    text: "IDLE",
     badge: "bg-secondary text-white",
     border: "border-secondary",
     bg: "bg-secondary",
@@ -86,6 +86,18 @@ export function DashboardPage() {
 
   const [showPlan, setShowPlan] = useState(false);
   const [machineLog, setMachineLog] = useState<MachineLog | null>(null);
+
+  const [selectedStatus, setSelectedStatus] = useState<MachineStatus | null>(
+    null,
+  );
+
+  const filteredMachineLogs = useMemo(() => {
+    if (selectedStatus === null) {
+      return machineLogs;
+    }
+
+    return machineLogs.filter((log) => log.machineStatus === selectedStatus);
+  }, [machineLogs, selectedStatus]);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(dayjs()), 1000);
@@ -144,21 +156,55 @@ export function DashboardPage() {
       style={{ height: "calc(100vh - 20px)" }}
     >
       {/* Summary */}
+      {/* Summary */}
       <div className="row g-3 mb-3 shrink-0">
-        <SummaryCard label="Running" value={summary.running} color="success" />
-        <SummaryCard label="Paused" value={summary.paused} color="warning" />
+        <SummaryCard
+          label="Running"
+          value={summary.running}
+          color="success"
+          active={selectedStatus === MachineStatus.Running}
+          onClick={() => setSelectedStatus(MachineStatus.Running)}
+        />
+
+        <SummaryCard
+          label="Paused"
+          value={summary.paused}
+          color="warning"
+          active={selectedStatus === MachineStatus.Paused}
+          onClick={() => setSelectedStatus(MachineStatus.Paused)}
+        />
+
         <SummaryCard
           label="Stopped"
           value={summary.stopped}
           color="secondary"
+          active={selectedStatus === MachineStatus.Stopped}
+          onClick={() => setSelectedStatus(MachineStatus.Stopped)}
         />
-        <SummaryCard label="Alarm" value={summary.alarm} color="danger" />
+
+        <SummaryCard
+          label="Alarm"
+          value={summary.alarm}
+          color="danger"
+          active={selectedStatus === MachineStatus.Alarm}
+          onClick={() => setSelectedStatus(MachineStatus.Alarm)}
+        />
+
         <SummaryCard
           label="Maintenance"
           value={summary.maintenance}
           color="info"
+          active={selectedStatus === MachineStatus.Maintenance}
+          onClick={() => setSelectedStatus(MachineStatus.Maintenance)}
         />
-        <SummaryCard label="Total" value={summary.total} color="dark" />
+
+        <SummaryCard
+          label="Total"
+          value={summary.total}
+          color="dark"
+          active={selectedStatus === null}
+          onClick={() => setSelectedStatus(null)}
+        />
       </div>
 
       {/* Danh sách máy */}
@@ -171,7 +217,7 @@ export function DashboardPage() {
         <div className="card-body overflow-hidden">
           <div className="overflow-auto h-100">
             <div className="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3">
-              {machineLogs.map((log) => (
+              {filteredMachineLogs.map((log) => (
                 <div
                   key={`${log.id}-${String(log.machineStatusChangeAt)}`}
                   className="col"
@@ -370,19 +416,38 @@ function SummaryCard({
   label,
   value,
   color = "dark",
+  active = false,
+  onClick,
 }: {
   label: string;
   value: number;
   color?: string;
+  active?: boolean;
+  onClick: () => void;
 }) {
   return (
     <div className="col">
-      <div className={`card border-${color} h-100`}>
-        <div className="card-body text-center">
+      <button
+        type="button"
+        aria-pressed={active}
+        onClick={onClick}
+        className={`card border-${color} h-100 w-100 p-0 ${
+          active ? "shadow border-3" : ""
+        }`}
+        style={{
+          cursor: "pointer",
+          backgroundColor: active
+            ? `var(--bs-${color}-bg-subtle, #f0f0f0)`
+            : "var(--bs-body-bg, #fff)",
+          transition: "background-color 0.2s, box-shadow 0.2s",
+        }}
+      >
+        <div className="card-body text-center w-100">
           <div className={`text-${color} fw-semibold`}>{label}</div>
+
           <h2 className={`text-${color} mb-0`}>{value}</h2>
         </div>
-      </div>
+      </button>
     </div>
   );
 }

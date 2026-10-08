@@ -20,6 +20,7 @@ export interface ManufacturingProcess {
   startTime?: Dayjs | null;
   endTime?: Dayjs | null;
   estimatedTime?: number | null;
+  workingTime?: number | null;
   setupTime?: number | null;
   programmingTime?: number | null;
   waitingTime?: number | null;
@@ -28,4 +29,5 @@ export interface ManufacturingProcess {
   prioritize: boolean | false;
   processType?: ManufacturingProcessType | null;
   isOverdue?: boolean | null;
+  totalTime?: number | null;
 }

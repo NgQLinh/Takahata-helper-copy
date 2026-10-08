@@ -568,22 +568,6 @@ export function KpiReportsPage() {
               ? dayjs(date).format("DD/MM/YYYY HH:mm")
               : "-",
         },
-        // {
-        //   title: "Tổng",
-        //   width: 100,
-        //   key: "totalTime",
-        //   render: (_, record) => {
-        //     const diffMinutes = dayjs(record.endTime).diff(
-        //       record.startTime,
-        //       "minute",
-        //     );
-
-        //     const h = Math.floor(diffMinutes / 60);
-        //     const m = diffMinutes % 60;
-
-        //     return `${h}h ${m}m`;
-        //   },
-        // },
       ],
     },
 

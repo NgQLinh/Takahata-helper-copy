@@ -143,12 +143,32 @@ export default function DetailPlant({
         render: (value) => value || "-",
       },
       {
+        title: "Bắt đầu",
+        dataIndex: "startTime",
+        width: 150,
+        render: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+      },
+      {
+        title: "Kết thúc",
+        dataIndex: "endTime",
+        width: 150,
+        render: (value) =>
+          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+      },
+      {
         title: "Dự kiến (giờ)",
         fixed: "left",
         dataIndex: "estimatedTime",
         width: 170,
         ellipsis: true,
         render: (value) => (value != null ? `${value} giờ` : "-"),
+      },
+      {
+        title: "Máy chạy (giờ)",
+        dataIndex: "workingTime",
+        width: 120,
+        align: "center",
       },
       {
         title: "Gá đặt (giờ)",
@@ -169,18 +189,12 @@ export default function DetailPlant({
         align: "center",
       },
       {
-        title: "Bắt đầu",
-        dataIndex: "startTime",
-        width: 150,
-        render: (value) =>
-          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
-      },
-      {
-        title: "Kết thúc",
-        dataIndex: "endTime",
-        width: 150,
-        render: (value) =>
-          value ? dayjs(value).format("DD/MM/YYYY HH:mm:ss") : "-",
+        title: "Tổng (giờ)",
+        width: 120,
+        dataIndex: "totalTime",
+        key: "totalTime",
+        align: "right",
+        render: (value?: number) => value?.toFixed(2) ?? "-",
       },
       {
         title: "Số lượng",

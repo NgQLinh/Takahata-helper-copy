@@ -189,6 +189,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     Status = x.Part != null && x.Part.Status == ProcessStatus.PendingApproval ? ProcessStatus.PendingApproval : x.Status,
                     ProcessType = ManufacturingProcessType.PartProcess,
                     IsOverdue = x.IsOverdue,
+                    TotalTime = (x.WorkingTime ?? 0) + (x.SetupTime ?? 0) + (x.WaitingTime ?? 0) + (x.ProgrammingTime ?? 0),
                 })
                 .ToListAsync();
 
