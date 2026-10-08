@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.Report;
 
@@ -73,72 +75,183 @@ namespace TAKAHATA.Application.Services
         }
 
         public byte[] ExportPartProcesses(
+            IWebHostEnvironment environment,
             IReadOnlyCollection<PartProcessKPIResponse> items,
             DateOnly from,
             DateOnly to)
         {
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Part Process KPI");
-            const int lastColumn = 18;
+            ArgumentNullException.ThrowIfNull(environment);
+            ArgumentNullException.ThrowIfNull(items);
 
-            CreateTitle(
-                worksheet,
-                "BÁO CÁO THỜI GIAN GIA CÔNG PART",
-                from,
-                to,
-                lastColumn);
-
-            var headers = new[]
+            if (from > to)
             {
-                "STT",
-                "Ngày kế hoạch",
-                "Mã máy",
-                "Tên máy",
-                "Index",
-                "Part",
-                "Ước tính (giờ)",
-                "Bắt đầu",
-                "Kết thúc",
-                "Máy chạy (Giờ)",
-                "Gá đặt (Giờ)",
-                "Chờ (Giờ)",
-                "Lập trình (Giờ)",
-                "Tổng (Giờ)",
-                "Số lượng",
-                "Đã hoàn thành",
-                "Trạng thái",
-                "Hiệu suất (%)"
+                throw new ArgumentException(
+                    "Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc.",
+                    nameof(from));
+            }
+
+            const int firstDataRow = 8;
+            const int lastColumn = 19; // S
+
+            if (items.Count > 1_048_576 - firstDataRow + 1)
+            {
+                throw new ArgumentException(
+                    "Số lượng dữ liệu vượt quá giới hạn dòng của Excel.",
+                    nameof(items));
+            }
+
+            var templatePath = Path.Combine(
+                environment.ContentRootPath,
+                "templates",
+                "detail_template.xlsx");
+
+            // Copy template vào RAM, đóng file trước khi xử lý workbook.
+            // Các request có thể cùng đọc template.
+            using var templateStream = new MemoryStream();
+
+            using (var fileStream = new FileStream(
+                templatePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read))
+            {
+                fileStream.CopyTo(templateStream);
+            }
+
+            templateStream.Position = 0;
+
+            // Mỗi lần gọi tạo workbook riêng, không chia sẻ giữa các request.
+            using var workbook = new XLWorkbook(templateStream);
+
+            var worksheet = workbook.Worksheets.FirstOrDefault(
+                x => string.Equals(
+                    x.Name.Trim(),
+                    "DETAIL",
+                    StringComparison.OrdinalIgnoreCase))
+                ?? throw new InvalidOperationException(
+                    "Template không có worksheet DETAIL.");
+
+            // Kỳ báo cáo.
+            worksheet.Range("A4:F4").Unmerge();
+            worksheet.Range("A4:F4").Clear(XLClearOptions.Contents);
+            worksheet.Range("A4:F4").Merge();
+
+            worksheet.Cell("A4").Value =
+                $"PERIOD: {from:dd/MM/yyyy} - {to:dd/MM/yyyy}";
+
+            worksheet.Range("A4:F4").Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Left;
+
+            // Máy hiển thị trên tiêu đề.
+            var machines = items
+                .GroupBy(x => x.MachineId)
+                .Select(g =>
+                {
+                    var machine = g.First();
+
+                    return !string.IsNullOrWhiteSpace(machine.MachineCode)
+                        ? machine.MachineCode!
+                        : machine.MachineName ?? machine.MachineId.ToString();
+                })
+                .ToList();
+
+            worksheet.Range("H4:J4").Unmerge();
+            worksheet.Range("H4:J4").Clear(XLClearOptions.Contents);
+            worksheet.Range("H4:J4").Merge();
+
+            worksheet.Cell("H4").Value = machines.Count switch
+            {
+                0 => string.Empty,
+                1 => machines[0],
+                _ => "ALL MACHINES"
             };
 
-            WriteHeaders(worksheet, headers);
+            // Điều chỉnh tên cột để khớp ý nghĩa dữ liệu DTO.
+            worksheet.Cell("L7").Value = "PROGRAMMING";
+            worksheet.Cell("M6").Value = "WORKING TIME\n(h)";
+            worksheet.Cell("R7").Value = "Processed Qty";
 
-            var row = HeaderRow + 1;
-            var index = 1;
+            // Xóa dữ liệu cũ nếu template được bổ sung dữ liệu sau này.
+            var oldLastRow = worksheet.LastRowUsed()?.RowNumber() ?? 7;
+
+            if (oldLastRow >= firstDataRow)
+            {
+                worksheet.Range(
+                    firstDataRow, 1,
+                    oldLastRow, lastColumn)
+                    .Clear(XLClearOptions.Contents);
+            }
+
+            var lastDataRow = firstDataRow + items.Count - 1;
+            var lastReportRow = Math.Max(firstDataRow, lastDataRow);
+
+            // Template hiện tại chưa có dòng mẫu dữ liệu.
+            var dataRange = worksheet.Range(
+                firstDataRow, 1,
+                lastReportRow, lastColumn);
+
+            dataRange.Style.Font.FontName = "Arial";
+            dataRange.Style.Font.FontSize = 10;
+            dataRange.Style.Font.Bold = false;
+
+            dataRange.Style.Alignment.Vertical =
+                XLAlignmentVerticalValues.Center;
+
+            dataRange.Style.Alignment.Horizontal =
+                XLAlignmentHorizontalValues.Center;
+
+            dataRange.Style.Alignment.WrapText = true;
+
+            dataRange.Style.Border.OutsideBorder =
+                XLBorderStyleValues.Thin;
+
+            dataRange.Style.Border.InsideBorder =
+                XLBorderStyleValues.Thin;
+
+            worksheet.Range(firstDataRow, 4, lastReportRow, 7)
+                .Style.Alignment.Horizontal =
+                    XLAlignmentHorizontalValues.Left;
+
+            worksheet.Range(firstDataRow, 19, lastReportRow, 19)
+                .Style.Alignment.Horizontal =
+                    XLAlignmentHorizontalValues.Left;
+
+            worksheet.Range(firstDataRow, 1, lastReportRow, 1)
+                .Style.NumberFormat.Format = "dd/MM/yyyy";
+
+            worksheet.Range(firstDataRow, 8, lastReportRow, 9)
+                .Style.NumberFormat.Format = "hh:mm";
+
+            worksheet.Range(firstDataRow, 10, lastReportRow, 13)
+                .Style.NumberFormat.Format = "#,##0.00";
+
+            worksheet.Range(firstDataRow, 18, lastReportRow, 18)
+                .Style.NumberFormat.Format = "#,##0";
+
+            var row = firstDataRow;
 
             foreach (var item in items)
             {
-                var totalMinutes = item.StartTime.HasValue && item.EndTime.HasValue
-                    ? Math.Max((item.EndTime.Value - item.StartTime.Value).TotalMinutes, 0)
-                    : 0;
+                worksheet.Row(row).Height = 32;
 
-                var efficiency = totalMinutes > 0
-                    ? (item.WorkingTime ?? 0) / totalMinutes * 100
-                    : 0;
+                // A: Ngày thực hiện; ưu tiên ngày bắt đầu.
+                var reportDate = item.StartTime?.Date
+                    ?? item.PlantDate?.ToDateTime(TimeOnly.MinValue);
 
-                worksheet.Cell(row, 1).Value = index++;
-
-                if (item.PlantDate.HasValue)
+                if (reportDate.HasValue)
                 {
-                    worksheet.Cell(row, 2).Value =
-                        item.PlantDate.Value.ToDateTime(TimeOnly.MinValue);
+                    worksheet.Cell(row, 1).Value = reportDate.Value;
                 }
 
-                worksheet.Cell(row, 3).Value = item.MachineCode ?? string.Empty;
-                worksheet.Cell(row, 4).Value = item.MachineName ?? item.MachineCode ?? string.Empty;
-                worksheet.Cell(row, 5).Value = item.IndexCode ?? string.Empty;
-                worksheet.Cell(row, 6).Value = item.PartCode;
-                worksheet.Cell(row, 7).Value = item.EstimatedTime ?? 0;
+                // B: ACC FIX ASSETS — DTO chưa có, để trống.
+                worksheet.Cell(row, 3).Value = item.MachineCode ?? "";
+                worksheet.Cell(row, 4).Value = item.MachineName ?? "";
 
+                // E: CLASSIFICATION — DTO chưa có, để trống.
+                worksheet.Cell(row, 6).Value = item.IndexCode ?? "";
+                worksheet.Cell(row, 7).Value = item.PartCode;
+
+                // H, I: Lưu kiểu ngày giờ, hiển thị hh:mm.
                 if (item.StartTime.HasValue)
                 {
                     worksheet.Cell(row, 8).Value = item.StartTime.Value;
@@ -149,36 +262,91 @@ namespace TAKAHATA.Application.Services
                     worksheet.Cell(row, 9).Value = item.EndTime.Value;
                 }
 
-                worksheet.Cell(row, 10).Value = item.WorkingTime ?? 0;
-                worksheet.Cell(row, 11).Value = item.SetupTime ?? 0;
-                worksheet.Cell(row, 12).Value = item.WaitingTime ?? 0;
-                worksheet.Cell(row, 13).Value = item.ProgrammingTime ?? 0;
-                worksheet.Cell(row, 14).Value = item.TotalTime ?? 0;
-                worksheet.Cell(row, 15).Value = item.Quantity;
-                worksheet.Cell(row, 16).Value = item.ProcessedQuantity;
-                worksheet.Cell(row, 17).Value = item.Status.ToString();
-                worksheet.Cell(row, 18).Value = efficiency;
+                // J: Tổng thời gian (giờ).
+                if (item.TotalTime.HasValue)
+                {
+                    worksheet.Cell(row, 10).Value = item.TotalTime.Value;
+                }
+                else if (
+                    item.WorkingTime.HasValue ||
+                    item.SetupTime.HasValue ||
+                    item.WaitingTime.HasValue ||
+                    item.ProgrammingTime.HasValue)
+                {
+                    worksheet.Cell(row, 10).Value =
+                        (item.WorkingTime ?? 0)
+                        + (item.SetupTime ?? 0)
+                        + (item.WaitingTime ?? 0)
+                        + (item.ProgrammingTime ?? 0);
+                }
+
+                // K: Setup; L: Programming; M: Working.
+                SetNumber(worksheet.Cell(row, 11), item.SetupTime);
+                SetNumber(worksheet.Cell(row, 12), item.ProgrammingTime);
+                SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
+
+                // N: P.I.C — DTO chưa có người thực hiện.
+                // O, P: Chưa có số giờ khả dụng để tính tỷ lệ, để trống.
+
+                worksheet.Cell(row, 17).Value = item.PartType.ToString();
+                worksheet.Cell(row, 18).Value = item.ProcessedQuantity;
+
+                // S: Thông tin bổ sung.
+                //var notes = new List<string>
+                //{
+                //    $"Status: {item.Status}",
+                //    $"Quantity: {item.Quantity}"
+                //};
+
+                //if (item.WaitingTime.HasValue)
+                //{
+                //    notes.Add(FormattableString.Invariant(
+                //        $"Waiting: {item.WaitingTime.Value:0.00} h"));
+                //}
+
+                //if (item.EstimatedTime.HasValue)
+                //{
+                //    notes.Add(FormattableString.Invariant(
+                //        $"Estimated: {item.EstimatedTime.Value:0.00} h"));
+                //}
+
+                //worksheet.Cell(row, 19).Value = string.Join("\n", notes);
+
                 row++;
             }
 
-            if (row > HeaderRow + 1)
+            worksheet.SheetView.FreezeRows(7);
+
+            if (items.Count > 0)
             {
-                worksheet.Range(HeaderRow + 1, 2, row - 1, 2)
-                    .Style.DateFormat.Format = "dd/MM/yyyy";
-
-                worksheet.Range(HeaderRow + 1, 8, row - 1, 9)
-                    .Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
-
-
-                worksheet.Range(HeaderRow + 1, 10, row - 1, 14)
-                    .Style.NumberFormat.Format = "0.00";
-
-                worksheet.Range(HeaderRow + 1, 18, row - 1, 19)
-                    .Style.NumberFormat.Format = "0.00";
+                worksheet.Range(7, 1, lastDataRow, lastColumn)
+                    .SetAutoFilter();
             }
 
-            FinishWorksheet(worksheet, row - 1, lastColumn);
-            return Save(workbook);
+            // Giữ chiều rộng cột của template.
+            worksheet.PageSetup.PageOrientation =
+                XLPageOrientation.Landscape;
+
+            worksheet.PageSetup.FitToPages(1, 0);
+            worksheet.PageSetup.SetRowsToRepeatAtTop(1, 7);
+
+            worksheet.PageSetup.PrintAreas.Clear();
+            worksheet.PageSetup.PrintAreas.Add(
+                $"A1:S{lastReportRow}");
+
+            using var outputStream = new MemoryStream();
+
+            workbook.SaveAs(outputStream);
+
+            return outputStream.ToArray();
+
+            static void SetNumber(IXLCell cell, double? value)
+            {
+                if (value.HasValue)
+                {
+                    cell.Value = value.Value;
+                }
+            }
         }
 
         private static void CreateTitle(

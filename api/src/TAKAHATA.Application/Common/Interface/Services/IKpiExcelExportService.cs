@@ -1,4 +1,5 @@
-﻿using TAKAHATA.Contracts.Report;
+﻿using Microsoft.AspNetCore.Hosting;
+using TAKAHATA.Contracts.Report;
 
 namespace TAKAHATA.Application.Common.Interface.Services
 {
@@ -10,6 +11,7 @@ namespace TAKAHATA.Application.Common.Interface.Services
             DateOnly to);
 
         byte[] ExportPartProcesses(
+            IWebHostEnvironment environment,
             IReadOnlyCollection<PartProcessKPIResponse> items,
             DateOnly from,
             DateOnly to);

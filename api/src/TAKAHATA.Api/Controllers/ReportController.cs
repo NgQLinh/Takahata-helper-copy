@@ -9,14 +9,18 @@ namespace TAKAHATA.Api.Controllers
     {
         private ISender _sender;
         private IKpiExcelExportService _kpiExcelExportService;
+        private readonly IWebHostEnvironment _environment;
+
         private const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         public ReportController(
             ISender sender,
-            IKpiExcelExportService kpiExcelExportService)
+            IKpiExcelExportService kpiExcelExportService,
+            IWebHostEnvironment environment)
         {
             _sender = sender;
             _kpiExcelExportService = kpiExcelExportService;
+            _environment = environment;
         }
 
 
@@ -101,6 +105,7 @@ namespace TAKAHATA.Api.Controllers
 
                     var fileBytes =
                         _kpiExcelExportService.ExportPartProcesses(
+                            _environment,
                             data,
                             from,
                             to);
