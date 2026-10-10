@@ -247,6 +247,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
             return await _dbContext.Parts
                 .Where(p => partIds.Contains(p.Id))
+                .Include(p => p.Index)
                 .ToListAsync();
         }
     }

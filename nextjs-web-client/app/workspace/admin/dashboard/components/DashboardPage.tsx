@@ -353,33 +353,21 @@ function MachineCard({
         {/* Hàng 3: Part code + nút kế hoạch */}
         <div
           className="
-            flex min-h-23
+            d-flex flex-column min-h-23
             items-center justify-between
             gap-3
             bg-slate-50
             px-4 py-3
           "
         >
-          <div className="min-w-0 flex-1">
-            <div
-              className="
-                text-xs font-semibold
-                uppercase tracking-wider
-                text-slate-500
-              "
-            >
-              Part Code
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="shrink-0 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Tên chi tiết:
             </div>
 
             <Tooltip title={machineLog?.part?.code}>
-              <div
-                className="
-                  mt-1
-                  w-full truncate
-                  text-xl font-bold
-                  text-slate-800
-                "
-              >
+              <div className="min-w-0 flex-1 truncate text-xl font-bold text-slate-800">
+                {machineLog?.part?.index?.code ?? "-"}-
                 {machineLog?.part?.code ?? "-"}
               </div>
             </Tooltip>
