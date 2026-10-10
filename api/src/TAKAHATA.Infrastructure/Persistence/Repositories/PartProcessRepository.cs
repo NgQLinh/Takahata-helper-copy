@@ -43,7 +43,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     .Where(pp =>
                         pp.PlantDate == today.AddDays(-1) &&
                         (pp.Status == ProcessStatus.Paused ||
-                         pp.Status == ProcessStatus.PartiallyCompleted))
+                         pp.Status == ProcessStatus.PartiallyCompleted ||
+                         pp.Status == ProcessStatus.InProgress ||
+                         pp.Status == ProcessStatus.Planned))
                     .ToListAsync();
 
                 if (partProcesses.Count == 0)
@@ -51,7 +53,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
                 var overdueProcesses = new List<PartProcess>();
 
-                foreach (var partProcess in partProcesses)
+                // Tạm dừng hoặc hoàn thành một phần sẽ gia hạn sang ngày hôm sau
+                foreach (var partProcess in partProcesses.Where(pp => pp.Status == ProcessStatus.Paused || pp.Status == ProcessStatus.PartiallyCompleted))
                 {
                     var part = await _dbContext.Parts
                         .Include(p => p.Processes)
@@ -117,8 +120,17 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 }
 
                 await _dbContext.PartProcesses.AddRangeAsync(overdueProcesses);
-                await _dbContext.SaveChangesAsync();
 
+                // Đang gia công chưa xong hoặc chưa gia công sẽ chuyển tiếp sang ngày hôm sau
+                var updateProcesses = new List<PartProcess>();
+                foreach (var partProcess in partProcesses.Where(pp => pp.Status == ProcessStatus.InProgress || pp.Status == ProcessStatus.Planned))
+                {
+                    partProcess.PlantDate = today;
+                    updateProcesses.Add(partProcess);
+                }
+                _dbContext.PartProcesses.UpdateRange(updateProcesses);
+
+                await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
             catch
