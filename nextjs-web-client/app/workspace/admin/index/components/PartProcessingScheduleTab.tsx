@@ -440,25 +440,11 @@ export default function PartProcessingScheduleTab({ active }: Props) {
               );
             }
 
-            if (!process.startTime) {
-              return <span className="empty-cell">-</span>;
-            }
-
             return (
               <span className="actual-date">
                 <CalendarOutlined />
-                {dayjs(process.startTime).format("DD/MM")}-
+                {process.startTime != null ? dayjs(process.startTime).format("DD/MM") : ""}-
                 {process.workingTime ?? 0}h
-                {/* {(process.workingTime != null || process.setupTime != null) && (
-                  <>
-                    {Number(
-                      (
-                        (process.workingTime ?? 0) + (process.setupTime ?? 0)
-                      ).toFixed(2),
-                    )}
-                    h
-                  </>
-                )} */}
               </span>
             );
           },
