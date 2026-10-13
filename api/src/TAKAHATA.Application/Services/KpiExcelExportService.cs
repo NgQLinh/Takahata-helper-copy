@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.Report;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TAKAHATA.Application.Services
 {
@@ -167,7 +168,6 @@ namespace TAKAHATA.Application.Services
             //};
 
             // Điều chỉnh tên cột để khớp ý nghĩa dữ liệu DTO.
-            worksheet.Cell("L7").Value = "PROGRAMMING";
             worksheet.Cell("M6").Value = "WORKING TIME\n(h)";
             worksheet.Cell("R7").Value = "Processed Qty";
 
@@ -282,23 +282,14 @@ namespace TAKAHATA.Application.Services
 
                 // K: Setup; L: Programming; M: Working.
                 SetNumber(worksheet.Cell(row, 11), item.SetupTime);
-                SetNumber(worksheet.Cell(row, 12), item.ProgrammingTime);
+                SetNumber(worksheet.Cell(row, 12), item.WaitingTime);
                 SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
-                SetNumber(worksheet.Cell(row, 16), item.WaitingTime);
+
+                // TOTAL UTILIZATION RATE OF DAY(%)
+                worksheet.Cell(row, 16).FormulaA1 = $"100-O{row}";
 
                 // Hiệu suất
-                var totalHours = item.StartTime.HasValue && item.EndTime.HasValue
-                    ? Math.Max(
-                        (item.EndTime.Value - item.StartTime.Value).TotalHours,
-                        0)
-                    : 0;
-
-                var efficiency = totalHours > 0
-                    ? (item.WorkingTime ?? 0) / totalHours
-                    : 0;
-
-                SetNumber(worksheet.Cell(row, 15), efficiency);
-                worksheet.Cell(row, 15).Style.NumberFormat.Format = "0.00%";
+                worksheet.Cell(row, 15).FormulaA1 = $"SUM(J{row})*100/24";
 
 
                 // N: P.I.C — DTO chưa có người thực hiện.
@@ -318,7 +309,7 @@ namespace TAKAHATA.Application.Services
                 //{
                 //    notes.Add(FormattableString.Invariant(
                 //        $"Waiting: {item.WaitingTime.Value:0.00} h"));
-                //}
+                //
 
                 //if (item.EstimatedTime.HasValue)
                 //{

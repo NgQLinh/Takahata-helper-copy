@@ -72,6 +72,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     if (partProcess.StartTime == null)
                         partProcess.StartTime = DateTime.Now;
 
+                    partProcess.IsSettingUp = false;
                     partProcess = await _partProcessRepository.UpdateAsync(partProcess);
 
                     if (partProcess == null)

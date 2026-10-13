@@ -314,7 +314,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     WaitingTime = pp.WaitingTime,
                     WorkingTime = pp.WorkingTime,
                     ProgrammingTime = pp.ProgrammingTime,
-                    TotalTime = (pp.WorkingTime ?? 0) + (pp.SetupTime ?? 0) + (pp.WaitingTime ?? 0) + (pp.ProgrammingTime ?? 0),
+                    TotalTime = (pp.WorkingTime ?? 0) + (pp.SetupTime ?? 0) + (pp.WaitingTime ?? 0) /*+ (pp.ProgrammingTime ?? 0)*/,
                     MachineId = pp.MachineId,
                     EstimatedTime = pp.EstimatedTime,
                     PartType = p.PartType,
