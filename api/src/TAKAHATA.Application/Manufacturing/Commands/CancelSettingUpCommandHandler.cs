@@ -57,7 +57,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
             }
             else
             {
-                return Errors.Machine.IsProcessingPLC;
+                return Errors.Machine.TimeOut;
             }
         }
     }
