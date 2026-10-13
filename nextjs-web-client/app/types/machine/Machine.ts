@@ -24,4 +24,6 @@ export interface Machine {
   partProcessBitAddress: number | null;
 
   hasScheduledMaintenance: boolean | null;
+
+  idle: boolean | false;
 }

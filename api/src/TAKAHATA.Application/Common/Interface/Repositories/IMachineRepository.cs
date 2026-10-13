@@ -17,5 +17,6 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<List<MachineKPIResponse>> SearchKPIAsync(string? searchMachineKeyword, DateTime from, DateTime to);
         Task<IEnumerable<Machine>> GetByIdsAsync(List<int> machineIds);
         Task<bool> IsProcessing(int machineId);
+        Task<IEnumerable<int>> GetHasPlantMachine(List<int> machineIds);
     }
 }

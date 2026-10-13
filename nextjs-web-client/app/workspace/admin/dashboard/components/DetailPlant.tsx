@@ -1,6 +1,7 @@
 import { getPartProcessByMachineAsync } from "@/app/services/machine/MachineService";
 import { ManufacturingProcess } from "@/app/types";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
+import { getStatusTag } from "@/app/utilities/UtilityState";
 import { Modal, Table, Tag } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -11,60 +12,6 @@ interface DetailPlantProps {
   open: boolean;
   machineId: number | null;
   onClose?: () => void;
-}
-
-const statusMap: Record<
-  ProcessStatus,
-  {
-    color: string;
-    text: string;
-  }
-> = {
-  [ProcessStatus.Planned]: {
-    color: "blue",
-    text: "Đã lên kế hoạch",
-  },
-  [ProcessStatus.InProgress]: {
-    color: "processing",
-    text: "Đang thực hiện",
-  },
-  [ProcessStatus.Completed]: {
-    color: "success",
-    text: "Hoàn thành",
-  },
-  [ProcessStatus.PartiallyCompleted]: {
-    color: "gold",
-    text: "Hoàn thành một phần",
-  },
-  [ProcessStatus.Cancelled]: {
-    color: "error",
-    text: "Đã hủy",
-  },
-  [ProcessStatus.Overdue]: {
-    color: "warning",
-    text: "Quá hạn",
-  },
-  [ProcessStatus.Paused]: {
-    color: "warning",
-    text: "Tạm dừng",
-  },
-  [ProcessStatus.PendingApproval]: {
-    color: "warning",
-    text: "Chờ phê duyệt",
-  },
-};
-
-function ProcessStatusTag({ status }: { status?: ProcessStatus }) {
-  if (status === undefined || status === null) {
-    return <Tag>Không xác định</Tag>;
-  }
-
-  const current = statusMap[status] ?? {
-    color: "default",
-    text: "Không xác định",
-  };
-
-  return <Tag color={current.color}>{current.text}</Tag>;
 }
 
 export default function DetailPlant({
@@ -229,7 +176,7 @@ export default function DetailPlant({
         dataIndex: "status",
         width: 160,
         align: "center",
-        render: (status: ProcessStatus) => <ProcessStatusTag status={status} />,
+        render: (status: ProcessStatus) => getStatusTag(status),
       },
     ],
     [page, pageSize],

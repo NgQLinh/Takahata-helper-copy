@@ -62,6 +62,9 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 if (partProcess == null)
                     return Errors.Part.NotFoundProcess;
 
+                partProcess.IsSettingUp = true;
+                await _partProcessRepository.UpdateAsync(partProcess);
+
                 _logger.LogInformation($"Bắt đầu gá đặt thành công");
 
                 return new ManufacturingProcessResponse

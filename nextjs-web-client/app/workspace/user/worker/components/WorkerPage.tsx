@@ -38,6 +38,7 @@ import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import CreatePart from "@/app/workspace/admin/index/components/CreatePart";
 import {
   beginSettingUpAsync,
+  cancelSettingUpAsync,
   completeAsync,
   pauseAsync,
   startAsync,
@@ -47,6 +48,7 @@ const { Text } = Typography;
 
 import "./WorkerPage.css";
 import { ApiError } from "@/app/types/common/ApiError";
+import { getStatusTag } from "@/app/utilities/UtilityState";
 
 type ProcessingFormValues = {
   startTime: number;
@@ -250,12 +252,43 @@ export default function WorkerPage() {
 
       await beginSettingUpAsync(request);
       toast.success("Bắt đầu gá đặt thành công.");
+      await fetchManufacturingProcess();
     } catch (error) {
       if (error instanceof ApiError) {
         toast.error(error.getDisplayMessage());
       } else {
         console.error("Không thể bắt đầu gá đặt:", error);
         toast.error("Không thể bắt đầu gá đặt.");
+      }
+    }
+  };
+
+  const handleCancelSettingUp = async () => {
+    if (
+      !selectedMachine ||
+      !selectedProcess ||
+      !canStartProcessing ||
+      isActionLoading
+    ) {
+      return;
+    }
+
+    try {
+      const request = {
+        machineId: selectedMachine.id,
+        processId: selectedProcess.id,
+        partId: selectedProcess.partId,
+      };
+
+      await cancelSettingUpAsync(request);
+      toast.success("Hủy gá đặt thành công.");
+      await fetchManufacturingProcess();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        console.error("Không thể hủy gá đặt:", error);
+        toast.error("Không thể hủy gá đặt.");
       }
     }
   };
@@ -476,52 +509,15 @@ export default function WorkerPage() {
       dataIndex: "status",
       width: 130,
       align: "center",
-      render: (status: ProcessStatus) => {
-        const statusMap: Record<
-          ProcessStatus,
-          { color: string; text: string }
-        > = {
-          [ProcessStatus.Planned]: {
-            color: "blue",
-            text: "Đã lên kế hoạch",
-          },
-          [ProcessStatus.InProgress]: {
-            color: "processing",
-            text: "Đang thực hiện",
-          },
-          [ProcessStatus.Completed]: {
-            color: "success",
-            text: "Hoàn thành",
-          },
-          [ProcessStatus.PartiallyCompleted]: {
-            color: "gold",
-            text: "Hoàn thành một phần",
-          },
-          [ProcessStatus.Cancelled]: {
-            color: "error",
-            text: "Đã hủy",
-          },
-          [ProcessStatus.Overdue]: {
-            color: "warning",
-            text: "Quá hạn",
-          },
-          [ProcessStatus.Paused]: {
-            color: "warning",
-            text: "Tạm dừng",
-          },
-          [ProcessStatus.PendingApproval]: {
-            color: "warning",
-            text: "Chờ phê duyệt",
-          },
-        };
-
-        const current = statusMap[status] ?? {
-          color: "default",
-          text: "Không xác định",
-        };
-
-        return <Tag color={current.color}>{current.text}</Tag>;
-      },
+      render: (status: ProcessStatus, record: { isSettingUp: boolean }) => (
+        <div className="d-flex flex-column align-items-center gap-1">
+          {record.isSettingUp === true ? (
+            <Tag color="cyan">Đang gá đặt</Tag>
+          ) : (
+            getStatusTag(status)
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -775,17 +771,33 @@ export default function WorkerPage() {
                         )}
                       </div>
 
-                      <Button
-                        type="primary"
-                        size="large"
-                        block
-                        className="mb-2 bg-success border-success"
-                        loading={processingAction === "start"}
-                        disabled={!canStartProcessing || isActionLoading}
-                        onClick={handleBeginSettingUp}
-                      >
-                        Bắt đầu gá đặt
-                      </Button>
+                      <div className="d-flex flex-row gap-2 shrink-0">
+                        <Button
+                          type="primary"
+                          size="large"
+                          block
+                          className="mb-2 bg-success border-success"
+                          loading={processingAction === "start"}
+                          disabled={
+                            !canStartProcessing ||
+                            isActionLoading ||
+                            selectedProcess?.isSettingUp
+                          }
+                          onClick={handleBeginSettingUp}
+                        >
+                          Bắt đầu gá đặt
+                        </Button>
+                        <Button
+                          size="large"
+                          className="mb-2"
+                          disabled={
+                            isActionLoading || !selectedProcess?.isSettingUp
+                          }
+                          onClick={handleCancelSettingUp}
+                        >
+                          Bỏ
+                        </Button>
+                      </div>
 
                       <Button
                         type="primary"

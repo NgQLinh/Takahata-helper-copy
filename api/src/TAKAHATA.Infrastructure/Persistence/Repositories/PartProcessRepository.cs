@@ -202,6 +202,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     ProcessType = ManufacturingProcessType.PartProcess,
                     IsOverdue = x.IsOverdue,
                     TotalTime = (x.WorkingTime ?? 0) + (x.SetupTime ?? 0) + (x.WaitingTime ?? 0) + (x.ProgrammingTime ?? 0),
+                    IsSettingUp = x.IsSettingUp,
                 })
                 .ToListAsync();
 

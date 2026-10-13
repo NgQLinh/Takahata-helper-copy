@@ -30,4 +30,5 @@ export interface ManufacturingProcess {
   processType?: ManufacturingProcessType | null;
   isOverdue?: boolean | null;
   totalTime?: number | null;
+  isSettingUp: boolean | false;
 }

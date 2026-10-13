@@ -15,5 +15,6 @@
         public string WorkerNote { get; set; } = string.Empty;
         public bool IsOverdue { get; set; } = false;
         public int? ReferenceId { get; set; }
+        public bool IsSettingUp { get; set; }
     }
 }

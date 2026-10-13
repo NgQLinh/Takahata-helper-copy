@@ -4,5 +4,6 @@ export enum MachineStatus {
   Paused = 2,
   Stopped = 3,
   Alarm = 4,
-  Maintenance = 5
+  Maintenance = 5,
+  Idle = -1,
 }

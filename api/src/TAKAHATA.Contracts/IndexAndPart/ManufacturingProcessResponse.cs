@@ -26,6 +26,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public double? ProgrammingTime { get; set; }
         public bool Prioritize { get; set; } = false;
         public bool IsOverdue { get; set; } = false;
+        public bool IsSettingUp { get; set; }
         public ManufacturingProcessType ProcessType { get; set; }
     }
 }

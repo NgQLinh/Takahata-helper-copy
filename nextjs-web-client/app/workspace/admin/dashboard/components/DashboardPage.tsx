@@ -52,7 +52,7 @@ export const statusConfig: Record<
   },
 
   [MachineStatus.Stopped]: {
-    text: "IDLE",
+    text: "Stopped",
     badge: "bg-secondary text-white",
     border: "border-secondary",
     bg: "bg-secondary",
@@ -77,6 +77,15 @@ export const statusConfig: Record<
     textColor: "text-white",
     icon: "bi-tools",
   },
+
+  [MachineStatus.Idle]: {
+    text: "IDLE",
+    badge: "bg-secondary text-white",
+    border: "border-secondary",
+    bg: "bg-secondary",
+    textColor: "text-white",
+    icon: "bi-stop-circle-fill",
+  },
 };
 
 export function DashboardPage() {
@@ -96,7 +105,9 @@ export function DashboardPage() {
       return machineLogs;
     }
 
-    return machineLogs.filter((log) => log.machineStatus === selectedStatus);
+    return machineLogs.filter(
+      (log) => getMachineStatus(log) === selectedStatus,
+    );
   }, [machineLogs, selectedStatus]);
 
   useEffect(() => {
@@ -129,26 +140,20 @@ export function DashboardPage() {
     return () => clearInterval(timer);
   }, [machines]);
 
-  const summary = useMemo(
-    () => ({
-      running: machineLogs.filter(
-        (x) => x.machineStatus === MachineStatus.Running,
-      ).length,
-      paused: machineLogs.filter(
-        (x) => x.machineStatus === MachineStatus.Paused,
-      ).length,
-      stopped: machineLogs.filter(
-        (x) => x.machineStatus === MachineStatus.Stopped,
-      ).length,
-      alarm: machineLogs.filter((x) => x.machineStatus === MachineStatus.Alarm)
-        .length,
-      maintenance: machineLogs.filter(
-        (x) => x.machineStatus === MachineStatus.Maintenance,
-      ).length,
+  const summary = useMemo(() => {
+    const countStatus = (status: MachineStatus) =>
+      machineLogs.filter((log) => getMachineStatus(log) === status).length;
+
+    return {
+      running: countStatus(MachineStatus.Running),
+      paused: countStatus(MachineStatus.Paused),
+      stopped: countStatus(MachineStatus.Stopped),
+      idle: countStatus(MachineStatus.Idle),
+      alarm: countStatus(MachineStatus.Alarm),
+      maintenance: countStatus(MachineStatus.Maintenance),
       total: machineLogs.length,
-    }),
-    [machineLogs],
-  );
+    };
+  }, [machineLogs]);
 
   return (
     <div
@@ -190,12 +195,20 @@ export function DashboardPage() {
           onClick={() => setSelectedStatus(MachineStatus.Alarm)}
         />
 
-        <SummaryCard
+        {/* <SummaryCard
           label="Maintenance"
           value={summary.maintenance}
           color="info"
           active={selectedStatus === MachineStatus.Maintenance}
           onClick={() => setSelectedStatus(MachineStatus.Maintenance)}
+        /> */}
+
+        <SummaryCard
+          label="IDLE"
+          value={summary.idle}
+          color="secondary"
+          active={selectedStatus === MachineStatus.Idle}
+          onClick={() => setSelectedStatus(MachineStatus.Idle)}
         />
 
         <SummaryCard
@@ -245,6 +258,14 @@ export function DashboardPage() {
   );
 }
 
+function getMachineStatus(log: MachineLog): MachineStatus {
+  return (log.machineStatus === MachineStatus.Stopped ||
+    log.machineStatus === MachineStatus.Paused) &&
+    log.idle
+    ? MachineStatus.Idle
+    : log.machineStatus;
+}
+
 function MachineCard({
   machineLog,
   onViewTodayPlan,
@@ -252,7 +273,9 @@ function MachineCard({
   machineLog: MachineLog;
   onViewTodayPlan: (log: MachineLog) => void;
 }) {
-  const cfg = statusConfig[machineLog.machineStatus];
+  const machineStatus = getMachineStatus(machineLog);
+
+  const cfg = statusConfig[machineStatus];
 
   const handleViewTodayPlan = (machine: MachineLog) => {
     onViewTodayPlan(machine);

@@ -4,7 +4,7 @@ using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Common.Interface.Repositories
 {
-    public interface IPartRepository: IBaseRepository<Part>
+    public interface IPartRepository : IBaseRepository<Part>
     {
         Task<bool> IsExistedAsync(string partCode);
         Task<SearchResponse<List<PartResponse>>> SearchAsync(

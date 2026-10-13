@@ -1,4 +1,5 @@
-﻿using ErrorOr;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ErrorOr;
 using MapsterMapper;
 using MediatR;
 using TAKAHATA.Application.Common.Interface.Repositories;
@@ -42,6 +43,8 @@ namespace TAKAHATA.Application.DataLog.Queries
             var partDictionary = parts.ToDictionary(p => p.Id);
             var machineDictionary = machines.ToDictionary(m => m.Id);
 
+            var hasPlantMachineIds = await _machineRepository.GetHasPlantMachine(machines.Select(m => m.Id).ToList());
+
             var response = machines.Select(log => new MachineLogResponse
             {
                 Id = log.Id,
@@ -55,6 +58,7 @@ namespace TAKAHATA.Application.DataLog.Queries
                 Part = partDictionary.TryGetValue(log.PartId, out var part)
                     ? _mapper.Map<PartResponse>(part)
                     : null,
+                IDLE = !hasPlantMachineIds.Contains(log.Id),
             }).ToList();
 
             return response;

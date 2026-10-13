@@ -401,6 +401,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsOverdue")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsSettingUp")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("MachineId")
                         .HasColumnType("int");
 

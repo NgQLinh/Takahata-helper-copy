@@ -40,3 +40,13 @@ export const beginSettingUpAsync = async (
   );
   return response.data;
 };
+
+export const cancelSettingUpAsync = async (
+  request: unknown,
+): Promise<ManufacturingProcess> => {
+  const response = await apiClient.post<ManufacturingProcess>(
+    "/Manufacturing/cancel-setting-up",
+    request,
+  );
+  return response.data;
+};

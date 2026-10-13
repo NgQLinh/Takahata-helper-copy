@@ -502,5 +502,16 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     && pp.StartTime.Value.Date == DateTime.Now.Date
                     && pp.Status == ProcessStatus.InProgress);
         }
+
+        public async Task<IEnumerable<int>> GetHasPlantMachine(List<int> machineIds)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            return await _dbContext.PartProcesses
+                 .Where(p => machineIds.Contains(p.MachineId) && p.PlantDate == today)
+                 .Select(pp => pp.MachineId)
+                 .Distinct()
+                 .ToListAsync();
+        }
     }
 }
