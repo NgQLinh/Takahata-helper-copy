@@ -25,6 +25,8 @@ namespace TAKAHATA.Application.MaintenanceProcess.Queries
             ProcessesOfMachineQuery request,
             CancellationToken cancellationToken)
         {
+            await Task.Delay(300);
+
             return await _partProcessRepository
                 .SearchByMachineIdAsync(request.MachineId, request.Page, request.PageSize);
         }

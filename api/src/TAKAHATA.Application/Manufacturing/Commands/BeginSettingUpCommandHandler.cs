@@ -62,6 +62,9 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                 if (partProcess == null)
                     return Errors.Part.NotFoundProcess;
 
+                if (partProcess.StartTime == null)
+                    partProcess.StartTime = DateTime.Now;
+
                 partProcess.IsSettingUp = true;
                 await _partProcessRepository.UpdateAsync(partProcess);
 
