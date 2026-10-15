@@ -230,17 +230,29 @@ namespace TAKAHATA.Application.Services
 
             var row = firstDataRow;
 
+            int i = 0;
+
             foreach (var item in items)
             {
                 worksheet.Row(row).Height = 32;
 
                 // A: Ngày thực hiện; ưu tiên ngày bắt đầu.
-                var reportDate = item.StartTime?.Date
-                    ?? item.PlantDate?.ToDateTime(TimeOnly.MinValue);
+                var reportDate = item.StartTime?.Date ?? item.PlantDate?.ToDateTime(TimeOnly.MinValue);
 
                 if (reportDate.HasValue)
                 {
-                    worksheet.Cell(row, 1).Value = reportDate.Value;
+                    if (i != 0 && i < items.Count)
+                    {
+                        var beforeItem = items.ToList()[i - 1];
+                        var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
+
+                        if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
+                            worksheet.Cell(row, 1).Value = reportDate.Value;
+                    }
+                    else
+                    {
+                        worksheet.Cell(row, 1).Value = reportDate.Value;
+                    }
                 }
 
                 // B: ACC FIX ASSETS — DTO chưa có, để trống.
@@ -295,7 +307,7 @@ namespace TAKAHATA.Application.Services
                 // N: P.I.C — DTO chưa có người thực hiện.
                 // O, P: Chưa có số giờ khả dụng để tính tỷ lệ, để trống.
 
-                worksheet.Cell(row, 17).Value = item.PartType.ToString();
+                worksheet.Cell(row, 5).Value = item.PartType.ToString();
                 worksheet.Cell(row, 18).Value = item.ProcessedQuantity;
 
                 // S: Thông tin bổ sung.
@@ -320,6 +332,7 @@ namespace TAKAHATA.Application.Services
                 //worksheet.Cell(row, 19).Value = string.Join("\n", notes);
 
                 row++;
+                i++;
             }
 
             worksheet.SheetView.FreezeRows(7);
