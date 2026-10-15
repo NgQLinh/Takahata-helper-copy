@@ -26,4 +26,5 @@ export interface MachineProcess {
   indexCode: string | null;
   referenceId: number | null;
   processedQuantity: number | null;
+  donePreviouslyQuantity: number | null;
 }

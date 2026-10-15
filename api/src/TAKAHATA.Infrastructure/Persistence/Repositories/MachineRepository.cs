@@ -259,34 +259,38 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             keyword = keyword?.Trim();
 
-            var machineIds = _dbContext.Machines
+            var machineIds = await _dbContext.Machines
                  .Where(x =>
                      string.IsNullOrEmpty(keyword) ||
                      x.Code.Contains(keyword) ||
                      x.Name.Contains(keyword))
-                 .Select(x => x.Id);
+                 .Select(x => x.Id)
+                 .ToListAsync();
 
             #region PartProcesses
 
-            var partQuery = _dbContext.PartProcesses
+            var partProcessQuery = _dbContext.PartProcesses
                 .AsNoTracking()
                 .Where(x => machineIds.Contains(x.MachineId));
 
             if (plantFrom.HasValue)
-                partQuery = partQuery.Where(x => x.PlantDate >= plantFrom.Value);
+                partProcessQuery = partProcessQuery.Where(x => x.PlantDate >= plantFrom.Value);
 
             if (plantTo.HasValue)
-                partQuery = partQuery.Where(x => x.PlantDate <= plantTo.Value);
+                partProcessQuery = partProcessQuery.Where(x => x.PlantDate <= plantTo.Value);
 
-            var groupedPart = partQuery
+            var partProcesses = await partProcessQuery
+                .Include(x => x.Part)
+                    .ThenInclude(p => p.Index)
+                .ToListAsync();
+
+            var groupedPart = partProcesses
                 .GroupBy(x => x.MachineId)
                 .Select(x => new MachineLatestSchedule
                 {
                     MachineId = x.Key,
                     LatestPlantDate = x.Max(y => y.PlantDate)
                 });
-
-
             #endregion
 
             #region MaintenanceProcesses
@@ -301,7 +305,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             if (plantTo.HasValue)
                 maintenanceQuery = maintenanceQuery.Where(x => x.PlantDate <= plantTo.Value);
 
-            var groupedMaintenance = maintenanceQuery
+            var maintenanceProcesses = await maintenanceQuery.ToListAsync();
+
+            var groupedMaintenance = maintenanceProcesses
                 .GroupBy(x => x.MachineId)
                 .Select(x => new MachineLatestSchedule
                 {
@@ -310,7 +316,6 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 });
 
             #endregion
-
             // Gộp 2 nguồn
             var groupedMachines = groupedPart
                 .Concat(groupedMaintenance)
@@ -321,31 +326,19 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     LatestPlantDate = x.Max(y => y.LatestPlantDate)
                 });
 
-            var totalItems = await groupedMachines.CountAsync();
+            var totalItems = groupedMachines.Count();
 
-            var pagedMachineIds = await groupedMachines
+            var pagedMachineIds = groupedMachines
                 .OrderByDescending(x => x.LatestPlantDate)
                 .ThenBy(x => x.MachineId)
                 .Skip((currentPage - 1) * currentPageSize)
                 .Take(currentPageSize)
                 .Select(x => x.MachineId)
-                .ToListAsync();
+                .ToList();
 
             var machines = await _dbContext.Machines
                 .AsNoTracking()
                 .Where(x => pagedMachineIds.Contains(x.Id))
-                .ToListAsync();
-
-            var partProcesses = await _dbContext.PartProcesses
-                .AsNoTracking()
-                .Where(x => pagedMachineIds.Contains(x.MachineId))
-                .Include(x => x.Part)
-                .ThenInclude(p => p.Index)
-                .ToListAsync();
-
-            var maintenanceProcesses = await _dbContext.MachineMaintenanceProcesses
-                .AsNoTracking()
-                .Where(x => pagedMachineIds.Contains(x.MachineId))
                 .ToListAsync();
 
             var partLookup = partProcesses

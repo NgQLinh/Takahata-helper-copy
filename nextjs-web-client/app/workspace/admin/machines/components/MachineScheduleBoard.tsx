@@ -350,6 +350,13 @@ export function MachineScheduleBoard({ active }: Props) {
                           </div>
                         </div>
 
+                        {process.referenceId != null && (
+                          <div>
+                            <span className="fw-medium">Đã làm: </span>
+                            {process.donePreviouslyQuantity}
+                          </div>
+                        )}
+
                         {/* Hàng 2 */}
                         <div className="d-flex justify-content-between align-items-center gap-3 mt-1">
                           <div>

@@ -24,5 +24,6 @@ namespace TAKAHATA.Contracts.IndexAndPart
 
         public bool IsOverdue { get; set; }
         public int? ReferenceId { get; set; }
+        public int DonePreviouslyQuantity { get; set; }
     }
 }

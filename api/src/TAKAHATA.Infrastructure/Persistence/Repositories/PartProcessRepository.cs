@@ -388,5 +388,14 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             return await query.Select(pp => pp.MachineId).ToListAsync();
         }
+
+        public async Task<List<PartProcess>> GetRelatedProcessesAsync(HashSet<int> processIds)
+        {
+            var relatedProcesses = await _dbContext.PartProcesses
+                .Where(pp => processIds.Contains(pp.Id) || (pp.ReferenceId.HasValue && processIds.Contains(pp.ReferenceId.Value)))
+                .ToListAsync();
+
+            return relatedProcesses;
+        }
     }
 }

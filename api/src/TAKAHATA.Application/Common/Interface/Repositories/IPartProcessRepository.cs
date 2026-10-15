@@ -10,7 +10,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<List<int>> GetPrioritizeMachineIdsByMachineIdsAndDateAsync(List<int> machineIds, DateTime date);
 
         Task<int> GetProcessedQuantityByReferenceId(int? referenceId);
-
+        Task<List<PartProcess>> GetRelatedProcessesAsync(HashSet<int> processIds);
         Task HandleExtend();
         Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
             int machineId,
