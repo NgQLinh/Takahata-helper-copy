@@ -352,7 +352,9 @@ export function MachineScheduleBoard({ active }: Props) {
 
                         {process.referenceId != null && (
                           <div>
-                            <span className="fw-medium">Đã làm: </span>
+                            <span className="fw-medium">
+                              Tổng đã làm trước đó:{" "}
+                            </span>
                             {process.donePreviouslyQuantity}
                           </div>
                         )}

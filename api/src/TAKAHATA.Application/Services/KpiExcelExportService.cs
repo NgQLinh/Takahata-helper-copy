@@ -237,22 +237,21 @@ namespace TAKAHATA.Application.Services
                 worksheet.Row(row).Height = 32;
 
                 // A: Ngày thực hiện; ưu tiên ngày bắt đầu.
-                var reportDate = item.StartTime?.Date ?? item.PlantDate?.ToDateTime(TimeOnly.MinValue);
+                var reportDate = item.StartTime?.Date;
+                if (!reportDate.HasValue)
+                    continue;
 
-                if (reportDate.HasValue)
+                if (i != 0 && i < items.Count)
                 {
-                    if (i != 0 && i < items.Count)
-                    {
-                        var beforeItem = items.ToList()[i - 1];
-                        var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
+                    var beforeItem = items.ToList()[i - 1];
+                    var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
 
-                        if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
-                            worksheet.Cell(row, 1).Value = reportDate.Value;
-                    }
-                    else
-                    {
+                    if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
                         worksheet.Cell(row, 1).Value = reportDate.Value;
-                    }
+                }
+                else
+                {
+                    worksheet.Cell(row, 1).Value = reportDate.Value;
                 }
 
                 // B: ACC FIX ASSETS — DTO chưa có, để trống.
@@ -297,39 +296,41 @@ namespace TAKAHATA.Application.Services
                 SetNumber(worksheet.Cell(row, 12), item.WaitingTime);
                 SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
 
-                // TOTAL UTILIZATION RATE OF DAY(%)
-                worksheet.Cell(row, 16).FormulaA1 = $"100-O{row}";
+                var totalTimeOfDay = items
+                    .Where(i => i.MachineId == item.MachineId && i.StartTime.HasValue && i.StartTime.Value.Date == reportDate.Value.Date)
+                    .Sum(i => i.TotalTime) ?? 0;
 
-                // Hiệu suất
-                worksheet.Cell(row, 15).FormulaA1 = $"SUM(J{row})*100/24";
+                var h = Math.Round(totalTimeOfDay / 24 * 100, 2);
 
+                if (i != 0 && i < items.Count)
+                {
+                    var beforeItem = items.ToList()[i - 1];
+                    var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
+
+                    if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
+                    {
+                        // Hiệu suất
+                        worksheet.Cell(row, 15).Value = h.ToString();
+                        // TOTAL UTILIZATION RATE OF DAY(%)
+                        worksheet.Cell(row, 16).Value = (100 - h).ToString();
+                    }
+                }
+                else
+                {
+                    // Hiệu suất
+                    worksheet.Cell(row, 15).Value = h;
+                    // TOTAL UTILIZATION RATE OF DAY(%)
+                    worksheet.Cell(row, 16).Value = 100 - h;
+                }
+
+                worksheet.Cell(row, 15).Style.NumberFormat.Format = "0.00";
+                worksheet.Cell(row, 16).Style.NumberFormat.Format = "0.00";
 
                 // N: P.I.C — DTO chưa có người thực hiện.
                 // O, P: Chưa có số giờ khả dụng để tính tỷ lệ, để trống.
 
                 worksheet.Cell(row, 5).Value = item.PartType.ToString();
                 worksheet.Cell(row, 18).Value = item.ProcessedQuantity;
-
-                // S: Thông tin bổ sung.
-                //var notes = new List<string>
-                //{
-                //    $"Status: {item.Status}",
-                //    $"Quantity: {item.Quantity}"
-                //};
-
-                //if (item.WaitingTime.HasValue)
-                //{
-                //    notes.Add(FormattableString.Invariant(
-                //        $"Waiting: {item.WaitingTime.Value:0.00} h"));
-                //
-
-                //if (item.EstimatedTime.HasValue)
-                //{
-                //    notes.Add(FormattableString.Invariant(
-                //        $"Estimated: {item.EstimatedTime.Value:0.00} h"));
-                //}
-
-                //worksheet.Cell(row, 19).Value = string.Join("\n", notes);
 
                 row++;
                 i++;
