@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Application.Report.Queries;
 
@@ -11,16 +12,20 @@ namespace TAKAHATA.Api.Controllers
         private IKpiExcelExportService _kpiExcelExportService;
         private readonly IWebHostEnvironment _environment;
 
+        private readonly IMachineRepository _machineRepository;
+
         private const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         public ReportController(
             ISender sender,
             IKpiExcelExportService kpiExcelExportService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IMachineRepository machineRepository)
         {
             _sender = sender;
             _kpiExcelExportService = kpiExcelExportService;
             _environment = environment;
+            _machineRepository = machineRepository;
         }
 
 
@@ -95,20 +100,22 @@ namespace TAKAHATA.Api.Controllers
 
             var result = await _sender.Send(query, cancellationToken);
 
-            return result.Match<IActionResult>(
-                r =>
+            return await result.MatchAsync<IActionResult>(
+                async r =>
                 {
+                    var machines = await _machineRepository.GetAsync() ?? [];
+
                     var data = r.PartProcessKPIs ?? [];
 
                     var from = DateOnly.FromDateTime(query.From);
                     var to = DateOnly.FromDateTime(query.To);
 
-                    var fileBytes =
-                        _kpiExcelExportService.ExportPartProcesses(
-                            _environment,
-                            data,
-                            from,
-                            to);
+                    var fileBytes = await _kpiExcelExportService.ExportPartProcesses(
+                        _environment,
+                        data,
+                        from,
+                        to,
+                        machines.ToList());
 
                     var fileName =
                         $"part-process-kpi_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx";
@@ -118,7 +125,7 @@ namespace TAKAHATA.Api.Controllers
                         ExcelContentType,
                         fileName);
                 },
-                errors => Problem(errors));
+               async errors => Problem(errors));
         }
     }
 }

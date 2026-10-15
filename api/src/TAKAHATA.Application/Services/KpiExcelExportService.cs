@@ -1,9 +1,8 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.Report;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Services
 {
@@ -75,11 +74,12 @@ namespace TAKAHATA.Application.Services
             return Save(workbook);
         }
 
-        public byte[] ExportPartProcesses(
+        public async Task<byte[]> ExportPartProcesses(
             IWebHostEnvironment environment,
             IReadOnlyCollection<PartProcessKPIResponse> items,
             DateOnly from,
-            DateOnly to)
+            DateOnly to,
+            List<Machine> machines)
         {
             ArgumentNullException.ThrowIfNull(environment);
             ArgumentNullException.ThrowIfNull(items);
@@ -143,78 +143,136 @@ namespace TAKAHATA.Application.Services
             worksheet.Range("A4:F4").Style.Alignment.Horizontal =
                 XLAlignmentHorizontalValues.Left;
 
-            // Máy hiển thị trên tiêu đề.
-            var machines = items
-                .GroupBy(x => x.MachineId)
-                .Select(g =>
-                {
-                    var machine = g.First();
-
-                    return !string.IsNullOrWhiteSpace(machine.MachineCode)
-                        ? machine.MachineCode!
-                        : machine.MachineName ?? machine.MachineId.ToString();
-                })
-                .ToList();
-
             worksheet.Range("H4:J4").Unmerge();
             worksheet.Range("H4:J4").Clear(XLClearOptions.Contents);
             worksheet.Range("H4:J4").Merge();
-
-            //worksheet.Cell("H4").Value = machines.Count switch
-            //{
-            //    0 => string.Empty,
-            //    1 => machines[0],
-            //    _ => "ALL MACHINES"
-            //};
 
             // Điều chỉnh tên cột để khớp ý nghĩa dữ liệu DTO.
             worksheet.Cell("M6").Value = "WORKING TIME\n(h)";
             worksheet.Cell("R7").Value = "Processed Qty";
 
-            // Xóa dữ liệu cũ nếu template được bổ sung dữ liệu sau này.
-            var oldLastRow = worksheet.LastRowUsed()?.RowNumber() ?? 7;
+            var row = firstDataRow;
 
-            if (oldLastRow >= firstDataRow)
+            foreach (var machine in machines)
             {
-                worksheet.Range(
-                    firstDataRow, 1,
-                    oldLastRow, lastColumn)
-                    .Clear(XLClearOptions.Contents);
+                for (var date = from; date <= to; date = date.AddDays(1))
+                {
+                    var itemsOfDay = items
+                        .Where(x =>
+                            x.MachineId == machine.Id &&
+                            x.StartTime.HasValue &&
+                            DateOnly.FromDateTime(x.StartTime.Value) == date)
+                        .OrderBy(x => x.StartTime)
+                        .ToList();
+
+                    // Ngày không có dữ liệu: dành đúng một hàng trắng.
+                    if (itemsOfDay.Count == 0)
+                    {
+                        worksheet.Row(row).Height = 32;
+                        worksheet.Cell(row, 1).Value = date.ToDateTime(TimeOnly.MinValue);
+                        row++;
+                        continue;
+                    }
+
+                    // Tính một lần cho mỗi máy/ngày.
+                    var totalTimeOfDay = itemsOfDay.Sum(x => x.TotalTime) ?? 0;
+                    var h = Math.Round(totalTimeOfDay / 24 * 100, 2);
+                    var isFirstRowOfDay = true;
+
+                    foreach (var item in itemsOfDay)
+                    {
+                        worksheet.Row(row).Height = 32;
+
+                        // Chỉ hiển thị ngày và tỷ lệ ở hàng đầu tiên của ngày.
+                        if (isFirstRowOfDay)
+                        {
+                            worksheet.Cell(row, 1).Value =
+                                date.ToDateTime(TimeOnly.MinValue);
+
+                            worksheet.Cell(row, 15).Value = h;
+                            worksheet.Cell(row, 16).Value = 100 - h;
+
+                            isFirstRowOfDay = false;
+                        }
+
+                        worksheet.Cell(row, 1).Style.DateFormat.Format = "dd/MM/yyyy";
+
+                        worksheet.Cell(row, 3).Value = item.MachineCode ?? "";
+                        worksheet.Cell(row, 4).Value = item.MachineName ?? "";
+                        worksheet.Cell(row, 5).Value = item.PartType.ToString();
+                        worksheet.Cell(row, 6).Value = item.IndexCode ?? "";
+                        worksheet.Cell(row, 7).Value = item.PartCode;
+
+                        // H, I: Thời gian bắt đầu và kết thúc.
+                        if (item.StartTime.HasValue)
+                            worksheet.Cell(row, 8).Value = item.StartTime.Value;
+
+                        if (item.EndTime.HasValue)
+                            worksheet.Cell(row, 9).Value = item.EndTime.Value;
+
+                        worksheet.Range(row, 8, row, 9)
+                            .Style.DateFormat.Format = "hh:mm";
+
+                        // J: Tổng thời gian.
+                        if (item.TotalTime.HasValue)
+                        {
+                            worksheet.Cell(row, 10).Value = item.TotalTime.Value;
+                        }
+                        else if (
+                            item.WorkingTime.HasValue ||
+                            item.SetupTime.HasValue ||
+                            item.WaitingTime.HasValue ||
+                            item.ProgrammingTime.HasValue)
+                        {
+                            worksheet.Cell(row, 10).Value =
+                                (item.WorkingTime ?? 0)
+                                + (item.SetupTime ?? 0)
+                                + (item.WaitingTime ?? 0)
+                                + (item.ProgrammingTime ?? 0);
+                        }
+
+                        // K: Setup; L: Waiting; M: Working.
+                        SetNumber(worksheet.Cell(row, 11), item.SetupTime);
+                        SetNumber(worksheet.Cell(row, 12), item.WaitingTime);
+                        SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
+
+                        worksheet.Range(row, 15, row, 16)
+                            .Style.NumberFormat.Format = "0.00";
+
+                        worksheet.Cell(row, 18).Value = item.ProcessedQuantity;
+
+                        row++;
+                    }
+                }
             }
 
-            var lastDataRow = firstDataRow + items.Count - 1;
+
+            // Xác định hàng cuối thực tế, bao gồm cả các ngày trống.
+
+            var lastDataRow = row - 1;
             var lastReportRow = Math.Max(firstDataRow, lastDataRow);
 
-            // Template hiện tại chưa có dòng mẫu dữ liệu.
+            // Áp dụng style và border cho toàn bộ các hàng đã tạo.
             var dataRange = worksheet.Range(
-                firstDataRow, 1,
-                lastReportRow, lastColumn);
+                 firstDataRow, 1,
+                 lastReportRow, lastColumn);
 
             dataRange.Style.Font.FontName = "Arial";
             dataRange.Style.Font.FontSize = 10;
             dataRange.Style.Font.Bold = false;
 
-            dataRange.Style.Alignment.Vertical =
-                XLAlignmentVerticalValues.Center;
-
-            dataRange.Style.Alignment.Horizontal =
-                XLAlignmentHorizontalValues.Center;
-
+            dataRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            dataRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             dataRange.Style.Alignment.WrapText = true;
 
-            dataRange.Style.Border.OutsideBorder =
-                XLBorderStyleValues.Thin;
-
-            dataRange.Style.Border.InsideBorder =
-                XLBorderStyleValues.Thin;
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
             worksheet.Range(firstDataRow, 4, lastReportRow, 7)
-                .Style.Alignment.Horizontal =
-                    XLAlignmentHorizontalValues.Left;
+                .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
             worksheet.Range(firstDataRow, 19, lastReportRow, 19)
-                .Style.Alignment.Horizontal =
-                    XLAlignmentHorizontalValues.Left;
+                .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
             worksheet.Range(firstDataRow, 1, lastReportRow, 1)
                 .Style.NumberFormat.Format = "dd/MM/yyyy";
@@ -225,116 +283,11 @@ namespace TAKAHATA.Application.Services
             worksheet.Range(firstDataRow, 10, lastReportRow, 13)
                 .Style.NumberFormat.Format = "#,##0.00";
 
+            worksheet.Range(firstDataRow, 15, lastReportRow, 16)
+                .Style.NumberFormat.Format = "0.00";
+
             worksheet.Range(firstDataRow, 18, lastReportRow, 18)
                 .Style.NumberFormat.Format = "#,##0";
-
-            var row = firstDataRow;
-
-            int i = 0;
-
-            foreach (var item in items)
-            {
-                worksheet.Row(row).Height = 32;
-
-                // A: Ngày thực hiện; ưu tiên ngày bắt đầu.
-                var reportDate = item.StartTime?.Date;
-                if (!reportDate.HasValue)
-                    continue;
-
-                if (i != 0 && i < items.Count)
-                {
-                    var beforeItem = items.ToList()[i - 1];
-                    var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
-
-                    if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
-                        worksheet.Cell(row, 1).Value = reportDate.Value;
-                }
-                else
-                {
-                    worksheet.Cell(row, 1).Value = reportDate.Value;
-                }
-
-                // B: ACC FIX ASSETS — DTO chưa có, để trống.
-                worksheet.Cell(row, 3).Value = item.MachineCode ?? "";
-                worksheet.Cell(row, 4).Value = item.MachineName ?? "";
-
-                // E: CLASSIFICATION — DTO chưa có, để trống.
-                worksheet.Cell(row, 6).Value = item.IndexCode ?? "";
-                worksheet.Cell(row, 7).Value = item.PartCode;
-
-                // H, I: Lưu kiểu ngày giờ, hiển thị hh:mm.
-                if (item.StartTime.HasValue)
-                {
-                    worksheet.Cell(row, 8).Value = item.StartTime.Value;
-                }
-
-                if (item.EndTime.HasValue)
-                {
-                    worksheet.Cell(row, 9).Value = item.EndTime.Value;
-                }
-
-                // J: Tổng thời gian (giờ).
-                if (item.TotalTime.HasValue)
-                {
-                    worksheet.Cell(row, 10).Value = item.TotalTime.Value;
-                }
-                else if (
-                    item.WorkingTime.HasValue ||
-                    item.SetupTime.HasValue ||
-                    item.WaitingTime.HasValue ||
-                    item.ProgrammingTime.HasValue)
-                {
-                    worksheet.Cell(row, 10).Value =
-                        (item.WorkingTime ?? 0)
-                        + (item.SetupTime ?? 0)
-                        + (item.WaitingTime ?? 0)
-                        + (item.ProgrammingTime ?? 0);
-                }
-
-                // K: Setup; L: Programming; M: Working.
-                SetNumber(worksheet.Cell(row, 11), item.SetupTime);
-                SetNumber(worksheet.Cell(row, 12), item.WaitingTime);
-                SetNumber(worksheet.Cell(row, 13), item.WorkingTime);
-
-                var totalTimeOfDay = items
-                    .Where(i => i.MachineId == item.MachineId && i.StartTime.HasValue && i.StartTime.Value.Date == reportDate.Value.Date)
-                    .Sum(i => i.TotalTime) ?? 0;
-
-                var h = Math.Round(totalTimeOfDay / 24 * 100, 2);
-
-                if (i != 0 && i < items.Count)
-                {
-                    var beforeItem = items.ToList()[i - 1];
-                    var beforeReportDate = beforeItem.StartTime?.Date ?? beforeItem.PlantDate?.ToDateTime(TimeOnly.MinValue);
-
-                    if (beforeItem.MachineId != item.MachineId || (beforeReportDate.HasValue && reportDate.Value != beforeReportDate.Value))
-                    {
-                        // Hiệu suất
-                        worksheet.Cell(row, 15).Value = h.ToString();
-                        // TOTAL UTILIZATION RATE OF DAY(%)
-                        worksheet.Cell(row, 16).Value = (100 - h).ToString();
-                    }
-                }
-                else
-                {
-                    // Hiệu suất
-                    worksheet.Cell(row, 15).Value = h;
-                    // TOTAL UTILIZATION RATE OF DAY(%)
-                    worksheet.Cell(row, 16).Value = 100 - h;
-                }
-
-                worksheet.Cell(row, 15).Style.NumberFormat.Format = "0.00";
-                worksheet.Cell(row, 16).Style.NumberFormat.Format = "0.00";
-
-                // N: P.I.C — DTO chưa có người thực hiện.
-                // O, P: Chưa có số giờ khả dụng để tính tỷ lệ, để trống.
-
-                worksheet.Cell(row, 5).Value = item.PartType.ToString();
-                worksheet.Cell(row, 18).Value = item.ProcessedQuantity;
-
-                row++;
-                i++;
-            }
 
             worksheet.SheetView.FreezeRows(7);
 

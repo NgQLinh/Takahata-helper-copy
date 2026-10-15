@@ -306,6 +306,9 @@ export function KpiReportsPage() {
       setExportingProcessesReport(true);
 
       await downloadPartProcessReportAsync({
+        searchMachineKeyword: searchMachineOfProcessKeyword,
+        searchIndexKeyword: searchIndexOfProcessKeyword,
+        searchPartKeyword: searchPartOfProcessKeyword,
         from: from.format("YYYY-MM-DD"),
         to: to.format("YYYY-MM-DD"),
       });
@@ -317,7 +320,12 @@ export function KpiReportsPage() {
     } finally {
       setExportingProcessesReport(false);
     }
-  }, [processDateRange]);
+  }, [
+    processDateRange,
+    searchIndexOfProcessKeyword,
+    searchMachineOfProcessKeyword,
+    searchPartOfProcessKeyword,
+  ]);
 
   const resetMachineFilters = useCallback(() => {
     const range = getCurrentMonthRange();
@@ -790,88 +798,6 @@ export function KpiReportsPage() {
           </Row>
 
           <Card
-            className="dashboard-card mt-3 rounded-4"
-            style={CARD_STYLE}
-            title={
-              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 py-1">
-                <div>
-                  <Typography.Title level={5} className="mb-0">
-                    KPI hiệu suất máy
-                  </Typography.Title>
-                  <Typography.Text type="secondary">
-                    Theo dõi thời gian hoạt động, bảo trì và hiệu suất sử dụng
-                  </Typography.Text>
-                </div>
-
-                <Space wrap size={8}>
-                  <Input
-                    placeholder="Nhập tên hoặc mã máy"
-                    allowClear
-                    value={searchMachineKeyword}
-                    onChange={(event) =>
-                      setSearchMachineKeyword(event.target.value)
-                    }
-                  />
-                  <RangePicker
-                    value={machineDateRange}
-                    disabledDate={disabledSixMonthRange}
-                    onChange={(dates) => setMachineDateRange(dates)}
-                    format="DD/MM/YYYY"
-                    placeholder={["Từ ngày", "Đến ngày"]}
-                    allowClear={false}
-                  />
-                  <Button
-                    icon={<ClearOutlined />}
-                    disabled={loadingMachinesReport}
-                    onClick={resetMachineFilters}
-                  >
-                    Tháng hiện tại
-                  </Button>
-                  <Button
-                    type="primary"
-                    icon={<SearchOutlined />}
-                    loading={loadingMachinesReport}
-                    onClick={() => void fetchMachinesReport()}
-                  >
-                    Tải dữ liệu
-                  </Button>
-                  <Button
-                    icon={<DownloadOutlined />}
-                    loading={exportingMachinesReport}
-                    onClick={() => void exportMachinesReport()}
-                    disabled={machinesKPI.length === 0 || loadingMachinesReport}
-                  >
-                    Xuất báo cáo
-                  </Button>
-                </Space>
-              </div>
-            }
-          >
-            <Table<MachineKPI>
-              rowKey={(record) => record.code ?? record.name}
-              columns={machineKPIColumns}
-              dataSource={machinesKPI}
-              loading={loadingMachinesReport}
-              size="middle"
-              className="dashboard-table"
-              scroll={{ x: 1150 }}
-              locale={{ emptyText: "Không có dữ liệu KPI máy" }}
-              pagination={{
-                current: machinePagination.current,
-                pageSize: machinePagination.pageSize,
-                total: machinesKPI.length,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                pageSizeOptions: [5, 10, 20, 100, 500],
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} / ${total} máy`,
-                onChange: (current, pageSize) =>
-                  setMachinePagination({ current, pageSize }),
-              }}
-            />
-          </Card>
-
-          <Card
             className="mt-3 rounded-4"
             style={CARD_STYLE}
             title={
@@ -969,6 +895,88 @@ export function KpiReportsPage() {
                   setProcessPagination({ current, pageSize }),
               }}
               scroll={{ x: 1600 }}
+            />
+          </Card>
+
+          <Card
+            className="dashboard-card mt-3 rounded-4"
+            style={CARD_STYLE}
+            title={
+              <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 py-1">
+                <div>
+                  <Typography.Title level={5} className="mb-0">
+                    KPI hiệu suất máy
+                  </Typography.Title>
+                  <Typography.Text type="secondary">
+                    Theo dõi thời gian hoạt động, bảo trì và hiệu suất sử dụng
+                  </Typography.Text>
+                </div>
+
+                <Space wrap size={8}>
+                  <Input
+                    placeholder="Nhập tên hoặc mã máy"
+                    allowClear
+                    value={searchMachineKeyword}
+                    onChange={(event) =>
+                      setSearchMachineKeyword(event.target.value)
+                    }
+                  />
+                  <RangePicker
+                    value={machineDateRange}
+                    disabledDate={disabledSixMonthRange}
+                    onChange={(dates) => setMachineDateRange(dates)}
+                    format="DD/MM/YYYY"
+                    placeholder={["Từ ngày", "Đến ngày"]}
+                    allowClear={false}
+                  />
+                  <Button
+                    icon={<ClearOutlined />}
+                    disabled={loadingMachinesReport}
+                    onClick={resetMachineFilters}
+                  >
+                    Tháng hiện tại
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    loading={loadingMachinesReport}
+                    onClick={() => void fetchMachinesReport()}
+                  >
+                    Tải dữ liệu
+                  </Button>
+                  <Button
+                    icon={<DownloadOutlined />}
+                    loading={exportingMachinesReport}
+                    onClick={() => void exportMachinesReport()}
+                    disabled={machinesKPI.length === 0 || loadingMachinesReport}
+                  >
+                    Xuất báo cáo
+                  </Button>
+                </Space>
+              </div>
+            }
+          >
+            <Table<MachineKPI>
+              rowKey={(record) => record.code ?? record.name}
+              columns={machineKPIColumns}
+              dataSource={machinesKPI}
+              loading={loadingMachinesReport}
+              size="middle"
+              className="dashboard-table"
+              scroll={{ x: 1150 }}
+              locale={{ emptyText: "Không có dữ liệu KPI máy" }}
+              pagination={{
+                current: machinePagination.current,
+                pageSize: machinePagination.pageSize,
+                total: machinesKPI.length,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                pageSizeOptions: [5, 10, 20, 100, 500],
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} / ${total} máy`,
+                onChange: (current, pageSize) =>
+                  setMachinePagination({ current, pageSize }),
+              }}
             />
           </Card>
         </Card>

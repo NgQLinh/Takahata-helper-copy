@@ -1,5 +1,6 @@
 import { MachineReport, PartProcessReport, ReportRequest } from "@/app/types";
 import { apiClient } from "../common/apiClient";
+import { PartProcessReportRequest } from "@/app/types/report/ReportRequest";
 
 export const searchMachinesReportAsync = async (
   request: unknown,
@@ -40,7 +41,7 @@ export const downloadMachinesReportAsync = async (
 };
 
 export const downloadPartProcessReportAsync = async (
-  request: ReportRequest,
+  request: PartProcessReportRequest,
 ): Promise<void> => {
   const response = await apiClient.post<Blob>(
     "/Report/part-processes/export",
