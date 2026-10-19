@@ -154,14 +154,12 @@ export default function CreatePart({ open, status, onClose }: Props) {
     const invalidMachineRow = dataSource.findIndex(
       (row) => row.machineId === undefined,
     );
-
     if (invalidMachineRow !== -1) {
       toast.warning(`Vui lòng chọn máy tại dòng ${invalidMachineRow + 1}.`);
       return false;
     }
 
     const invalidPlanDateRow = dataSource.findIndex((row) => !row.plantDate);
-
     if (invalidPlanDateRow !== -1) {
       toast.warning(
         `Vui lòng chọn ngày kế hoạch tại dòng ${invalidPlanDateRow + 1}.`,
@@ -172,11 +170,16 @@ export default function CreatePart({ open, status, onClose }: Props) {
     const invalidEstimatedTime = dataSource.findIndex(
       (row) => !row.estimatedTime || row.estimatedTime <= 0,
     );
-
     if (invalidEstimatedTime !== -1) {
       toast.warning(
         `Vui lòng nhập thời gian dự kiến tại dòng ${invalidEstimatedTime + 1}.`,
       );
+      return false;
+    }
+
+    const invalidNoteRow = dataSource.findIndex((row) => !row.note);
+    if (invalidNoteRow !== -1) {
+      toast.warning(`Vui lòng nhập ghi chú tại dòng ${invalidNoteRow + 1}.`);
       return false;
     }
 

@@ -52,6 +52,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     return;
 
                 var overdueProcesses = new List<PartProcess>();
+                var cancelledProcesses = new List<PartProcess>();
 
                 // Tạm dừng hoặc hoàn thành một phần sẽ gia hạn sang ngày hôm sau
                 foreach (var partProcess in partProcesses.Where(pp => pp.Status == ProcessStatus.Paused || pp.Status == ProcessStatus.PartiallyCompleted))
@@ -112,10 +113,44 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                             IsOverdue = true,
                             ReferenceId = partProcess.ReferenceId.HasValue ? partProcess.ReferenceId : partProcess.Id
                         });
+
+                        // Tìm kế hoạch của ngày hôm nay
+                        // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                        var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
+                            pp.PlantDate == today &&
+                            pp.PartId == partProcess.PartId &&
+                            pp.MachineId == partProcess.MachineId &&
+                            pp.Note == partProcess.Note).ToListAsync();
+
+                        if (todayProcesses != null && todayProcesses.Count != 0)
+                        {
+                            foreach (var todayProcess in todayProcesses)
+                            {
+                                todayProcess.Status = ProcessStatus.Cancelled;
+                                cancelledProcesses.Add(todayProcess);
+                            }
+                        }
                     }
                     else if (processedQuantity == part.Quantity)
                     {
                         partProcess.Status = ProcessStatus.Completed;
+
+                        // Tìm kế hoạch của từ ngày hôm nay trở đi
+                        // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                        var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
+                            pp.PlantDate >= today &&
+                            pp.PartId == partProcess.PartId &&
+                            pp.MachineId == partProcess.MachineId &&
+                            pp.Note == partProcess.Note).ToListAsync();
+
+                        if (todayProcesses != null && todayProcesses.Count != 0)
+                        {
+                            foreach (var todayProcess in todayProcesses)
+                            {
+                                todayProcess.Status = ProcessStatus.Cancelled;
+                                cancelledProcesses.Add(todayProcess);
+                            }
+                        }
                     }
                 }
 
@@ -127,8 +162,28 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 {
                     partProcess.PlantDate = today;
                     updateProcesses.Add(partProcess);
+
+                    // Tìm kế hoạch của ngày hôm nay
+                    // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                    var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
+                        pp.PlantDate == today &&
+                        pp.PartId == partProcess.PartId &&
+                        pp.MachineId == partProcess.MachineId &&
+                        pp.Note == partProcess.Note).ToListAsync();
+
+                    if (todayProcesses != null && todayProcesses.Count != 0)
+                    {
+                        foreach (var todayProcess in todayProcesses)
+                        {
+                            todayProcess.Status = ProcessStatus.Cancelled;
+                            cancelledProcesses.Add(todayProcess);
+                        }
+                    }
                 }
                 _dbContext.PartProcesses.UpdateRange(updateProcesses);
+
+                // Nếu chỉ cần chuyển trạng thái cancelled thì không cần xóa
+                _dbContext.PartProcesses.RemoveRange(cancelledProcesses);
 
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -396,6 +451,20 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .ToListAsync();
 
             return relatedProcesses;
+        }
+
+        public async Task RemoveEquivalent(PartProcess partProcess)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
+                    pp.PlantDate >= today &&
+                    pp.PartId == partProcess.PartId &&
+                    pp.MachineId == partProcess.MachineId &&
+                    pp.Note == partProcess.Note)
+                .ToListAsync();
+
+            _dbContext.PartProcesses.RemoveRange(todayProcesses);
         }
     }
 }

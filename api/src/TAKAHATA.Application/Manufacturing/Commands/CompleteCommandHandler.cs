@@ -1,5 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TAKAHATA.Application.Common.Interface.Repositories;
 using TAKAHATA.Application.Common.Interface.Services;
@@ -204,7 +205,10 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                         partProcess.ProcessedQuantity);
 
                     if (processedQuantity + request.ProcessedQuantity == part.Quantity)
+                    {
                         partProcess.Status = ProcessStatus.Completed;
+                        await _partProcessRepository.RemoveEquivalent(partProcess);
+                    }
                     else
                         partProcess.Status = ProcessStatus.PartiallyCompleted;
 

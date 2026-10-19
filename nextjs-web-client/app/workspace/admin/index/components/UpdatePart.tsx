@@ -327,6 +327,12 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
+    const invalidNoteRow = dataSource.findIndex((row) => !row.note);
+    if (invalidNoteRow !== -1) {
+      toast.warning(`Vui lòng nhập ghi chú tại dòng ${invalidNoteRow + 1}.`);
+      return false;
+    }
+
     return true;
   };
 
@@ -474,7 +480,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       render: (value: string | undefined, record) => (
         <Input
           value={value}
-          placeholder="Nhập ghi chú"
+          placeholder="Nhập người thực hiện"
           maxLength={500}
           disabled={isBusy}
           onChange={(event) =>
@@ -535,7 +541,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           onChange={(v) => handleChange(record.key, "workingTime", v)}
           value={value}
           step={0.5}
-          placeholder="Nhập số giờ làm"
+          placeholder="Nhập số giờ"
         />
       ),
     },
@@ -551,7 +557,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           onChange={(v) => handleChange(record.key, "setupTime", v)}
           value={value}
           step={0.5}
-          placeholder="Nhập số giờ làm"
+          placeholder="Nhập số giờ"
         />
       ),
     },
@@ -567,7 +573,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           onChange={(v) => handleChange(record.key, "waitingTime", v)}
           value={value}
           step={0.5}
-          placeholder="Nhập số giờ làm"
+          placeholder="Nhập số giờ"
         />
       ),
     },
@@ -583,7 +589,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           onChange={(v) => handleChange(record.key, "programmingTime", v)}
           value={value}
           step={0.5}
-          placeholder="Nhập số giờ làm"
+          placeholder="Nhập số giờ"
         />
       ),
     },
