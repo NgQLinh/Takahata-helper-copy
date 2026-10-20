@@ -72,7 +72,6 @@ const createEmptyRow = (): PlanRow => ({
 
 export default function CreatePart({ open, status, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
-  const newRepair = Form.useWatch("NewRepair", form);
   const screens = useBreakpoint();
 
   const [loadingMachine, setLoadingMachine] = useState(false);
@@ -517,28 +516,17 @@ export default function CreatePart({ open, status, onClose }: Props) {
                       ]}
                     />
                   </Form.Item>
-                  <Checkbox
-                    checked={newRepair === PartNewRepair.New}
-                    onChange={(event) =>
-                      form.setFieldValue(
-                        "NewRepair",
-                        event.target.checked ? PartNewRepair.New : null,
-                      )
-                    }
-                  >
-                    New
-                  </Checkbox>
-                  <Checkbox
-                    checked={newRepair === PartNewRepair.Repair}
-                    onChange={(event) =>
-                      form.setFieldValue(
-                        "NewRepair",
-                        event.target.checked ? PartNewRepair.Repair : null,
-                      )
-                    }
-                  >
-                    Repair
-                  </Checkbox>
+                  <Form.Item name="NewRepair" noStyle>
+                    <Select
+                      placeholder="Chọn New / Repair"
+                      allowClear
+                      style={{ flex: 1, minWidth: 150 }}
+                      options={[
+                        { value: PartNewRepair.New, label: "New" },
+                        { value: PartNewRepair.Repair, label: "Repair" },
+                      ]}
+                    />
+                  </Form.Item>
                 </Flex>
               </Form.Item>
 

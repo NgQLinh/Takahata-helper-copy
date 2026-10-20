@@ -127,7 +127,6 @@ const statusOptions = [
 
 export default function UpdatePart({ id, open, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
-  const newRepair = Form.useWatch("NewRepair", form);
   const screens = useBreakpoint();
 
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -1000,28 +999,17 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                           ]}
                         />
                       </Form.Item>
-                      <Checkbox
-                        checked={newRepair === PartNewRepair.New}
-                        onChange={(event) =>
-                          form.setFieldValue(
-                            "NewRepair",
-                            event.target.checked ? PartNewRepair.New : null,
-                          )
-                        }
-                      >
-                        New
-                      </Checkbox>
-                      <Checkbox
-                        checked={newRepair === PartNewRepair.Repair}
-                        onChange={(event) =>
-                          form.setFieldValue(
-                            "NewRepair",
-                            event.target.checked ? PartNewRepair.Repair : null,
-                          )
-                        }
-                      >
-                        Repair
-                      </Checkbox>
+                      <Form.Item name="NewRepair" noStyle>
+                        <Select
+                          placeholder="Chọn New / Repair"
+                          allowClear
+                          style={{ flex: 1, minWidth: 150 }}
+                          options={[
+                            { value: PartNewRepair.New, label: "New" },
+                            { value: PartNewRepair.Repair, label: "Repair" },
+                          ]}
+                        />
+                      </Form.Item>
                     </Flex>
                   </Form.Item>
 
