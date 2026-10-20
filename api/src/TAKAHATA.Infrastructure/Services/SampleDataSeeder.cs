@@ -60,7 +60,6 @@ namespace TAKAHATA.Infrastructure.Services
             var random = new Random(202601);
 
             dbContext.ChangeTracker.AutoDetectChangesEnabled = false;
-
             try
             {
                 for (var start = 1; start <= totalParts; start += batchSize)
