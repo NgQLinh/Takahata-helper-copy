@@ -20,6 +20,7 @@ export interface MachineProcess {
   sequence: number;
   type: MachineProcessType;
   prioritize: boolean;
+  isClosed: boolean;
   estimatedTime?: number | null;
   partType?: PartType | null;
   isOverdue: boolean | null;

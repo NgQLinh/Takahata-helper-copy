@@ -31,4 +31,5 @@ export { MachineProcessType } from "./common/MachineProcessType";
 export type { ManufacturingProcess as ManufacturingProcess } from "./part/Process";
 export type { MachineMaintenanceProcess } from "./machine/MachineMaintenanceProcess";
 export { PartType } from "./part/PartType";
+export { PartNewRepair } from "./part/PartNewRepair";
 export {ManufacturingProcessType} from "./part/ManufacturingProcessType"

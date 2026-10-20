@@ -15,13 +15,25 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
         }
 
+        public override async Task<PartProcess?> GetByIdAsync(int id)
+        {
+            return await _dbContext.PartProcesses
+                .FirstOrDefaultAsync(process =>
+                    process.Id == id &&
+                    process.Part != null &&
+                    !process.Part.IsClosed);
+        }
+
         public async Task<bool> UpdateWorkingTimeAsync(
             int id,
             double? workingTime,
             CancellationToken cancellationToken = default)
         {
             var affectedRows = await _dbContext.PartProcesses
-                .Where(x => x.Id == id)
+                .Where(x =>
+                    x.Id == id &&
+                    x.Part != null &&
+                    !x.Part.IsClosed)
                 .ExecuteUpdateAsync(
                     setters => setters.SetProperty(
                         x => x.WorkingTime,
@@ -41,6 +53,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             {
                 var partProcesses = await _dbContext.PartProcesses
                     .Where(pp =>
+                        pp.Part != null &&
+                        !pp.Part.IsClosed &&
                         pp.PlantDate == today.AddDays(-1) &&
                         (pp.Status == ProcessStatus.Paused ||
                          pp.Status == ProcessStatus.PartiallyCompleted ||
@@ -211,7 +225,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             var partProcesses = _dbContext.PartProcesses
                 .AsNoTracking()
-                .Where(x => x.MachineId == machineId && x.PlantDate == today);
+                .Where(x =>
+                    x.MachineId == machineId &&
+                    x.PlantDate == today &&
+                    x.Part != null &&
+                    !x.Part.IsClosed);
 
             var totalItems = await partProcesses.CountAsync();
 
@@ -309,6 +327,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             const int batchSize = 2000;
 
             var query = _dbContext.PartProcesses
+                .IgnoreQueryFilters()
                 .AsNoTracking()
                 .AsQueryable();
 
@@ -329,7 +348,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 var idxIds = await _dbContext.Indexes.Where(i => i.Code.Contains(searchIndexKeyword)).Select(i => i.Id).ToListAsync();
                 if (idxIds != null && idxIds.Count != 0)
                 {
-                    var partIds = await _dbContext.Parts.Where(p => idxIds.Contains(p.IndexId)).Select(p => p.Id).ToListAsync();
+                    var partIds = await _dbContext.Parts
+                        .IgnoreQueryFilters()
+                        .Where(p => idxIds.Contains(p.IndexId))
+                        .Select(p => p.Id)
+                        .ToListAsync();
                     if (partIds != null && partIds.Count != 0)
                         query = query.Where(p => partIds.Contains(p.PartId));
                     else
@@ -341,7 +364,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
 
             if (!string.IsNullOrEmpty(searchPartKeyword))
             {
-                var partIds = await _dbContext.Parts.Where(p => p.Code.Contains(searchPartKeyword)).Select(p => p.Id).ToListAsync();
+                var partIds = await _dbContext.Parts
+                    .IgnoreQueryFilters()
+                    .Where(p => p.Code.Contains(searchPartKeyword))
+                    .Select(p => p.Id)
+                    .ToListAsync();
                 if (partIds != null && partIds.Count != 0)
                     query = query.Where(p => partIds.Contains(p.PartId));
                 else
@@ -352,7 +379,9 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                 .Where(p => p.StartTime != null && p.StartTime.Value.Date >= from.Date && p.StartTime.Value.Date <= to.Date);
 
             var result = query.Join(
-                _dbContext.Parts.AsNoTracking(),
+                _dbContext.Parts
+                    .IgnoreQueryFilters()
+                    .AsNoTracking(),
                 pp => pp.PartId,
                 p => p.Id,
                 (pp, p) => new PartProcessKPIResponse
@@ -377,6 +406,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     MachineId = pp.MachineId,
                     EstimatedTime = pp.EstimatedTime,
                     PartType = p.PartType,
+                    NewRepair = p.NewRepair,
                     ProcessedQuantity = pp.ProcessedQuantity
                 });
 
@@ -440,7 +470,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var dateOnly = DateOnly.FromDateTime(date);
             var query = _dbContext.PartProcesses.AsNoTracking().AsQueryable();
 
-            query = query.Where(pp => pp.PlantDate != null && pp.PlantDate.Value == dateOnly && pp.Part != null && pp.Part.Prioritize);
+            query = query.Where(pp =>
+                pp.PlantDate != null &&
+                pp.PlantDate.Value == dateOnly &&
+                pp.Part != null &&
+                !pp.Part.IsClosed &&
+                pp.Part.Prioritize);
 
             if (machineIds.Count != 0)
                 query = query.Where(pp => machineIds.Contains(pp.MachineId));
@@ -451,7 +486,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         public async Task<List<PartProcess>> GetRelatedProcessesAsync(HashSet<int> processIds)
         {
             var relatedProcesses = await _dbContext.PartProcesses
-                .Where(pp => processIds.Contains(pp.Id) || (pp.ReferenceId.HasValue && processIds.Contains(pp.ReferenceId.Value)))
+                .Where(pp =>
+                    pp.Part != null &&
+                    !pp.Part.IsClosed &&
+                    (processIds.Contains(pp.Id) || (pp.ReferenceId.HasValue && processIds.Contains(pp.ReferenceId.Value))))
                 .ToListAsync();
 
             return relatedProcesses;
@@ -466,6 +504,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     pp.PartId == partProcess.PartId &&
                     pp.MachineId == partProcess.MachineId &&
                     pp.Part != null &&
+                    !pp.Part.IsClosed &&
                     pp.Part.IndexId == indexId)
                 .ToListAsync();
 

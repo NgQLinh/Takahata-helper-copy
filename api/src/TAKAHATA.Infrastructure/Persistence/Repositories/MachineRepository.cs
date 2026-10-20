@@ -270,8 +270,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             #region PartProcesses
 
             var partProcessQuery = _dbContext.PartProcesses
+                .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Where(x => machineIds.Contains(x.MachineId));
+                .Where(x =>
+                    machineIds.Contains(x.MachineId));
 
             if (plantFrom.HasValue)
                 partProcessQuery = partProcessQuery.Where(x => x.PlantDate >= plantFrom.Value);
@@ -375,6 +377,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         Quantity = process.Part?.Quantity ?? 0,
                         Type = MachineProcessType.Manufacturing,
                         Prioritize = process.Part?.Prioritize ?? false,
+                        IsClosed = process.Part?.IsClosed ?? false,
                         EstimatedTime = process.EstimatedTime,
                         PartType = process.Part?.PartType,
                         IsOverdue = process.IsOverdue,
@@ -432,7 +435,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var machineIds = machines.Select(m => m.Id).ToList();
 
             var partProcesses = await _dbContext.PartProcesses
-                .Where(p => machineIds.Contains(p.MachineId) && p.StartTime != null && p.StartTime.Value.Date >= from && p.StartTime <= to)
+                .IgnoreQueryFilters()
+                .Where(p =>
+                    machineIds.Contains(p.MachineId) &&
+                    p.StartTime != null &&
+                    p.StartTime.Value.Date >= from &&
+                    p.StartTime <= to)
                 .ToListAsync();
 
             // Thêm điều kiện so sánh from - to vs StartTime - EndTime
@@ -491,6 +499,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return await _dbContext.PartProcesses
                 .AnyAsync(pp =>
                     pp.MachineId == machineId
+                    && pp.Part != null
+                    && !pp.Part.IsClosed
                     && pp.StartTime != null
                     && pp.StartTime.Value.Date == DateTime.Now.Date
                     && pp.Status == ProcessStatus.InProgress);
@@ -501,7 +511,11 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             var today = DateOnly.FromDateTime(DateTime.Now);
 
             return await _dbContext.PartProcesses
-                 .Where(p => machineIds.Contains(p.MachineId) && p.PlantDate == today)
+                 .Where(p =>
+                     machineIds.Contains(p.MachineId) &&
+                     p.PlantDate == today &&
+                     p.Part != null &&
+                     !p.Part.IsClosed)
                  .Select(pp => pp.MachineId)
                  .Distinct()
                  .ToListAsync();

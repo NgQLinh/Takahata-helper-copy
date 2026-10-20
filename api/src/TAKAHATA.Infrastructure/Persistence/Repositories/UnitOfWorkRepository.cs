@@ -76,7 +76,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                     var affectedRows = await _dbContext.PartProcesses
-                        .Where(pp => pp.Id == processId)
+                        .Where(pp =>
+                            pp.Id == processId &&
+                            pp.Part != null &&
+                            !pp.Part.IsClosed)
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(
                                 pp => pp.WorkingTime,
@@ -109,7 +112,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                     var affectedRows = await _dbContext.PartProcesses
-                        .Where(pp => pp.Id == processId)
+                        .Where(pp =>
+                            pp.Id == processId &&
+                            pp.Part != null &&
+                            !pp.Part.IsClosed)
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(
                                 pp => pp.WaitingTime,
@@ -142,7 +148,10 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
                     var affectedRows = await _dbContext.PartProcesses
-                        .Where(pp => pp.Id == processId)
+                        .Where(pp =>
+                            pp.Id == processId &&
+                            pp.Part != null &&
+                            !pp.Part.IsClosed)
                         .ExecuteUpdateAsync(setters => setters
                             .SetProperty(
                                 pp => pp.SetupTime,

@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Card, DatePicker, Input, Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { toast } from "react-toastify";
 import dayjs, { Dayjs } from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
@@ -87,6 +92,12 @@ export function MachineScheduleBoard({ active }: Props) {
     if (process.type === MachineProcessType.Maintenance) {
       setSelectedMaintenanceId(process.id);
       setIsUpdateMaintenanceOpen(true);
+      return;
+    }
+
+    if (process.isClosed) {
+      setSelectedPartId(process.partId);
+      setIsUpdatePartOpen(true);
       return;
     }
 
@@ -278,17 +289,32 @@ export function MachineScheduleBoard({ active }: Props) {
                       >
                         {getStatusText(process.status)}
                       </Tag>
+                      {!isMaintenance && process.isClosed && (
+                        <Tag color="default" className="m-0">
+                          Đã đóng
+                        </Tag>
+                      )}
 
                       <Button
                         type="text"
                         size="small"
-                        icon={<EditOutlined />}
+                        icon={
+                          !isMaintenance && process.isClosed ? (
+                            <EyeOutlined />
+                          ) : (
+                            <EditOutlined />
+                          )
+                        }
                         aria-label={
                           isMaintenance
                             ? "Sửa thông tin bảo trì"
-                            : "Sửa thông tin sản xuất"
+                            : process.isClosed
+                              ? "Xem part đã đóng"
+                              : "Sửa thông tin sản xuất"
                         }
-                        title="Sửa"
+                        title={
+                          !isMaintenance && process.isClosed ? "Xem" : "Sửa"
+                        }
                         onClick={(event) => {
                           event.stopPropagation();
                           handleEditProcess(process);

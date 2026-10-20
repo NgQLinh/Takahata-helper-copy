@@ -17,6 +17,11 @@ export const deletePartAsync = async (id: number): Promise<Part> => {
   return response.data;
 };
 
+export const closePartAsync = async (id: number): Promise<boolean> => {
+  const response = await apiClient.post<boolean>("/Part/close", { id });
+  return response.data;
+};
+
 export const approvePartAsync = async (request: unknown): Promise<Part[]> => {
   const response = await apiClient.post<Part[]>("/Part/approve", request);
   return response.data;

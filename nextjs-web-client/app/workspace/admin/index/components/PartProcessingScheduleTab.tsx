@@ -15,6 +15,7 @@ import {
   CheckOutlined,
   DeleteOutlined,
   EditOutlined,
+  EyeOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
@@ -55,6 +56,7 @@ type TableRow = {
   processes: Record<number, PartProcess | undefined>;
   prioritize?: boolean;
   partType: PartType;
+  isClosed: boolean;
 };
 
 const formatDate = (value?: string | null) => {
@@ -88,6 +90,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
         status: part.status,
         prioritize: part.prioritize,
         partType: part.partType,
+        isClosed: part.isClosed,
       },
       {
         key: `${part.id}-P`,
@@ -98,6 +101,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
         processes: part.processes,
         status: part.status,
         partType: part.partType,
+        isClosed: part.isClosed,
       },
       {
         key: `${part.id}-A`,
@@ -108,6 +112,7 @@ const mapPartsToRows = (parts: Part[]): TableRow[] =>
         processes: part.processes,
         status: part.status,
         partType: part.partType,
+        isClosed: part.isClosed,
       },
     ]);
 
@@ -315,6 +320,7 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                 >
                   {row.partName || "-"}{" "}
                   {row.prioritize && <Tag color="orange">Ưu tiên</Tag>}
+                  {row.isClosed && <Tag color="default">Đã đóng</Tag>}
                 </div>
               </div>
             </div>
@@ -462,8 +468,17 @@ export default function PartProcessingScheduleTab({ active }: Props) {
             verticalAlign: "middle",
           },
         }),
-        render: (_: unknown, row: TableRow) => (
-          <div className="d-flex flex-column gap-2" style={{ width: 220 }}>
+        render: (_: unknown, row: TableRow) =>
+          row.isClosed ? (
+            <Button
+              icon={<EyeOutlined />}
+              className="action-btn"
+              onClick={() => handleUpdate(row.partId)}
+            >
+              Xem
+            </Button>
+          ) : (
+            <div className="d-flex flex-column gap-2" style={{ width: 220 }}>
             {/* Hàng trên */}
             <div className="d-flex gap-2">
               <Button
@@ -520,8 +535,8 @@ export default function PartProcessingScheduleTab({ active }: Props) {
                 </Button>
               </Popconfirm>
             )}
-          </div>
-        ),
+            </div>
+          ),
       },
     ],
     [handleApprove, handleDelete, processCount],

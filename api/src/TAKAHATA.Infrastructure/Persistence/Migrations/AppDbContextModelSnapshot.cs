@@ -347,6 +347,12 @@ namespace TAKAHATA.Infrastructure.Persistence.Migrations
                     b.Property<int>("IndexId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("NewRepair")
+                        .HasColumnType("int");
+
                     b.Property<int>("PartType")
                         .HasColumnType("int");
 

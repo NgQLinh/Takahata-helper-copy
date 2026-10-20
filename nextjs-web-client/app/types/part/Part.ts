@@ -1,6 +1,7 @@
 import { ProcessStatus } from "../common/ProcessStatus";
 import { Index } from "./Index";
 import { PartProcess } from "./PartProcess";
+import { PartNewRepair } from "./PartNewRepair";
 import { PartType } from "./PartType";
 
 export interface Part {
@@ -17,4 +18,6 @@ export interface Part {
   status: ProcessStatus;
   prioritize: boolean;
   partType: PartType;
+  newRepair: PartNewRepair | null;
+  isClosed: boolean;
 }

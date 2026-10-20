@@ -25,7 +25,7 @@ import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine, PartType } from "@/app/types";
+import { Machine, PartNewRepair, PartType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
@@ -58,6 +58,7 @@ type FormValues = {
   Quantity: number;
   Prioritize: boolean;
   PartType?: PartType;
+  NewRepair?: PartNewRepair | null;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -71,6 +72,7 @@ const createEmptyRow = (): PlanRow => ({
 
 export default function CreatePart({ open, status, onClose }: Props) {
   const [form] = Form.useForm<FormValues>();
+  const newRepair = Form.useWatch("NewRepair", form);
   const screens = useBreakpoint();
 
   const [loadingMachine, setLoadingMachine] = useState(false);
@@ -192,6 +194,7 @@ export default function CreatePart({ open, status, onClose }: Props) {
       status: status,
       prioritize: values.Prioritize,
       partType: values.PartType,
+      newRepair: values.NewRepair ?? null,
       partProcesses: dataSource.map((item, index) => ({
         sequence: index + 1,
         machineId: item.machineId,
@@ -479,46 +482,64 @@ export default function CreatePart({ open, status, onClose }: Props) {
                 />
               </Form.Item>
 
-              <Form.Item
-                label="Loại gia công"
-                name="PartType"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng chọn loại gia công",
-                  },
-                ]}
-              >
-                <Select
-                  placeholder="Chọn loại gia công"
-                  allowClear
-                  options={[
-                    {
-                      value: PartType.NewMold,
-                      label: "NEW MOLD",
-                    },
-                    {
-                      value: PartType.NewMoldRepairMakeNew,
-                      label: "NEW MOLD REPAIR / MAKE NEW",
-                    },
-                    {
-                      value: PartType.MoldEcn,
-                      label: "MOLD ECN",
-                    },
-                    {
-                      value: PartType.MoldMp,
-                      label: "MOLD MP",
-                    },
-                    {
-                      value: PartType.MoldOvershort,
-                      label: "MOLD OVERSHORT",
-                    },
-                    {
-                      value: PartType.JigMoldAssyEng,
-                      label: "JIG / MOLD / ASSEMBLY / ENGINEERING",
-                    },
-                  ]}
-                />
+              <Form.Item label="Loại gia công" required>
+                <Flex align="center" gap={12} wrap="wrap">
+                  <Form.Item
+                    name="PartType"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn loại gia công",
+                      },
+                    ]}
+                    noStyle
+                  >
+                    <Select
+                      placeholder="Chọn loại gia công"
+                      allowClear
+                      style={{ flex: 1, minWidth: 220 }}
+                      options={[
+                        { value: PartType.NewMold, label: "NEW MOLD" },
+                        {
+                          value: PartType.NewMoldRepairMakeNew,
+                          label: "NEW MOLD REPAIR",
+                        },
+                        { value: PartType.MoldEcn, label: "MOLD ECN" },
+                        { value: PartType.MoldMp, label: "MOLD MP" },
+                        {
+                          value: PartType.MoldOvershort,
+                          label: "MOLD OVERSHORT",
+                        },
+                        {
+                          value: PartType.JigMoldAssyEng,
+                          label: "JIG / MOLD / ASSEMBLY / ENGINEERING",
+                        },
+                      ]}
+                    />
+                  </Form.Item>
+                  <Checkbox
+                    checked={newRepair === PartNewRepair.New}
+                    onChange={(event) =>
+                      form.setFieldValue(
+                        "NewRepair",
+                        event.target.checked ? PartNewRepair.New : null,
+                      )
+                    }
+                  >
+                    New
+                  </Checkbox>
+                  <Checkbox
+                    checked={newRepair === PartNewRepair.Repair}
+                    onChange={(event) =>
+                      form.setFieldValue(
+                        "NewRepair",
+                        event.target.checked ? PartNewRepair.Repair : null,
+                      )
+                    }
+                  >
+                    Repair
+                  </Checkbox>
+                </Flex>
               </Form.Item>
 
               <Form.Item
