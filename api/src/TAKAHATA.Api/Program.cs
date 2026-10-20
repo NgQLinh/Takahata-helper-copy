@@ -1,4 +1,4 @@
-using Hangfire;
+﻿using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
@@ -21,17 +21,17 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
 
-    // Không ghi các log nội bộ Microsoft ở mức Information
+    // KhÃ´ng ghi cÃ¡c log ná»™i bá»™ Microsoft á»Ÿ má»©c Information
     .MinimumLevel.Override(
         "Microsoft",
         LogEventLevel.Warning)
 
-    // Nhưng vẫn cho phép HTTP Logging ghi request ở mức Information
+    // NhÆ°ng váº«n cho phÃ©p HTTP Logging ghi request á»Ÿ má»©c Information
     .MinimumLevel.Override(
         "Microsoft.AspNetCore.HttpLogging.HttpLoggingMiddleware",
         LogEventLevel.Information)
 
-    // Không ghi các câu SQL bình thường như Executed DbCommand
+    // KhÃ´ng ghi cÃ¡c cÃ¢u SQL bÃ¬nh thÆ°á»ng nhÆ° Executed DbCommand
     .MinimumLevel.Override(
         "Microsoft.EntityFrameworkCore.Database.Command",
         LogEventLevel.Warning)
@@ -125,18 +125,18 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddHttpLogging(options =>
 {
     // Request method, path, query, headers, body,
-    // response headers, status, body và duration
+    // response headers, status, body vÃ  duration
     options.LoggingFields = HttpLoggingFields.All;
 
-    // Không nên để không giới hạn
+    // KhÃ´ng nÃªn Ä‘á»ƒ khÃ´ng giá»›i háº¡n
     options.RequestBodyLogLimit = 64 * 1024;
     options.ResponseBodyLogLimit = 64 * 1024;
 
-    // Gộp request và response thành một event
+    // Gá»™p request vÃ  response thÃ nh má»™t event
     options.CombineLogs = true;
 
-    // Chỉ những header được thêm vào đây mới hiện giá trị.
-    // Header khác như Authorization sẽ bị redact.
+    // Chá»‰ nhá»¯ng header Ä‘Æ°á»£c thÃªm vÃ o Ä‘Ã¢y má»›i hiá»‡n giÃ¡ trá»‹.
+    // Header khÃ¡c nhÆ° Authorization sáº½ bá»‹ redact.
     options.RequestHeaders.Add("X-Correlation-ID");
     options.RequestHeaders.Add("User-Agent");
     options.RequestHeaders.Add("Content-Type");
@@ -221,14 +221,16 @@ app.Run();
 
 static TimeZoneInfo GetVietnamTimeZone()
 {
-    // Windows thường sử dụng "SE Asia Standard Time".
+    // Windows thÆ°á»ng sá»­ dá»¥ng "SE Asia Standard Time".
     if (OperatingSystem.IsWindows())
     {
         return TimeZoneInfo.FindSystemTimeZoneById(
             "SE Asia Standard Time");
     }
 
-    // Linux và Docker thường sử dụng IANA timezone.
+    // Linux vÃ  Docker thÆ°á»ng sá»­ dá»¥ng IANA timezone.
     return TimeZoneInfo.FindSystemTimeZoneById(
         "Asia/Ho_Chi_Minh");
 }
+
+

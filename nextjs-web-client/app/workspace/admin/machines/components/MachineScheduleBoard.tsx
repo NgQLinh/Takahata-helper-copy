@@ -6,7 +6,6 @@ import type { ColumnsType } from "antd/es/table";
 import { EditOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
 import dayjs, { Dayjs } from "dayjs";
-import isoWeek from "dayjs/plugin/isoWeek";
 
 import { searchMachineSchedulesAsync } from "@/app/services/machine/MachineService";
 import {
@@ -27,13 +26,11 @@ import { getStatusText } from "@/app/utilities/UtilityState";
 
 const { RangePicker } = DatePicker;
 
-dayjs.extend(isoWeek);
-
 type DateRange = [Dayjs | null, Dayjs | null] | null;
 
-const getCurrentWeekRange = (): DateRange => [
-  dayjs().startOf("isoWeek"),
-  dayjs().endOf("isoWeek"),
+const getCurrentMonthRange = (): DateRange => [
+  dayjs().startOf("month"),
+  dayjs().endOf("month"),
 ];
 
 const formatDate = (date: string) => {
@@ -102,7 +99,7 @@ export function MachineScheduleBoard({ active }: Props) {
    */
   // const [keyword, setKeyword] = useState("");
   const [filterPlanDateRange, setFilterPlanDateRange] =
-    useState<DateRange>(getCurrentWeekRange);
+    useState<DateRange>(getCurrentMonthRange);
 
   /*
    * Giá trị thực tế dùng để gọi API.
@@ -151,10 +148,7 @@ export function MachineScheduleBoard({ active }: Props) {
   /*
    * Sinh tất cả ngày trong khoảng lọc.
    *
-   * Ví dụ:
-   * 13/07/2026 - 19/07/2026
-   *
-   * Timeline sẽ luôn có đủ 7 cột, kể cả ngày không có process.
+   * Timeline luôn có đủ ngày trong khoảng lọc, kể cả ngày không có process.
    */
   const dates = useMemo(() => {
     const fromDate = filterPlanDateRange?.[0];
@@ -180,11 +174,9 @@ export function MachineScheduleBoard({ active }: Props) {
   }, [filterPlanDateRange]);
 
   const handleResetFilters = () => {
-    const currentWeekRange = getCurrentWeekRange();
-
     // setKeyword("");
     // setSearchKeyword("");
-    setFilterPlanDateRange(currentWeekRange);
+    setFilterPlanDateRange(getCurrentMonthRange());
 
     setPage(1);
   };
@@ -430,19 +422,18 @@ export function MachineScheduleBoard({ active }: Props) {
           </div>
 
           <div style={{ width: 280 }}>
-            <label className="form-label mb-1">Khoảng ngày kế hoạch</label>
+            <label className="form-label mb-1">Kế hoạch</label>
 
             <RangePicker
               value={filterPlanDateRange}
-              onChange={(value) => setFilterPlanDateRange(value)}
+              onChange={setFilterPlanDateRange}
               style={{ width: "100%" }}
               format="DD/MM/YYYY"
               placeholder={["Từ ngày", "Đến ngày"]}
-              allowClear={false}
             />
           </div>
 
-          <Button onClick={handleResetFilters}>Tuần hiện tại</Button>
+          <Button onClick={handleResetFilters}>Tháng hiện tại</Button>
 
           <Button
             type="primary"
