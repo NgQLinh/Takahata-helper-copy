@@ -46,6 +46,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                          pp.Status == ProcessStatus.PartiallyCompleted ||
                          pp.Status == ProcessStatus.InProgress ||
                          pp.Status == ProcessStatus.Planned))
+                    .Include(pp => pp.Part)
                     .ToListAsync();
 
                 if (partProcesses.Count == 0)
@@ -115,12 +116,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         });
 
                         // Tìm kế hoạch của ngày hôm nay
-                        // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                        // Trùng IndexId, PartId và MachineId => chuyển trạng thái thành Cancelled
                         var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
                             pp.PlantDate == today &&
                             pp.PartId == partProcess.PartId &&
                             pp.MachineId == partProcess.MachineId &&
-                            pp.Note == partProcess.Note).ToListAsync();
+                            pp.Part != null &&
+                            pp.Part.IndexId == part.IndexId).ToListAsync();
 
                         if (todayProcesses != null && todayProcesses.Count != 0)
                         {
@@ -136,12 +138,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                         partProcess.Status = ProcessStatus.Completed;
 
                         // Tìm kế hoạch của từ ngày hôm nay trở đi
-                        // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                        // Trùng IndexId, PartId và MachineId => chuyển trạng thái thành Cancelled
                         var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
                             pp.PlantDate >= today &&
                             pp.PartId == partProcess.PartId &&
                             pp.MachineId == partProcess.MachineId &&
-                            pp.Note == partProcess.Note).ToListAsync();
+                            pp.Part != null &&
+                            pp.Part.IndexId == part.IndexId).ToListAsync();
 
                         if (todayProcesses != null && todayProcesses.Count != 0)
                         {
@@ -164,12 +167,13 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     updateProcesses.Add(partProcess);
 
                     // Tìm kế hoạch của ngày hôm nay
-                    // Trùng IndexId, PartId, MachineId, Ghi chú => chuyển trạng thái thành Cancelled
+                    // Trùng IndexId, PartId và MachineId => chuyển trạng thái thành Cancelled
                     var todayProcesses = await _dbContext.PartProcesses.Where(pp =>
                         pp.PlantDate == today &&
                         pp.PartId == partProcess.PartId &&
                         pp.MachineId == partProcess.MachineId &&
-                        pp.Note == partProcess.Note).ToListAsync();
+                        pp.Part != null &&
+                        pp.Part.IndexId == partProcess.Part!.IndexId).ToListAsync();
 
                     if (todayProcesses != null && todayProcesses.Count != 0)
                     {
@@ -453,7 +457,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
             return relatedProcesses;
         }
 
-        public async Task RemoveEquivalent(PartProcess partProcess)
+        public async Task RemoveEquivalent(PartProcess partProcess, int indexId)
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
 
@@ -461,7 +465,8 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     pp.PlantDate >= today &&
                     pp.PartId == partProcess.PartId &&
                     pp.MachineId == partProcess.MachineId &&
-                    pp.Note == partProcess.Note)
+                    pp.Part != null &&
+                    pp.Part.IndexId == indexId)
                 .ToListAsync();
 
             _dbContext.PartProcesses.RemoveRange(todayProcesses);

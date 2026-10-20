@@ -327,12 +327,6 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
-    const invalidNoteRow = dataSource.findIndex((row) => !row.note);
-    if (invalidNoteRow !== -1) {
-      toast.warning(`Vui lòng nhập ghi chú tại dòng ${invalidNoteRow + 1}.`);
-      return false;
-    }
-
     return true;
   };
 
