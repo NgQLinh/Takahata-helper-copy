@@ -283,9 +283,6 @@ namespace TAKAHATA.Application.Services
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
-            worksheet.Range(firstDataRow, 4, lastReportRow, 7)
-                .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-
             worksheet.Range(firstDataRow, 19, lastReportRow, 19)
                 .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
