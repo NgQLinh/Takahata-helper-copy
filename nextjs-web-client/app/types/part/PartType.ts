@@ -1,61 +1,32 @@
 export enum PartType {
   /**
-   * New mold — New
+   * New mold - Khuôn mới
    */
   NewMold = 1,
 
   /**
-   * New mold repair — New
+   * New mold repair / make new
+   * Sửa chữa khuôn mới hoặc làm mới
    */
   NewMoldRepairMakeNew = 2,
 
   /**
-   * Mold ECN — New
+   * Mold ECN - Thay đổi thiết kế/kỹ thuật khuôn
    */
   MoldEcn = 3,
 
   /**
-   * Mold MP — New
+   * Mold MP - Khuôn phục vụ Mass Production
    */
   MoldMp = 4,
 
   /**
-   * Mold Overshort — New
+   * Mold Overshort
    */
   MoldOvershort = 5,
 
   /**
-   * Jig / Mold / Assembly / Engineering — New
+   * Jig / Mold / Assembly / Engineering
    */
   JigMoldAssyEng = 6,
-
-  /**
-   * New mold repair — Repair
-   */
-  NewMoldRepairMakeNewRepair = 7,
-
-  /**
-   * Mold ECN — Repair
-   */
-  MoldEcnRepair = 8,
-
-  /**
-   * Mold MP — Repair
-   */
-  MoldMpRepair = 9,
-
-  /**
-   * Mold Overshort — Repair
-   */
-  MoldOvershortRepair = 10,
-
-  /**
-   * Jig / Mold / Assembly / Engineering — Repair
-   */
-  JigMoldAssyEngRepair = 11,
-
-  /**
-   * New mold — Repair
-   */
-  NewMoldRepair = 12,
 }

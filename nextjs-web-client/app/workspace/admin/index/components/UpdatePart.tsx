@@ -38,7 +38,6 @@ import {
 } from "@/app/services/index/IndexService";
 import { v4 as uuidv4 } from "uuid";
 import { getStatusTag } from "@/app/utilities/UtilityState";
-import PartTypePicker, { PartTypeKindPicker } from "./PartTypePicker";
 
 const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
@@ -902,35 +901,45 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                       },
                     ]}
                   >
-                    <PartTypePicker />
+                    <Select
+                      placeholder="Chọn loại gia công"
+                      allowClear
+                      options={[
+                        {
+                          value: PartType.NewMold,
+                          label: "NEW MOLD",
+                        },
+                        {
+                          value: PartType.NewMoldRepairMakeNew,
+                          label: "NEW MOLD REPAIR / MAKE NEW",
+                        },
+                        {
+                          value: PartType.MoldEcn,
+                          label: "MOLD ECN",
+                        },
+                        {
+                          value: PartType.MoldMp,
+                          label: "MOLD MP",
+                        },
+                        {
+                          value: PartType.MoldOvershort,
+                          label: "MOLD OVERSHORT",
+                        },
+                        {
+                          value: PartType.JigMoldAssyEng,
+                          label: "JIG / MOLD / ASSEMBLY / ENGINEERING",
+                        },
+                      ]}
+                    />
                   </Form.Item>
 
-                  <Flex align="center" justify="space-between" wrap gap={8}>
-                    <Form.Item
-                      name="Prioritize"
-                      valuePropName="checked"
-                      initialValue={false}
-                      style={{ marginBottom: 0 }}
-                    >
-                      <Checkbox>Ưu tiên gia công</Checkbox>
-                    </Form.Item>
-
-                    <Form.Item
-                      noStyle
-                      shouldUpdate={(previousValues, currentValues) =>
-                        previousValues.PartType !== currentValues.PartType
-                      }
-                    >
-                      {({ getFieldValue }) => (
-                        <PartTypeKindPicker
-                          value={getFieldValue("PartType")}
-                          onChange={(partType) =>
-                            form.setFieldValue("PartType", partType)
-                          }
-                        />
-                      )}
-                    </Form.Item>
-                  </Flex>
+                  <Form.Item
+                    name="Prioritize"
+                    valuePropName="checked"
+                    initialValue={false}
+                  >
+                    <Checkbox>Ưu tiên gia công</Checkbox>
+                  </Form.Item>
 
                   <Alert
                     type="info"

@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
 
 import {
   getLatestMachineLogsAsync,
@@ -90,7 +89,7 @@ export const statusConfig: Record<
 };
 
 export function DashboardPage() {
-  const [now, setNow] = useState<Dayjs | null>(null);
+  const [now, setNow] = useState(dayjs());
   const [machineLogs, setMachineLogs] = useState<MachineLog[]>([]);
   const [machines, setMachines] = useState<Machine[] | null>(null);
 
@@ -112,12 +111,8 @@ export function DashboardPage() {
   }, [machineLogs, selectedStatus]);
 
   useEffect(() => {
-    const initialUpdate = window.setTimeout(() => setNow(dayjs()), 0);
     const timer = setInterval(() => setNow(dayjs()), 1000);
-    return () => {
-      window.clearTimeout(initialUpdate);
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -229,9 +224,7 @@ export function DashboardPage() {
       <div className="card grow d-flex flex-column overflow-hidden">
         <div className="card-header d-flex justify-content-between align-items-center shrink-0">
           <strong>Trạng thái realtime</strong>
-          <span>
-            {now?.format("DD/MM/YYYY HH:mm:ss") ?? "--/--/---- --:--:--"}
-          </span>
+          <span>{now.format("DD/MM/YYYY HH:mm:ss")}</span>
         </div>
 
         <div className="card-body overflow-hidden">

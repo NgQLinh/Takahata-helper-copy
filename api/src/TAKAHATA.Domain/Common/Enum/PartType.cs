@@ -3,63 +3,34 @@
     public enum PartType
     {
         /// <summary>
-        /// New mold - Khuôn mới (ô New Model, không dùng N/R)
+        /// New mold - Khuôn mới
         /// </summary>
         NewMold = 1,
 
         /// <summary>
-        /// New mold repair — New
+        /// New mold repair / make new
+        /// Sửa chữa khuôn mới hoặc làm mới
         /// </summary>
         NewMoldRepairMakeNew = 2,
 
         /// <summary>
-        /// Mold ECN — New
+        /// Mold ECN - Thay đổi thiết kế/kỹ thuật khuôn
         /// </summary>
         MoldEcn = 3,
 
         /// <summary>
-        /// Mold MP — New
+        /// Mold MP - Khuôn phục vụ Mass Production
         /// </summary>
         MoldMp = 4,
 
         /// <summary>
-        /// Mold Overshort — New
+        /// Mold Overshort
         /// </summary>
         MoldOvershort = 5,
 
         /// <summary>
-        /// Jig / Mold / Assembly / Engineering — New
+        /// Jig / Mold / Assembly / Engineering
         /// </summary>
-        JigMoldAssyEng = 6,
-
-        /// <summary>
-        /// New mold repair — Repair
-        /// </summary>
-        NewMoldRepairMakeNewRepair = 7,
-
-        /// <summary>
-        /// Mold ECN — Repair
-        /// </summary>
-        MoldEcnRepair = 8,
-
-        /// <summary>
-        /// Mold MP — Repair
-        /// </summary>
-        MoldMpRepair = 9,
-
-        /// <summary>
-        /// Mold Overshort — Repair
-        /// </summary>
-        MoldOvershortRepair = 10,
-
-        /// <summary>
-        /// Jig / Mold / Assembly / Engineering — Repair
-        /// </summary>
-        JigMoldAssyEngRepair = 11,
-
-        /// <summary>
-        /// New mold — Repair
-        /// </summary>
-        NewMoldRepair = 12
+        JigMoldAssyEng = 6
     }
 }

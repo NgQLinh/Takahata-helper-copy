@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Hosting;
 using TAKAHATA.Application.Common.Interface.Services;
 using TAKAHATA.Contracts.Report;
-using TAKAHATA.Domain.Common.Enum;
 using TAKAHATA.Domain.MasterData;
 
 namespace TAKAHATA.Application.Services
@@ -200,12 +199,9 @@ namespace TAKAHATA.Application.Services
 
                         worksheet.Cell(row, 3).Value = item.MachineCode ?? "";
                         worksheet.Cell(row, 4).Value = item.MachineName ?? "";
-                        worksheet.Cell(row, 5).Value =
-                            PartTypeFormatter.ToClassificationName(item.PartType);
+                        worksheet.Cell(row, 5).Value = item.PartType.ToString();
                         worksheet.Cell(row, 6).Value = item.IndexCode ?? "";
                         worksheet.Cell(row, 7).Value = item.PartCode;
-                        worksheet.Cell(row, 17).Value =
-                            PartTypeFormatter.ToNewRepairName(item.PartType);
 
                         // H, I: Thời gian bắt đầu và kết thúc.
                         if (item.StartTime.HasValue)
@@ -268,20 +264,15 @@ namespace TAKAHATA.Application.Services
             dataRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
             dataRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             dataRange.Style.Alignment.WrapText = true;
-            dataRange.Style.Alignment.ShrinkToFit = false;
 
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
             worksheet.Range(firstDataRow, 4, lastReportRow, 7)
                 .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-            worksheet.Range(firstDataRow, 4, lastReportRow, 7)
-                .Style.Alignment.Indent = 1;
 
             worksheet.Range(firstDataRow, 19, lastReportRow, 19)
                 .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-            worksheet.Range(firstDataRow, 19, lastReportRow, 19)
-                .Style.Alignment.Indent = 1;
 
             worksheet.Range(firstDataRow, 1, lastReportRow, 1)
                 .Style.NumberFormat.Format = "dd/MM/yyyy";
@@ -306,8 +297,7 @@ namespace TAKAHATA.Application.Services
                     .SetAutoFilter();
             }
 
-            ApplyPartProcessColumnLayout(worksheet, firstDataRow, lastReportRow);
-
+            // Giữ chiều rộng cột của template.
             worksheet.PageSetup.PageOrientation =
                 XLPageOrientation.Landscape;
 
@@ -383,84 +373,16 @@ namespace TAKAHATA.Application.Services
             usedRange.SetAutoFilter();
 
             worksheet.SheetView.FreezeRows(HeaderRow);
-            worksheet.Columns(1, lastColumn).AdjustToContents(HeaderRow, effectiveLastRow);
+            worksheet.Columns(1, lastColumn).AdjustToContents();
 
             for (var columnIndex = 1; columnIndex <= lastColumn; columnIndex++)
             {
                 var column = worksheet.Column(columnIndex);
-                column.Style.Alignment.WrapText = true;
-
-                if (column.Width < 12)
+                if (column.Width > 35)
                 {
-                    column.Width = 12;
-                }
-                else if (column.Width > 40)
-                {
-                    column.Width = 40;
+                    column.Width = 35;
                 }
             }
-
-            worksheet.Rows(HeaderRow, effectiveLastRow).AdjustToContents();
-        }
-
-        private static void ApplyPartProcessColumnLayout(
-            IXLWorksheet worksheet,
-            int firstDataRow,
-            int lastReportRow)
-        {
-            var columnWidths = new Dictionary<int, double>
-            {
-                [1] = 14,
-                [2] = 12,
-                [3] = 14,
-                [4] = 22,
-                [5] = 36,
-                [6] = 16,
-                [7] = 28,
-                [8] = 12,
-                [9] = 12,
-                [10] = 14,
-                [11] = 12,
-                [12] = 12,
-                [13] = 14,
-                [14] = 12,
-                [15] = 12,
-                [16] = 12,
-                [17] = 12,
-                [18] = 14,
-                [19] = 22
-            };
-
-            foreach (var (columnIndex, width) in columnWidths)
-            {
-                worksheet.Column(columnIndex).Width = width;
-            }
-
-            for (var rowIndex = firstDataRow; rowIndex <= lastReportRow; rowIndex++)
-            {
-                var row = worksheet.Row(rowIndex);
-                row.AdjustToContents();
-                var wrappedLineCount = row.CellsUsed()
-                    .Where(cell => cell.Style.Alignment.WrapText)
-                    .Select(cell => EstimateWrappedLines(
-                        cell.GetString(),
-                        worksheet.Column(cell.Address.ColumnNumber).Width))
-                    .DefaultIfEmpty(1)
-                    .Max();
-
-                row.Height = Math.Max(row.Height, Math.Max(32, wrappedLineCount * 15));
-            }
-        }
-
-        private static int EstimateWrappedLines(string value, double columnWidth)
-        {
-            var charactersPerLine = Math.Max(1, Math.Floor(columnWidth) - 2);
-
-            return value
-                .Replace("\r\n", "\n", StringComparison.Ordinal)
-                .Replace('\r', '\n')
-                .Split('\n')
-                .Sum(line => Math.Max(1, (int)Math.Ceiling(line.Length / charactersPerLine)));
         }
 
         private static byte[] Save(XLWorkbook workbook)
