@@ -13,6 +13,20 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
         {
         }
 
+        public override async Task<Index?> DeleteByIdAsync(
+            int id,
+            CancellationToken cancellationToken = default)
+        {
+            var hasClosedParts = await _dbContext.Parts
+                .IgnoreQueryFilters()
+                .AnyAsync(part => part.IndexId == id && part.IsClosed, cancellationToken);
+
+            if (hasClosedParts)
+                return null;
+
+            return await base.DeleteByIdAsync(id, cancellationToken);
+        }
+
         public async Task<Index?> GetAsync(string indexCode)
         {
             return _dbContext.Indexes.FirstOrDefault(e => e.Code == indexCode);
@@ -63,7 +77,7 @@ namespace TAKAHATA.Infrastructure.Persistence.Repositories
                     CreateBy = e.CreateBy,
                     UpdateAt = e.UpdateAt,
                     UpdateBy = e.UpdateBy,
-                    CountPart = e.Parts != null ? e.Parts.Count : 0
+                    CountPart = e.Parts.Count
                 })
                 .ToListAsync();
 

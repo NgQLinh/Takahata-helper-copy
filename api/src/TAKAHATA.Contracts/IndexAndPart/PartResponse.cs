@@ -13,6 +13,8 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public ProcessStatus Status { get; set; }
         public bool Prioritize { get; set; } = false;
         public PartType PartType { get; set; }
+        public PartNewRepair? NewRepair { get; set; }
+        public bool IsClosed { get; set; }
         public ICollection<PartProcessResponse> Processes { get; set; } = [];
     }
 }

@@ -523,6 +523,7 @@ export function KpiReportsPage() {
       fixed: "left",
       dataIndex: "machineCode",
       key: "machineCode",
+      align: "center",
     },
     {
       title: "Tên máy",
@@ -530,6 +531,7 @@ export function KpiReportsPage() {
       fixed: "left",
       dataIndex: "machineName",
       key: "machineName",
+      align: "center",
       render: (_, record) => record.machineName ?? record.machineCode ?? "-",
     },
     {
@@ -538,6 +540,7 @@ export function KpiReportsPage() {
       fixed: "left",
       dataIndex: "indexCode",
       key: "indexCode",
+      align: "center",
     },
     {
       title: "Part",
@@ -545,6 +548,7 @@ export function KpiReportsPage() {
       dataIndex: "partCode",
       key: "partCode",
       fixed: "left",
+      align: "center",
     },
     {
       title: "Thời gian",
@@ -650,7 +654,7 @@ export function KpiReportsPage() {
       dataIndex: "partType",
       key: "partType",
       width: 250,
-      align: "right",
+      align: "center",
       render: (value?: PartType | null) =>
         PartTypeLabels[value as PartType] || "-",
     },

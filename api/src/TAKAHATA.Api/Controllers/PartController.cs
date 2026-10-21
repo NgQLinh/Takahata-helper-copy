@@ -42,6 +42,17 @@ namespace TAKAHATA.Api.Controllers
                 e => Problem(e));
         }
 
+        [HttpPost("close")]
+        [Authorize(Roles = Role.Admin)]
+        public async Task<IActionResult> ClosePart(ClosePartCommand request)
+        {
+            var result = await _sender.Send(request);
+
+            return result.Match(
+                r => Ok(r),
+                e => Problem(e));
+        }
+
         [HttpPost("delete")]
         [Authorize(Roles = Role.Admin)]
         public async Task<IActionResult> DeletePart(DeletePartCommand request)

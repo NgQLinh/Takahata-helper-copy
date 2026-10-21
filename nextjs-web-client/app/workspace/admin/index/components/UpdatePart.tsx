@@ -15,6 +15,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Popconfirm,
   Row,
   Select,
   Skeleton,
@@ -23,15 +24,21 @@ import {
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { DeleteOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  LockOutlined,
+  PlusOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import { toast } from "react-toastify";
 
-import { Machine, PartProcess, PartType } from "@/app/types";
+import { Machine, PartNewRepair, PartProcess, PartType } from "@/app/types";
 import { ApiError } from "@/app/types/common/ApiError";
 import { ProcessStatus } from "@/app/types/common/ProcessStatus";
 import { getMachinesAsync } from "@/app/services/machine/MachineService";
 import {
+  closePartAsync,
   deletePartAsync,
   getPartAsync,
   updatePartAsync,
@@ -77,6 +84,7 @@ type FormValues = {
   Quantity: number;
   Prioritize: boolean;
   PartType: PartType;
+  NewRepair?: PartNewRepair | null;
 };
 
 type CurrentPartInfo = {
@@ -85,6 +93,7 @@ type CurrentPartInfo = {
   quantity: number;
   prioritize: boolean;
   partType: PartType;
+  newRepair: PartNewRepair | null;
 };
 
 const createEmptyRow = (): PlanRow => ({
@@ -123,6 +132,8 @@ export default function UpdatePart({ id, open, onClose }: Props) {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingMachine, setLoadingMachine] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [dataSource, setDataSource] = useState<PlanRow[]>([createEmptyRow()]);
   const [currentPartInfo, setCurrentPartInfo] =
@@ -132,7 +143,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
 
   const isDesktop = Boolean(screens.xl);
   const tableScrollY = isDesktop ? "calc(100dvh - 390px)" : 360;
-  const isBusy = loadingDetail || submitting;
+  const isBusy = loadingDetail || submitting || closing || isClosed;
 
   const machineOptions = useMemo(
     () =>
@@ -167,12 +178,14 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         const currentIndexCode = data.index?.code ?? "";
         const currentPartCode = data.code ?? "";
 
+        setIsClosed(data.isClosed);
         setCurrentPartInfo({
           indexCode: currentIndexCode,
           partCode: currentPartCode,
           quantity: data.quantity,
           prioritize: data.prioritize,
           partType: data.partType,
+          newRepair: data.newRepair,
         });
 
         form.setFieldsValue({
@@ -181,6 +194,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
           Quantity: data.quantity,
           Prioritize: data.prioritize,
           PartType: data.partType,
+          NewRepair: data.newRepair,
         });
 
         const rows: PlanRow[] =
@@ -226,6 +240,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
   useEffect(() => {
     const run = async () => {
       form.resetFields();
+      setIsClosed(false);
       setCurrentPartInfo(null);
       setDataSource([createEmptyRow()]);
 
@@ -244,19 +259,20 @@ export default function UpdatePart({ id, open, onClose }: Props) {
 
   const resetForm = () => {
     form.resetFields();
+    setIsClosed(false);
     setCurrentPartInfo(null);
     setDataSource([createEmptyRow()]);
   };
 
   const handleCancel = () => {
-    if (submitting) return;
+    if (submitting || closing) return;
 
     resetForm();
     onClose();
   };
 
   const handleDelete = async () => {
-    if (submitting) return;
+    if (isBusy || isClosed) return;
 
     try {
       await deletePartAsync(id || 0);
@@ -271,6 +287,29 @@ export default function UpdatePart({ id, open, onClose }: Props) {
     } finally {
       resetForm();
       onClose();
+    }
+  };
+
+  const handleClosePart = async () => {
+    if (!id || isBusy || isClosed) return;
+
+    setClosing(true);
+
+    try {
+      await closePartAsync(id);
+      toast.success("Đã đóng Part. Dữ liệu vẫn được giữ trong danh sách và báo cáo.");
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi đóng Part:", error);
+
+      if (error instanceof ApiError) {
+        toast.error(error.getDisplayMessage());
+      } else {
+        toast.error("Có lỗi xảy ra khi đóng Part.");
+      }
+    } finally {
+      setClosing(false);
     }
   };
 
@@ -327,16 +366,12 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       return false;
     }
 
-    const invalidNoteRow = dataSource.findIndex((row) => !row.note);
-    if (invalidNoteRow !== -1) {
-      toast.warning(`Vui lòng nhập ghi chú tại dòng ${invalidNoteRow + 1}.`);
-      return false;
-    }
-
     return true;
   };
 
   const handleSubmit = async (values: FormValues) => {
+    if (isClosed) return;
+
     if (!id) {
       toast.error("Không tìm thấy ID Part cần cập nhật.");
       return;
@@ -354,6 +389,7 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       quantity: values.Quantity,
       prioritize: values.Prioritize,
       partType: values.PartType,
+      newRepair: values.NewRepair ?? null,
       partProcesses: dataSource.map((item, index) => ({
         id: item.id,
         sequence: index + 1,
@@ -718,42 +754,71 @@ export default function UpdatePart({ id, open, onClose }: Props) {
       title={
         <Flex vertical gap={2}>
           <Title level={4} style={{ margin: 0 }}>
-            Cập nhật Part và quy trình
+            {isClosed ? "Part đã đóng" : "Cập nhật Part và quy trình"}
           </Title>
           <Text type="secondary">
-            Chỉnh sửa thông tin Part và tiến độ thực hiện trên từng máy
+            {isClosed
+              ? "Part đã đóng, chỉ xem được thông tin và lịch sử gia công"
+              : "Chỉnh sửa thông tin Part và tiến độ thực hiện trên từng máy"}
           </Text>
         </Flex>
       }
       onCancel={handleCancel}
-      closable={!submitting}
-      keyboard={!submitting}
+      closable={!loadingDetail && !submitting && !closing}
+      keyboard={!loadingDetail && !submitting && !closing}
       destroyOnHidden
       footer={
         <Flex justify="space-between" align="center" wrap gap={12}>
-          <Text type="secondary">
-            <Text strong>{dataSource.length}</Text> công đoạn trong quy trình
-          </Text>
+          {isClosed ? (
+            <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+              <Text type="secondary">
+                <Text strong>{dataSource.length}</Text> công đoạn trong quy trình
+              </Text>
+              <Button onClick={handleCancel}>Đóng</Button>
+            </Flex>
+          ) : (
+            <>
+              <Text type="secondary">
+                <Text strong>{dataSource.length}</Text> công đoạn trong quy trình
+              </Text>
 
-          <Flex gap={8} wrap>
-            <Button danger onClick={handleDelete}>
-              Xóa
-            </Button>
+              <Flex gap={8} wrap>
+                <Button danger disabled={isBusy} onClick={handleDelete}>
+                  Xóa
+                </Button>
 
-            <Button disabled={submitting} onClick={handleCancel}>
-              Hủy
-            </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              form={FORM_ID}
-              icon={<SaveOutlined />}
-              loading={submitting}
-              disabled={loadingDetail || !id}
-            >
-              Cập nhật Part
-            </Button>
-          </Flex>
+                <Popconfirm
+                  title="Đóng Part này?"
+                  description="Part sẽ vẫn hiển thị trong danh sách và báo cáo nhưng không thể chỉnh sửa hoặc gia công."
+                  okText="Đóng Part"
+                  cancelText="Hủy"
+                  okButtonProps={{ danger: true, loading: closing }}
+                  onConfirm={() => void handleClosePart()}
+                >
+                  <Button
+                    icon={<LockOutlined />}
+                    disabled={isBusy || !id}
+                  >
+                    Đóng Part
+                  </Button>
+                </Popconfirm>
+
+                <Button disabled={loadingDetail || submitting || closing} onClick={handleCancel}>
+                  Hủy
+                </Button>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  form={FORM_ID}
+                  icon={<SaveOutlined />}
+                  loading={submitting}
+                  disabled={loadingDetail || closing || !id}
+                >
+                  Cập nhật Part
+                </Button>
+              </Flex>
+            </>
+          )}
         </Flex>
       }
       styles={{
@@ -792,9 +857,17 @@ export default function UpdatePart({ id, open, onClose }: Props) {
         form={form}
         layout="vertical"
         requiredMark="optional"
-        disabled={loadingDetail}
+        disabled={isBusy}
         onFinish={handleSubmit}
       >
+        {isClosed && (
+          <Alert
+            type="warning"
+            showIcon
+            message="Part đã đóng"
+            style={{ marginBottom: 16 }}
+          />
+        )}
         <Row gutter={[16, 16]} align="stretch">
           <Col xs={24} xl={7}>
             <Card
@@ -891,46 +964,53 @@ export default function UpdatePart({ id, open, onClose }: Props) {
                     />
                   </Form.Item>
 
-                  <Form.Item
-                    label="Loại gia công"
-                    name="PartType"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn loại gia công",
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Chọn loại gia công"
-                      allowClear
-                      options={[
-                        {
-                          value: PartType.NewMold,
-                          label: "NEW MOLD",
-                        },
-                        {
-                          value: PartType.NewMoldRepairMakeNew,
-                          label: "NEW MOLD REPAIR / MAKE NEW",
-                        },
-                        {
-                          value: PartType.MoldEcn,
-                          label: "MOLD ECN",
-                        },
-                        {
-                          value: PartType.MoldMp,
-                          label: "MOLD MP",
-                        },
-                        {
-                          value: PartType.MoldOvershort,
-                          label: "MOLD OVERSHORT",
-                        },
-                        {
-                          value: PartType.JigMoldAssyEng,
-                          label: "JIG / MOLD / ASSEMBLY / ENGINEERING",
-                        },
-                      ]}
-                    />
+                  <Form.Item label="Loại gia công" required>
+                    <Flex align="center" gap={12} wrap="wrap">
+                      <Form.Item
+                        name="PartType"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng chọn loại gia công",
+                          },
+                        ]}
+                        noStyle
+                      >
+                        <Select
+                          placeholder="Chọn loại gia công"
+                          allowClear
+                          style={{ flex: 1, minWidth: 220 }}
+                          options={[
+                            { value: PartType.NewMold, label: "NEW MOLD" },
+                            {
+                              value: PartType.NewMoldRepairMakeNew,
+                              label: "NEW MOLD REPAIR",
+                            },
+                            { value: PartType.MoldEcn, label: "MOLD ECN" },
+                            { value: PartType.MoldMp, label: "MOLD MP" },
+                            {
+                              value: PartType.MoldOvershort,
+                              label: "MOLD OVERSHORT",
+                            },
+                            {
+                              value: PartType.JigMoldAssyEng,
+                              label: "JIG / MOLD / ASSEMBLY / ENGINEERING",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item name="NewRepair" noStyle>
+                        <Select
+                          placeholder="Chọn New / Repair"
+                          allowClear
+                          style={{ flex: 1, minWidth: 150 }}
+                          options={[
+                            { value: PartNewRepair.New, label: "New" },
+                            { value: PartNewRepair.Repair, label: "Repair" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Flex>
                   </Form.Item>
 
                   <Form.Item

@@ -13,5 +13,7 @@ namespace TAKAHATA.Domain.MasterData
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
         public bool Prioritize { get; set; } = false;
         public PartType PartType { get; set; } = PartType.NewMold;
+        public PartNewRepair? NewRepair { get; set; }
+        public bool IsClosed { get; set; }
     }
 }

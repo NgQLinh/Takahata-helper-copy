@@ -12,7 +12,7 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
         Task<int> GetProcessedQuantityByReferenceId(int? referenceId);
         Task<List<PartProcess>> GetRelatedProcessesAsync(HashSet<int> processIds);
         Task HandleExtend();
-        Task RemoveEquivalent(PartProcess partProcess);
+        Task RemoveEquivalent(PartProcess partProcess, int indexId);
         Task<SearchResponse<List<ManufacturingProcessResponse>>> SearchByMachineIdAsync(
             int machineId,
             int? page,

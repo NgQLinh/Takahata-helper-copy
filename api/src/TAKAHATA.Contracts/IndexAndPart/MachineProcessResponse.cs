@@ -18,6 +18,7 @@ namespace TAKAHATA.Contracts.IndexAndPart
         public string? Note { get; set; }
         public MachineProcessType Type { get; set; }
         public bool Prioritize { get; set; } = false;
+        public bool IsClosed { get; set; }
         public double? EstimatedTime { get; set; }
         public PartType? PartType { get; set; }
         public int ProcessedQuantity { get; set; }

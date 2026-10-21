@@ -12,5 +12,6 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
         int Quantity,
         bool Prioritize,
         PartType PartType,
+        PartNewRepair? NewRepair,
         List<PartProcessRequest> PartProcesses) : IRequest<ErrorOr<PartResponse>>;
 }

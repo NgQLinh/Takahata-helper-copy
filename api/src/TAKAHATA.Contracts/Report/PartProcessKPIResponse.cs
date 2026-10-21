@@ -25,6 +25,7 @@ namespace TAKAHATA.Contracts.Report
         public DateTime? EndTime { get; set; }
         public double? EstimatedTime { get; set; }
         public PartType PartType { get; set; }
+        public PartNewRepair? NewRepair { get; set; }
         public ProcessStatus Status { get; set; } = ProcessStatus.Planned;
     }
 }

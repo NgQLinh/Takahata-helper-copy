@@ -33,6 +33,12 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             UpdatePartCommand request,
             CancellationToken cancellationToken)
         {
+            var part = await _partRepository.GetByIdAsync(request.Id);
+            if (part == null)
+                return Errors.Part.NotFound;
+            if (part.IsClosed)
+                return Errors.Part.IsClosed;
+
             // 1. Create Index if not exists
             var index = await _indexRepository.GetAsync(request.IndexCode);
             if (index == null)
@@ -50,11 +56,6 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
                     return Errors.Index.CreateFalse;
             }
 
-            // 2. Get Part include Processes
-            var part = await _partRepository.GetByIdAsync(request.Id);
-            if (part == null)
-                return Errors.Part.NotFound;
-
             //if (await _partRepository.IsExistedAsync(request.PartCode) && part.Code != request.PartCode)
             //    return Errors.Part.DuplicatePartCode;
 
@@ -66,6 +67,7 @@ namespace TAKAHATA.Application.IndexAndPart.Commands
             part.Quantity = request.Quantity != 0 ? request.Quantity : 1;
             part.Prioritize = request.Prioritize;
             part.PartType = request.PartType;
+            part.NewRepair = request.NewRepair;
 
             var requestProcesses = request.PartProcesses ?? new List<PartProcessRequest>();
 

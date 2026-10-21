@@ -207,7 +207,7 @@ namespace TAKAHATA.Application.Manufacturing.Commands
                     if (processedQuantity + request.ProcessedQuantity == part.Quantity)
                     {
                         partProcess.Status = ProcessStatus.Completed;
-                        await _partProcessRepository.RemoveEquivalent(partProcess);
+                        await _partProcessRepository.RemoveEquivalent(partProcess, part.IndexId);
                     }
                     else
                         partProcess.Status = ProcessStatus.PartiallyCompleted;

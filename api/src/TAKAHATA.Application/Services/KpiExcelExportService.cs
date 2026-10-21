@@ -74,6 +74,20 @@ namespace TAKAHATA.Application.Services
             return Save(workbook);
         }
 
+        private static string GetPartTypeLabel(
+            TAKAHATA.Domain.Common.Enum.PartType partType) =>
+            partType switch
+            {
+                TAKAHATA.Domain.Common.Enum.PartType.NewMold => "New Mold",
+                TAKAHATA.Domain.Common.Enum.PartType.NewMoldRepairMakeNew => "New Mold Repair",
+                TAKAHATA.Domain.Common.Enum.PartType.MoldEcn => "Mold ECN",
+                TAKAHATA.Domain.Common.Enum.PartType.MoldMp => "Mold MP",
+                TAKAHATA.Domain.Common.Enum.PartType.MoldOvershort => "Mold Overshort",
+                TAKAHATA.Domain.Common.Enum.PartType.JigMoldAssyEng =>
+                    "Jig / Mold / Assembly / Engineering",
+                _ => partType.ToString()
+            };
+
         public async Task<byte[]> ExportPartProcesses(
             IWebHostEnvironment environment,
             IReadOnlyCollection<PartProcessKPIResponse> items,
@@ -199,9 +213,10 @@ namespace TAKAHATA.Application.Services
 
                         worksheet.Cell(row, 3).Value = item.MachineCode ?? "";
                         worksheet.Cell(row, 4).Value = item.MachineName ?? "";
-                        worksheet.Cell(row, 5).Value = item.PartType.ToString();
+                        worksheet.Cell(row, 5).Value = GetPartTypeLabel(item.PartType);
                         worksheet.Cell(row, 6).Value = item.IndexCode ?? "";
                         worksheet.Cell(row, 7).Value = item.PartCode;
+                        worksheet.Cell(row, 17).Value = item.NewRepair?.ToString() ?? "";
 
                         // H, I: Thời gian bắt đầu và kết thúc.
                         if (item.StartTime.HasValue)
@@ -267,9 +282,6 @@ namespace TAKAHATA.Application.Services
 
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-
-            worksheet.Range(firstDataRow, 4, lastReportRow, 7)
-                .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
             worksheet.Range(firstDataRow, 19, lastReportRow, 19)
                 .Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;

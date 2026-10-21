@@ -6,6 +6,10 @@ namespace TAKAHATA.Application.Common.Interface.Repositories
 {
     public interface IPartRepository : IBaseRepository<Part>
     {
+        Task<Part?> CloseByIdAsync(
+            int id,
+            string? userId,
+            CancellationToken cancellationToken = default);
         Task<bool> IsExistedAsync(string partCode);
         Task<SearchResponse<List<PartResponse>>> SearchAsync(
             string? indexCode,
